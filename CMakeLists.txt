@@ -16,8 +16,7 @@ set(SOURCE_FILES
     GameField.h
     PolygonSprite.cpp
     PolygonSprite.h
-    Resource.h
-    Snake.cpp
+        Snake.cpp
     Snake.h
     SnakeContainer.cpp
     SnakeContainer.h
