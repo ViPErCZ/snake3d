@@ -1,2 +1,2 @@
 # Snake3d
-SDL Opengl 3D Snake
+C++ SDL Opengl 3D Snake
