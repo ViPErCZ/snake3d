@@ -19,7 +19,7 @@ public:
 	TextSprite();
 	explicit TextSprite(string str);
 	~TextSprite() override;
-	void Render() override;
+	void Render(int width, int height);
 	void setText(string str);
 	void setColor(GLfloat r, GLfloat g, GLfloat b);
 

@@ -17,7 +17,7 @@ mouseDownIsAction(false)
 	up_down = -147;
 	zoom = -450;
 	this->renderer = renderer;
-    gameField = new GameField();
+    gameField = new GameField(width, height);
     gameField->renderer = renderer;
 
     setup_opengl(true);

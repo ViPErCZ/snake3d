@@ -16,7 +16,7 @@ TextSprite::TextSprite(string str)
 TextSprite::~TextSprite(void)
 = default;
 
-void TextSprite::Render() {
+void TextSprite::Render(int width, int height) {
     Sprite::Render();
 
     // switch to projection mode
@@ -29,7 +29,7 @@ void TextSprite::Render() {
     glLoadIdentity();
 
     // set a 2D orthographic projection
-    glOrtho(0.0F, 1024, 768, 0.0F, 0.0F, 1.0F);
+    glOrtho(0.0F, width, height, 0.0F, 0.0F, 1.0F);
 
     // switch back to modelview mode
     glMatrixMode(GL_MODELVIEW);

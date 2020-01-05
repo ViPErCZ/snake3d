@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "GameField.h"
 
-GameField::GameField():
+GameField::GameField(int width, int height):
 changeDirection(false),
 cacheDirection(STOP)
 {
+    this->width = width;
+    this->height = height;
 	gameFieldSprite = new PolygonSprite();
 	gameFieldSprite2 = new PolygonSprite();
 	Vector3f pos = {50, 160, 0.0};
@@ -39,6 +41,11 @@ cacheDirection(STOP)
 	food->setZoom(zoom);
 	food->setPos();
 
+	radar = new Radar();
+    radar->setEatPos(food->getPos());
+    Vector3f snakePos = {snake->getHeadPos().x, snake->getHeadPos().y, 0};
+    radar->setSnakePos(snakePos);
+
 	this->generateWalls();
 }
 
@@ -48,6 +55,7 @@ GameField::~GameField()
 	delete gameFieldSprite2;
 	delete Head;
 	delete info;
+	delete radar;
 	snake->Release();
 	delete snake;
 	food->Release();
@@ -88,6 +96,7 @@ void GameField::Render() {
 	Head->setZoom(zoom);
 
 	food->Render();
+	radar->render(this->width, this->height);
 }
 
 void GameField::Render2D() {
@@ -105,7 +114,7 @@ void GameField::Render2D() {
     sprintf(buffer, "%d", (int)snake->getSize());
     str.append(buffer);
 	info->setText(str);
-	info->Render();
+	info->Render(this->width, this->height);
 }
 
 void GameField::Proceed(SDL_Event* event) {
@@ -233,37 +242,55 @@ void GameField::Proceed(SDL_Event* event) {
                 }
                 break;
         }
+
+        switch (event->type) {
+            case SDL_KEYDOWN:
+                switch (event->key.keysym.sym) {
+                    case SDLK_m:
+                        radar->setVisibility(!radar->isVisibility());
+                        break;
+                }
+        }
     }
 
 	// validate change direction vs head actual direction
 	validateDirection();
+	// food lifetime process
+    foodProcess();
 
-	if (snake->getHeadPos().x > food->getPos().x - 32 && snake->getHeadPos().x < food->getPos().x + 32 &&
-	    snake->getHeadPos().y > food->getPos().y - 32 && snake->getHeadPos().y < food->getPos().y + 32) { // kolize s jidlem
-		Vector2f foodPos = {food->getPos().x, food->getPos().y};
-		int testCounter = 0;
-		do { // umisteni noveho jidla
-			if (testCounter > 3) {
-				foodPos = snake->getFreeArray();
-				if (foodPos.x == -1 && foodPos.y == -1) {
-					eDirection = STOP;
-					return;
-				}
-				else
-					food->setPos(foodPos);
-				break;
-			}
-			else {
-				food->setPos();
-				foodPos.x = food->getPos().x;
-				foodPos.y = food->getPos().y;
-			}
-			testCounter++;
-		} while(snake->isSnakeInThisPos(foodPos));
+    // update snake into radar
+    Vector3f snakePos = {snake->getHeadPos().x, snake->getHeadPos().y, 0};
+    radar->setSnakePos(snakePos);
+}
 
-		snake->AddTile(eDirection);
-		snake->AddTile(eDirection);
-	}
+void GameField::foodProcess() {
+    if (this->snake->getHeadPos().x > this->food->getPos().x - 32 && this->snake->getHeadPos().x < this->food->getPos().x + 32 &&
+        this->snake->getHeadPos().y > this->food->getPos().y - 32 && this->snake->getHeadPos().y < this->food->getPos().y + 32) { // check food collision
+        Vector2f foodPos = {this->food->getPos().x, this->food->getPos().y};
+        int testCounter = 0;
+        do { // place new food
+            if (testCounter > 3) {
+                foodPos = this->snake->getFreeArray();
+                if (foodPos.x == -1 && foodPos.y == -1) {
+                    this->eDirection = STOP;
+                    return;
+                }
+                else
+                    this->food->setPos(foodPos);
+                break;
+            }
+            else {
+                this->food->setPos();
+                foodPos.x = this->food->getPos().x;
+                foodPos.y = this->food->getPos().y;
+            }
+            testCounter++;
+        } while(this->snake->isSnakeInThisPos(foodPos));
+
+        this->snake->AddTile(this->eDirection);
+        this->snake->AddTile(this->eDirection);
+        radar->setEatPos(food->getPos());
+    }
 }
 
 void GameField::setLeftRight(float *pos) {
