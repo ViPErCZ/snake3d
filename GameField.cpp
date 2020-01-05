@@ -186,39 +186,48 @@ void GameField::Proceed(SDL_Event* event) {
                         }
                         break;
                     case SDLK_j: // left
-                        if (eDirection != RIGHT && !changeDirection && isChangeDirectionAllowed && eDirection != STOP) {
-                            eDirection = LEFT;
-                            changeDirection = true;
-                        } else if (eDirection != RIGHT && eDirection != STOP) {
-                            cacheDirection = LEFT;
-                            changeDirection = true;
+                        if (eDirection != PAUSE) {
+                            if (eDirection != RIGHT && !changeDirection && isChangeDirectionAllowed &&
+                                eDirection != STOP) {
+                                eDirection = LEFT;
+                                changeDirection = true;
+                            } else if (eDirection != RIGHT && eDirection != STOP) {
+                                cacheDirection = LEFT;
+                                changeDirection = true;
+                            }
                         }
                         break;
                     case SDLK_l: // right
-                        if (eDirection != LEFT && !changeDirection && isChangeDirectionAllowed) {
-                            eDirection = RIGHT;
-                            changeDirection = true;
-                        } else if (eDirection != LEFT) {
-                            cacheDirection = RIGHT;
-                            changeDirection = true;
+                        if (eDirection != PAUSE) {
+                            if (eDirection != LEFT && !changeDirection && isChangeDirectionAllowed) {
+                                eDirection = RIGHT;
+                                changeDirection = true;
+                            } else if (eDirection != LEFT) {
+                                cacheDirection = RIGHT;
+                                changeDirection = true;
+                            }
                         }
                         break;
                     case SDLK_i: // up
-                        if (eDirection != DOWN && !changeDirection && isChangeDirectionAllowed) {
-                            eDirection = UP;
-                            changeDirection = true;
-                        } else if (eDirection != DOWN) {
-                            cacheDirection = UP;
-                            changeDirection = true;
+                        if (eDirection != PAUSE) {
+                            if (eDirection != DOWN && !changeDirection && isChangeDirectionAllowed) {
+                                eDirection = UP;
+                                changeDirection = true;
+                            } else if (eDirection != DOWN) {
+                                cacheDirection = UP;
+                                changeDirection = true;
+                            }
                         }
                         break;
                     case SDLK_k: // down
-                        if (eDirection != UP && !changeDirection && isChangeDirectionAllowed) {
-                            eDirection = DOWN;
-                            changeDirection = true;
-                        } else if (eDirection != UP) {
-                            cacheDirection = DOWN;
-                            changeDirection = true;
+                        if (eDirection != PAUSE) {
+                            if (eDirection != UP && !changeDirection && isChangeDirectionAllowed) {
+                                eDirection = DOWN;
+                                changeDirection = true;
+                            } else if (eDirection != UP) {
+                                cacheDirection = DOWN;
+                                changeDirection = true;
+                            }
                         }
                         break;
                 }
@@ -327,9 +336,9 @@ void GameField::validateDirection() {
         } else if (eDirection == RIGHT && headDirection == LEFT) {
             eDirection = LEFT;
         } else if (eDirection == UP && headDirection == DOWN) {
-            eDirection = UP;
-        } else if (eDirection == DOWN && headDirection == UP) {
             eDirection = DOWN;
+        } else if (eDirection == DOWN && headDirection == UP) {
+            eDirection = UP;
         }
     } else {
         if (cacheDirection == LEFT && headDirection == RIGHT) {
@@ -339,10 +348,10 @@ void GameField::validateDirection() {
             eDirection = LEFT;
             cacheDirection = STOP;
         } else if (cacheDirection == UP && headDirection == DOWN) {
-            eDirection = UP;
+            eDirection = DOWN;
             cacheDirection = STOP;
         } else if (cacheDirection == DOWN && headDirection == UP) {
-            eDirection = DOWN;
+            eDirection = UP;
             cacheDirection = STOP;
         }
     }
