@@ -110,7 +110,7 @@ void GameField::Render2D() {
 	//itoa(Head->getPos().y, buffer, 10);
 	sprintf(buffer, "%d", (int)snake->getHeadPos().y);
 	str.append(buffer);
-	str.append(", Pocet dilu: ");
+	str.append(", Tiles: ");
     sprintf(buffer, "%d", (int)snake->getSize());
     str.append(buffer);
 	info->setText(str);
