@@ -20,6 +20,7 @@ protected:
 
 protected:
 	SDL_Event event{};
+	int cameraType;
 	int width;
 	int height;
 	bool mouseDownIsAction;
@@ -34,5 +35,11 @@ protected:
 	float left_right;
 	float up_down;
     float zoom;
+    int testX;
+    int testY;
+    int testZ;
+    int angleX;
+    int angleY;
+    int angleZ;
 	SDL_Renderer * renderer;
 };

@@ -19,6 +19,10 @@ mouseDownIsAction(false)
 	this->renderer = renderer;
     gameField = new GameField(width, height);
     gameField->renderer = renderer;
+    cameraType = 2;
+    testX = testY = angleY = 0;
+    angleZ = 45;
+    angleX = -78;
 
     setup_opengl(true);
 }
@@ -50,20 +54,38 @@ void Engine::setup_opengl(bool freeD)
 
 		gluPerspective(40, (GLfloat)width/height, 0.5f, 1500.0f);
 		//glTranslatef(left_right, up_down, zoom); // correctly center
-        glTranslatef(-54, up_down, zoom); // correctly center
-		info->setText(std::to_string(left_right));
-		glRotatef(-60, 1, 0, 0);
-		glRotatef(angle, 0, 0, 1);
+		if (cameraType == 1) {
+            glTranslatef(-54, up_down, zoom); // correctly center
+            //info->setText(std::to_string(left_right));
+            glRotatef(-60, 1, 0, 0);
+            glRotatef(angle, 0, 0, 1);
 
-		gluLookAt(gameField->getHeadPos().x - 154,
-		        gameField->getHeadPos().y + 0.0025 * std::abs(sin(1*3.14/180)) + up_down,
-		        0.0,
-		        gameField->getHeadPos().x - 154,
-		        gameField->getHeadPos().y + 0.0025 * std::abs(sin(1*3.14/180)) + up_down,
-		        -1.0,
-		        0.0,
-		        1.0,
-		        0.0);
+            gluLookAt(gameField->getHeadPos().x - 154,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + up_down,
+                      0.0,
+                      gameField->getHeadPos().x - 154,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + up_down,
+                      -1.0,
+                      0.0,
+                      1.0,
+                      0.0);
+        } else {
+            glTranslatef(testX, testY, -300); // correctly center
+            //info->setText(std::to_string(left_right));
+            glRotatef(angleX, 1, 0, 0);
+            glRotatef(0, 0, 1, 0);
+            glRotatef(angleZ, 0, 0, 1);
+
+            gluLookAt(gameField->getHeadPos().x + 200,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) - 0,
+                      0.0,
+                      gameField->getHeadPos().x + 200,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) - 0,
+                      -1.0,
+                      1.0,
+                      1.0,
+                      0.0);
+		}
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -138,10 +160,27 @@ void Engine::Run(SDL_Window* window) {
 				break;
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
+				    case SDLK_x:
+				        angleX -= 1;
+				        break;
+				    case SDLK_c:
+				        angleY += 1;
+				        break;
+				    case SDLK_v:
+				        angleZ += 1;
+				        break;
+                    case SDLK_UP:
+                        testY += 1;
+                        break;
+                    case SDLK_DOWN:
+                        testY -= 1;
+                        break;
 					case SDLK_LEFT:
 						angle -= 0.1;
+                        testX -= 1;
 						break;
 					case SDLK_RIGHT:
+                        testX += 1;
 						angle += 0.1;
 						break;
 //					case SDLK_a:
@@ -175,6 +214,12 @@ void Engine::Run(SDL_Window* window) {
 						//up_down *= 1;
 						angle += 180;
 						break;
+				    case SDLK_F4:
+				        cameraType = 1;
+                        break;
+				    case SDLK_F5:
+                        cameraType = 2;
+                        break;
 				}
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
@@ -206,20 +251,20 @@ void Engine::calculateFPS() {
 }
 
 void Engine::Render() {
-	/*setup_opengl();
+	/*setup_opengl();*/
 	char buffer[255];
 	fString str("informace: ");
-	str.append("angleX: ");
-	itoa(angle, buffer, 10);
+	str.append("up_down: ");
+    sprintf(buffer, "%d", up_down);
 	str.append(buffer);
-	str.append(" posX: ");
+	/*str.append(" posX: ");
 	itoa(left_right, buffer, 10);
 	str.append(buffer);
 	str.append(" posY: ");
 	itoa(up_down, buffer, 10);
-	str.append(buffer);
+	str.append(buffer);*/
 	info->setText((char*)str.getString());
-	info->Render();*/
+	info->Render(width, height);
 	gameField->Render2D();
 	gameField->setLeftRight(&left_right);
 	setup_opengl(true);
