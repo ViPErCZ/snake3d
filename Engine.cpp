@@ -60,7 +60,7 @@ void Engine::setup_opengl(bool freeD)
 		        0.0,
 		        gameField->getHeadPos().x - 154,
 		        gameField->getHeadPos().y + 0.0025 * std::abs(sin(1*3.14/180)) + up_down,
-		        -100,
+		        -1.0,
 		        0.0,
 		        1.0,
 		        0.0);
