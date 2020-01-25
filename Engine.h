@@ -3,6 +3,7 @@
 #include "GameField.h"
 #include "CubeSprite.h"
 #include "TTFSprite.h"
+#include "Camera.h"
 
 #define TICK_INTERVAL 0
 
@@ -10,17 +11,16 @@ class Engine
 {
 public:
 	Engine(SDL_Renderer * renderer, int aWidth, int aHeight);
-	~Engine(void);
+	~Engine();
 	void Run(SDL_Window* window);
 protected:
-	Uint32 TimeLeft(void);
+	Uint32 TimeLeft();
 	void setup_opengl(bool freeD = false);
 	void calculateFPS();
 	void Render();
 
 protected:
 	SDL_Event event{};
-	int cameraType;
 	int width;
 	int height;
 	bool mouseDownIsAction;
@@ -29,17 +29,12 @@ protected:
 	double fps;
 	unsigned int frame{};
 	GameField* gameField;
+	Camera* camera;
 	TextSprite* info;
-	TTFSprite* info2{};
 	float angle;
 	float left_right;
 	float up_down;
     float zoom;
-    int testX;
-    int testY;
-    int testZ;
-    int angleX;
-    int angleY;
-    int angleZ;
+    float angleX;
 	SDL_Renderer * renderer;
 };
