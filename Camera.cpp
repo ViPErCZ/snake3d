@@ -1,7 +1,3 @@
-//
-// Created by viper on 24.01.20.
-//
-
 #include "Camera.h"
 
 Camera::Camera() {
@@ -18,11 +14,7 @@ Camera::Camera() {
 }
 
 void Camera::process(float x, float y) {
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-
     glTranslatef(posX, posY, 0); // correctly center
-    //info->setText(std::to_string(left_right));
     glRotatef(angleX/*-78*/, 1, 0, 0);
     glRotatef(0, 0, 1, 0);
     glRotatef(angleZ, 0, 0, 1);
@@ -38,23 +30,6 @@ void Camera::process(float x, float y) {
               1.0,
               1.0,
               1.0);
-
-//    Uint32 now = SDL_GetTicks();
-//    if (now - next_time >= 15 && !gameField->isPauseOrStop()) {
-//        // RIGHT ROTATION
-////                if (angleZ < 135) {
-////                    angleZ += 5;
-////                    eyeY -= 20;
-////                    eyeX += 3.5;
-////                }
-//        // LEFT ROTATION
-//        if (angleZ > -60) {
-//            angleZ -= 5;
-//            eyeY += 3.5;
-//            eyeX += 15;
-//        }
-//        next_time = now;
-//    }
 
     Uint32 now = SDL_GetTicks();
 
@@ -75,6 +50,15 @@ void Camera::process(float x, float y) {
 
         left = right = false;
         cycle = 0;
+
+        if (!queueRotation.empty()) {
+            if ((*queueRotation.begin()) == 1) {
+                left = true;
+            } else if ((*queueRotation.begin()) == 2) {
+                right = true;
+            }
+            queueRotation.erase(queueRotation.begin());
+        }
     }
 
     if (now - next_time >= 15) {
@@ -98,6 +82,9 @@ void Camera::process(float x, float y) {
             }
             cycle++;
         } else if (right) {
+            if (angleZ == 360) {
+                angleZ = 0;
+            }
             angleZ += 5;
             if (stepRight == 1) {
                 eyeY -= 20;
@@ -127,10 +114,16 @@ void Camera::setCameraType(int type) {
 }
 
 void Camera::rotateLeft() {
+    if (left) {
+        queueRotation.push_back(1);
+    }
     left = true;
 }
 
 void Camera::rotateRight() {
+    if (right) {
+        queueRotation.push_back(2);
+    }
     right = true;
 }
 

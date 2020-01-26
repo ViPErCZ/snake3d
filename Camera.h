@@ -1,8 +1,10 @@
+#include <vector>
 #include "stdafx.h"
 
 #ifndef SNAKE_CAMERA_H
 #define SNAKE_CAMERA_H
 
+using namespace std;
 
 class Camera {
 public:
@@ -41,6 +43,7 @@ protected:
     int cameraType;
     int cycle;
     Uint32 next_time{};
+    vector<int> queueRotation;
 };
 
 

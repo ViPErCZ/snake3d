@@ -74,45 +74,7 @@ void Engine::setup_opengl(bool freeD)
                       1.0,
                       0.0);
         } else {
-//            float camX = 1 * -sinf(angleY*(M_PI/180)) * cosf((angleY)*(M_PI/180));
-//            float camY = 1 * -sinf((eyeY)*(M_PI/180));
-//            float camZ = -1 * cosf((angleZ)*(M_PI/180)) * cosf((angleZ)*(M_PI/180));
-//
-//            glTranslatef(posX, posY, 0); // correctly center
-//            //info->setText(std::to_string(left_right));
-//            glRotatef(angleX/*-78*/, 1, 0, 0);
-//            glRotatef(0, 0, 1, 0);
-//            glRotatef(angleZ, 0, 0, 1);
-//            glTranslatef(posX, posY, -300); // correctly center
-//
-//
-//            gluLookAt(gameField->getHeadPos().x + eyeX ,
-//                      gameField->getHeadPos().y - eyeY,
-//                      0.0,
-//                      gameField->getHeadPos().x + eyeX,
-//                      gameField->getHeadPos().y - eyeY,
-//                      -300.0,
-//                      1.0,
-//                      1.0,
-//                      1.0);
-//
-//            Uint32 now = SDL_GetTicks();
-//            if (now - next_time >= 15 && !gameField->isPauseOrStop()) {
-//                // RIGHT ROTATION
-////                if (angleZ < 135) {
-////                    angleZ += 5;
-////                    eyeY -= 20;
-////                    eyeX += 3.5;
-////                }
-//                // LEFT ROTATION
-//                if (angleZ > -60) {
-//                    angleZ -= 5;
-//                    eyeY += 3.5;
-//                    eyeX += 15;
-//                }
-//                next_time = now;
                 camera->process(gameField->getHeadPos().x, gameField->getHeadPos().y);
-            //}
 		}
 
 		glMatrixMode(GL_MODELVIEW);

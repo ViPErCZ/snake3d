@@ -60,6 +60,7 @@ protected:
 	eDIRECTION eDirection, cacheDirection;
 	Uint32 next_time{};
 	bool changeDirection;
+	int rotationType;
 	float* left_right{};
     int width;
     int height;

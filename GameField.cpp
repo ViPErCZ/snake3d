@@ -5,6 +5,7 @@ GameField::GameField(int width, int height):
 changeDirection(false),
 cacheDirection(STOP)
 {
+    rotationType = 1;
     this->width = width;
     this->height = height;
 	gameFieldSprite = new PolygonSprite();
@@ -39,7 +40,7 @@ cacheDirection(STOP)
 	zoom.y = 15.0;
 	zoom.z = 15.0;
 	food->setZoom(zoom);
-	food->setPos();
+	food->setPos(snake->getFreeArray());
 
 	radar = new Radar();
     radar->setEatPos(food->getPos());
@@ -125,6 +126,11 @@ void GameField::Proceed(SDL_Event* event) {
         if (cacheDirection != STOP && !changeDirection && snake->isChangeDirectionAllowed()) {
             eDirection = cacheDirection;
             cacheDirection = STOP;
+            if (rotationType == 1) {
+                camera->rotateLeft();
+            } else if (rotationType == 2) {
+                camera->rotateRight();
+            }
         }
 
         if (snake->isSnakeCrash()) {
@@ -180,7 +186,7 @@ void GameField::Proceed(SDL_Event* event) {
         }
     }
 
-    bool isChangeDirectionAllowed = snake->isChangeDirectionAllowed();
+    //bool isChangeDirectionAllowed = snake->isChangeDirectionAllowed();
 
 	if (eDirection != CRASH) {
         if (this->camera->getCameraType() == 1) {
@@ -196,59 +202,54 @@ void GameField::Proceed(SDL_Event* event) {
                             }
                             break;
                         case SDLK_j: // left
-                            if (this->camera->getCameraType() == 1) {
-                                if (eDirection != PAUSE) {
-                                    if (eDirection != RIGHT && !changeDirection && isChangeDirectionAllowed &&
-                                        eDirection != STOP) {
-                                        eDirection = LEFT;
-                                        changeDirection = true;
-                                    } else if (eDirection != RIGHT && eDirection != STOP) {
-                                        cacheDirection = LEFT;
-                                        changeDirection = true;
+                            if (eDirection != PAUSE) {
+                                 if (eDirection != RIGHT && eDirection != STOP) {
+                                    if (eDirection == UP) {
+                                        rotationType = 1; // left
+                                    } else {
+                                        rotationType = 2; // right
                                     }
+                                    cacheDirection = LEFT;
+                                    changeDirection = true;
                                 }
                             }
                             break;
                         case SDLK_l: // right
-                            if (camera->getCameraType() == 1) {
-                                if (eDirection != PAUSE) {
-                                    if (eDirection != LEFT && !changeDirection && isChangeDirectionAllowed) {
-                                        eDirection = RIGHT;
-                                        changeDirection = true;
-                                    } else if (eDirection != LEFT) {
-                                        cacheDirection = RIGHT;
-                                        changeDirection = true;
+                            if (eDirection != PAUSE) {
+                                 if (eDirection != LEFT) {
+                                    if (eDirection != STOP) {
+                                        if (eDirection == UP) {
+                                            rotationType = 2; // right
+                                        } else {
+                                            rotationType = 1; // left
+                                        }
                                     }
-                                }
-                            } else {
-                                if (eDirection != UP && !changeDirection && isChangeDirectionAllowed) {
-                                    eDirection = DOWN;
-                                    changeDirection = true;
-                                } else if (eDirection != UP) {
-                                    cacheDirection = DOWN;
+                                    cacheDirection = RIGHT;
                                     changeDirection = true;
                                 }
                             }
                             break;
                         case SDLK_i: // up
-                            if (camera->getCameraType() == 1) {
-                                if (eDirection != PAUSE) {
-                                    if (eDirection != DOWN && !changeDirection && isChangeDirectionAllowed) {
-                                        eDirection = UP;
-                                        changeDirection = true;
-                                    } else if (eDirection != DOWN) {
-                                        cacheDirection = UP;
-                                        changeDirection = true;
+                            if (eDirection != PAUSE) {
+                                 if (eDirection != DOWN) {
+                                    if (eDirection == LEFT) {
+                                        rotationType = 2; // right
+                                    } else {
+                                        rotationType = 1; // left
                                     }
+                                    cacheDirection = UP;
+                                    changeDirection = true;
                                 }
                             }
                             break;
                         case SDLK_k: // down
                             if (eDirection != PAUSE) {
-                                if (eDirection != UP && !changeDirection && isChangeDirectionAllowed) {
-                                    eDirection = DOWN;
-                                    changeDirection = true;
-                                } else if (eDirection != UP) {
+                                 if (eDirection != UP) {
+                                    if (eDirection == LEFT) {
+                                        rotationType = 1; // left
+                                    } else {
+                                        rotationType = 2; // right
+                                    }
                                     cacheDirection = DOWN;
                                     changeDirection = true;
                                 }
@@ -271,22 +272,17 @@ void GameField::Proceed(SDL_Event* event) {
                             break;
                         case SDLK_j: // left
                             if (eDirection != PAUSE) {
-//                                if (eDirection != DOWN && !changeDirection && isChangeDirectionAllowed) {
-//                                    eDirection = UP;
-//                                    changeDirection = true;
-//                                } else {
-                                    if (eDirection == LEFT) {
-                                        cacheDirection = DOWN;
-                                    } else if (eDirection == UP) {
-                                        cacheDirection = LEFT;
-                                    } else if (eDirection == DOWN) {
-                                        cacheDirection = RIGHT;
-                                    } else {
-                                        cacheDirection = UP;
-                                    }
-                                    changeDirection = true;
-//                                }
-                                camera->rotateLeft();
+                                if (eDirection == LEFT) {
+                                    cacheDirection = DOWN;
+                                } else if (eDirection == UP) {
+                                    cacheDirection = LEFT;
+                                } else if (eDirection == DOWN) {
+                                    cacheDirection = RIGHT;
+                                } else {
+                                    cacheDirection = UP;
+                                }
+                                changeDirection = true;
+                                rotationType = 1;
                             }
                             break;
                         case SDLK_l: // right
@@ -301,10 +297,18 @@ void GameField::Proceed(SDL_Event* event) {
                                     cacheDirection = DOWN;
                                 }
                                 changeDirection = true;
-                                camera->rotateRight();
+                                rotationType = 2;
+                            }
+                            break;
+                        case SDLK_i: // up
+                            if (eDirection == STOP) {
+                                cacheDirection = RIGHT;
+                                changeDirection = true;
+                                rotationType = 0;
                             }
                             break;
                     }
+                    break;
             }
         }
 
@@ -437,15 +441,19 @@ void GameField::validateDirection() {
         if (cacheDirection == LEFT && headDirection == RIGHT) {
             eDirection = RIGHT;
             cacheDirection = STOP;
+            rotationType = 0;
         } else if (cacheDirection == RIGHT && headDirection == LEFT) {
             eDirection = LEFT;
             cacheDirection = STOP;
+            rotationType = 0;
         } else if (cacheDirection == UP && headDirection == DOWN) {
             eDirection = DOWN;
             cacheDirection = STOP;
+            rotationType = 0;
         } else if (cacheDirection == DOWN && headDirection == UP) {
             eDirection = UP;
             cacheDirection = STOP;
+            rotationType = 0;
         }
     }
 }
