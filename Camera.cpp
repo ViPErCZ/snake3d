@@ -114,29 +114,32 @@ void Camera::setCameraType(int type) {
 }
 
 void Camera::rotateLeft() {
-    if (left) {
+    if (left || right) {
         queueRotation.push_back(1);
+    } else {
+        left = true;
     }
-    left = true;
 }
 
 void Camera::rotateRight() {
-    if (right) {
+    if (right || left) {
         queueRotation.push_back(2);
+    } else {
+        right = true;
     }
-    right = true;
 }
 
 void Camera::reset() {
-    posX = posY = 0;
     posY = 183;
     posX = 117;
     angleZ = 45;
     angleX = -78;
     eyeX = 21;
     eyeY = 70;
+    left = right = false;
     cycle = 0;
-    stepRight = stepLeft = 1;
+    stepLeft = stepRight = 1;
+    queueRotation.clear();
 }
 
 void Camera::setPosX(int posX) {

@@ -126,18 +126,31 @@ void GameField::Proceed(SDL_Event* event) {
         if (cacheDirection != STOP && !changeDirection && snake->isChangeDirectionAllowed()) {
             eDirection = cacheDirection;
             cacheDirection = STOP;
-            if (rotationType == 1) {
-                camera->rotateLeft();
-            } else if (rotationType == 2) {
-                camera->rotateRight();
-            }
         }
-
         if (snake->isSnakeCrash()) {
             eDirection = CRASH;
         }
 
         if (now - next_time >= 16) {
+            if (eDirection != snake->getHeadDirection()) {
+                if (snake->getHeadDirection() == STOP) {
+                    if (rotationType == 1) {
+                        camera->rotateLeft();
+                    } else if (rotationType == 2) {
+                        camera->rotateRight();
+                    }
+                    rotationType = 0;
+                } else {
+                    if ((eDirection == LEFT && snake->getHeadDirection() == UP) ||
+                        (eDirection == UP && snake->getHeadDirection() == RIGHT) ||
+                        (eDirection == DOWN && snake->getHeadDirection() == LEFT) ||
+                        (eDirection == RIGHT && snake->getHeadDirection() == DOWN)) {
+                        camera->rotateLeft();
+                    } else {
+                        camera->rotateRight();
+                    }
+                }
+            }
             switch (eDirection) {
                 case LEFT:
                     pos = Head->getPos();
