@@ -6,6 +6,7 @@
 #include "Eat.h"
 #include "Wall.h"
 #include "Radar.h"
+#include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -33,6 +34,8 @@ public:
 	void Render2D();
 	void Proceed(SDL_Event* event);
 	void setLeftRight(float* pos);
+	void setCamera(Camera* camera);
+	bool isPauseOrStop();
     Vector2f getHeadPos();
     SDL_Renderer *renderer{};
 
@@ -47,6 +50,7 @@ protected:
 	PolygonSprite* gameFieldSprite2;
 	PolygonSprite* gameFieldSprite3{};
 	PolygonSprite* gameFieldSprite4{};
+	Camera* camera;
 	TextSprite* info;
 	CubeSprite* Head;
 	SnakeContainer* snake;
@@ -56,6 +60,7 @@ protected:
 	eDIRECTION eDirection, cacheDirection;
 	Uint32 next_time{};
 	bool changeDirection;
+	int rotationType;
 	float* left_right{};
     int width;
     int height;
