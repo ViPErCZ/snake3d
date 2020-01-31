@@ -17,8 +17,15 @@ mouseDownIsAction(false)
 	up_down = -147;
 	zoom = -450;
 	this->renderer = renderer;
+	camera = new Camera();
+	camera->setCameraType(2);
     gameField = new GameField(width, height);
     gameField->renderer = renderer;
+    gameField->setCamera(camera);
+//    angleZ = 45;
+    angleX = -78;
+//    eyeX = 21;
+//    eyeY = 70;
 
     setup_opengl(true);
 }
@@ -27,6 +34,7 @@ Engine::~Engine()
 {
 	delete gameField;
 	delete info;
+	delete camera;
 }
 
 Uint32 Engine::TimeLeft(void)
@@ -50,20 +58,24 @@ void Engine::setup_opengl(bool freeD)
 
 		gluPerspective(40, (GLfloat)width/height, 0.5f, 1500.0f);
 		//glTranslatef(left_right, up_down, zoom); // correctly center
-        glTranslatef(-54, up_down, zoom); // correctly center
-		info->setText(std::to_string(left_right));
-		glRotatef(-60, 1, 0, 0);
-		glRotatef(angle, 0, 0, 1);
+		if (camera->getCameraType() == 1) {
+            glTranslatef(-54, up_down, zoom); // correctly center
+            //info->setText(std::to_string(left_right));
+            glRotatef(-60, 1, 0, 0);
+            glRotatef(angle, 0, 0, 1);
 
-		gluLookAt(gameField->getHeadPos().x - 154,
-		        gameField->getHeadPos().y + 0.0025 * std::abs(sin(1*3.14/180)) + up_down,
-		        0.0,
-		        gameField->getHeadPos().x - 154,
-		        gameField->getHeadPos().y + 0.0025 * std::abs(sin(1*3.14/180)) + up_down,
-		        -100,
-		        0.0,
-		        1.0,
-		        0.0);
+            gluLookAt(gameField->getHeadPos().x - 154,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + up_down,
+                      0.0,
+                      gameField->getHeadPos().x - 154,
+                      gameField->getHeadPos().y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + up_down,
+                      -1.0,
+                      0.0,
+                      1.0,
+                      0.0);
+        }
+
+        camera->process(gameField->getHeadPos().x, gameField->getHeadPos().y);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -138,23 +150,47 @@ void Engine::Run(SDL_Window* window) {
 				break;
 			case SDL_KEYDOWN:
 				switch (event.key.keysym.sym) {
+				    case SDLK_x:
+				        angleX -= 1;
+				        break;
+				    case SDLK_c:
+                        camera->setAngleZ(camera->getAngleZ()-1);
+				        break;
+				    case SDLK_v:
+				        //angleZ += 1;
+				        camera->setAngleZ(camera->getAngleZ()+1);
+				        break;
+                    case SDLK_UP:
+                        camera->setPosY(camera->getPosY()+1);
+                        break;
+                    case SDLK_DOWN:
+                        camera->setPosY(camera->getPosY()-1);
+                        break;
 					case SDLK_LEFT:
 						angle -= 0.1;
+//                        testX -= 1;
+                        camera->setPosX(camera->getPosX()-1);
 						break;
 					case SDLK_RIGHT:
+//                        testX += 1;
+                        camera->setPosX(camera->getPosX()+1);
 						angle += 0.1;
 						break;
-//					case SDLK_a:
-//						left_right -= 1.0f;
-//						break;
-//					case SDLK_d:
-//						left_right += 1.0f;
-//						break;
+					case SDLK_a:
+						//left_right -= 1.0f;
+                        camera->setEyeY(camera->getEyeY()-1);
+						break;
+					case SDLK_d:
+						//left_right += 1.0f;
+                        camera->setEyeY(camera->getEyeY()+1);
+						break;
 					case SDLK_s:
 						up_down -= 1.0f;
+                        camera->setEyeX(camera->getEyeX()-1);
 						break;
 					case SDLK_w:
 						up_down += 1.0f;
+                        camera->setEyeX(camera->getEyeX()+1);
 						break;
                     case SDLK_q:
                         zoom += 0.9f;
@@ -175,6 +211,12 @@ void Engine::Run(SDL_Window* window) {
 						//up_down *= 1;
 						angle += 180;
 						break;
+				    case SDLK_F4:
+                        camera->setCameraType(1);
+                        break;
+				    case SDLK_F5:
+                        camera->setCameraType(2);
+                        break;
 				}
 				break;
 			case SDL_WINDOWEVENT_RESIZED:
@@ -206,20 +248,33 @@ void Engine::calculateFPS() {
 }
 
 void Engine::Render() {
-	/*setup_opengl();
+	/*setup_opengl();*/
 	char buffer[255];
 	fString str("informace: ");
-	str.append("angleX: ");
-	itoa(angle, buffer, 10);
+	str.append("posY: ");
+    sprintf(buffer, "%d", camera->getPosY());
+    str.append(buffer);
+    str.append(", posX: ");
+    sprintf(buffer, "%d", camera->getPosX());
 	str.append(buffer);
-	str.append(" posX: ");
+	str.append(", eyeX: ");
+    sprintf(buffer, "%f", camera->getEyeX());
+	str.append(buffer);
+    str.append(", eyeY: ");
+    sprintf(buffer, "%f", camera->getEyeY());
+    str.append(buffer);
+    str.append(", angleZ: ");
+    sprintf(buffer, "%f", camera->getAngleZ());
+    str.append(buffer);
+	/*str.append(" posX: ");
 	itoa(left_right, buffer, 10);
 	str.append(buffer);
 	str.append(" posY: ");
 	itoa(up_down, buffer, 10);
-	str.append(buffer);
+	str.append(buffer);*/
+	info->setVisibility(false);
 	info->setText((char*)str.getString());
-	info->Render();*/
+	info->Render(width, height);
 	gameField->Render2D();
 	gameField->setLeftRight(&left_right);
 	setup_opengl(true);

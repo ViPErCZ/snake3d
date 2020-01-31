@@ -25,7 +25,7 @@ set(SOURCE_FILES
     stdafx.cpp
     stdafx.h
     TextSprite.cpp
-    TextSprite.h TTFSprite.cpp TTFSprite.h HeadSprite.cpp HeadSprite.h Wall.cpp Wall.h Radar.cpp Radar.h)
+    TextSprite.h TTFSprite.cpp TTFSprite.h HeadSprite.cpp HeadSprite.h Wall.cpp Wall.h Radar.cpp Radar.h Camera.cpp Camera.h)
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
