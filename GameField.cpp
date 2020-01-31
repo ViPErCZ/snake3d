@@ -243,6 +243,9 @@ void GameField::Proceed(SDL_Event* event) {
                             }
                             break;
                         case SDLK_i: // up
+                            if (eDirection == STOP) {
+                                rotationType = 1;
+                            }
                             if (eDirection != PAUSE) {
                                  if (eDirection != DOWN) {
                                     if (eDirection == LEFT) {
@@ -256,6 +259,9 @@ void GameField::Proceed(SDL_Event* event) {
                             }
                             break;
                         case SDLK_k: // down
+                            if (eDirection == STOP) {
+                                rotationType = 1;
+                            }
                             if (eDirection != PAUSE) {
                                  if (eDirection != UP) {
                                     if (eDirection == LEFT) {

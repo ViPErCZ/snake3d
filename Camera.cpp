@@ -14,22 +14,24 @@ Camera::Camera() {
 }
 
 void Camera::process(float x, float y) {
-    glTranslatef(posX, posY, 0); // correctly center
-    glRotatef(angleX/*-78*/, 1, 0, 0);
-    glRotatef(0, 0, 1, 0);
-    glRotatef(angleZ, 0, 0, 1);
-    glTranslatef(posX, posY, -300); // correctly center
+    if (cameraType == 2) {
+        glTranslatef(posX, posY, 0); // correctly center
+        glRotatef(angleX/*-78*/, 1, 0, 0);
+        glRotatef(0, 0, 1, 0);
+        glRotatef(angleZ, 0, 0, 1);
+        glTranslatef(posX, posY, -300); // correctly center
 
 
-    gluLookAt(x + eyeX,
-              y - eyeY,
-              0.0,
-              x + eyeX,
-              y - eyeY,
-              -300.0,
-              1.0,
-              1.0,
-              1.0);
+        gluLookAt(x + eyeX,
+                  y - eyeY,
+                  0.0,
+                  x + eyeX,
+                  y - eyeY,
+                  -300.0,
+                  1.0,
+                  1.0,
+                  1.0);
+    }
 
     Uint32 now = SDL_GetTicks();
 

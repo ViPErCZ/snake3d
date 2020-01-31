@@ -73,9 +73,9 @@ void Engine::setup_opengl(bool freeD)
                       0.0,
                       1.0,
                       0.0);
-        } else {
-                camera->process(gameField->getHeadPos().x, gameField->getHeadPos().y);
-		}
+        }
+
+        camera->process(gameField->getHeadPos().x, gameField->getHeadPos().y);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -272,6 +272,7 @@ void Engine::Render() {
 	str.append(" posY: ");
 	itoa(up_down, buffer, 10);
 	str.append(buffer);*/
+	info->setVisibility(false);
 	info->setText((char*)str.getString());
 	info->Render(width, height);
 	gameField->Render2D();
