@@ -1,13 +1,16 @@
 #pragma once
 #include "CubeSprite.h"
-#include <time.h>
+#include <ctime>
 
 class Eat :
 	public CubeSprite
 {
 public:
-	Eat(void);
-	~Eat(void);
+	Eat();
+	~Eat() override;
 	void setPos();
 	void setPos(Vector2f pos);
+    void Render() override;
+
+protected:
 };

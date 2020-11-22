@@ -4,6 +4,7 @@
 #include "TextSprite.h"
 #include "SnakeContainer.h"
 #include "Eat.h"
+#include "ObjSprite.h"
 #include "Wall.h"
 #include "Radar.h"
 #include "Camera.h"
@@ -55,7 +56,8 @@ protected:
 	CubeSprite* Head;
 	SnakeContainer* snake;
 	Radar* radar;
-	Eat* food;
+//	Eat* food;
+	ObjSprite* food;
 	vector<sWALL> walls;
 	eDIRECTION eDirection, cacheDirection;
 	Uint32 next_time{};
@@ -64,4 +66,6 @@ protected:
 	float* left_right{};
     int width;
     int height;
+    int angle;
+    unsigned int lastTime = 0;
 };

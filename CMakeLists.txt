@@ -25,11 +25,11 @@ set(SOURCE_FILES
     stdafx.cpp
     stdafx.h
     TextSprite.cpp
-    TextSprite.h TTFSprite.cpp TTFSprite.h HeadSprite.cpp HeadSprite.h Wall.cpp Wall.h Radar.cpp Radar.h Camera.cpp Camera.h)
+    TextSprite.h TTFSprite.cpp TTFSprite.h HeadSprite.cpp HeadSprite.h Wall.cpp Wall.h Radar.cpp Radar.h Camera.cpp Camera.h ObjSprite.cpp ObjSprite.h)
 
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 
 add_executable(Snake ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_ttf glut GLU GL)
+target_link_libraries(${PROJECT_NAME} SDL2main SDL2 SDL2_image SDL2_ttf glut GLU GL GLEW)

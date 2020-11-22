@@ -2,7 +2,7 @@
 #include "GameField.h"
 
 GameField::GameField(int width, int height):
-changeDirection(false),
+changeDirection(false),angle(0),
 cacheDirection(STOP)
 {
     rotationType = 1;
@@ -33,14 +33,40 @@ cacheDirection(STOP)
 	Vector3f posInfo = {6, 20, 0};
 	info->setPos(posInfo);
 
-	food = new Eat();
-	food->setTexture("images/eat.bmp");
-	Vector3f zoom = {};
-	zoom.x = 15.0;
-	zoom.y = 15.0;
-	zoom.z = 15.0;
-	food->setZoom(zoom);
-	food->setPos(snake->getFreeArray());
+//	food = new Eat();
+//	food->setTexture("images/eat.bmp");
+//	Vector3f zoom = {};
+//	zoom.x = 15.0;
+//	zoom.y = 15.0;
+//	zoom.z = 15.0;
+//	food->setZoom(zoom);
+//	food->setPos(snake->getFreeArray());
+
+    food = new ObjSprite();
+    food->setTexture("images/eat.bmp");
+    food->Load("images/diamond.obj");
+    Vector3f zoom2 = {};
+    zoom2.x = 35.0;
+    zoom2.y = 35.0;
+    zoom2.z = 35.0;
+    food->setZoom(zoom2);
+    food->setPos(snake->getFreeArray());
+	Vector4f xRotate = {};
+	xRotate.angle = 90;
+	xRotate.x = 1;
+	xRotate.y = 0;
+	xRotate.z = 0;
+    Vector4f yRotate = {};
+    yRotate.angle = 0;
+    yRotate.x = 0;
+    yRotate.y = 1;
+    yRotate.z = 0;
+    Vector4f zRotate = {};
+    zRotate.angle = 0;
+    zRotate.x = 0;
+    zRotate.y = 0;
+    zRotate.z = 1;
+    food->setRotate(xRotate, yRotate, zRotate);
 
 	radar = new Radar();
     radar->setEatPos(food->getPos());
@@ -60,7 +86,9 @@ GameField::~GameField()
 	snake->Release();
 	delete snake;
 	food->Release();
-	delete food;
+//    food->Release();
+//	delete food;
+    delete food;
 
     for (auto Iter = walls.begin(); Iter < walls.end(); Iter++) {
         delete (*Iter).wall;
@@ -70,6 +98,7 @@ GameField::~GameField()
 }
 
 void GameField::Render() {
+    Uint32 now = SDL_GetTicks();
     float LightPos[4]={0.0f,0.0f,0.0f,0.0f};
     float Ambient[4]={1.0f,0.0f,0.0f,1.0f};
     float Ambient2[4]={0.0f,0.2f,0.9f,10.5f};;
@@ -96,7 +125,30 @@ void GameField::Render() {
 	zoom.z = 15.0;
 	Head->setZoom(zoom);
 
-	food->Render();
+	//food->Render();
+    food->Render();
+
+	if (now > lastTime + 20) {
+        angle++;
+        lastTime = now;
+    }
+    Vector4f xRotate = {};
+    xRotate.angle = 90;
+    xRotate.x = 1;
+    xRotate.y = 0;
+    xRotate.z = 0;
+    Vector4f yRotate = {};
+    yRotate.angle = angle;
+    yRotate.x = 0;
+    yRotate.y = 1;
+    yRotate.z = 0;
+    Vector4f zRotate = {};
+    zRotate.angle = 0;
+    zRotate.x = 0;
+    zRotate.y = 0;
+    zRotate.z = 1;
+    food->setRotate(xRotate, yRotate, zRotate);
+
 	radar->render(this->width, this->height);
 }
 
