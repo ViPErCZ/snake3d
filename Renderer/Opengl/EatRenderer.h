@@ -19,7 +19,7 @@ namespace Renderer {
         void afterRender() override;
     protected:
         Eat* eat;
-        Uint32 lastTime{};
+        double lastTime{};
     };
 
 } // Renderer

@@ -8,22 +8,22 @@ namespace Handler {
 
     SnakeMoveHandler::~SnakeMoveHandler() = default;
 
-    void SnakeMoveHandler::onEventHandler(Uint32 key) {
-        switch (key) {
-            case SDLK_l:
-            case SDLK_i:
-            case SDLK_j:
-            case SDLK_k:
-                if (!stop) {
-                    ChangeMove(key);
-                }
-                break;
-            case SDLK_SPACE:
-                StopMove();
-                break;
-            default:
-                break;
-        }
+    void SnakeMoveHandler::onEventHandler(unsigned int key) {
+//        switch (key) {
+//            case SDLK_l:
+//            case SDLK_i:
+//            case SDLK_j:
+//            case SDLK_k:
+//                if (!stop) {
+//                    ChangeMove(key);
+//                }
+//                break;
+//            case SDLK_SPACE:
+//                StopMove();
+//                break;
+//            default:
+//                break;
+//        }
     }
 
     void SnakeMoveHandler::StopMove() {
@@ -32,7 +32,7 @@ namespace Handler {
         }
     }
 
-    void SnakeMoveHandler::ChangeMove(Uint32 direction) {
+    void SnakeMoveHandler::ChangeMove(unsigned int direction) {
 
         if (changeCallback ||
             !isNewDirectionCorrect(snakeHead, direction)) {
@@ -42,7 +42,7 @@ namespace Handler {
         createChangeCallback(direction);
     }
 
-    void SnakeMoveHandler::createChangeCallback(Uint32 direction) {
+    void SnakeMoveHandler::createChangeCallback(unsigned int direction) {
         changeCallback = [this, direction](sSNAKE_TILE *head) {
             if (isChangeDirectionAllowed(head)) {
 
@@ -50,22 +50,22 @@ namespace Handler {
                     startMoveCallback();
                 }
 
-                switch (direction) {
-                    case SDLK_j: // left
-                        head->direction = LEFT;
-                        break;
-                    case SDLK_l: // right
-                        head->direction = RIGHT;
-                        break;
-                    case SDLK_i:
-                        head->direction = UP;
-                        break;
-                    case SDLK_k:
-                        head->direction = DOWN;
-                        break;
-                    default:
-                        break;
-                }
+//                switch (direction) {
+//                    case SDLK_j: // left
+//                        head->direction = LEFT;
+//                        break;
+//                    case SDLK_l: // right
+//                        head->direction = RIGHT;
+//                        break;
+//                    case SDLK_i:
+//                        head->direction = UP;
+//                        break;
+//                    case SDLK_k:
+//                        head->direction = DOWN;
+//                        break;
+//                    default:
+//                        break;
+//                }
 
                 for (auto Iter = snake->getItems().begin() + 1; Iter < snake->getItems().end(); Iter++) {
                     // prvni rozbehnuti tela je vzdy vpravo, protoze na startu je hlava vpravo od tela
@@ -86,7 +86,7 @@ namespace Handler {
             return;
         }
 
-        Uint32 now = SDL_GetTicks();
+        double now = glfwGetTime();
 
         if (now - next_time >= 12) {
             if (changeCallback) {
@@ -177,36 +177,36 @@ namespace Handler {
         return x % CUBE_SIZE == 0 && y % CUBE_SIZE == 0;
     }
 
-    bool SnakeMoveHandler::isNewDirectionCorrect(sSNAKE_TILE *headTile, Uint32 direction) {
+    bool SnakeMoveHandler::isNewDirectionCorrect(sSNAKE_TILE *headTile, unsigned int direction) {
 
         if (headTile->direction == PAUSE) {
             return false;
         }
 
-        switch (direction) {
-            case SDLK_l:
-                if (headTile->direction == LEFT || headTile->direction == RIGHT) {
-                    return false;
-                }
-                return true;
-            case SDLK_i:
-                if (headTile->direction == DOWN || headTile->direction == UP) {
-                    return false;
-                }
-                return true;
-            case SDLK_j:
-                if (headTile->direction == RIGHT || headTile->direction == LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
-                    return false;
-                }
-                return true;
-            case SDLK_k:
-                if (headTile->direction == UP || headTile->direction == DOWN) {
-                    return false;
-                }
-                return true;
-            default:
-                return false;
-        }
+//        switch (direction) {
+//            case SDLK_l:
+//                if (headTile->direction == LEFT || headTile->direction == RIGHT) {
+//                    return false;
+//                }
+//                return true;
+//            case SDLK_i:
+//                if (headTile->direction == DOWN || headTile->direction == UP) {
+//                    return false;
+//                }
+//                return true;
+//            case SDLK_j:
+//                if (headTile->direction == RIGHT || headTile->direction == LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
+//                    return false;
+//                }
+//                return true;
+//            case SDLK_k:
+//                if (headTile->direction == UP || headTile->direction == DOWN) {
+//                    return false;
+//                }
+//                return true;
+//            default:
+//                return false;
+//        }
     }
 
     void SnakeMoveHandler::setCollisionDetector(CollisionDetector *collisionDetector) {

@@ -1,8 +1,11 @@
 #include "TextRenderer.h"
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
 
 namespace Renderer {
-    TextRenderer::TextRenderer() {
-        ortho = true;
+    TextRenderer::TextRenderer(int width, int height) {
+        this->width = width;
+        this->height = height;
     }
 
     TextRenderer::~TextRenderer() {
@@ -11,39 +14,25 @@ namespace Renderer {
 
     void TextRenderer::render() {
         for (auto Iter = texts.begin(); Iter < texts.end(); Iter++) {
-            if ((*Iter)->isVisible()) {
-                sCOLOR color = (*Iter)->getColor();
-                glColor3f(color.r, color.g, color.b);
-                glRasterPos2i((GLint) (*Iter)->getPosition().x, (GLint) (*Iter)->getPosition().y);
-                //glRasterPos2i(3, 15);
-                const char *str = (*Iter)->getText().c_str();
-                while (*str) {
-                    glutBitmapCharacter((*Iter)->getFont(), *str++);
-                }
+            if ((*Iter)->getText()->isVisible()) {
+                (*Iter)->render();
             }
         }
     }
 
     void TextRenderer::beforeRender() {
-// ------------------------------------------------------
-        glDisable(GL_TEXTURE_2D);
-        float LightPos[4] = {-5.0f, 5.0f, 10.0f, 1.0f};
-        float Ambient[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-        float Ambient2[4] = {0.0f, 0.2f, 0.9f, 10.5f};;
-        glLightfv(GL_LIGHT0, GL_POSITION, LightPos);
-        glLightfv(GL_LIGHT0, GL_AMBIENT, Ambient);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void TextRenderer::afterRender() {
-        glPopAttrib();
-        glPopMatrix();
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_LIGHT0);
+        glDisable(GL_BLEND);
     }
 
-    void TextRenderer::addText(Text *text) {
-        texts.push_back(text);
+    void TextRenderer::addText(ItemsDto::Text *text, ShaderManager* shader) {
+        auto textModel = new Model::TextModel(width, height, shader);
+        textModel->load(text);
+        texts.push_back(textModel);
     }
 
     void TextRenderer::release() {

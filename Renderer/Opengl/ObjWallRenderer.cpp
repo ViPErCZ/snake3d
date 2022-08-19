@@ -1,112 +1,69 @@
 #include "ObjWallRenderer.h"
 
 namespace Renderer {
-    ObjWallRenderer::ObjWallRenderer(ObjWall *item) {
-        wall = item;
-        shaderManager = new ShaderManager();
-        shaderManager->loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs");
+    ObjWallRenderer::ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj): shaderManager(shader), wall(item) {
+        model = new WallModel(wall);
+        this->camera = camera;
+        projection = proj;
     }
 
     ObjWallRenderer::~ObjWallRenderer() {
+        delete model;
         delete wall;
-        delete shaderManager;
     }
 
     void ObjWallRenderer::render() {
-//        shaderManager->use();
-        for (auto Iter = wall->getItems().begin(); Iter < wall->getItems().end(); Iter++) {
-            if ((*Iter)->isVisible()) {
-                glm::vec3 position = (*Iter)->getPosition();
-                if ((*Iter)->isBlend()) {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
-                }
+        int index = 0;
+        shaderManager->use();
+        shaderManager->setMat4("view", camera->getViewMatrix());
+        shaderManager->setMat4("projection", this->projection);
+        shaderManager->setInt("diffuseMap", 0);
+        shaderManager->setInt("normalMap", 1);
+        shaderManager->setInt("specularMap", 2);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, 4); // 2
-                //shaderManager->setInt("diffuseMap", 0);
-//                glActiveTexture(GL_TEXTURE1);
-//                glBindTexture(GL_TEXTURE_2D, 1);
-                //shaderManager->setInt("normalMap", 1);
 
-                glLoadIdentity();
+        // lighting info
+        // -------------
+        glm::vec3 lightPos(0.0f, -5.0f, 4.3f);
 
-                glm::vec3 zoom = (*Iter)->getZoom();
-                const glm::vec4 *rotate = (*Iter)->getRotate();
-                glTranslatef(position.x, position.y, position.z);
-                glScalef(zoom.x, zoom.y, zoom.z);
-                glRotatef(rotate[0].x, rotate[0].y, rotate[0].z, rotate[0].w);
-                glRotatef(rotate[1].x, rotate[1].y, rotate[1].z, rotate[1].w);
-                glRotatef(rotate[2].x, rotate[2].y, rotate[2].z, rotate[2].w);
+        for (auto data: model->getMeshes()) {
+            glLoadIdentity();
+            auto wallIter = this->wall->getItems().begin() + index;
 
-                // 1rst attribute buffer : vertices
-                glEnableVertexAttribArray(0);
-                glBindBuffer(GL_ARRAY_BUFFER, (*Iter)->getVertexBuffer());
-                glVertexAttribPointer(
-                        0,                  // attribute
-                        3,                  // size
-                        GL_FLOAT,           // type
-                        GL_FALSE,           // normalized?
-                        0,                  // stride
-                        nullptr           // array buffer offset
-                );
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 5);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, 1);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, 2);
 
-                // 2nd attribute buffer : UVs
-                glEnableVertexAttribArray(2);
-                glBindBuffer(GL_ARRAY_BUFFER, (*Iter)->getUvBuffer());
-                glVertexAttribPointer(
-                        2,                                // attribute
-                        2,                                // size
-                        GL_FLOAT,                         // type
-                        GL_FALSE,                         // normalized?
-                        0,                                // stride
-                        nullptr                      // array buffer offset
-                );
+            glm::vec3 position = (*wallIter)->getPosition();
 
-                // 3rd attribute buffer : normals
-                glEnableVertexAttribArray(3);
-                glBindBuffer(GL_ARRAY_BUFFER, (*Iter)->getNormalBuffer());
-                glVertexAttribPointer(
-                        3,                                // attribute
-                        3,                                // size
-                        GL_FLOAT,                         // type
-                        GL_FALSE,                         // normalized?
-                        0,                                // stride
-                        nullptr                          // array buffer offset
-                );
+            // Initialize matrices
+            glm::mat4 model = glm::mat4(1.0f);
+            // Transform the matrices to their correct form
+            model = glm::translate(model, {0.0, 0.0, 0.0});
+            model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
+            //model = glm::translate(model, {-25.0, -25.0, -23.0f}); // levy spodni okraj
+            model = glm::translate(model, position);
 
-                // Index buffer
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (*Iter)->getElementBuffer());
+            shaderManager->setMat4("model", model);
+            shaderManager->setVec3("viewPos", camera->getPosition());
+            shaderManager->setVec3("lightPos", lightPos);
 
-                // Draw the triangles !
-                glDrawElements(
-                        GL_TRIANGLES,      // mode
-                        (GLsizei) (*Iter)->getIndices().size(),    // count
-                        GL_UNSIGNED_SHORT, // type
-                        nullptr           // element array buffer offset
-                );
+            data.first->bind();
+            glDrawElements(GL_TRIANGLES, (int)data.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
 
-                glDisableVertexAttribArray(0);
-                glDisableVertexAttribArray(1);
-                glDisableVertexAttribArray(2);
-            }
+            index++;
         }
+
+        glEnable(GL_TEXTURE0);
     }
 
     void ObjWallRenderer::beforeRender() {
-        glEnable(GL_TEXTURE_2D);
-//        glEnable(GL_LIGHTING);
-//        glEnable(GL_LIGHT0);
-//        float LightPos2[4] = {0.5f, 1.0f, 0.4f, 0.0f};
-//        float Ambient[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-//        glLightfv(GL_LIGHT0, GL_POSITION, LightPos2);
-//        glLightfv(GL_LIGHT0, GL_AMBIENT, Ambient);
     }
 
     void ObjWallRenderer::afterRender() {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_LIGHT0);
-        glDisable(GL_BLEND);
-        glUseProgram(0);
     }
+
 } // Renderer

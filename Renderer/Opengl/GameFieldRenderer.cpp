@@ -1,69 +1,74 @@
 #include "GameFieldRenderer.h"
 
-Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item) {
+Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj) {
     gameField = item;
+    this->shader = shader;
+    this->camera = camera;
+    this->projection = proj;
+    for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
+        auto field = new GameFieldModel((*Iter));
+        model.push_back(field);
+    }
 }
 
 Renderer::GameFieldRenderer::~GameFieldRenderer() {
     delete gameField;
+    for (auto Iter = model.begin(); Iter < model.end(); Iter++) {
+        delete (*Iter);
+    }
+    model.clear();
 }
 
 void Renderer::GameFieldRenderer::render() {
+    int x = 0;
+    shader->use();
+    shader->setMat4("view", camera->getViewMatrix());
+    shader->setMat4("projection", this->projection);
+    shader->setInt("diffuseMap", 0);
+    shader->setInt("normalMap", 1);
+    shader->setInt("specularMap", 2);
+
+    // lighting info
+    // -------------
+    glm::vec3 lightPos(1.2f, 3.0f, 2.3f);
+
     for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
+        glLoadIdentity();
         if ((*Iter)->isVisible()) {
-            GLuint index = (*Iter)->findTexture(5);
-            if (index > 0) {
-                glBindTexture(GL_TEXTURE_2D, index);
-            }
-            glLoadIdentity();
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 6);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, 16);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, 4);
 
             glm::vec3 position = (*Iter)->getPosition();
             glm::vec3 zoom = (*Iter)->getZoom();
-            const glm::vec4 * rotate = (*Iter)->getRotate();
-            glTranslatef( position.x, position.y, position.z );
-            glScalef(zoom.x, zoom.y, zoom.z);
-            glRotatef(rotate[0].x, rotate[0].y, rotate[0].z, rotate[0].w);
-            glRotatef(rotate[1].x, rotate[1].y, rotate[1].z, rotate[1].w);
-            glRotatef(rotate[2].x, rotate[2].y, rotate[2].z, rotate[2].w);
 
-            glBegin(GL_POLYGON);
-            glTexCoord2f( 0.0f, 0.0f ); glVertex2f( 0.0f, 0.0f );
-            glTexCoord2f( 1.0f, 0.0f ); glVertex2f( (*Iter)->getWidth(), 0.0f );
-            glTexCoord2f( 1.0f, 1.0f ); glVertex2f( (*Iter)->getWidth(), (*Iter)->getHeight() );
-            glTexCoord2f( 0.0f, 1.0f ); glVertex2f( 0.0f, (*Iter)->getHeight() );
-            glEnd( );
+            // Initialize matrices
+            glm::mat4 model = glm::mat4(1.0f);
+            // Transform the matrices to their correct form
+            //model = glm::rotate(model, glm::radians(-60.0f), glm::vec3(1.0, 0.0f, 0.0f));
+//            model = glm::rotate(model, rotate[1].x, glm::vec3(0.0, 1.0f, 0.0f));
+            //model = glm::rotate(model, glm::radians(41.0f), glm::vec3(0.0, 0.0f, 1.0f));
+            //model = glm::scale(model, {2.0f, 2.0f, 0.0f});
+            model = glm::translate(model, position);
+
+            shader->setMat4("model", model);
+            shader->setVec3("viewPos", camera->getPosition());
+            shader->setVec3("lightPos", lightPos);
+
+            auto modelIter = this->model.begin() + x;
+
+            (*modelIter)->getVao().bind();
+            glDrawElements(GL_TRIANGLES, (int)(*modelIter)->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            x++;
         }
     }
 }
 
 void Renderer::GameFieldRenderer::beforeRender() {
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-        float LightPos[4]={5.0f,5.0f,00.0f,1.0f};
-        float Ambient[4]={0.0f,0.2f,0.9f,1.0f};
-        glLightfv(GL_LIGHT0,GL_POSITION,LightPos);
-        glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
-
-        GLuint fogMode[] = { GL_EXP, GL_EXP2, GL_LINEAR };// Tři typy mlhy
-        GLuint fogFilter = 2;// Která mlha se používá
-        GLfloat fogColor[4] = {0.5f, 0.5f, 0.5f, 1.0f};// Barva mlhy
-        glFogi(GL_FOG_MODE, fogMode[fogFilter]);// Mód mlhy
-        glFogfv(GL_FOG_COLOR, fogColor);// Barva mlhy
-        glFogf(GL_FOG_DENSITY, 0.05f);// Hustota mlhy
-        glHint(GL_FOG_HINT, GL_DONT_CARE);// Kvalita mlhy
-        glFogf(GL_FOG_START, 1.0f);// Začátek mlhy - v hloubce (osa z)
-        glFogf(GL_FOG_END, 120.0f);// Konec mlhy - v hloubce (osa z)
-        //glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
-        glEnable(GL_FOG);// Zapne mlhu
-
-        float LightPos2[4]={0.5f, 1.0f, 0.3f,0.0f};
-        float Ambient2[4]={1.0f,0.0f,0.0f,1.0f};
-        glLightfv(GL_LIGHT0,GL_POSITION,LightPos2);
-        glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient2);
 }
 
 void Renderer::GameFieldRenderer::afterRender() {
-    glDisable(GL_FOG);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
 }

@@ -11,7 +11,7 @@ namespace Handler {
     class RadarHandler : public BaseKeydownHandle {
     public:
         explicit RadarHandler(Radar *radar);
-        void onEventHandler(Uint32 key) override;
+        void onEventHandler(unsigned int key) override;
         void onDefaultHandler() override;
 
     protected:

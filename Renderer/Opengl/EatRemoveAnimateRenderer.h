@@ -18,7 +18,7 @@ namespace Renderer {
         void beforeRender() override;
         void afterRender() override;
     protected:
-        Uint32 lastTime{};
+        double lastTime{};
         Eat* eat;
         bool completed = false;
     };

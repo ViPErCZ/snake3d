@@ -2,11 +2,6 @@
 #include "../tiny_obj_loader.h"
 
 namespace ItemsDto {
-    ObjItem::~ObjItem() {
-        glDeleteBuffers(1, &vertexBuffer);
-        glDeleteBuffers(1, &uvBuffer);
-        glDeleteBuffers(1, &normalBuffer);
-    }
 
     bool ObjItem::load(const string &filename) {
         std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
@@ -101,43 +96,14 @@ namespace ItemsDto {
     }
 
     void ObjItem::generateBuffer() {
-        Manager::VboIndexer::indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
-
-        glGenBuffers(1, &vertexBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizei)(indexed_vertices.size() * sizeof(glm::vec3)), &indexed_vertices[0], GL_STATIC_DRAW);
-
-        glGenBuffers(1, &uvBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizei)(indexed_uvs.size() * sizeof(glm::vec2)), &indexed_uvs[0], GL_STATIC_DRAW);
-
-        glGenBuffers(1, &normalBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizei)(indexed_normals.size() * sizeof(glm::vec3)), &indexed_normals[0], GL_STATIC_DRAW);
-
-        glGenBuffers(1, &elementBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizei)(indices.size() * sizeof(unsigned short)), &indices[0], GL_STATIC_DRAW);
+        Manager::VboIndexer::computeTangentBasis(vertices, uvs, normals, tangents, biTangents);
+        Manager::VboIndexer::indexVBO_TBN(vertices, uvs, normals, tangents, biTangents,
+                                          indices, indexed_vertices,
+                                          indexed_uvs, indexed_normals, indexed_tangents, indexed_biTangents);
     }
 
-    GLuint ObjItem::getVertexBuffer() const {
-        return vertexBuffer;
-    }
-
-    GLuint ObjItem::getUvBuffer() const {
-        return uvBuffer;
-    }
-
-    GLuint ObjItem::getNormalBuffer() const {
-        return normalBuffer;
-    }
-
-    const vector<unsigned short> &ObjItem::getIndices() const {
+    const vector<unsigned int> &ObjItem::getIndices() const {
         return indices;
-    }
-
-    GLuint ObjItem::getElementBuffer() const {
-        return elementBuffer;
     }
 
     const vector<glm::vec3> &ObjItem::getIndexedVertices() const {
@@ -150,5 +116,13 @@ namespace ItemsDto {
 
     const vector<glm::vec3> &ObjItem::getIndexedNormals() const {
         return indexed_normals;
+    }
+
+    const vector<glm::vec3> &ObjItem::getIndexedTangents() const {
+        return indexed_tangents;
+    }
+
+    const vector<glm::vec3> &ObjItem::getIndexedBiTangents() const {
+        return indexed_biTangents;
     }
 } // ItemsDto

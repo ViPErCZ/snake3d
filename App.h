@@ -25,6 +25,7 @@
 #include "Renderer/Opengl/BarrierRenderer.h"
 #include "Manager/LevelManager.h"
 #include "Renderer/Opengl/ObjWallRenderer.h"
+#include "Manager/Camera.h"
 #include <filesystem>
 
 #define MAX_POINT 6
@@ -38,12 +39,12 @@ using namespace Handler;
 
 class App {
 public:
-    App(SDL_Window *window, SDL_Renderer *renderer, SDL_Event* event, int width, int height);
+    App(int width, int height);
     ~App();
-    void run();
-
-protected:
     void Init();
+    void run();
+    void processInput(int keyCode);
+protected:
     void InitResourceManager();
     GameField* InitGameField();
     Snake* InitSnake();
@@ -51,6 +52,7 @@ protected:
     ObjWall* InitObjWall(); // outer wall
     Barriers* InitBarriers(); // inter barriers
     Radar* InitRadar();
+    Eat *InitEat();
 private:
     LevelManager* levelManager{};
     ResourceManager* resourceManager{};
@@ -58,7 +60,7 @@ private:
     GameField* gameField{};
     GameFieldRenderer* gameFieldRenderer{};
     Snake* snake{};
-    Eat* animateEat;
+    Eat* animateEat{};
     Eat* eat;
     Wall* wall{};
     ObjWall* objWall{};
@@ -77,13 +79,12 @@ private:
     EatManager* eatManager;
     Text* startText;
     Text* tilesCounterText;
-    SDL_Window* window;
-    SDL_Renderer *renderer;
+    ShaderManager* textShader;
+    ShaderManager* baseShader;
+    ShaderManager* normalShader;
+    Camera* camera;
     int width;
     int height;
-    SDL_Event* event;
-
-    Eat *InitEat();
 };
 
 

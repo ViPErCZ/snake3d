@@ -7,98 +7,96 @@ namespace Manager {
         Release();
     }
 
-    bool ResourceManager::createTexture(char *aPath, GLint filter) {
-//        SDL_Surface *image;
-//        image = SDL_LoadBMP(aPath);
-//
-//        if ( image == nullptr ) {
-//            /*char error[255];
-//            strcpy(error, SDL_GetError());*/
-//            return false;
-//        }
-//
-//        /* Standard OpenGL texture creation code */
-//        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-//
-//        GLuint texture;
-//        glGenTextures(1,&texture);
-//        glBindTexture(GL_TEXTURE_2D,texture);
-//
-//        // select modulate to mix texture with color for shading
-//        glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-//
-////        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter );
-////        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter );
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//        // the texture wraps over at the edges (repeat)
-//        /*glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-//        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );*/
-//
-//        gluBuild2DMipmaps(GL_TEXTURE_2D, 4, image->w,
-//                          image->h, GL_BGR_EXT,
-//                          GL_UNSIGNED_BYTE, image->pixels);
-//
-//        SDL_FreeSurface( image );
-//        this->textures.push_back(texture);
-//
-        string filename = string(aPath);
-
+    bool ResourceManager::createTexture(const char* path, const string& name, GLint filter) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
 
-        int width, height, nrComponents;
-        unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+        int widthImg, heightImg, numColCh;
+        unsigned char *data = stbi_load(path, &widthImg, &heightImg, &numColCh, 0);
         if (data)
         {
-            GLenum format;
-            if (nrComponents == 1)
-                format = GL_RED;
-            else if (nrComponents == 3)
-                format = GL_RGB;
-            else if (nrComponents == 4)
-                format = GL_RGBA;
-
             glBindTexture(GL_TEXTURE_2D, textureID);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Check what type of color channels the baseColor has and load it accordingly
+            if (numColCh == 4)
+                glTexImage2D
+                        (
+                                GL_TEXTURE_2D,
+                                0,
+                                GL_RGBA,
+                                widthImg,
+                                heightImg,
+                                0,
+                                GL_RGBA,
+                                GL_UNSIGNED_BYTE,
+                                data
+                        );
+            else if (numColCh == 3)
+                glTexImage2D
+                        (
+                                GL_TEXTURE_2D,
+                                0,
+                                GL_RGBA,
+                                widthImg,
+                                heightImg,
+                                0,
+                                GL_RGB,
+                                GL_UNSIGNED_BYTE,
+                                data
+                        );
+            else if (numColCh == 1)
+                glTexImage2D
+                        (
+                                GL_TEXTURE_2D,
+                                0,
+                                GL_RGBA,
+                                widthImg,
+                                heightImg,
+                                0,
+                                GL_RED,
+                                GL_UNSIGNED_BYTE,
+                                data
+                        );
+            else {
+                throw std::invalid_argument("Automatic Texture type recognition failed");
+            }
+
+            glGenerateMipmap(GL_TEXTURE_2D);
 
             stbi_image_free(data);
         }
         else
         {
-            std::cout << "Texture failed to load at path: " << aPath << std::endl;
+            std::cout << "Texture failed to load at path: " << path << std::endl;
             stbi_image_free(data);
         }
 
-        this->textures.push_back(textureID);
+        this->textures.insert(std::pair<string, GLuint>(name, textureID));
 
         return true;
     }
 
     bool ResourceManager::Release() {
-        for (auto Iter = textures.begin(); Iter < textures.end(); Iter++)
-            glDeleteTextures(1, &(*Iter));
+        for (auto & texture : textures)
+            glDeleteTextures(1, &texture.second);
 
         return true;
     }
 
-    GLuint ResourceManager::getTexture(int texture) {
-        if (texture > 0 && texture < (int)textures.size()) {
-            auto Iter = textures.begin() + texture;
-
-            return (*Iter);
+    GLuint ResourceManager::getTexture(const string &name) {
+        auto search = textures.find(name);
+        if (search != textures.end()) {
+            return search->second;
         }
 
-        throw std::invalid_argument( "received texture index not exists" );
+        char buffer [50];
+        sprintf(buffer, "texture with key %s not found", name.c_str());
+
+        throw invalid_argument(buffer);
     }
 
 } // Manager

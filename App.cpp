@@ -1,35 +1,40 @@
 #include "App.h"
 
-App::App(SDL_Window *window,
-         SDL_Renderer *renderer,
-         SDL_Event *event,
-         int width,
-         int height) : window(window), renderer(renderer), event(event), width(width), height(height) {
+App::App(int width, int height) : width(width), height(height) {
     rendererManager = new RenderManager(width, height);
-    keyboardManager = new KeyboardManager(event);
-    startText = new Text("Press start I, K or R...");
+    keyboardManager = new KeyboardManager();
+    startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
     eat = new Eat;
     eatManager = nullptr;
-
-    Init();
+    textShader = new ShaderManager;
+    baseShader = new ShaderManager;
+    normalShader = new ShaderManager;
+    camera = new Camera(glm::vec3(0.0f, -1.0f, 2.0f));
 }
 
 App::~App() {
     delete rendererManager;
-    delete objWallRenderer;
+//    delete objWallRenderer;
     delete resourceManager;
     delete keyboardManager;
     delete eatManager;
     delete collisionDetector;
     delete eat;
     delete levelManager;
+    delete textShader;
+    delete baseShader;
+    delete normalShader;
+    delete camera;
 }
 
 void App::Init() {
     InitResourceManager();
 
-    gameFieldRenderer = new GameFieldRenderer(InitGameField());
+    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)width / (float)height, 1.5f, 100.0f);
+    glm::mat4 view = camera->getViewMatrix();
+
+    gameFieldRenderer = new GameFieldRenderer(InitGameField(), baseShader, camera, projection);
     Snake *snake = InitSnake();
     eat = InitEat();
     Wall *wall = InitWall();
@@ -45,11 +50,11 @@ void App::Init() {
 
     snakeRenderer = new SnakeRenderer(snake);
     wallRenderer = new WallRenderer(wall);
-    objWallRenderer = new ObjWallRenderer(objWall);
+    objWallRenderer = new ObjWallRenderer(objWall, normalShader, camera, projection);
     barrierRenderer = new BarrierRenderer(barriers);
     eatRenderer = new EatRenderer(eat);
     radarRenderer = new RadarRenderer(radar);
-    textRenderer = new TextRenderer();
+    textRenderer = new TextRenderer(width, height);
 
     animateEat = new Eat;
     animateEat->load("Assets/Objects/Coin.obj");
@@ -61,24 +66,34 @@ void App::Init() {
 
     eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat);
 
+    textShader->loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
+    baseShader->loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
+    normalShader->loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs");
+
     startText->setVisible(true);
     startText->setColor({0.8, 0.8, 0.8});
-    startText->setFont(GLUT_BITMAP_TIMES_ROMAN_24);
-    textRenderer->addText(startText);
+    startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+    startText->setFontSize(22);
+    startText->setPosition({(width - 360) / 2, height / 2, 0.0});
+    startText->setZoom({1.0f, 0, 0});
+    textRenderer->addText(startText, textShader);
 
     tilesCounterText->setVisible(true);
     tilesCounterText->setColor({0.8, 0.8, 0.8});
-    tilesCounterText->setFont(GLUT_BITMAP_8_BY_13);
-    textRenderer->addText(tilesCounterText);
+    tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+    tilesCounterText->setFontSize(22);
+    tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
+    tilesCounterText->setZoom({1.0f, 0, 0});
+    textRenderer->addText(tilesCounterText, textShader);
 
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(snakeRenderer);
-    rendererManager->addRenderer(wallRenderer);
-//    rendererManager->addRenderer(objWallRenderer);
-    rendererManager->addRenderer(barrierRenderer);
-    rendererManager->addRenderer(eatRenderer);
-    rendererManager->addRenderer(eatRemoveAnimateRenderer);
-    rendererManager->addRenderer(radarRenderer);
+//    rendererManager->addRenderer(snakeRenderer);
+//    rendererManager->addRenderer(wallRenderer);
+    rendererManager->addRenderer(objWallRenderer);
+//    rendererManager->addRenderer(barrierRenderer);
+//    rendererManager->addRenderer(eatRenderer);
+//    rendererManager->addRenderer(eatRemoveAnimateRenderer);
+//    rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setStickyPoint(snake->getHeadTile());
 
@@ -243,40 +258,19 @@ void App::InitResourceManager() {
     for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
         if (!is_directory(i->path())) {
             std::cout << i->path().filename() << std::endl;
-            resourceManager->createTexture((char *) i->path().c_str());
+            resourceManager->createTexture(i->path().c_str(), i->path().filename());
         }
     }
 }
 
 void App::run() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    glClear(GL_COLOR_BUFFER_BIT);
-
     rendererManager->render();
-    keyboardManager->run();
+    keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);
     }
+}
 
-    switch (event->type) {
-        case SDL_WINDOWEVENT:
-            switch (event->window.event) {
-                case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    width = event->window.data1;
-                    height = event->window.data2;
-                    glViewport(0, 0, width, height);
-                    startText->setPosition({1920 / 2 - 90, 1080 / 2, 0});
-                    tilesCounterText->setPosition({10, 15, 0});
-
-                    // Clear window content
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    glFlush();
-
-                    break;
-            }
-            break;
-    }
-
-    SDL_GL_SwapWindow(window);
+void App::processInput(int keyCode) {
+    keyboardManager->onKeyPress(keyCode);
 }

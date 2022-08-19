@@ -1,7 +1,15 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(int width, int height) : width(width), height(height) {}
+    RenderManager::RenderManager(int width, int height) : width(width), height(height) {
+//        glShadeModel(GL_SMOOTH);
+        glClearDepth(1.0f);                            // Depth Buffer Setup
+        glEnable(GL_DEPTH_TEST);                            // Enables Depth Testing
+//        glDepthFunc(GL_LESS);
+//        glDepthFunc(GL_LEQUAL);                                // The Type Of Depth Testing To Do
+//        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);    // Really Nice Perspective Calculations
+        glEnable(GL_TEXTURE_2D);
+    }
 
     RenderManager::~RenderManager() {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
@@ -14,26 +22,21 @@ namespace Manager {
     }
 
     void RenderManager::render() {
-        setupProjection();
-        glMatrixMode(GL_MODELVIEW);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
-        glShadeModel(GL_SMOOTH);
-        glClearDepth(1.0f);                            // Depth Buffer Setup
-        glEnable(GL_DEPTH_TEST);                            // Enables Depth Testing
-        //glDepthFunc(GL_LESS);
-        glDepthFunc(GL_LEQUAL);                                // The Type Of Depth Testing To Do
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);    // Really Nice Perspective Calculations
-        glEnable(GL_TEXTURE_2D);
+//        glClear(GL_COLOR_BUFFER_BIT);
+//        setupProjection();
+//        glMatrixMode(GL_MODELVIEW);
+//        glLoadIdentity();
+//
+//
+//        // zaklad pro animaci pro start hry
+//        GLfloat LightAmbient[] = {1.0f, 1.0f, 1.0f, 1.0f};// Okolní světlo
+//        glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+//        glEnable(GL_LIGHT1);
 
-
-        // zaklad pro animaci pro start hry
-        GLfloat LightAmbient[] = {1.0f, 1.0f, 1.0f, 1.0f};// Okolní světlo
-        glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-        glEnable(GL_LIGHT1);
-
-        glClearStencil(0);
+//        glClearStencil(0);
         glClearColor(.0, .0, .0, 0);
-
 
 
         // TODO: toto pouzit pred startem hry, pro mlhu
@@ -52,18 +55,18 @@ namespace Manager {
          */
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
-            if ((*Iter)->isOrtho()) {
-                switchOrthoProjection();
-            }
+//            if ((*Iter)->isOrtho()) {
+//                switchOrthoProjection();
+//            }
             (*Iter)->beforeRender();
             (*Iter)->render();
             (*Iter)->afterRender();
-            if ((*Iter)->isOrtho()) {
-                restoreProjection();
-            }
+//            if ((*Iter)->isOrtho()) {
+//                restoreProjection();
+//            }
         }
 
-        glDisable(GL_FOG);
+//        glDisable(GL_FOG);
     }
 
     void RenderManager::setupProjection() {
@@ -98,8 +101,6 @@ namespace Manager {
                   0.0,
                   1.0,
                   0.0);
-
-        glm::mat4 view = glm::lookAt(glm::normalize(cameraPos), glm::normalize(cameraFront + cameraPos), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
     }
 
     void RenderManager::setStickyPoint(BaseItem *stickyPoint) {
