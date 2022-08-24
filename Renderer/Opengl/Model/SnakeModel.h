@@ -1,8 +1,8 @@
-#ifndef SNAKE3_WALLMODEL_H
-#define SNAKE3_WALLMODEL_H
+#ifndef SNAKE3_SNAKEMODEL_H
+#define SNAKE3_SNAKEMODEL_H
 
 #include "../../../Manager/ShaderManager.h"
-#include "../../../ItemsDto/ObjWall.h"
+#include "../../../ItemsDto/Snake.h"
 #include "Utils/Mesh.h"
 
 using namespace Manager;
@@ -12,17 +12,19 @@ using namespace std;
 
 namespace Model {
 
-    class WallModel {
+    class SnakeModel {
     public:
-        explicit WallModel(ObjWall *wall);
-        virtual ~WallModel();
+        explicit SnakeModel(Snake *snake);
+        virtual ~SnakeModel();
         [[nodiscard]] const map<Vao *, Mesh *> &getMeshes() const;
+        void addTiles(int tilesCount);
 
     protected:
-        ObjWall* wall{};
+        void generateMeshes(const sSNAKE_TILE *item);
+        Snake* snake{};
         map<Vao*, Mesh*> meshes;
     };
 
 } // Model
 
-#endif //SNAKE3_WALLMODEL_H
+#endif //SNAKE3_SNAKEMODEL_H

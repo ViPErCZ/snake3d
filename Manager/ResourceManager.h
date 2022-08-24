@@ -13,7 +13,7 @@ namespace Manager {
     class ResourceManager {
     public:
         virtual ~ResourceManager();
-        bool createTexture(const char* path, const string& name, GLint filter = GL_LINEAR_MIPMAP_LINEAR);
+        bool createTexture(const char* path, const string& name, GLint filter = GL_NEAREST_MIPMAP_LINEAR);
         GLuint getTexture(const string &name);
         bool Release();
     protected:

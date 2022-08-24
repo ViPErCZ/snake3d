@@ -1,7 +1,8 @@
 #include "ObjWallRenderer.h"
 
 namespace Renderer {
-    ObjWallRenderer::ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj): shaderManager(shader), wall(item) {
+    ObjWallRenderer::ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager)
+        : shaderManager(shader), wall(item), resourceManager(resManager) {
         model = new WallModel(wall);
         this->camera = camera;
         projection = proj;
@@ -20,22 +21,23 @@ namespace Renderer {
         shaderManager->setInt("diffuseMap", 0);
         shaderManager->setInt("normalMap", 1);
         shaderManager->setInt("specularMap", 2);
+        shaderManager->setFloat("alpha", 1.0);
 
 
         // lighting info
         // -------------
-        glm::vec3 lightPos(0.0f, -5.0f, 4.3f);
+        glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
 
         for (auto data: model->getMeshes()) {
             glLoadIdentity();
             auto wallIter = this->wall->getItems().begin() + index;
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 5);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-texture.jpg"));
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, 1);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork_normal-map.jpg"));
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, 2);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-bump-map.jpg"));
 
             glm::vec3 position = (*wallIter)->getPosition();
 

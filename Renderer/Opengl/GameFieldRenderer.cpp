@@ -1,7 +1,8 @@
 #include "GameFieldRenderer.h"
 
-Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj) {
+Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager) {
     gameField = item;
+    resourceManager = resManager;
     this->shader = shader;
     this->camera = camera;
     this->projection = proj;
@@ -27,20 +28,21 @@ void Renderer::GameFieldRenderer::render() {
     shader->setInt("diffuseMap", 0);
     shader->setInt("normalMap", 1);
     shader->setInt("specularMap", 2);
+    shader->setFloat("alpha", 1.0);
 
     // lighting info
     // -------------
-    glm::vec3 lightPos(1.2f, 3.0f, 2.3f);
+    glm::vec3 lightPos(camera->getPosition().x + 6, camera->getPosition().y + 6, -25.3f);
 
     for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
         glLoadIdentity();
         if ((*Iter)->isVisible()) {
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 6);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield.bmp"));
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, 16);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield_normal.jpg"));
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, 4);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield_specular.jpg"));
 
             glm::vec3 position = (*Iter)->getPosition();
             glm::vec3 zoom = (*Iter)->getZoom();

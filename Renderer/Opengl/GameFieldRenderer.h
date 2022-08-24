@@ -14,12 +14,13 @@ using namespace Model;
 namespace Renderer {
     class GameFieldRenderer : public BaseRenderer {
     public:
-        explicit GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj);
+        explicit GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~GameFieldRenderer() override;
         void render() override;
         void beforeRender() override;
         void afterRender() override;
     protected:
+        ResourceManager* resourceManager;
         GameField* gameField;
         vector<GameFieldModel*> model;
         ShaderManager* shader;

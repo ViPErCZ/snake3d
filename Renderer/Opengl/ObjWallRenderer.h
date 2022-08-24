@@ -16,7 +16,7 @@ namespace Renderer {
 
     class ObjWallRenderer : public BaseRenderer {
     public:
-        explicit ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj);
+        explicit ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~ObjWallRenderer() override;
         void render() override;
         void beforeRender() override;
@@ -28,6 +28,7 @@ namespace Renderer {
         ShaderManager* shaderManager;
         Camera* camera;
         glm::mat4 projection{};
+        ResourceManager* resourceManager;
     };
 
 } // Renderer

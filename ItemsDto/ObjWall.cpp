@@ -20,6 +20,15 @@ namespace ItemsDto {
     }
 
     void ObjWall::init() {
+
+//        auto *wall = new ObjItem();
+//        wall->load("Assets/Objects/Cube.obj");
+//        wall->addTexture(2);
+//        wall->setPosition({23, 73, -23});
+//        wall->setVisible(true);
+//
+//        walls.push_back(wall);
+
         glm::vec3 wallPos = {-16, -25, -23.0};
         for (int round = 0; round < 2; round++) {
             for (int x = -25; x <= 73; x += 2) {
@@ -61,19 +70,19 @@ namespace ItemsDto {
         }
     }
 
-    float ObjWall::getMaxX() const {
+    int ObjWall::getMaxX() const {
         return 0;
     }
 
-    float ObjWall::getMaxY() const {
+    int ObjWall::getMaxY() const {
         return 0;
     }
 
-    float ObjWall::getMinX() const {
+    int ObjWall::getMinX() const {
         return 0;
     }
 
-    float ObjWall::getMinY() const {
+    int ObjWall::getMinY() const {
         return 0;
     }
 } // ItemsDto

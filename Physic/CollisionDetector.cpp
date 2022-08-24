@@ -25,10 +25,13 @@ namespace Physic {
             blendBarrierDetect(snakeHead, (*Iter));
         }
 
-        if (snakeHead->getPosition().x > perimeter->getMaxX()
-            || snakeHead->getPosition().x < perimeter->getMinX()
-            || snakeHead->getPosition().y > perimeter->getMaxY()
-            || snakeHead->getPosition().y < perimeter->getMinY()
+        int x = snakeHead->getVirtualX();
+        int y = snakeHead->getVirtualY();
+
+        if (x > perimeter->getMaxX()
+            || x < perimeter->getMinX()
+            || y > perimeter->getMaxY()
+            || y < perimeter->getMinY()
                 ) { // detekujeme ohradu kolem hraciho pole
             return true;
         }
@@ -42,10 +45,15 @@ namespace Physic {
                 continue;
             }
 
-            if ((int) snakeHead->getPosition().x - 16 + 32 >= (int) (*Iter)->getPosition().x &&
-                (int) snakeHead->getPosition().x - 16 <= (int) (*Iter)->getPosition().x
-                && (int) snakeHead->getPosition().y - 16 + 32 >= (int) (*Iter)->getPosition().y &&
-                (int) snakeHead->getPosition().y - 16 <= (int) (*Iter)->getPosition().y) {
+            int x = snakeHead->getVirtualX();
+            int y = snakeHead->getVirtualY();
+            int secondX = (*Iter)->getVirtualX();
+            int secondY = (*Iter)->getVirtualY();
+
+            if (x - 16 + 32 >= secondX &&
+                x - 16 <= secondX
+                && y - 16 + 32 >= secondY &&
+                y - 16 <= secondY) {
                 return true;
             }
         }
@@ -54,10 +62,12 @@ namespace Physic {
     }
 
     bool CollisionDetector::detect(BaseItem* first, BaseItem* second) {
-        if ((int) first->getPosition().x - 16 + 32 >= (int) second->getPosition().x &&
-            (int) first->getPosition().x - 16 <= (int) second->getPosition().x
-            && (int) first->getPosition().y - 16 + 32 >= (int) second->getPosition().y &&
-            (int) first->getPosition().y - 16 <= (int) second->getPosition().y) {
+        int x = first->getVirtualX();
+        int y = first->getVirtualY();
+        int secondX = second->getVirtualX();
+        int secondY = second->getVirtualY();
+
+        if (x - 16 + 32 >= secondX && x - 16 <= secondX && y - 16 + 32 >= secondY && y - 16 <= secondY) {
             return true;
         }
 

@@ -16,13 +16,9 @@ namespace ItemsDto {
 
     void Snake::init() {
         auto *snakeTile = new sSNAKE_TILE;
-        snakeTile->tile = new Cube();
+        snakeTile->tile = new ObjItem();
+        snakeTile->tile->load("Assets/Objects/Cube.obj");
         snakeTile->tile->addTexture(6);
-        glm::vec3 zoom = {0, 0, 0};
-        zoom.x = 15.0;
-        zoom.y = 15.0;
-        zoom.z = 15.0;
-        snakeTile->tile->setZoom(zoom);
         snakeTile->tile->setVisible(true);
         snakeTile->alpha = 1.0;
 
@@ -33,9 +29,9 @@ namespace ItemsDto {
     void Snake::addTile(eDIRECTION aDirection) {
         if (!tiles.empty()) {
             auto *snakeTile = new sSNAKE_TILE;
-            snakeTile->tile = new Cube();
-            glm::vec3 pos = {0, 0, 15};
-            glm::vec3 zoom = {0, 0, 0};
+            snakeTile->tile = new ObjItem();
+            snakeTile->tile->load("Assets/Objects/Cube.obj");
+            glm::vec3 pos = {-19, 67, -23};
 
             auto PrevIter = tiles.end()-1;
 
@@ -44,8 +40,8 @@ namespace ItemsDto {
             } else {
                 switch (aDirection) {
                     case LEFT:
-                        if ((*PrevIter)->tile->getPosition().x - 32 >= 16) {
-                            pos.x = (*PrevIter)->tile->getPosition().x - 32;
+                        if ((*PrevIter)->tile->getPosition().x - 2 >= -25) {
+                            pos.x = (*PrevIter)->tile->getPosition().x - 2;
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
                             delete snakeTile;
@@ -53,8 +49,8 @@ namespace ItemsDto {
                         }
                         break;
                     case RIGHT:
-                        if ((*PrevIter)->tile->getPosition().x + 32 <= 752) {
-                            pos.x = (*PrevIter)->tile->getPosition().x + 32;
+                        if ((*PrevIter)->tile->getPosition().x + 2 <= 752) {
+                            pos.x = (*PrevIter)->tile->getPosition().x + 2;
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
                             delete snakeTile;
@@ -62,18 +58,18 @@ namespace ItemsDto {
                         }
                         break;
                     case UP:
-                        if ((*PrevIter)->tile->getPosition().y - 32 >= 16) {
+                        if ((*PrevIter)->tile->getPosition().y - 2 >= -25) {
                             pos.x = (*PrevIter)->tile->getPosition().x;
-                            pos.y = (*PrevIter)->tile->getPosition().y - 32;
+                            pos.y = (*PrevIter)->tile->getPosition().y - 2;
                         } else {
                             delete snakeTile;
                             return;
                         }
                         break;
                     case DOWN:
-                        if ((*PrevIter)->tile->getPosition().y + 32 <= 752) {
+                        if ((*PrevIter)->tile->getPosition().y + 2 <= 752) {
                             pos.x = (*PrevIter)->tile->getPosition().x;
-                            pos.y = (*PrevIter)->tile->getPosition().y + 32;
+                            pos.y = (*PrevIter)->tile->getPosition().y + 2;
                         } else {
                             delete snakeTile;
                             return;
@@ -84,15 +80,11 @@ namespace ItemsDto {
                 }
             }
 
-            snakeTile->tile->addTexture(7);
+            snakeTile->tile->setVirtualX((((int)(pos.x - (-23)) / 2) * 32) + 16);
+            snakeTile->tile->setVirtualY((((int)(pos.y - (-23)) / 2) * 32) + 16);
             snakeTile->tile->setPosition(pos);
             snakeTile->tile->setVisible(true);
-            zoom.x = 15.0;
-            zoom.y = 15.0;
-            zoom.z = 15.0;
-            snakeTile->tile->setZoom(zoom);
             snakeTile->prevPauseDirection = NONE;
-            snakeTile->alpha = 1.0;
             tiles.push_back(snakeTile);
         }
     }
@@ -101,7 +93,7 @@ namespace ItemsDto {
         return tiles;
     }
 
-    Cube *Snake::getHeadTile() {
+    ObjItem *Snake::getHeadTile() {
         if (!tiles.empty()) {
             return (*tiles.begin())->tile;
         }
@@ -109,19 +101,19 @@ namespace ItemsDto {
         return nullptr;
     }
 
-    float Snake::getMaxX() const {
+    int Snake::getMaxX() const {
         return 0;
     }
 
-    float Snake::getMaxY() const {
+    int Snake::getMaxY() const {
         return 0;
     }
 
-    float Snake::getMinX() const {
+    int Snake::getMinX() const {
         return 0;
     }
 
-    float Snake::getMinY() const {
+    int Snake::getMinY() const {
         return 0;
     }
 
@@ -135,11 +127,10 @@ namespace ItemsDto {
 
         sSNAKE_TILE* snakeTile = (*tiles.begin());
 
-        glm::vec3 pos = {0, 0, 0};
-        pos.x = 368;
-        pos.y = 464;
-        pos.z = 15;
-        snakeTile->tile->setPosition(pos);
+        snakeTile->tile->setPosition({23, -3, -23}); // start pozice
+//        snakeTile->tile->setPosition({45, -3, -23});
+        snakeTile->tile->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
+        snakeTile->tile->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
         snakeTile->tile->setVisible(true);
         snakeTile->direction = STOP;
         snakeTile->prevPauseDirection = NONE;

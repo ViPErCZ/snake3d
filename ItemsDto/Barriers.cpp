@@ -59,19 +59,19 @@ namespace ItemsDto {
         return walls;
     }
 
-    float Barriers::getMaxX() const {
+    int Barriers::getMaxX() const {
         return 0;
     }
 
-    float Barriers::getMaxY() const {
+    int Barriers::getMaxY() const {
         return 0;
     }
 
-    float Barriers::getMinX() const {
+    int Barriers::getMinX() const {
         return 0;
     }
 
-    float Barriers::getMinY() const {
+    int Barriers::getMinY() const {
         return 0;
     }
 

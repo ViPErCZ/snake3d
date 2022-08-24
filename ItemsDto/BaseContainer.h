@@ -10,16 +10,16 @@ namespace ItemsDto {
     public:
         virtual void init() = 0;
         [[nodiscard]] virtual const vector<ParentType *> &getItems() const = 0;
-        [[nodiscard]] virtual float getMaxX() const = 0;
-        [[nodiscard]] virtual float getMaxY() const = 0;
-        [[nodiscard]] virtual float getMinX() const = 0;
-        [[nodiscard]] virtual float getMinY() const = 0;
+        [[nodiscard]] virtual int getMaxX() const = 0;
+        [[nodiscard]] virtual int getMaxY() const = 0;
+        [[nodiscard]] virtual int getMinX() const = 0;
+        [[nodiscard]] virtual int getMinY() const = 0;
     protected:
         virtual void release() = 0;
-        float maxX{};
-        float maxY{};
-        float minX{};
-        float minY{};
+        int maxX{};
+        int maxY{};
+        int minX{};
+        int minY{};
     };
 
 } // ItemsDto

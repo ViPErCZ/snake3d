@@ -1,120 +1,71 @@
 #include "SnakeRenderer.h"
 
 namespace Renderer {
-    SnakeRenderer::SnakeRenderer(Snake *item) {
-        snake = item;
+
+    SnakeRenderer::SnakeRenderer(Snake *snake, ShaderManager *shader, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager)
+            : snake(snake), shader(shader), camera(camera), projection(projection), resourceManager(resManager) {
+        model = new SnakeModel(snake);
+        tilesCounter = (int)snake->getItems().size();
     }
 
     SnakeRenderer::~SnakeRenderer() {
+        delete model;
         delete snake;
     }
 
     void SnakeRenderer::render() {
-        for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
-            if ((*Iter)->tile->isVisible()) {
+        int index = 0;
+        shader->use();
+        shader->setMat4("view", camera->getViewMatrix());
+        shader->setMat4("projection", this->projection);
+        shader->setInt("diffuseMap", 0);
+        shader->setInt("normalMap", 1);
+        shader->setInt("specularMap", 2);
+        shader->setFloat("alpha", 1.0);
 
-                if (Iter == snake->getItems().begin()) {
-                    glBindTexture(GL_TEXTURE_2D, 6);
+        for (auto data: model->getMeshes()) {
+            auto snakeTileIter = this->snake->getItems().begin() + index;
+            if ((*snakeTileIter)->tile->isVisible()) {
+                glLoadIdentity();
+
+                glActiveTexture(GL_TEXTURE0);
+                if (snakeTileIter == this->snake->getItems().begin()) {
+                    glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("snake.bmp"));
                 } else {
-                    glBindTexture(GL_TEXTURE_2D, 7);
+                    glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("head.bmp"));
                 }
 
-                glLoadIdentity( );
-                glm::vec3 pos = (*Iter)->tile->getPosition();
-                glm::vec3 zoom = (*Iter)->tile->getZoom();
-                const glm::vec4 * rotate = (*Iter)->tile->getRotate();
+                glm::vec3 position = (*snakeTileIter)->tile->getPosition();
 
-                glTranslatef( pos.x, pos.y, pos.z );
-                glScalef(zoom.x, zoom.y, zoom.z);
-                glRotatef(rotate[0].x, rotate[0].y, rotate[0].z, rotate[0].w);
-                glRotatef(rotate[1].x, rotate[1].y, rotate[1].z, rotate[1].w);
-                glRotatef(rotate[2].x, rotate[2].y, rotate[2].z, rotate[2].w);
+                // Initialize matrices
+                glm::mat4 model = glm::mat4(1.0f);
+                // Transform the matrices to their correct form
+                model = glm::translate(model, {0.0, 0.0, 0.0});
+                model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
+                model = glm::translate(model, position);
 
-                glBegin(GL_QUADS);
+                shader->setMat4("model", model);
 
-                // Přední stěna
-                glNormal3f(0.0f, 0.0f, 1.0f);// Normála
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(-1.0f, -1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(1.0f, -1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(1.0f, 1.0f, 1.0f, 1.0f);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(-1.0f, 1.0f, 1.0f, 1.0f);
+                data.first->bind();
+                glDrawElements(GL_TRIANGLES, (int)data.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
 
-                // Zadní stěna
-                glNormal3f(0.0f, 0.0f, -1.0f);// Normála
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(-1.0f, -1.0f, -1.0f, 1.0f);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(-1.0f, 1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(1.0f, 1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(1.0f, -1.0f, -1.0f, 1.0f);
-
-                // Horní stěna
-                glNormal3f(0.0f, 1.0f, 0.0f);// Normála
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(-1.0f, 1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(-1.0f, 1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(1.0f, 1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(1.0f, 1.0f, -1.0f, 1.0f);
-
-                // Spodní stěna
-                glNormal3f(0.0f, -1.0f, 0.0f);// Normála
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(-1.0f, -1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(1.0f, -1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(1.0f, -1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(-1.0f, -1.0f, 1.0f, 1.0f);
-
-                // Pravá stěna
-                glNormal3f(1.0f, 0.0f, 0.0f);// Normála
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(1.0f, -1.0f, -1.0f, 1.0f);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(1.0f, 1.0f, -1.0f, 1.0f);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(1.0f, 1.0f, 1.0f, 1.0f);
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(1.0f, -1.0f, 1.0f, 1.0f);
-
-                // Levá stěna
-                glNormal3f(-1.0f, 0.0f, 0.0f);// Normála
-                glTexCoord2f(0.0f, 0.0f);
-                glVertex4f(-1.0f, -1.0f, -1.0f, 1.0f);
-                glTexCoord2f(1.0f, 0.0f);
-                glVertex4f(-1.0f, -1.0f, 1.0f, 1.0f);
-                glTexCoord2f(1.0f, 1.0f);
-                glVertex4f(-1.0f, 1.0f, 1.0f, 1.0f);
-                glTexCoord2f(0.0f, 1.0f);
-                glVertex4f(-1.0f, 1.0f, -1.0f, 1.0f);
-
-                glEnd();
+                index++;
             }
         }
     }
 
     void SnakeRenderer::beforeRender() {
-        float LightPos[4]={60.0f,20.0f,10.0f,5.0f};
-        float Ambient[4]={0.0f,0.2f,0.9f,10.5f};
-
-        glEnable(GL_FOG);
-        glEnable(GL_LIGHTING);
-        glLightfv(GL_LIGHT0,GL_POSITION,LightPos);
-        glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
+        int currentSize = (int)snake->getItems().size();
+        if (tilesCounter < currentSize) {
+            model->addTiles(currentSize - tilesCounter);
+            tilesCounter = currentSize;
+        } else if (tilesCounter > currentSize) {
+            delete model;
+            model = new SnakeModel(snake);
+            tilesCounter = currentSize;
+        }
     }
 
     void SnakeRenderer::afterRender() {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_FOG);
     }
 } // Renderer

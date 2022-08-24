@@ -1,8 +1,8 @@
-#ifndef SNAKE3_WALLMODEL_H
-#define SNAKE3_WALLMODEL_H
+#ifndef SNAKE3_EATMODEL_H
+#define SNAKE3_EATMODEL_H
 
 #include "../../../Manager/ShaderManager.h"
-#include "../../../ItemsDto/ObjWall.h"
+#include "../../../ItemsDto/Eat.h"
 #include "Utils/Mesh.h"
 
 using namespace Manager;
@@ -12,17 +12,17 @@ using namespace std;
 
 namespace Model {
 
-    class WallModel {
+    class EatModel {
     public:
-        explicit WallModel(ObjWall *wall);
-        virtual ~WallModel();
+        explicit EatModel(Eat *eat);
+        virtual ~EatModel();
         [[nodiscard]] const map<Vao *, Mesh *> &getMeshes() const;
 
     protected:
-        ObjWall* wall{};
+        Eat* eat{};
         map<Vao*, Mesh*> meshes;
     };
 
 } // Model
 
-#endif //SNAKE3_WALLMODEL_H
+#endif //SNAKE3_EATMODEL_H

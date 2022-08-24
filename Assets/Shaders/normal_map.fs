@@ -8,6 +8,7 @@ in VS_OUT {
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     vec4 FragPosLightSpace;
+    float alpha;
 } fs_in;
 
 uniform sampler2D diffuseMap;
@@ -61,5 +62,5 @@ void main()
 
     vec3 specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, fs_in.TexCoords));
 
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    FragColor = vec4(ambient + diffuse + specular, fs_in.alpha);
 }

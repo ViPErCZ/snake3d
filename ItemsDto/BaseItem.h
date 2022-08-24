@@ -33,6 +33,10 @@ namespace ItemsDto {
         void setBlend(bool blend);
         [[nodiscard]] GLuint getProgram() const;
         void setProgram(GLuint program);
+        [[nodiscard]] int getVirtualX() const;
+        void setVirtualX(int virtualX);
+        [[nodiscard]] int getVirtualY() const;
+        void setVirtualY(int virtualY);
 
     protected:
         vector<GLuint> textures;
@@ -44,6 +48,8 @@ namespace ItemsDto {
         GLfloat width;
         GLfloat height;
         GLuint program;
+        int virtual_X;
+        int virtual_Y;
     };
 
 } // ItemsDto

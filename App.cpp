@@ -31,10 +31,10 @@ App::~App() {
 void App::Init() {
     InitResourceManager();
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)width / (float)height, 1.5f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)width / (float)height, 1.5f, 2600.0f);
     glm::mat4 view = camera->getViewMatrix();
 
-    gameFieldRenderer = new GameFieldRenderer(InitGameField(), baseShader, camera, projection);
+    gameFieldRenderer = new GameFieldRenderer(InitGameField(), normalShader, camera, projection, resourceManager);
     Snake *snake = InitSnake();
     eat = InitEat();
     Wall *wall = InitWall();
@@ -48,11 +48,11 @@ void App::Init() {
     auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat);
     eatManager = new EatManager(eatLocationHandler);
 
-    snakeRenderer = new SnakeRenderer(snake);
+    snakeRenderer = new SnakeRenderer(snake, baseShader, camera, projection, resourceManager);
     wallRenderer = new WallRenderer(wall);
-    objWallRenderer = new ObjWallRenderer(objWall, normalShader, camera, projection);
+    objWallRenderer = new ObjWallRenderer(objWall, normalShader, camera, projection, resourceManager);
     barrierRenderer = new BarrierRenderer(barriers);
-    eatRenderer = new EatRenderer(eat);
+    eatRenderer = new EatRenderer(eat, normalShader, camera, projection, resourceManager);
     radarRenderer = new RadarRenderer(radar);
     textRenderer = new TextRenderer(width, height);
 
@@ -60,11 +60,8 @@ void App::Init() {
     animateEat->load("Assets/Objects/Coin.obj");
     animateEat->setVisible(false);
     animateEat->setPosition(eat->getPosition());
-    animateEat->addTexture(12);
-    animateEat->setZoom({9, 9, 9});
-    animateEat->setRotate(eat->getRotate()[0], eat->getRotate()[1], eat->getRotate()[2]);
 
-    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat);
+    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, normalShader, camera, projection, resourceManager);
 
     textShader->loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
     baseShader->loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
@@ -87,15 +84,15 @@ void App::Init() {
     textRenderer->addText(tilesCounterText, textShader);
 
     rendererManager->addRenderer(gameFieldRenderer);
-//    rendererManager->addRenderer(snakeRenderer);
+    rendererManager->addRenderer(snakeRenderer);
 //    rendererManager->addRenderer(wallRenderer);
     rendererManager->addRenderer(objWallRenderer);
 //    rendererManager->addRenderer(barrierRenderer);
-//    rendererManager->addRenderer(eatRenderer);
-//    rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(eatRenderer);
+    rendererManager->addRenderer(eatRemoveAnimateRenderer);
 //    rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(textRenderer);
-    rendererManager->setStickyPoint(snake->getHeadTile());
+    camera->setStickyPoint(snake->getHeadTile());
 
     auto *snakeMoveHandler = new SnakeMoveHandler(snake);
     auto *radarHandler = new RadarHandler(radar);
@@ -151,10 +148,9 @@ void App::Init() {
     snakeMoveHandler->setEatenUpCallback([this]() {
         if (this->levelManager && this->snake) {
 
-            if (this->eatRemoveAnimateRenderer) {
-                animateEat->setZoom({9, 9, 9});
-                animateEat->setPosition(eat->getPosition());
-                animateEat->setVisible(true);
+            if (this->eatRemoveAnimateRenderer && this->animateEat) {
+                this->animateEat->setPosition(eat->getPosition());
+                this->animateEat->setVisible(true);
                 this->eatRemoveAnimateRenderer->setCompleted(false);
             }
 
@@ -163,7 +159,7 @@ void App::Init() {
             if (this->levelManager->getEatCounter() == MAX_POINT) {
                 this->startText->setVisible(true);
                 this->snake->reset();
-                eat->setVisible(false);
+                this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
@@ -190,11 +186,12 @@ void App::Init() {
 
 Eat *App::InitEat() {
     eat->load("Assets/Objects/Coin.obj");
-    eat->addTexture(12);
-    eat->setZoom({9, 9, 9});
-    eat->setPosition({150, 150, 15});
+    eat->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
+    eat->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
+    eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
+
     eat->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1});
-    eat->setVisible(false);
+    eat->setVisible(true);
 
     return eat;
 }
@@ -258,12 +255,16 @@ void App::InitResourceManager() {
     for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
         if (!is_directory(i->path())) {
             std::cout << i->path().filename() << std::endl;
+            if (i->path().filename() == "gamefield.bmp") {
+                resourceManager->createTexture(i->path().c_str(), i->path().filename(), GL_LINEAR);
+            }
             resourceManager->createTexture(i->path().c_str(), i->path().filename());
         }
     }
 }
 
 void App::run() {
+    camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti

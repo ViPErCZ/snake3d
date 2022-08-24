@@ -31,6 +31,8 @@ namespace ItemsDto {
                 wall->setVisible(true);
                 wall->setWidth(512);
                 wall->setHeight(512);
+                wall->setVirtualX((((int)wallPos.x + (-23) / 2) * 32) + 16);
+                wall->setVirtualX((((int)wallPos.y + (-23) / 2) * 32) + 16);
 
                 walls.push_back(wall);
             }
@@ -56,6 +58,8 @@ namespace ItemsDto {
                 wall->setZoom({15, 15, 15});
                 wall->setWidth(512);
                 wall->setHeight(512);
+                wall->setVirtualX((((int)wallPos.x + (-23) / 2) * 32) + 16);
+                wall->setVirtualX((((int)wallPos.y + (-23) / 2) * 32) + 16);
 
                 this->walls.push_back(wall);
             }
@@ -65,19 +69,19 @@ namespace ItemsDto {
         }
     }
 
-    float Wall::getMaxX() const {
+    int Wall::getMaxX() const {
         return maxX;
     }
 
-    float Wall::getMaxY() const {
+    int Wall::getMaxY() const {
         return maxY;
     }
 
-    float Wall::getMinX() const {
+    int Wall::getMinX() const {
         return minX;
     }
 
-    float Wall::getMinY() const {
+    int Wall::getMinY() const {
         return minY;
     }
 

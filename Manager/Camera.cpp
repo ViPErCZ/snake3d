@@ -4,7 +4,7 @@ namespace Manager {
     Camera::Camera(glm::vec3 position, glm::vec3 up) : front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         this->position = position;
         worldUp = up;
-        zoom = 30; //14
+        zoom = 20; //20
         updateCameraVectors();
     }
 
@@ -19,8 +19,6 @@ namespace Manager {
         // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         right = glm::normalize(glm::cross(front, worldUp));
         up = glm::normalize(glm::cross(right, front));
-
-        //position -= front * 0.5f;
     }
 
     float Camera::getZoom() const {
@@ -35,4 +33,17 @@ namespace Manager {
         return position;
     }
 
-} // Manager
+    void Camera::setStickyPoint(BaseItem *stickyPoint) {
+        this->stickyPoint = stickyPoint;
+    }
+
+    void Camera::updateStickyPoint() {
+        glm::vec3 pos = stickyPoint->getPosition();
+        position = pos;
+        position.x /= 26;
+        position.y /= 26;
+        position.y -= 3;
+        position.z = 1;
+    }
+
+}

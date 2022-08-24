@@ -1,117 +1,98 @@
 #include "EatRemoveAnimateRenderer.h"
 
 namespace Renderer {
-    EatRemoveAnimateRenderer::EatRemoveAnimateRenderer(Eat *eat): eat(eat) {}
+
+    EatRemoveAnimateRenderer::EatRemoveAnimateRenderer(Eat *eat, ShaderManager *shaderManager, Camera *camera,
+                                                       const glm::mat4 &projection, ResourceManager *resourceManager) :
+                                                       eat(eat), shaderManager(shaderManager), camera(camera),
+                                                       projection(projection),
+                                                       resourceManager(resourceManager),
+                                                       alpha(1.0) {
+        model = new EatModel(eat);
+        zoom = {0.013888889, 0.013888889, 0.013888889};
+    }
 
     EatRemoveAnimateRenderer::~EatRemoveAnimateRenderer() {
+        delete model;
         delete eat;
     }
 
     void EatRemoveAnimateRenderer::render() {
 
         if (eat && !completed && eat->isVisible()) {
-            GLuint index = eat->getPrimaryTexture();
-            if (index > 0) {
-                glBindTexture(GL_TEXTURE_2D, index);
+            shaderManager->use();
+            shaderManager->setMat4("view", camera->getViewMatrix());
+            shaderManager->setMat4("projection", this->projection);
+            shaderManager->setInt("diffuseMap", 0);
+            shaderManager->setInt("normalMap", 1);
+            shaderManager->setInt("specularMap", 2);
+            shaderManager->setFloat("alpha", alpha);
+
+            // lighting info
+            // -------------
+            glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
+
+            for (auto data: model->getMeshes()) {
+                glLoadIdentity();
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_albedo.png"));
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_nm.png"));
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_metalness.png"));
+
+                glm::vec3 position = eat->getPosition();
+                const glm::vec4 * rotate = eat->getRotate();
+
+                double now = glfwGetTime();
+                float angle = rotate[1].x;
+                if (now > lastTime + 0.0001) {
+                    angle++;
+                    position.z += 0.2;
+                    alpha -= 0.02;
+
+                    eat->setPosition(position);
+                    lastTime = now;
+                }
+
+                // Initialize matrices
+                glm::mat4 model = glm::mat4(1.0f);
+                // Transform the matrices to their correct form
+                model = glm::translate(model, {0.0, 0.0, 0.0});
+                model = glm::scale(model, {zoom.x, zoom.y, zoom.z});
+                //model = glm::translate(model, {-25.0, -25.0, -23.0f}); // levy spodni okraj
+                model = glm::translate(model, position);
+                model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
+                model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
+
+                shaderManager->setMat4("model", model);
+                shaderManager->setVec3("viewPos", camera->getPosition());
+                shaderManager->setVec3("lightPos", lightPos);
+
+                data.first->bind();
+                glDrawElements(GL_TRIANGLES, (int)data.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+
+                eat->setRotate(rotate[0], {angle, 0, 1, 0}, rotate[2]);
             }
-            glLoadIdentity();
 
-            glm::vec3 position = eat->getPosition();
-            glm::vec3 zoom = eat->getZoom();
-            const glm::vec4 *rotate = eat->getRotate();
-            glTranslatef(position.x, position.y, position.z);
-            glScalef(zoom.x, zoom.y, zoom.z);
+            glActiveTexture(GL_TEXTURE0);
 
-            double now = glfwGetTime();
-            float angle = rotate[1].x;
-            if (now > lastTime + 8) {
-                angle++;
-                zoom.x -= 0.1;
-                zoom.y -= 0.1;
-                zoom.z -= 0.1;
-
-                position.z += 0.9;
-
-                eat->setPosition(position);
-                eat->setZoom(zoom);
-
-                lastTime = now;
-            }
-            glRotatef(rotate[0].x, rotate[0].y, rotate[0].z, rotate[0].w);
-            glRotatef(angle, rotate[1].y, rotate[1].z, rotate[1].w);
-            glRotatef(rotate[2].x, rotate[2].y, rotate[2].z, rotate[2].w);
-            eat->setRotate(rotate[0], {angle, 0, 1, 0}, rotate[2]);
-
-//            // 1rst attribute buffer : vertices
-//            glEnableVertexAttribArray(0);
-//            glBindBuffer(GL_ARRAY_BUFFER, eat->getVertexBuffer());
-//            glVertexAttribPointer(
-//                    0,                  // attribute
-//                    3,                  // size
-//                    GL_FLOAT,           // type
-//                    GL_FALSE,           // normalized?
-//                    0,                  // stride
-//                    nullptr           // array buffer offset
-//            );
-//
-//            // 2nd attribute buffer : UVs
-//            glEnableVertexAttribArray(1);
-//            glBindBuffer(GL_ARRAY_BUFFER, eat->getUvBuffer());
-//            glVertexAttribPointer(
-//                    1,                                // attribute
-//                    2,                                // size
-//                    GL_FLOAT,                         // type
-//                    GL_FALSE,                         // normalized?
-//                    0,                                // stride
-//                    nullptr                      // array buffer offset
-//            );
-//
-//            // 3rd attribute buffer : normals
-//            glEnableVertexAttribArray(2);
-//            glBindBuffer(GL_ARRAY_BUFFER, eat->getNormalBuffer());
-//            glVertexAttribPointer(
-//                    2,                                // attribute
-//                    3,                                // size
-//                    GL_FLOAT,                         // type
-//                    GL_FALSE,                         // normalized?
-//                    0,                                // stride
-//                    nullptr                          // array buffer offset
-//            );
-//
-//            // Index buffer
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eat->getElementBuffer());
-//
-//            // Draw the triangles !
-//            glDrawElements(
-//                    GL_TRIANGLES,      // mode
-//                    (GLsizei)eat->getIndices().size(),    // count
-//                    GL_UNSIGNED_SHORT, // type
-//                    nullptr           // element array buffer offset
-//            );
-//
-//            glDisableVertexAttribArray(0);
-//            glDisableVertexAttribArray(1);
-//            glDisableVertexAttribArray(2);
-//            // enable vertex coordinates
-//            glDisableClientState(GL_VERTEX_ARRAY);
-//            // enable textures
-//            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-            if (zoom.x <= 0) {
+            if (alpha <= 0) {
                 completed = true;
+                //zoom = {0.013888889, 0.013888889, 0.013888889};
+                alpha = 1.0f;
             }
         }
     }
 
     void EatRemoveAnimateRenderer::beforeRender() {
-//        glEnable(GL_LIGHTING);
-//        glEnable(GL_LIGHT0);
-        glShadeModel(GL_SMOOTH);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void EatRemoveAnimateRenderer::afterRender() {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_LIGHT0);
+        glDisable(GL_BLEND);
     }
 
     bool EatRemoveAnimateRenderer::isCompleted() const {

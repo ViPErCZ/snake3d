@@ -33,6 +33,7 @@ namespace Handler {
         CollisionDetector* collisionDetector{};
         double next_time{};
         bool stop;
+        bool eatenUpCallbackCalled;
         std::function<bool(sSNAKE_TILE*)> changeCallback;
         std::function<void()> startMoveCallback;
         std::function<void()> crashCallback;

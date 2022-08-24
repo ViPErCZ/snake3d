@@ -1,8 +1,11 @@
 #ifndef SNAKE3_CAMERA_H
 #define SNAKE3_CAMERA_H
 
+#include "../ItemsDto/BaseItem.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+using namespace ItemsDto;
 
 namespace Manager {
 
@@ -15,6 +18,8 @@ namespace Manager {
         [[nodiscard]] float getZoom() const;
         [[nodiscard]] glm::mat4 getViewMatrix() const;
         [[nodiscard]] const glm::vec3 &getPosition() const;
+        void setStickyPoint(BaseItem *stickyPoint);
+        void updateStickyPoint();
 
     protected:
         glm::vec3 position{};
@@ -23,6 +28,7 @@ namespace Manager {
         glm::vec3 right{};
         glm::vec3 worldUp{};
         float zoom;
+        BaseItem* stickyPoint{};
 
         void updateCameraVectors();
     };

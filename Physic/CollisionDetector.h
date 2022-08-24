@@ -17,7 +17,7 @@ namespace Physic {
         bool perimeterDetect(BaseItem* snakeHead);
         bool detectWithStaticItem(BaseItem* snakeHead);
         bool barrierCollision(BaseItem* snakeHead);
-        bool intoHimSelf(Snake* snake);
+        static bool intoHimSelf(Snake* snake);
         static bool detect(BaseItem* first, BaseItem* second);
         void blendBarrierDetect(BaseItem* snakeHead, BaseItem* barrier);
         void setPerimeter(Wall* wall);

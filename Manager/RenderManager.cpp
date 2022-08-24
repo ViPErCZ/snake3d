@@ -69,44 +69,6 @@ namespace Manager {
 //        glDisable(GL_FOG);
     }
 
-    void RenderManager::setupProjection() {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        gluPerspective(40, (GLfloat)width/(GLfloat)height, 1.5f, 2600.0f);
-//        glLoadMatrixf(glm::value_ptr(perspective));
-//        glTranslatef(0, 0, -1050); // correctly center
-        glTranslatef(54, -247, -450); // correctly center
-        glRotatef(-60, 1, 0, 0);
-        glRotatef(41, 0, 0, 1);
-
-        float x = stickyPoint->getPosition().x - 154; // head x
-        float y = stickyPoint->getPosition().y - 154; // head y
-        int down = -147;
-
-        // camera
-        glm::vec3 cameraPos = glm::vec3(x, y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + down, 1.0f);
-        glm::vec3 cameraFront = glm::vec3(x, y + 0.0025 * std::abs(sin(1 * 3.14 / 180)) + down, -1.0f);
-
-        /** upside down */
-//        glRotatef(180, 0, 1, 0);
-//        glRotatef(60, 1, 0, 0);
-
-        gluLookAt(cameraPos.x,
-                  cameraPos.y,
-                  0.0,
-                  cameraFront.x,
-                  cameraPos.y,
-                  -1.0,
-                  0.0,
-                  1.0,
-                  0.0);
-    }
-
-    void RenderManager::setStickyPoint(BaseItem *stickyPoint) {
-        this->stickyPoint = stickyPoint;
-    }
-
     void RenderManager::setWidth(int width) {
         RenderManager::width = width;
     }
