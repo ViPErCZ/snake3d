@@ -13,7 +13,7 @@ namespace ItemsDto {
         };
     public:
         void updatePositions();
-        void addItem(BaseItem* item, int presentTexture);
+        void addItem(BaseItem* item, GLuint presentTexture);
         [[nodiscard]] const vector<Radar::sRADAR_item> &getItems() const;
 
     protected:

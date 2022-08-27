@@ -15,12 +15,16 @@ namespace Model {
     public:
         explicit RadarModel(Radar *radar);
         virtual ~RadarModel();
-        [[nodiscard]] const map<Vao *, Mesh *> &getMeshes() const;
+
+        const map<Vao *, Mesh *> &getRadarMesh() const;
+
+        const map<Vao *, Mesh *> &getItemsMeshes() const;
 
     protected:
-        void createVertices(BaseItem* item);
+        void createVertices(BaseItem* item, map<Vao*, Mesh*>& storage);
         Radar* radar{};
-        map<Vao*, Mesh*> meshes;
+        map<Vao*, Mesh*> radarMesh;
+        map<Vao*, Mesh*> itemsMeshes;
     };
 
 } // Model

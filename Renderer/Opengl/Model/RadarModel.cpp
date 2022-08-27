@@ -4,21 +4,23 @@
 namespace Model {
     RadarModel::RadarModel(Radar *radar) : radar(radar) {
         vector<Vertex> vertices;
+
+        createVertices(radar, radarMesh);
         for (auto item : radar->getItems()) {
-            createVertices(item.item);
+            createVertices(item.item, itemsMeshes);
         }
     }
 
     RadarModel::~RadarModel() {
-        for (auto data: meshes) {
+        for (auto data: radarMesh) {
             delete data.first;
             delete data.second;
         }
 
-        meshes.clear();
+        radarMesh.clear();
     }
 
-    void RadarModel::createVertices(BaseItem* item) {
+    void RadarModel::createVertices(BaseItem* item, map<Vao*, Mesh*>& storage) {
         vector<glm::vec3> vbo_vertices;
         vector<glm::vec3> vbo_normals;
         vector<glm::vec2> vbo_uvs;
@@ -116,11 +118,15 @@ namespace Model {
         }
 
         auto vao = new Vao();
-        meshes.insert(pair<Vao*, Mesh*>(vao, new Mesh(vertices, indices, *vao, item)));
+        storage.insert(pair<Vao*, Mesh*>(vao, new Mesh(vertices, indices, *vao, item)));
     }
 
-    const map<Vao *, Mesh *> &RadarModel::getMeshes() const {
-        return meshes;
+    const map<Vao *, Mesh *> &RadarModel::getRadarMesh() const {
+        return radarMesh;
+    }
+
+    const map<Vao *, Mesh *> &RadarModel::getItemsMeshes() const {
+        return itemsMeshes;
     }
 
 } // Model

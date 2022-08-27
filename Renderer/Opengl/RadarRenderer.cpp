@@ -17,35 +17,56 @@ namespace Renderer {
 
     void RadarRenderer::render() {
         if (radar->isVisible()) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
             shader->use();
             shader->setMat4("projection", this->projection);
             shader->setInt("texture_diffuse1", 0);
             shader->setFloat("alpha", 1.0);
 
-            for (auto Iter = radar->getItems().begin(); Iter < radar->getItems().end(); Iter++) {
+            glLoadIdentity();
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("red_screen.bmp"));
+
+            glm::vec3 position = radar->getPosition();
+            glm::vec3 zoom = radar->getZoom();
+
+            // Initialize matrices
+            glm::mat4 model = glm::mat4(1.0f);
+
+            model = glm::translate(model, position);
+            model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
+
+            shader->setMat4("model", model);
+
+            auto modelIter = this->model->getRadarMesh().begin();
+
+            (*modelIter).first->bind();
+            glDrawElements(GL_TRIANGLES, (int) (*modelIter).second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDisable(GL_BLEND);
+
+            int index = 0;
+            for (auto mesh: this->model->getItemsMeshes()) {
                 glLoadIdentity();
+                auto Iter = radar->getItems().begin() + index;
 
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("red_screen.bmp"));
+                glBindTexture(GL_TEXTURE_2D, (*Iter).radarPresent->getPrimaryTexture());
 
-                glm::vec3 position = (*Iter).item->getPosition();
+                glm::vec3 position = (*Iter).radarPresent->getPosition();
+                glm::vec3 zoom = (*Iter).radarPresent->getZoom();
 
                 // Initialize matrices
                 glm::mat4 model = glm::mat4(1.0f);
 
-                position.x = 125;
-                position.y = 160;
-                position.z = -1;
                 model = glm::translate(model, position);
-                model = glm::scale(model, glm::vec3(100, 100, 1));
+                model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
 
                 shader->setMat4("model", model);
 
-                auto modelIter = this->model->getMeshes().begin();
-
-                (*modelIter).first->bind();
-                glDrawElements(GL_TRIANGLES, (int) (*modelIter).second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-                break;
+                glDrawElements(GL_TRIANGLES, (int) mesh.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                index++;
             }
 
             radar->updatePositions();
@@ -53,8 +74,6 @@ namespace Renderer {
     }
 
     void RadarRenderer::beforeRender() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
         glDepthMask(0);
     }
 

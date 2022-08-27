@@ -45,8 +45,8 @@ namespace Handler {
         }
 
         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); Iter++) {
-            if ((int) (*Iter)->getPosition().x - 16 + 32 >= posX && (int) (*Iter)->getPosition().x - 16 <= posX
-                && (int) (*Iter)->getPosition().y - 16 + 32 >= posY && (int) (*Iter)->getPosition().y - 16 <= posY) {
+            if ((int) (*Iter)->getPosition().x - 16 + 32 > posX && (int) (*Iter)->getPosition().x - 16 <= posX
+                && (int) (*Iter)->getPosition().y - 16 + 32 > posY && (int) (*Iter)->getPosition().y - 16 <= posY) {
                 cout << "Not empty field" << endl;
 
                 return false;

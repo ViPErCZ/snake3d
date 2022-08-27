@@ -223,16 +223,17 @@ Barriers *App::InitBarriers() {
 Radar *App::InitRadar() {
     radar = new Radar();
     radar->setVisible(true);
-    radar->setPosition({5.0, 28.0, 0.0});
-    radar->setZoom({2, 2, 2});
-    radar->addTexture(11);
-    radar->setWidth(164);
-    radar->setHeight(164);
+    radar->setPosition({125.0, 160.0, 0.0});
+    radar->setZoom({100, 100, 1});
+    radar->setWidth(176);
+    radar->setHeight(176);
 
-    if (snake) {
-        radar->addItem(snake->getHeadTile(), 13);
+    if (resourceManager) {
+        if (snake) {
+            radar->addItem(snake->getHeadTile(), resourceManager->getTexture("radar_snake.bmp"));
+        }
+        radar->addItem(eat, resourceManager->getTexture("eat.bmp"));
     }
-    radar->addItem(eat, 12);
 
     return radar;
 }
