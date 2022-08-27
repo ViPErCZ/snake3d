@@ -4,8 +4,8 @@
 #include "../ItemsDto/BaseItem.h"
 #include "../ItemsDto/Barriers.h"
 #include "../ItemsDto/BaseContainer.h"
-#include "../ItemsDto/Wall.h"
 #include "../ItemsDto/Snake.h"
+#include "../ItemsDto/ObjWall.h"
 
 using namespace ItemsDto;
 
@@ -19,13 +19,13 @@ namespace Physic {
         bool barrierCollision(BaseItem* snakeHead);
         static bool intoHimSelf(Snake* snake);
         static bool detect(BaseItem* first, BaseItem* second);
-        void blendBarrierDetect(BaseItem* snakeHead, BaseItem* barrier);
-        void setPerimeter(Wall* wall);
+        void blendBarrierDetect(BaseItem* snakeHead, ObjItem* barrier);
+        void setPerimeter(ObjWall* wall);
         void setBarriers(Barriers *barriers);
         void addStaticItem(BaseItem* item);
     protected:
         vector<BaseItem*> movingItems;
-        Wall* perimeter;
+        ObjWall* perimeter;
         Barriers* barriers;
         vector<BaseItem*> staticItems;
     };

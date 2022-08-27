@@ -10,6 +10,7 @@ App::App(int width, int height) : width(width), height(height) {
     textShader = new ShaderManager;
     baseShader = new ShaderManager;
     normalShader = new ShaderManager;
+    orthoShader = new ShaderManager;
     camera = new Camera(glm::vec3(0.0f, -1.0f, 2.0f));
 }
 
@@ -25,6 +26,7 @@ App::~App() {
     delete textShader;
     delete baseShader;
     delete normalShader;
+    delete orthoShader;
     delete camera;
 }
 
@@ -32,28 +34,27 @@ void App::Init() {
     InitResourceManager();
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)width / (float)height, 1.5f, 2600.0f);
+    glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     glm::mat4 view = camera->getViewMatrix();
 
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), normalShader, camera, projection, resourceManager);
     Snake *snake = InitSnake();
     eat = InitEat();
-    Wall *wall = InitWall();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
     Radar *radar = InitRadar();
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
-    levelManager->createLevel(1);
+    levelManager->createLevel(START_LEVEL);
 
     auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat);
     eatManager = new EatManager(eatLocationHandler);
 
     snakeRenderer = new SnakeRenderer(snake, baseShader, camera, projection, resourceManager);
-    wallRenderer = new WallRenderer(wall);
     objWallRenderer = new ObjWallRenderer(objWall, normalShader, camera, projection, resourceManager);
-    barrierRenderer = new BarrierRenderer(barriers);
+    barrierRenderer = new BarrierRenderer(barriers, normalShader, camera, projection, resourceManager);
     eatRenderer = new EatRenderer(eat, normalShader, camera, projection, resourceManager);
-    radarRenderer = new RadarRenderer(radar);
+    radarRenderer = new RadarRenderer(radar, orthoShader, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
 
     animateEat = new Eat;
@@ -66,6 +67,7 @@ void App::Init() {
     textShader->loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
     baseShader->loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
     normalShader->loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs");
+    orthoShader->loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs");
 
     startText->setVisible(true);
     startText->setColor({0.8, 0.8, 0.8});
@@ -85,12 +87,11 @@ void App::Init() {
 
     rendererManager->addRenderer(gameFieldRenderer);
     rendererManager->addRenderer(snakeRenderer);
-//    rendererManager->addRenderer(wallRenderer);
     rendererManager->addRenderer(objWallRenderer);
-//    rendererManager->addRenderer(barrierRenderer);
+    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
-//    rendererManager->addRenderer(radarRenderer);
+    rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(textRenderer);
     camera->setStickyPoint(snake->getHeadTile());
 
@@ -98,7 +99,7 @@ void App::Init() {
     auto *radarHandler = new RadarHandler(radar);
 
     collisionDetector = new CollisionDetector();
-    collisionDetector->setPerimeter(wall);
+    collisionDetector->setPerimeter(objWall);
     collisionDetector->setBarriers(barriers);
     collisionDetector->addStaticItem(eat);
     snakeMoveHandler->setCollisionDetector(collisionDetector);
@@ -121,7 +122,7 @@ void App::Init() {
         }
     });
     snakeMoveHandler->setCrashCallback([this]() {
-        if (this->levelManager) {
+        if (this->levelManager && this->barrierRenderer) {
             this->levelManager->setLive(this->levelManager->getLive() - 1);
             this->levelManager->setEatCounter(0);
             char buff[100];
@@ -141,12 +142,13 @@ void App::Init() {
                 this->startText->setVisible(true);
                 this->levelManager->setLive(3);
                 eat->setVisible(false);
+                this->barrierRenderer->reCreate();
                 cout << "crash callback call" << endl;
             }
         }
     });
     snakeMoveHandler->setEatenUpCallback([this]() {
-        if (this->levelManager && this->snake) {
+        if (this->levelManager && this->snake && this->barrierRenderer) {
 
             if (this->eatRemoveAnimateRenderer && this->animateEat) {
                 this->animateEat->setPosition(eat->getPosition());
@@ -161,6 +163,7 @@ void App::Init() {
                 this->snake->reset();
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
+                this->barrierRenderer->reCreate();
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -208,13 +211,6 @@ Snake *App::InitSnake() {
     snake->init();
 
     return snake;
-}
-
-Wall *App::InitWall() {
-    wall = new Wall();
-    wall->init();
-
-    return wall;
 }
 
 Barriers *App::InitBarriers() {

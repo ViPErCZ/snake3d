@@ -11,7 +11,7 @@ namespace Physic {
         staticItems.push_back(item);
     }
 
-    void CollisionDetector::setPerimeter(Wall *wall) {
+    void CollisionDetector::setPerimeter(ObjWall *wall) {
         this->perimeter = wall;
     }
 
@@ -67,7 +67,7 @@ namespace Physic {
         int secondX = second->getVirtualX();
         int secondY = second->getVirtualY();
 
-        if (x - 16 + 32 >= secondX && x - 16 <= secondX && y - 16 + 32 >= secondY && y - 16 <= secondY) {
+        if (x - 16 + 32 > secondX && x - 16 <= secondX && y - 16 + 32 > secondY && y - 16 <= secondY) {
             return true;
         }
 
@@ -86,7 +86,7 @@ namespace Physic {
         return false;
     }
 
-    void CollisionDetector::blendBarrierDetect(BaseItem *snakeHead, BaseItem *barrier) {
+    void CollisionDetector::blendBarrierDetect(BaseItem *snakeHead, ObjItem *barrier) {
 //        glm::vec3 headPosition = snakeHead->getPosition();
 //        glm::vec3 barrierPosition = barrier->getPosition();
 //

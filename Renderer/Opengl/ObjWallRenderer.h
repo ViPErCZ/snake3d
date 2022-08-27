@@ -18,6 +18,7 @@ namespace Renderer {
     public:
         explicit ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~ObjWallRenderer() override;
+        void reCreate();
         void render() override;
         void beforeRender() override;
         void afterRender() override;

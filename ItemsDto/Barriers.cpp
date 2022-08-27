@@ -1,4 +1,5 @@
 #include "Barriers.h"
+#include "ObjItem.h"
 
 namespace ItemsDto {
     Barriers::~Barriers() {
@@ -43,19 +44,18 @@ namespace ItemsDto {
         walls.push_back(wallFactory({1040.0, 336.0, 15.0}));
     }
 
-    Cube *Barriers::wallFactory(const glm::vec3 &position) {
-        Cube* wall = new Cube();
-        wall->addTexture(2);
+    ObjItem *Barriers::wallFactory(const glm::vec3 &position) {
+        auto wall = new ObjItem();
+        wall->load("Assets/Objects/Cube.obj");
         wall->setPosition(position);
-        wall->setZoom({15, 15, 15});
+        wall->setVirtualX((((int)(position.x - (-23)) / 2) * 32));
+        wall->setVirtualY((((int)(position.y - (-23)) / 2) * 32));
         wall->setVisible(true);
-        wall->setWidth(512);
-        wall->setHeight(512);
 
         return wall;
     }
 
-    const vector<Cube *> &Barriers::getItems() const {
+    const vector<ObjItem *> &Barriers::getItems() const {
         return walls;
     }
 
@@ -76,7 +76,7 @@ namespace ItemsDto {
     }
 
     void Barriers::createWall(int x, int y) {
-        walls.push_back(wallFactory({(float)x, (float)y, 15.0}));
+        walls.push_back(wallFactory({(float)x, (float)y, -23.0}));
     }
 
     void Barriers::reset() {

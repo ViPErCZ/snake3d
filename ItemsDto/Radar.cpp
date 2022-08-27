@@ -7,10 +7,10 @@ namespace ItemsDto {
 
         radarItem.radarPresent = new BaseItem();
         radarItem.radarPresent->setVisible(true);
-        radarItem.radarPresent->addTexture(presentTexture);
-        radarItem.radarPresent->setZoom(this->getZoom());
-        radarItem.radarPresent->setWidth(3);
-        radarItem.radarPresent->setHeight(3);
+//        radarItem.radarPresent->addTexture(presentTexture);
+//        radarItem.radarPresent->setZoom(this->getZoom());
+//        radarItem.radarPresent->setWidth(3);
+//        radarItem.radarPresent->setHeight(3);
 
         items.push_back(radarItem);
     }

@@ -3,14 +3,12 @@
 
 #include "ItemsDto/GameField.h"
 #include "ItemsDto/Snake.h"
-#include "ItemsDto/Wall.h"
 #include "ItemsDto/ObjWall.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
 #include "Renderer/Opengl/GameFieldRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
-#include "Renderer/Opengl/WallRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
 #include "Handler/SnakeMoveHandler.h"
 #include "Handler/RadarHandler.h"
@@ -30,6 +28,7 @@
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
+#define START_LEVEL 1
 
 namespace fs = std::filesystem;
 using namespace ItemsDto;
@@ -48,7 +47,6 @@ protected:
     void InitResourceManager();
     GameField* InitGameField();
     Snake* InitSnake();
-    Wall* InitWall(); // outer wall
     ObjWall* InitObjWall(); // outer wall
     Barriers* InitBarriers(); // inter barriers
     Radar* InitRadar();
@@ -62,12 +60,10 @@ private:
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
-    Wall* wall{};
     ObjWall* objWall{};
     Barriers* barriers{};
     Radar* radar{};
     SnakeRenderer* snakeRenderer{};
-    WallRenderer* wallRenderer{};
     ObjWallRenderer* objWallRenderer{};
     BarrierRenderer* barrierRenderer{};
     EatRenderer* eatRenderer{};
@@ -82,6 +78,7 @@ private:
     ShaderManager* textShader;
     ShaderManager* baseShader;
     ShaderManager* normalShader;
+    ShaderManager* orthoShader;
     Camera* camera;
     int width;
     int height;

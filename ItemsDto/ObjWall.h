@@ -1,8 +1,8 @@
 #ifndef SNAKE3_OBJWALL_H
 #define SNAKE3_OBJWALL_H
 
-#include "Wall.h"
 #include "ObjItem.h"
+#include "BaseContainer.h"
 
 namespace ItemsDto {
 

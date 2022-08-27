@@ -68,4 +68,9 @@ namespace Renderer {
     void ObjWallRenderer::afterRender() {
     }
 
+    void ObjWallRenderer::reCreate() {
+        delete model;
+        model = new WallModel(wall);
+    }
+
 } // Renderer
