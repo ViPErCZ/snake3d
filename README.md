@@ -1,4 +1,4 @@
 # Snake3d
-C++ SDL Opengl 3D Snake example with radar.
+Modern C++ Opengl 3D Snake example.
 
 ![Printscreen](printscreen.png "Printscreen")
