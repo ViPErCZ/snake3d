@@ -25,8 +25,6 @@ namespace Manager {
 
     protected:
         vector<BaseRenderer*> renderers;
-        void switchOrthoProjection() const;
-        static void restoreProjection();
         int width;
         int height;
         float test = 0;
