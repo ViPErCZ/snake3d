@@ -2,12 +2,8 @@
 
 namespace Manager {
     RenderManager::RenderManager(int width, int height) : width(width), height(height) {
-//        glShadeModel(GL_SMOOTH);
-        glClearDepth(1.0f);                            // Depth Buffer Setup
-        glEnable(GL_DEPTH_TEST);                            // Enables Depth Testing
-//        glDepthFunc(GL_LESS);
-//        glDepthFunc(GL_LEQUAL);                                // The Type Of Depth Testing To Do
-//        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);    // Really Nice Perspective Calculations
+        glClearDepth(1.0f);
+        glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
     }
 
