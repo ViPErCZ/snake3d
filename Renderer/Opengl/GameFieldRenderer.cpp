@@ -6,18 +6,12 @@ Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, ShaderManager* s
     this->shader = shader;
     this->camera = camera;
     this->projection = proj;
-    for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
-        auto field = new GameFieldModel((*Iter));
-        model.push_back(field);
-    }
+    model = new GameFieldModel((*gameField->getTiles().begin()));
 }
 
 Renderer::GameFieldRenderer::~GameFieldRenderer() {
     delete gameField;
-    for (auto Iter = model.begin(); Iter < model.end(); Iter++) {
-        delete (*Iter);
-    }
-    model.clear();
+    delete model;
 }
 
 void Renderer::GameFieldRenderer::render() {
@@ -49,21 +43,14 @@ void Renderer::GameFieldRenderer::render() {
 
             // Initialize matrices
             glm::mat4 model = glm::mat4(1.0f);
-            // Transform the matrices to their correct form
-            //model = glm::rotate(model, glm::radians(-60.0f), glm::vec3(1.0, 0.0f, 0.0f));
-//            model = glm::rotate(model, rotate[1].x, glm::vec3(0.0, 1.0f, 0.0f));
-            //model = glm::rotate(model, glm::radians(41.0f), glm::vec3(0.0, 0.0f, 1.0f));
-            //model = glm::scale(model, {2.0f, 2.0f, 0.0f});
             model = glm::translate(model, position);
 
             shader->setMat4("model", model);
             shader->setVec3("viewPos", camera->getPosition());
             shader->setVec3("lightPos", lightPos);
 
-            auto modelIter = this->model.begin() + x;
-
-            (*modelIter)->getVao().bind();
-            glDrawElements(GL_TRIANGLES, (int)(*modelIter)->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            this->model->getVao().bind();
+            glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             x++;
         }
     }

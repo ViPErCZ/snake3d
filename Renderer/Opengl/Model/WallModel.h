@@ -16,11 +16,13 @@ namespace Model {
     public:
         explicit WallModel(ObjWall *wall);
         virtual ~WallModel();
-        [[nodiscard]] const map<Vao *, Mesh *> &getMeshes() const;
+        [[nodiscard]] Mesh *getMesh() const;
+        [[nodiscard]] Vao *getVao() const;
 
     protected:
         ObjWall* wall{};
-        map<Vao*, Mesh*> meshes;
+        Vao* vao;
+        Mesh* mesh;
     };
 
 } // Model

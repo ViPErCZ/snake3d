@@ -22,7 +22,7 @@ namespace Renderer {
     protected:
         ResourceManager* resourceManager;
         GameField* gameField;
-        vector<GameFieldModel*> model;
+        GameFieldModel* model;
         ShaderManager* shader;
         Camera* camera;
         glm::mat4 projection{};

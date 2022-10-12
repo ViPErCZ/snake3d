@@ -28,9 +28,10 @@ namespace Renderer {
         // -------------
         glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
 
-        for (auto data: model->getMeshes()) {
+        for (auto item: wall->getItems()) {
+            auto mesh = model->getMesh();
+
             glLoadIdentity();
-            auto wallIter = this->wall->getItems().begin() + index;
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-texture.jpg"));
@@ -39,7 +40,7 @@ namespace Renderer {
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-bump-map.jpg"));
 
-            glm::vec3 position = (*wallIter)->getPosition();
+            glm::vec3 position = item->getPosition();
 
             // Initialize matrices
             glm::mat4 model = glm::mat4(1.0f);
@@ -53,10 +54,8 @@ namespace Renderer {
             shaderManager->setVec3("viewPos", camera->getPosition());
             shaderManager->setVec3("lightPos", lightPos);
 
-            data.first->bind();
-            glDrawElements(GL_TRIANGLES, (int)data.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-
-            index++;
+            this->model->getVao()->bind();
+            glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
         }
 
         glEnable(GL_TEXTURE0);

@@ -3,41 +3,40 @@
 namespace Model {
     WallModel::WallModel(ObjWall *wall) : wall(wall) {
         vector<Vertex> vertices;
-        for (auto item : wall->getItems()) {
-            int index = 0;
-            for (auto vert: (*item).getIndexedVertices()) {
-                auto uvs = (*item).getIndexedUvs().begin() + index;
-                auto normals = (*item).getIndexedNormals().begin() + index;
-                auto tangents = (*item).getIndexedTangents().begin() + index;
-                auto biTangents = (*item).getIndexedBiTangents().begin() + index;
-                Vertex vertex{};
-                vertex.position = vert;
-                vertex.normal = (*normals);
-                vertex.color = {1.0f, 1.0f, 1.0f};
-                vertex.texUV = (*uvs);
-                vertex.tangents = (*tangents);
-                vertex.biTangents = (*biTangents);
+        auto item = (*wall->getItems().begin());
+        int index = 0;
 
-                vertices.push_back(vertex);
-                index++;
-            }
+        for (auto vert: (*item).getIndexedVertices()) {
+            auto uvs = (*item).getIndexedUvs().begin() + index;
+            auto normals = (*item).getIndexedNormals().begin() + index;
+            auto tangents = (*item).getIndexedTangents().begin() + index;
+            auto biTangents = (*item).getIndexedBiTangents().begin() + index;
+            Vertex vertex{};
+            vertex.position = vert;
+            vertex.normal = (*normals);
+            vertex.color = {1.0f, 1.0f, 1.0f};
+            vertex.texUV = (*uvs);
+            vertex.tangents = (*tangents);
+            vertex.biTangents = (*biTangents);
 
-            auto vao = new Vao();
-            meshes.insert(pair<Vao*, Mesh*>(vao, new Mesh(vertices, (*item).getIndices(), *vao, &(*item))));
+            vertices.push_back(vertex);
+            index++;
         }
-    }
-
-    const map<Vao *, Mesh *> &WallModel::getMeshes() const {
-        return meshes;
+        vao = new Vao();
+        mesh = new Mesh(vertices, (*item).getIndices(), *vao, &(*item));
     }
 
     WallModel::~WallModel() {
-        for (auto data: meshes) {
-            delete data.first;
-            delete data.second;
-        }
+        delete vao;
+        delete mesh;
+    }
 
-        meshes.clear();
+    Mesh *WallModel::getMesh() const {
+        return mesh;
+    }
+
+    Vao *WallModel::getVao() const {
+        return vao;
     }
 
 } // Model
