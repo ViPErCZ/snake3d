@@ -14,11 +14,10 @@ namespace Manager {
     class KeyboardManager {
     public:
         virtual ~KeyboardManager();
-        explicit KeyboardManager(SDL_Event *event);
         void addEventHandler(BaseKeydownHandle* handler);
-        void run();
+        void onKeyPress(int keyCode);
+        void runDefault();
     protected:
-        SDL_Event* event;
         vector<BaseKeydownHandle*> handlers;
     };
 

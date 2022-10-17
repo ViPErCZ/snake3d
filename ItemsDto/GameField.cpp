@@ -14,43 +14,13 @@ namespace ItemsDto {
     }
 
     void GameField::Init() {
-        Cube* field = new Cube();
-        field->addTexture(5);
-        field->setPosition({0, 0, 0.0});
-        field->setZoom({1, 1, 0.0});
-        field->setVisible(true);
-        field->setWidth(768);
-        field->setHeight(768);
-
-        tile.push_back(field);
+        Cube* field;
 
         field = new Cube();
         field->addTexture(5);
-        field->setPosition({768, 0, 0.0});
+        field->setPosition({0.0f, 0.0f, 0.0f});
         field->setZoom({1, 1, 0.0});
         field->setVisible(true);
-        field->setWidth(768);
-        field->setHeight(768);
-
-        tile.push_back(field);
-
-        field = new Cube();
-        field->addTexture(5);
-        field->setPosition({0, 768, 0.0});
-        field->setZoom({1, 1, 0.0});
-        field->setVisible(true);
-        field->setWidth(768);
-        field->setHeight(768);
-
-        tile.push_back(field);
-
-        field = new Cube();
-        field->addTexture(5);
-        field->setPosition({768, 768, 0.0});
-        field->setZoom({1, 1, 0.0});
-        field->setVisible(true);
-        field->setWidth(768);
-        field->setHeight(768);
 
         tile.push_back(field);
     }

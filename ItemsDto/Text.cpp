@@ -3,15 +3,13 @@
 #include <utility>
 
 namespace ItemsDto {
-    Text::Text(string text) : text(std::move(text)) {
-        font = GLUT_BITMAP_8_BY_13;
-    }
+    Text::Text(string text) : text(std::move(text)) {}
 
     void Text::setText(const string &text) {
         Text::text = text;
     }
 
-    void Text::setColor(const sCOLOR &color) {
+    void Text::setColor(const glm::vec3 &color) {
         Text::color = color;
     }
 
@@ -19,15 +17,23 @@ namespace ItemsDto {
         return text;
     }
 
-    const sCOLOR &Text::getColor() const {
+    const glm::vec3 &Text::getColor() const {
         return color;
     }
 
-    void *Text::getFont() const {
-        return font;
+    unsigned int Text::getFontSize() const {
+        return fontSize;
     }
 
-    void Text::setFont(void *font) {
-        Text::font = font;
+    void Text::setFontSize(unsigned int fontSize) {
+        Text::fontSize = fontSize;
+    }
+
+    const string &Text::getFontPath() const {
+        return fontPath;
+    }
+
+    void Text::setFontPath(const string &fontPath) {
+        Text::fontPath = fontPath;
     }
 } // ItemsDto

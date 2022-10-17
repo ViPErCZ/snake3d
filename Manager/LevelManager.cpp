@@ -38,7 +38,7 @@ namespace Manager {
                 for (char & c : line)
                 {
                     if (c == 49) { // "1"
-                        barriers->createWall(x * 32 + 16, y * 32 + 16);
+                        barriers->createWall(-25 + ((x + 1) * 2), -25 + ((y + 1) * 2));
                     }
 
                     x++;

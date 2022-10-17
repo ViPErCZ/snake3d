@@ -1,8 +1,8 @@
 #ifndef SNAKE3_OBJWALL_H
 #define SNAKE3_OBJWALL_H
 
-#include "Wall.h"
 #include "ObjItem.h"
+#include "BaseContainer.h"
 
 namespace ItemsDto {
 
@@ -11,10 +11,10 @@ namespace ItemsDto {
         ~ObjWall();
         void init() override;
         [[nodiscard]] const vector<ObjItem *> &getItems() const override;
-        [[nodiscard]] float getMaxX() const override;
-        [[nodiscard]] float getMaxY() const override;
-        [[nodiscard]] float getMinX() const override;
-        [[nodiscard]] float getMinY() const override;
+        [[nodiscard]] int getMaxX() const override;
+        [[nodiscard]] int getMaxY() const override;
+        [[nodiscard]] int getMinX() const override;
+        [[nodiscard]] int getMinY() const override;
     protected:
         void release() override;
         vector<ObjItem*> walls;

@@ -9,24 +9,23 @@ using namespace std;
 
 namespace ItemsDto {
 
-    struct sCOLOR {
-        GLfloat r, g, b;
-    };
-
     class Text : public BaseItem {
     public:
         explicit Text(string text);
         void setText(const string &text);
-        void setColor(const sCOLOR &color);
+        void setColor(const glm::vec3 &color);
         [[nodiscard]] const string &getText() const;
-        [[nodiscard]] const sCOLOR &getColor() const;
-        [[nodiscard]] void *getFont() const;
-        void setFont(void *font);
+        [[nodiscard]] const glm::vec3 &getColor() const;
+        [[nodiscard]] unsigned int getFontSize() const;
+        void setFontSize(unsigned int fontSize);
+        [[nodiscard]] const string &getFontPath() const;
+        void setFontPath(const string &fontPath);
 
     protected:
         string text;
-        sCOLOR color{};
-        void* font;
+        glm::vec3 color{};
+        string fontPath;
+        unsigned int fontSize{};
     };
 
 } // ItemsDto

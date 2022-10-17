@@ -3,8 +3,8 @@
 namespace Handler {
     RadarHandler::RadarHandler(Radar *radar) : radar(radar) {}
 
-    void RadarHandler::onEventHandler(Uint32 key) {
-        if (key == SDLK_m) {
+    void RadarHandler::onEventHandler(unsigned int key) {
+        if (key == GLFW_KEY_M) {
             radar->toggleVisible();
         }
     }

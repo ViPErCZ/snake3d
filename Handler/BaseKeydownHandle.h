@@ -8,7 +8,7 @@ namespace Handler {
     class BaseKeydownHandle : BaseHandler {
     public:
         void onDefaultHandler() override;
-        virtual void onEventHandler(Uint32 key) = 0;
+        virtual void onEventHandler(unsigned int key) = 0;
     };
 
 } // Handler

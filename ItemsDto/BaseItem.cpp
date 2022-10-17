@@ -99,4 +99,20 @@ namespace ItemsDto {
         BaseItem::program = program;
     }
 
+    int BaseItem::getVirtualX() const {
+        return virtual_X;
+    }
+
+    void BaseItem::setVirtualX(int virtualX) {
+        virtual_X = virtualX;
+    }
+
+    int BaseItem::getVirtualY() const {
+        return virtual_Y;
+    }
+
+    void BaseItem::setVirtualY(int virtualY) {
+        virtual_Y = virtualY;
+    }
+
 } // ItemsDto

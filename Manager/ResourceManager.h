@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include <vector>
+#include <map>
 #include <iostream>
 
 using namespace std;
@@ -11,15 +12,12 @@ namespace Manager {
 
     class ResourceManager {
     public:
-        bool createTexture(char *aPath, GLint filter = GL_LINEAR_MIPMAP_LINEAR);
-        GLuint getTexture(int texture);
+        virtual ~ResourceManager();
+        bool createTexture(const char* path, const string& name, GLint filter = GL_NEAREST_MIPMAP_LINEAR);
+        GLuint getTexture(const string &name);
         bool Release();
     protected:
-    public:
-        virtual ~ResourceManager();
-
-    protected:
-        vector<GLuint> textures;
+        map<string, GLuint> textures;
     };
 
 } // Manager

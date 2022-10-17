@@ -1,12 +1,13 @@
 #ifndef SNAKE3_SNAKE_H
 #define SNAKE3_SNAKE_H
 
-#define UNIT_MOVE 2
+#define UNIT_MOVE 0.125
+#define VIRTUAL_MOVE 2 // kvuli nepresnosti float cislum pocitame virtualne v integer formatu
 #define CUBE_SIZE 32
 
 #include <functional>
-#include "Cube.h"
 #include "BaseContainer.h"
+#include "ObjItem.h"
 
 namespace ItemsDto {
 
@@ -22,12 +23,11 @@ namespace ItemsDto {
     };
 
     struct sSNAKE_TILE {
-        Cube* tile;
+        ObjItem* tile;
         eDIRECTION direction = NONE;
         eDIRECTION prevPauseDirection;
         float alpha;
         vector<std::function<bool(sSNAKE_TILE*)>> moveCallbacks;
-        std::function<void(sSNAKE_TILE*)> lazyCallback;
     };
 
     class Snake: public BaseContainer<sSNAKE_TILE>{
@@ -36,12 +36,12 @@ namespace ItemsDto {
         void init() override;
         void addTile(eDIRECTION aDirection);
         void reset();
-        Cube* getHeadTile();
+        ObjItem* getHeadTile();
         [[nodiscard]] const vector<sSNAKE_TILE *> &getItems() const override;
-        [[nodiscard]] float getMaxX() const override;
-        [[nodiscard]] float getMaxY() const override;
-        [[nodiscard]] float getMinX() const override;
-        [[nodiscard]] float getMinY() const override;
+        [[nodiscard]] int getMaxX() const override;
+        [[nodiscard]] int getMaxY() const override;
+        [[nodiscard]] int getMinX() const override;
+        [[nodiscard]] int getMinY() const override;
 
     protected:
         void release() override;

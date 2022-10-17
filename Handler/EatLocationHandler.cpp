@@ -16,8 +16,10 @@ namespace Handler {
         try {
             glm::vec2 newPos = getPosition();
             glm::vec3 pos = eat->getPosition();
-            cout << "Eat: X=" << newPos.x * 32 + 16 << ", Y=" << newPos.y * 32 + 16 << endl;
-            eat->setPosition({newPos.x * 32 + 16, newPos.y * 32 + 16, pos.z});
+            cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
+            eat->setVirtualX((int)newPos.x * 32 + 16);
+            eat->setVirtualY((int)newPos.y * 32 + 16);
+            eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
             eat->setVisible(true);
 
             return true;
@@ -36,16 +38,16 @@ namespace Handler {
         for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
             if ((int) (*Iter)->tile->getPosition().x - 16 + 32 >= posX && (int) (*Iter)->tile->getPosition().x - 16 <= posX
                 && (int) (*Iter)->tile->getPosition().y - 16 + 32 >= posY && (int) (*Iter)->tile->getPosition().y - 16 <= posY) {
-                cout << "Not emty field" << endl;
+                cout << "Not empty field" << endl;
 
                 return false;
             }
         }
 
         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); Iter++) {
-            if ((int) (*Iter)->getPosition().x - 16 + 32 >= posX && (int) (*Iter)->getPosition().x - 16 <= posX
-                && (int) (*Iter)->getPosition().y - 16 + 32 >= posY && (int) (*Iter)->getPosition().y - 16 <= posY) {
-                cout << "Not emty field" << endl;
+            if ((int) (*Iter)->getPosition().x - 16 + 32 > posX && (int) (*Iter)->getPosition().x - 16 <= posX
+                && (int) (*Iter)->getPosition().y - 16 + 32 > posY && (int) (*Iter)->getPosition().y - 16 <= posY) {
+                cout << "Not empty field" << endl;
 
                 return false;
             }
@@ -59,7 +61,9 @@ namespace Handler {
             try {
                 glm::vec2 newPos = getPosition();
                 glm::vec3 pos = eat->getPosition();
-                eat->setPosition({newPos.x * 32 + 16, newPos.y * 32 + 16, pos.z});
+                eat->setVirtualX((int)newPos.x * 32 + 16);
+                eat->setVirtualY((int)newPos.y * 32 + 16);
+                eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
                 eat->setVisible(true);
                 break;
             } catch (const std::invalid_argument &e) {

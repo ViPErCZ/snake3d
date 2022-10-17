@@ -20,16 +20,11 @@ namespace Manager {
         virtual ~RenderManager();
         void render();
         void addRenderer(BaseRenderer* renderer);
-        void setStickyPoint(BaseItem *stickyPoint);
         void setWidth(int width);
         void setHeight(int height);
 
     protected:
         vector<BaseRenderer*> renderers;
-        void setupProjection();
-        void switchOrthoProjection() const;
-        static void restoreProjection();
-        BaseItem* stickyPoint{};
         int width;
         int height;
         float test = 0;
