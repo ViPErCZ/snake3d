@@ -1,6 +1,6 @@
 #include "ModelLoader.h"
 
-#include "../tiny_obj_loader.h"
+#include "../Thirdparty/tinyobj/tiny_obj_loader.h"
 
 namespace Resource {
     shared_ptr<ObjItem> ModelLoader::loadObj(const fs::path &path) {

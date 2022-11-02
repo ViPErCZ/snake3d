@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "../stb_image.h"
+#include "../Thirdparty/stbimage/stb_image.h"
 
 namespace Manager {
     ResourceManager::~ResourceManager() {
