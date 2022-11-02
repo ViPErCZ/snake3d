@@ -90,7 +90,7 @@ namespace Model {
         vertices.push_back(vertex6);
         indices.push_back(5);
 
-        Manager::VboIndexer::computeTangentBasis(vbo_vertices, vbo_uvs, vbo_normals, tangents, biTangents);
+        VboIndexer::computeTangentBasis(vbo_vertices, vbo_uvs, vbo_normals, tangents, biTangents);
 
         int index = 0;
         for (auto iter : tangents) {
@@ -99,7 +99,7 @@ namespace Model {
             index++;
         }
 
-        mesh = new Mesh(vertices, indices, vao, gameField);
+        mesh = new Mesh(vertices, indices);
     }
 
     GameFieldModel::~GameFieldModel() {
@@ -108,10 +108,6 @@ namespace Model {
 
     Mesh *GameFieldModel::getMesh() const {
         return mesh;
-    }
-
-    const Vao &GameFieldModel::getVao() const {
-        return vao;
     }
 
     BaseItem *GameFieldModel::getGameField() const {

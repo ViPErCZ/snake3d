@@ -5,8 +5,6 @@
 #include "Ebo.h"
 #include "../../../../ItemsDto/BaseItem.h"
 #include "../../../../Manager/Camera.h"
-#include "../../../../Manager/ResourceManager.h"
-#include "../../../../Manager/ShaderManager.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -19,14 +17,15 @@ namespace ModelUtils {
 
     class Mesh {
     public:
-        Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const Vao &vao, BaseItem *item);
+        Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices);
+        virtual ~Mesh();
         [[nodiscard]] const vector<GLuint> &getIndices() const;
+        void bind();
 
     protected:
         vector <Vertex> vertices;
         vector <unsigned int> indices;
-        Vao vao;
-        BaseItem* item;
+        Vao* vao;
     };
 
 } // ModelUtils

@@ -4,6 +4,7 @@
 #include "ItemsDto/GameField.h"
 #include "ItemsDto/Snake.h"
 #include "ItemsDto/ObjWall.h"
+#include "Resource/ModelLoader.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
@@ -35,6 +36,7 @@ using namespace ItemsDto;
 using namespace Manager;
 using namespace Renderer;
 using namespace Handler;
+using namespace Resource;
 
 class App {
 public:

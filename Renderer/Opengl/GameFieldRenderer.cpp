@@ -49,7 +49,7 @@ void Renderer::GameFieldRenderer::render() {
             shader->setVec3("viewPos", camera->getPosition());
             shader->setVec3("lightPos", lightPos);
 
-            this->model->getVao().bind();
+            this->model->getMesh()->bind();
             glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             x++;
         }

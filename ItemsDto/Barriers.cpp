@@ -44,9 +44,9 @@ namespace ItemsDto {
         walls.push_back(wallFactory({1040.0, 336.0, 15.0}));
     }
 
-    ObjItem *Barriers::wallFactory(const glm::vec3 &position) {
-        auto wall = new ObjItem();
-        wall->load("Assets/Objects/Cube.obj");
+    Cube *Barriers::wallFactory(const glm::vec3 &position) {
+        auto wall = new Cube();
+//        wall->load("Assets/Objects/Cube.obj");
         wall->setPosition(position);
         wall->setVirtualX((((int)(position.x - (-23)) / 2) * 32));
         wall->setVirtualY((((int)(position.y - (-23)) / 2) * 32));
@@ -55,7 +55,7 @@ namespace ItemsDto {
         return wall;
     }
 
-    const vector<ObjItem *> &Barriers::getItems() const {
+    const vector<Cube *> &Barriers::getItems() const {
         return walls;
     }
 

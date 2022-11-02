@@ -3,13 +3,12 @@
 namespace Renderer {
     ObjWallRenderer::ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager)
         : shaderManager(shader), wall(item), resourceManager(resManager) {
-        model = new WallModel(wall);
+        mesh = resourceManager->getModel("cube")->getMesh();
         this->camera = camera;
         projection = proj;
     }
 
     ObjWallRenderer::~ObjWallRenderer() {
-        delete model;
         delete wall;
     }
 
@@ -29,8 +28,6 @@ namespace Renderer {
         glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
 
         for (auto item: wall->getItems()) {
-            auto mesh = model->getMesh();
-
             glLoadIdentity();
 
             glActiveTexture(GL_TEXTURE0);
@@ -54,8 +51,8 @@ namespace Renderer {
             shaderManager->setVec3("viewPos", camera->getPosition());
             shaderManager->setVec3("lightPos", lightPos);
 
-            this->model->getVao()->bind();
-            glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            mesh->bind();
+            glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
         }
 
         glEnable(GL_TEXTURE0);
@@ -65,11 +62,6 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::afterRender() {
-    }
-
-    void ObjWallRenderer::reCreate() {
-        delete model;
-        model = new WallModel(wall);
     }
 
 } // Renderer

@@ -40,22 +40,21 @@ namespace Renderer {
 
             shader->setMat4("model", model);
 
-            auto modelIter = this->model->getRadarMesh().begin();
+            auto radarMesh = this->model->getMesh();
 
-            (*modelIter).first->bind();
-            glDrawElements(GL_TRIANGLES, (int) (*modelIter).second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            radarMesh->bind();
+            glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             glDisable(GL_BLEND);
 
             int index = 0;
-            for (auto mesh: this->model->getItemsMeshes()) {
+            for (auto radarItem: radar->getItems()) {
                 glLoadIdentity();
-                auto Iter = radar->getItems().begin() + index;
 
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, (*Iter).radarPresent->getPrimaryTexture());
+                glBindTexture(GL_TEXTURE_2D, radarItem.radarPresent->getPrimaryTexture());
 
-                glm::vec3 position = (*Iter).radarPresent->getPosition();
-                glm::vec3 zoom = (*Iter).radarPresent->getZoom();
+                glm::vec3 position = radarItem.radarPresent->getPosition();
+                glm::vec3 zoom = radarItem.radarPresent->getZoom();
 
                 // Initialize matrices
                 glm::mat4 model = glm::mat4(1.0f);
@@ -65,7 +64,7 @@ namespace Renderer {
 
                 shader->setMat4("model", model);
 
-                glDrawElements(GL_TRIANGLES, (int) mesh.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
                 index++;
             }
 

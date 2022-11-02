@@ -2,6 +2,8 @@
 #define SNAKE3_GAMEFIELDRENDERER_H
 
 #include "../../ItemsDto/GameField.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderManager.h"
 #include "Model/GameFieldModel.h"
 #include "BaseRenderer.h"
 #include <glm/glm.hpp>
@@ -10,6 +12,7 @@
 
 using namespace ItemsDto;
 using namespace Model;
+using namespace Manager;
 
 namespace Renderer {
     class GameFieldRenderer : public BaseRenderer {

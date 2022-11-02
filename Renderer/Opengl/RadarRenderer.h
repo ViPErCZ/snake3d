@@ -3,6 +3,8 @@
 
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Radar.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderManager.h"
 #include "Model/RadarModel.h"
 
 using namespace Model;

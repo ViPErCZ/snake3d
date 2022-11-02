@@ -17,13 +17,11 @@ namespace Model {
         explicit GameFieldModel(BaseItem *gameField);
         virtual ~GameFieldModel();
         [[nodiscard]] Mesh *getMesh() const;
-        [[nodiscard]] const Vao &getVao() const;
         [[nodiscard]] BaseItem *getGameField() const;
 
     protected:
         BaseItem* gameField{};
         Mesh* mesh;
-        Vao vao;
     };
 
 } // Model

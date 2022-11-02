@@ -4,12 +4,10 @@
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Snake.h"
 #include "../../Manager/ShaderManager.h"
-#include "Model/SnakeModel.h"
 #include "../../Manager/Camera.h"
 #include "../../Manager/ResourceManager.h"
 
 using namespace Manager;
-using namespace Model;
 
 namespace Renderer {
 
@@ -26,7 +24,7 @@ namespace Renderer {
         Camera* camera;
         glm::mat4 projection;
         ResourceManager* resourceManager;
-        SnakeModel* model;
+        Mesh* mesh;
         int tilesCounter;
     };
 

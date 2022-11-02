@@ -2,11 +2,11 @@
 #define SNAKE3_EAT_H
 
 #include "../stdafx.h"
-#include "ObjItem.h"
+#include "Cube.h"
 
 namespace ItemsDto {
 
-    class Eat : public ObjItem {
+    class Eat : public Cube {
     };
 
 } // ItemsDto

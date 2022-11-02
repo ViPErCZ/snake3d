@@ -1,17 +1,22 @@
 #ifndef SNAKE3_OBJITEM_H
 #define SNAKE3_OBJITEM_H
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-//#define TINYOBJLOADER_USE_MAPBOX_EARCUT
 
 #include "BaseItem.h"
 #include "../Manager/VboIndexer.h"
+#include "../Renderer/Opengl/Model/Utils/Mesh.h"
 #include <cstdio>
+
+using namespace ModelUtils;
 
 namespace ItemsDto {
 
-    class ObjItem : public BaseItem {
+    class ObjItem {
     public:
-        bool load(const string& filename);
+        ObjItem(const vector<glm::vec3> &vertices, const vector<glm::vec2> &uvs, const vector<glm::vec3> &normals);
+        ObjItem();
+
+        virtual ~ObjItem();
+
         [[nodiscard]] const vector<glm::vec3> &getVertices() const;
         [[nodiscard]] const vector<glm::vec2> &getUvs() const;
         [[nodiscard]] const vector<glm::vec3> &getNormals() const;
@@ -21,6 +26,7 @@ namespace ItemsDto {
         [[nodiscard]] const vector<glm::vec3> &getIndexedTangents() const;
         [[nodiscard]] const vector<glm::vec3> &getIndexedBiTangents() const;
         [[nodiscard]] const vector<unsigned int> &getIndices() const;
+        [[nodiscard]] Mesh *getMesh() const;
 
     protected:
         void generateBuffer();
@@ -35,6 +41,7 @@ namespace ItemsDto {
         std::vector<glm::vec3> indexed_normals;
         std::vector<glm::vec3> indexed_tangents;
         std::vector<glm::vec3> indexed_biTangents;
+        Mesh* mesh{};
     };
 
 } // ItemsDto

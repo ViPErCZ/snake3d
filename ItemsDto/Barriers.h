@@ -3,16 +3,15 @@
 
 #include "Cube.h"
 #include "BaseContainer.h"
-#include "ObjItem.h"
 #include "ObjWall.h"
 
 namespace ItemsDto {
 
-    class Barriers : public BaseContainer<ObjItem> {
+    class Barriers : public BaseContainer<Cube> {
     public:
         ~Barriers();
         void init() override;
-        [[nodiscard]] const vector<ObjItem *> &getItems() const override;
+        [[nodiscard]] const vector<Cube *> &getItems() const override;
         void createWall(int x, int y);
         void reset();
         [[nodiscard]] int getMaxX() const override;
@@ -21,9 +20,9 @@ namespace ItemsDto {
         [[nodiscard]] int getMinY() const override;
 
     protected:
-        static ObjItem* wallFactory(const glm::vec3 &position);
+        static Cube* wallFactory(const glm::vec3 &position);
         void release() override;
-        vector<ObjItem*> walls;
+        vector<Cube*> walls;
     };
 
 } // ItemsDto

@@ -3,13 +3,13 @@
 
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Eat.h"
-#include "Model/EatModel.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderManager.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace ItemsDto;
 using namespace Manager;
-using namespace Model;
 
 namespace Renderer {
 
@@ -29,7 +29,7 @@ namespace Renderer {
         double lastTime{};
         Eat* eat{};
         bool completed = false;
-        EatModel* model;
+        Mesh* mesh;
         ShaderManager* shaderManager{};
         Camera* camera{};
         glm::mat4 projection{};

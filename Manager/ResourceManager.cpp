@@ -81,8 +81,11 @@ namespace Manager {
     }
 
     bool ResourceManager::Release() {
-        for (auto & texture : textures)
+        for (auto & texture : textures) {
             glDeleteTextures(1, &texture.second);
+        }
+
+        model.clear();
 
         return true;
     }
@@ -97,6 +100,23 @@ namespace Manager {
         sprintf(buffer, "texture with key %s not found", name.c_str());
 
         throw invalid_argument(buffer);
+    }
+
+    void ResourceManager::addModel(const string &name, std::shared_ptr<ObjItem> res) {
+        std::unique_lock lock(mutex);
+        const auto result = model.emplace(name, std::move(res));
+        if (!result.second) {
+            throw invalid_argument("Failed to add resource " + name + ", already contains.");
+        }
+    }
+
+    ObjItem* ResourceManager::getModel(const string &name) {
+        std::unique_lock lock(mutex);
+        try {
+            return model.at(name).get();
+        } catch (...) {
+            throw invalid_argument("No such resource called " + name);
+        }
     }
 
 } // Manager

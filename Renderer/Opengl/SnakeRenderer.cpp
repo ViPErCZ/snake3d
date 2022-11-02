@@ -4,12 +4,11 @@ namespace Renderer {
 
     SnakeRenderer::SnakeRenderer(Snake *snake, ShaderManager *shader, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager)
             : snake(snake), shader(shader), camera(camera), projection(projection), resourceManager(resManager) {
-        model = new SnakeModel(snake);
+        mesh = resourceManager->getModel("cube")->getMesh();
         tilesCounter = (int)snake->getItems().size();
     }
 
     SnakeRenderer::~SnakeRenderer() {
-        delete model;
         delete snake;
     }
 
@@ -23,8 +22,7 @@ namespace Renderer {
         shader->setInt("specularMap", 2);
         shader->setFloat("alpha", 1.0);
 
-        for (auto data: model->getMeshes()) {
-            auto snakeTileIter = this->snake->getItems().begin() + index;
+        for (auto snakeTileIter = snake->getItems().begin(); snakeTileIter < snake->getItems().end(); snakeTileIter++) {
             if ((*snakeTileIter)->tile->isVisible()) {
                 glLoadIdentity();
 
@@ -46,8 +44,8 @@ namespace Renderer {
 
                 shader->setMat4("model", model);
 
-                data.first->bind();
-                glDrawElements(GL_TRIANGLES, (int)data.second->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                mesh->bind();
+                glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
 
                 index++;
             }
@@ -55,15 +53,7 @@ namespace Renderer {
     }
 
     void SnakeRenderer::beforeRender() {
-        int currentSize = (int)snake->getItems().size();
-        if (tilesCounter < currentSize) {
-            model->addTiles(currentSize - tilesCounter);
-            tilesCounter = currentSize;
-        } else if (tilesCounter > currentSize) {
-            delete model;
-            model = new SnakeModel(snake);
-            tilesCounter = currentSize;
-        }
+        tilesCounter = (int)snake->getItems().size();
     }
 
     void SnakeRenderer::afterRender() {

@@ -58,7 +58,7 @@ void App::Init() {
     textRenderer = new TextRenderer(width, height);
 
     animateEat = new Eat;
-    animateEat->load("Assets/Objects/Coin.obj");
+//    animateEat->load("Assets/Objects/Coin.obj");
     animateEat->setVisible(false);
     animateEat->setPosition(eat->getPosition());
 
@@ -142,7 +142,6 @@ void App::Init() {
                 this->startText->setVisible(true);
                 this->levelManager->setLive(3);
                 eat->setVisible(false);
-                this->barrierRenderer->reCreate();
                 cout << "crash callback call" << endl;
             }
         }
@@ -163,7 +162,6 @@ void App::Init() {
                 this->snake->reset();
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
-                this->barrierRenderer->reCreate();
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -188,7 +186,6 @@ void App::Init() {
 }
 
 Eat *App::InitEat() {
-    eat->load("Assets/Objects/Coin.obj");
     eat->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
     eat->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
     eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
@@ -258,6 +255,10 @@ void App::InitResourceManager() {
             resourceManager->createTexture(i->path().c_str(), i->path().filename());
         }
     }
+
+    const fs::path assets_dir {"Assets/Objects"};
+    resourceManager->addModel("cube", ModelLoader::loadObj(assets_dir / "Cube.obj"));
+    resourceManager->addModel("coin", ModelLoader::loadObj(assets_dir / "Coin.obj"));
 }
 
 void App::run() {
