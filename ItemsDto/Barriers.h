@@ -4,6 +4,9 @@
 #include "Cube.h"
 #include "BaseContainer.h"
 #include "ObjWall.h"
+#include <vector>
+
+using namespace std;
 
 namespace ItemsDto {
 

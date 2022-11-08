@@ -116,4 +116,4 @@ namespace Model {
         return mesh;
     }
 
-} // ModelLoader
+} // ObjModelLoader

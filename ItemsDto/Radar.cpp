@@ -1,13 +1,12 @@
 #include "Radar.h"
 
 namespace ItemsDto {
-    void Radar::addItem(BaseItem *item, GLuint presentTexture) {
+    void Radar::addItem(const BaseItem *item, const TextureManager* texture) {
         sRADAR_item radarItem{};
         radarItem.item = item;
-
+        radarItem.texture = texture;
         radarItem.radarPresent = new BaseItem();
         radarItem.radarPresent->setVisible(true);
-        radarItem.radarPresent->addTexture(presentTexture);
         radarItem.radarPresent->setZoom({2,2,1});
 
         items.push_back(radarItem);

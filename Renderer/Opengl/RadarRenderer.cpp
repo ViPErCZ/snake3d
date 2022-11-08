@@ -1,13 +1,14 @@
 #include "RadarRenderer.h"
 
 namespace Renderer {
-    RadarRenderer::RadarRenderer(Radar *radar, ShaderManager *shader, Camera *camera, glm::mat4 proj,
+    RadarRenderer::RadarRenderer(Radar *radar, Camera *camera, glm::mat4 proj,
                                  ResourceManager *resManager) : radar(radar) {
         resourceManager = resManager;
-        this->shader = shader;
         this->camera = camera;
         this->projection = proj;
         model = new RadarModel(radar);
+        shader = resourceManager->getShader("radarShader");
+        frameTexture = resourceManager->getTexture("red_screen.bmp");
     }
 
     RadarRenderer::~RadarRenderer() {
@@ -26,8 +27,7 @@ namespace Renderer {
 
             glLoadIdentity();
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("red_screen.bmp"));
+            frameTexture->bind();
 
             glm::vec3 position = radar->getPosition();
             glm::vec3 zoom = radar->getZoom();
@@ -47,11 +47,10 @@ namespace Renderer {
             glDisable(GL_BLEND);
 
             int index = 0;
-            for (auto radarItem: radar->getItems()) {
+            for (const auto& radarItem: radar->getItems()) {
                 glLoadIdentity();
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, radarItem.radarPresent->getPrimaryTexture());
+                radarItem.texture->bind();
 
                 glm::vec3 position = radarItem.radarPresent->getPosition();
                 glm::vec3 zoom = radarItem.radarPresent->getZoom();

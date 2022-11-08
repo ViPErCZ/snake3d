@@ -15,7 +15,7 @@ namespace Renderer {
 
     class EatRenderer : public BaseRenderer {
     public:
-        EatRenderer(Eat *eat, ShaderManager *shaderManager, Camera *camera, const glm::mat4 &projection,
+        EatRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,
                     ResourceManager *resourceManager);
 
         void render() override;
@@ -24,10 +24,13 @@ namespace Renderer {
     protected:
         Eat* eat;
         Mesh* mesh;
-        ShaderManager* shaderManager;
         Camera* camera;
         glm::mat4 projection{};
         ResourceManager* resourceManager;
+        ShaderManager* shader;
+        TextureManager* texture1;
+        TextureManager* texture2;
+        TextureManager* texture3;
         double lastTime{};
     };
 

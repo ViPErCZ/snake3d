@@ -15,7 +15,6 @@ namespace Renderer {
         virtual void render() = 0;
         virtual void beforeRender() = 0;
         virtual void afterRender() = 0;
-        [[nodiscard]] bool isOrtho() const;
 
     protected:
         BaseItem* item{};

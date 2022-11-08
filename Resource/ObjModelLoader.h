@@ -1,5 +1,5 @@
-#ifndef SNAKE3_MODELLOADER_H
-#define SNAKE3_MODELLOADER_H
+#ifndef SNAKE3_OBJMODELLOADER_H
+#define SNAKE3_OBJMODELLOADER_H
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 
 #include "../ItemsDto/ObjItem.h"
@@ -13,11 +13,11 @@ namespace fs = std::filesystem;
 
 namespace Resource {
 
-    class ModelLoader {
+    class ObjModelLoader {
     public:
         static shared_ptr<ObjItem> loadObj(const fs::path& path);
     };
 
 } // Resource
 
-#endif //SNAKE3_MODELLOADER_H
+#endif //SNAKE3_OBJMODELLOADER_H

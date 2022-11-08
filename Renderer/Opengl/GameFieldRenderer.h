@@ -17,16 +17,19 @@ using namespace Manager;
 namespace Renderer {
     class GameFieldRenderer : public BaseRenderer {
     public:
-        explicit GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit GameFieldRenderer(GameField *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~GameFieldRenderer() override;
         void render() override;
         void beforeRender() override;
         void afterRender() override;
     protected:
         ResourceManager* resourceManager;
+        ShaderManager* shader;
+        TextureManager* texture1;
+        TextureManager* texture2;
+        TextureManager* texture3;
         GameField* gameField;
         GameFieldModel* model;
-        ShaderManager* shader;
         Camera* camera;
         glm::mat4 projection{};
     };

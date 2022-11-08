@@ -17,7 +17,6 @@ namespace ItemsDto {
     void Snake::init() {
         auto *snakeTile = new sSNAKE_TILE;
         snakeTile->tile = new Cube();
-        snakeTile->tile->addTexture(6);
         snakeTile->tile->setVisible(true);
         snakeTile->alpha = 1.0;
 

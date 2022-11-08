@@ -13,7 +13,7 @@ namespace Manager {
 
     class ShaderManager {
     public:
-        void loadShader(const string &vertex_path, const string &fragment_path);
+        explicit ShaderManager(GLuint id);
         void use() const;
         void setBool(const string &name, bool value) const;
         void setInt(const string &name, int value) const;
@@ -28,8 +28,6 @@ namespace Manager {
         void setMat3(const string &name, const glm::mat3 &mat) const;
         void setMat4(const string &name, const glm::mat4 &mat) const;
     protected:
-        static void checkCompileErrors(GLuint shader, const string& type);
-        static string readFile(const string &filePath);
         GLuint id;
     };
 

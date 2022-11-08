@@ -7,10 +7,6 @@ namespace ItemsDto {
         rotate[2].a = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
     }
 
-    void BaseItem::addTexture(GLuint index) {
-        textures.push_back(index);
-    }
-
     const glm::vec3 &BaseItem::getPosition() const {
         return position;
     }
@@ -63,14 +59,6 @@ namespace ItemsDto {
 
     void BaseItem::toggleVisible() {
         this->visible = !this->visible;
-    }
-
-    GLuint BaseItem::getPrimaryTexture() {
-        if (!textures.empty()) {
-            return (*textures.begin());
-        }
-
-        return 0;
     }
 
     int BaseItem::getVirtualX() const {

@@ -9,7 +9,3 @@ Renderer::BaseRenderer::BaseRenderer(BaseItem *item) : item(item), ortho(false) 
 Renderer::BaseRenderer::~BaseRenderer() {
     delete item;
 }
-
-bool Renderer::BaseRenderer::isOrtho() const {
-    return ortho;
-}

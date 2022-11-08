@@ -1,9 +1,9 @@
-#include "ModelLoader.h"
+#include "ObjModelLoader.h"
 
 #include "../Thirdparty/tinyobj/tiny_obj_loader.h"
 
 namespace Resource {
-    shared_ptr<ObjItem> ModelLoader::loadObj(const fs::path &path) {
+    shared_ptr<ObjItem> ObjModelLoader::loadObj(const fs::path &path) {
         std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
         std::vector<glm::vec3> temp_vertices;
         std::vector<glm::vec2> temp_uvs;

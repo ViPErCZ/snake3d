@@ -2,7 +2,6 @@
 #define SNAKE3_BASEITEM_H
 
 #include "../stdafx.h"
-#include <vector>
 #include <iostream>
 #include <glm/glm.hpp>
 
@@ -13,8 +12,6 @@ namespace ItemsDto {
     public:
         BaseItem();
 
-        void addTexture(GLuint index);
-        GLuint getPrimaryTexture();
         void setPosition(const glm::vec3 &position);
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] bool isVisible() const;
@@ -34,15 +31,14 @@ namespace ItemsDto {
         void setVirtualY(int virtualY);
 
     protected:
-        vector<GLuint> textures;
         glm::vec3 position{};
         glm::vec3 zoom{};
         glm::vec4 rotate[3]{};
         bool visible{};
         GLfloat width;
         GLfloat height;
-        int virtual_X;
-        int virtual_Y;
+        int virtual_X{};
+        int virtual_Y{};
     };
 
 } // ItemsDto

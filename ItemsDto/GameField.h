@@ -1,8 +1,11 @@
 #ifndef SNAKE3_GAMEFIELD_H
 #define SNAKE3_GAMEFIELD_H
 
+#include <vector>
 #include "BaseItem.h"
 #include "Cube.h"
+
+using namespace std;
 
 namespace ItemsDto {
 

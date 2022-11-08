@@ -13,7 +13,7 @@ namespace Renderer {
 
     class RadarRenderer : public BaseRenderer {
     public:
-        explicit RadarRenderer(Radar* radar, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit RadarRenderer(Radar* radar, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~RadarRenderer() override;
 
     public:
@@ -25,6 +25,7 @@ namespace Renderer {
         RadarModel* model;
         ResourceManager* resourceManager;
         ShaderManager* shader;
+        TextureManager* frameTexture;
         Camera* camera;
         glm::mat4 projection{};
     };

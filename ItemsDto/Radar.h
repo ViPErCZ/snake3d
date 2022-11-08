@@ -2,18 +2,23 @@
 #define SNAKE3_RADAR_H
 
 #include "BaseItem.h"
+#include "../Manager/TextureManager.h"
+#include <vector>
+
+using namespace std;
+using namespace Manager;
 
 namespace ItemsDto {
 
     class Radar : public BaseItem {
-        const float SCREEN_EDGE = 18.0;
         struct sRADAR_item {
-            BaseItem* item;
+            const BaseItem* item;
             BaseItem* radarPresent;
+            const TextureManager* texture;
         };
     public:
         void updatePositions();
-        void addItem(BaseItem* item, GLuint presentTexture);
+        void addItem(const BaseItem* item, const TextureManager* texture);
         [[nodiscard]] const vector<Radar::sRADAR_item> &getItems() const;
 
     protected:

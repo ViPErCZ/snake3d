@@ -2,22 +2,26 @@
 
 namespace Renderer {
 
-    EatRenderer::EatRenderer(Eat *eat, ShaderManager *shaderManager, Camera *camera, const glm::mat4 &projection,
-                             ResourceManager *resourceManager) : eat(eat), shaderManager(shaderManager), camera(camera),
+    EatRenderer::EatRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,
+                             ResourceManager *resourceManager) : eat(eat), camera(camera),
                                                                  projection(projection),
                                                                  resourceManager(resourceManager) {
         mesh = resourceManager->getModel("coin")->getMesh();
+        shader = resourceManager->getShader("normalShader");
+        texture1 = resourceManager->getTexture("Coin_Gold_albedo.png");
+        texture2 = resourceManager->getTexture("Coin_Gold_nm.png");
+        texture3 = resourceManager->getTexture("Coin_Gold_metalness.png");
     }
 
     void EatRenderer::render() {
         if (eat->isVisible()) {
-            shaderManager->use();
-            shaderManager->setMat4("view", camera->getViewMatrix());
-            shaderManager->setMat4("projection", this->projection);
-            shaderManager->setInt("diffuseMap", 0);
-            shaderManager->setInt("normalMap", 1);
-            shaderManager->setInt("specularMap", 2);
-            shaderManager->setFloat("alpha", 0.1);
+            shader->use();
+            shader->setMat4("view", camera->getViewMatrix());
+            shader->setMat4("projection", this->projection);
+            shader->setInt("diffuseMap", 0);
+            shader->setInt("normalMap", 1);
+            shader->setInt("specularMap", 2);
+            shader->setFloat("alpha", 0.1);
 
             // lighting info
             // -------------
@@ -25,12 +29,9 @@ namespace Renderer {
 
             glLoadIdentity();
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_albedo.png"));
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_nm.png"));
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("Coin_Gold_metalness.png"));
+            texture1->bind(0);
+            texture2->bind(1);
+            texture3->bind(2);
 
             glm::vec3 position = eat->getPosition();
             const glm::vec4 *rotate = eat->getRotate();
@@ -52,9 +53,9 @@ namespace Renderer {
             model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
             model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
 
-            shaderManager->setMat4("model", model);
-            shaderManager->setVec3("viewPos", camera->getPosition());
-            shaderManager->setVec3("lightPos", lightPos);
+            shader->setMat4("model", model);
+            shader->setVec3("viewPos", camera->getPosition());
+            shader->setVec3("lightPos", lightPos);
 
             mesh->bind();
             glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);

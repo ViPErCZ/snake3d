@@ -17,7 +17,6 @@ namespace ItemsDto {
         Cube* field;
 
         field = new Cube();
-        field->addTexture(5);
         field->setPosition({0.0f, 0.0f, 0.0f});
         field->setZoom({1, 1, 0.0});
         field->setVisible(true);
