@@ -8,6 +8,7 @@
 #include <functional>
 #include "BaseContainer.h"
 #include "ObjItem.h"
+#include "Cube.h"
 
 namespace ItemsDto {
 
@@ -23,7 +24,7 @@ namespace ItemsDto {
     };
 
     struct sSNAKE_TILE {
-        ObjItem* tile;
+        Cube* tile;
         eDIRECTION direction = NONE;
         eDIRECTION prevPauseDirection;
         float alpha;
@@ -36,7 +37,7 @@ namespace ItemsDto {
         void init() override;
         void addTile(eDIRECTION aDirection);
         void reset();
-        ObjItem* getHeadTile();
+        Cube* getHeadTile();
         [[nodiscard]] const vector<sSNAKE_TILE *> &getItems() const override;
         [[nodiscard]] int getMaxX() const override;
         [[nodiscard]] int getMaxY() const override;

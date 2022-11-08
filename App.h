@@ -4,6 +4,8 @@
 #include "ItemsDto/GameField.h"
 #include "ItemsDto/Snake.h"
 #include "ItemsDto/ObjWall.h"
+#include "Resource/ObjModelLoader.h"
+#include "Resource/ShaderLoader.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
@@ -35,6 +37,7 @@ using namespace ItemsDto;
 using namespace Manager;
 using namespace Renderer;
 using namespace Handler;
+using namespace Resource;
 
 class App {
 public:
@@ -51,6 +54,7 @@ protected:
     Barriers* InitBarriers(); // inter barriers
     Radar* InitRadar();
     Eat *InitEat();
+    void initTexts();
 private:
     LevelManager* levelManager{};
     ResourceManager* resourceManager{};
@@ -75,10 +79,6 @@ private:
     EatManager* eatManager;
     Text* startText;
     Text* tilesCounterText;
-    ShaderManager* textShader;
-    ShaderManager* baseShader;
-    ShaderManager* normalShader;
-    ShaderManager* orthoShader;
     Camera* camera;
     int width;
     int height;

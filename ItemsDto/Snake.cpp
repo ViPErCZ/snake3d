@@ -16,9 +16,7 @@ namespace ItemsDto {
 
     void Snake::init() {
         auto *snakeTile = new sSNAKE_TILE;
-        snakeTile->tile = new ObjItem();
-        snakeTile->tile->load("Assets/Objects/Cube.obj");
-        snakeTile->tile->addTexture(6);
+        snakeTile->tile = new Cube();
         snakeTile->tile->setVisible(true);
         snakeTile->alpha = 1.0;
 
@@ -29,8 +27,7 @@ namespace ItemsDto {
     void Snake::addTile(eDIRECTION aDirection) {
         if (!tiles.empty()) {
             auto *snakeTile = new sSNAKE_TILE;
-            snakeTile->tile = new ObjItem();
-            snakeTile->tile->load("Assets/Objects/Cube.obj");
+            snakeTile->tile = new Cube();
             glm::vec3 pos = {-19, 67, -23};
 
             auto PrevIter = tiles.end()-1;
@@ -93,7 +90,7 @@ namespace ItemsDto {
         return tiles;
     }
 
-    ObjItem *Snake::getHeadTile() {
+    Cube *Snake::getHeadTile() {
         if (!tiles.empty()) {
             return (*tiles.begin())->tile;
         }

@@ -15,7 +15,7 @@ namespace ItemsDto {
         }
     }
 
-    const vector<ObjItem *> &ObjWall::getItems() const {
+    const vector<Cube *> &ObjWall::getItems() const {
         return walls;
     }
 
@@ -23,10 +23,8 @@ namespace ItemsDto {
         glm::vec3 wallPos = {-16, -25, -23.0};
         for (int round = 0; round < 2; round++) {
             for (int x = -25; x <= 73; x += 2) {
-                auto *wall = new ObjItem();
-                wall->load("Assets/Objects/Cube.obj");
+                auto *wall = new Cube();
                 wallPos.x = (float) x;
-                wall->addTexture(2);
                 wall->setPosition(wallPos);
                 wall->setVisible(true);
 
@@ -46,10 +44,8 @@ namespace ItemsDto {
 
         for (int round = 0; round < 2; round++) {
             for (int y = -25; y <= 73; y += 2) {
-                auto wall = new ObjItem();
-                wall->load("Assets/Objects/Cube.obj");
+                auto wall = new Cube();
                 wallPos.y = (float) y;
-                wall->addTexture(2);
                 wall->setPosition(wallPos);
                 wall->setVisible(true);
 

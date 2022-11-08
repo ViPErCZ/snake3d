@@ -1,24 +1,10 @@
 #include "BaseItem.h"
 
 namespace ItemsDto {
-    BaseItem::BaseItem(): width(1), height(1), blend(false), program(0) {
+    BaseItem::BaseItem(): width(1), height(1) {
         rotate[0].a = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
         rotate[1].a = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
         rotate[2].a = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
-    }
-
-    void BaseItem::addTexture(GLuint index) {
-        textures.push_back(index);
-    }
-
-    GLuint BaseItem::findTexture(GLuint index) {
-        for (auto Iter = textures.begin(); Iter < textures.end(); Iter++) {
-            if ((*Iter) == index) {
-                return index;
-            };
-        }
-
-        return 0;
     }
 
     const glm::vec3 &BaseItem::getPosition() const {
@@ -73,30 +59,6 @@ namespace ItemsDto {
 
     void BaseItem::toggleVisible() {
         this->visible = !this->visible;
-    }
-
-    GLuint BaseItem::getPrimaryTexture() {
-        if (!textures.empty()) {
-            return (*textures.begin());
-        }
-
-        return 0;
-    }
-
-    bool BaseItem::isBlend() const {
-        return blend;
-    }
-
-    void BaseItem::setBlend(bool blend) {
-        BaseItem::blend = blend;
-    }
-
-    GLuint BaseItem::getProgram() const {
-        return program;
-    }
-
-    void BaseItem::setProgram(GLuint program) {
-        BaseItem::program = program;
     }
 
     int BaseItem::getVirtualX() const {

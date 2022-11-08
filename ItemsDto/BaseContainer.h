@@ -3,6 +3,9 @@
 
 #include "BaseItem.h"
 #include "BaseContainerInterface.h"
+#include <vector>
+
+using namespace std;
 
 namespace ItemsDto {
     template<class ParentType>

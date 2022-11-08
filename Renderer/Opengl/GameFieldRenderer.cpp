@@ -1,12 +1,15 @@
 #include "GameFieldRenderer.h"
 
-Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager) {
+Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager) {
     gameField = item;
     resourceManager = resManager;
-    this->shader = shader;
     this->camera = camera;
     this->projection = proj;
     model = new GameFieldModel((*gameField->getTiles().begin()));
+    shader = resourceManager->getShader("normalShader");
+    texture1 = resourceManager->getTexture("gamefield.bmp");
+    texture2 = resourceManager->getTexture("gamefield_normal.jpg");
+    texture3 = resourceManager->getTexture("gamefield_specular.jpg");
 }
 
 Renderer::GameFieldRenderer::~GameFieldRenderer() {
@@ -31,12 +34,9 @@ void Renderer::GameFieldRenderer::render() {
     for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
         glLoadIdentity();
         if ((*Iter)->isVisible()) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield.bmp"));
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield_normal.jpg"));
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("gamefield_specular.jpg"));
+            texture1->bind(0);
+            texture2->bind(1);
+            texture3->bind(2);
 
             glm::vec3 position = (*Iter)->getPosition();
             glm::vec3 zoom = (*Iter)->getZoom();
@@ -49,7 +49,7 @@ void Renderer::GameFieldRenderer::render() {
             shader->setVec3("viewPos", camera->getPosition());
             shader->setVec3("lightPos", lightPos);
 
-            this->model->getVao().bind();
+            this->model->getMesh()->bind();
             glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             x++;
         }

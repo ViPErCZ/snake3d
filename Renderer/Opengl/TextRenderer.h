@@ -7,7 +7,9 @@
 #include "../../ItemsDto/Text.h"
 #include "../../Manager/ShaderManager.h"
 #include "Model/TextModel.h"
+#include <vector>
 
+using namespace std;
 using namespace Manager;
 
 namespace Renderer {

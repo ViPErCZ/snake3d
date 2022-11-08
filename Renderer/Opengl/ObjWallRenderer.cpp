@@ -1,44 +1,41 @@
 #include "ObjWallRenderer.h"
 
 namespace Renderer {
-    ObjWallRenderer::ObjWallRenderer(ObjWall *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager)
-        : shaderManager(shader), wall(item), resourceManager(resManager) {
-        model = new WallModel(wall);
+    ObjWallRenderer::ObjWallRenderer(ObjWall *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager)
+        : wall(item), resourceManager(resManager) {
+        mesh = resourceManager->getModel("cube")->getMesh();
+        shader = resourceManager->getShader("normalShader");
+        texture1 = resourceManager->getTexture("brickwork-texture.jpg");
+        texture2 = resourceManager->getTexture("brickwork_normal-map.jpg");
+        texture3 = resourceManager->getTexture("brickwork-bump-map.jpg");
         this->camera = camera;
         projection = proj;
     }
 
     ObjWallRenderer::~ObjWallRenderer() {
-        delete model;
         delete wall;
     }
 
     void ObjWallRenderer::render() {
         int index = 0;
-        shaderManager->use();
-        shaderManager->setMat4("view", camera->getViewMatrix());
-        shaderManager->setMat4("projection", this->projection);
-        shaderManager->setInt("diffuseMap", 0);
-        shaderManager->setInt("normalMap", 1);
-        shaderManager->setInt("specularMap", 2);
-        shaderManager->setFloat("alpha", 1.0);
-
+        shader->use();
+        shader->setMat4("view", camera->getViewMatrix());
+        shader->setMat4("projection", this->projection);
+        shader->setInt("diffuseMap", 0);
+        shader->setInt("normalMap", 1);
+        shader->setInt("specularMap", 2);
+        shader->setFloat("alpha", 1.0);
 
         // lighting info
         // -------------
         glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
 
         for (auto item: wall->getItems()) {
-            auto mesh = model->getMesh();
-
             glLoadIdentity();
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-texture.jpg"));
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork_normal-map.jpg"));
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, resourceManager->getTexture("brickwork-bump-map.jpg"));
+            texture1->bind(0);
+            texture2->bind(1);
+            texture3->bind(2);
 
             glm::vec3 position = item->getPosition();
 
@@ -50,12 +47,12 @@ namespace Renderer {
             //model = glm::translate(model, {-25.0, -25.0, -23.0f}); // levy spodni okraj
             model = glm::translate(model, position);
 
-            shaderManager->setMat4("model", model);
-            shaderManager->setVec3("viewPos", camera->getPosition());
-            shaderManager->setVec3("lightPos", lightPos);
+            shader->setMat4("model", model);
+            shader->setVec3("viewPos", camera->getPosition());
+            shader->setVec3("lightPos", lightPos);
 
-            this->model->getVao()->bind();
-            glDrawElements(GL_TRIANGLES, (int)this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            mesh->bind();
+            glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
         }
 
         glEnable(GL_TEXTURE0);
@@ -65,11 +62,6 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::afterRender() {
-    }
-
-    void ObjWallRenderer::reCreate() {
-        delete model;
-        model = new WallModel(wall);
     }
 
 } // Renderer

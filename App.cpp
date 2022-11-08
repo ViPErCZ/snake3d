@@ -7,37 +7,38 @@ App::App(int width, int height) : width(width), height(height) {
     tilesCounterText = new Text("");
     eat = new Eat;
     eatManager = nullptr;
-    textShader = new ShaderManager;
-    baseShader = new ShaderManager;
-    normalShader = new ShaderManager;
-    orthoShader = new ShaderManager;
     camera = new Camera(glm::vec3(0.0f, -1.0f, 2.0f));
 }
 
 App::~App() {
     delete rendererManager;
-//    delete objWallRenderer;
     delete resourceManager;
     delete keyboardManager;
     delete eatManager;
     delete collisionDetector;
     delete eat;
     delete levelManager;
-    delete textShader;
-    delete baseShader;
-    delete normalShader;
-    delete orthoShader;
     delete camera;
 }
 
 void App::Init() {
     InitResourceManager();
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)width / (float)height, 1.5f, 2600.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float) width / (float) height, 1.5f,
+                                            2600.0f);
     glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     glm::mat4 view = camera->getViewMatrix();
 
-    gameFieldRenderer = new GameFieldRenderer(InitGameField(), normalShader, camera, projection, resourceManager);
+    resourceManager->addShader("textShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs")));
+    resourceManager->addShader("basicShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs")));
+    resourceManager->addShader("normalShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs")));
+    resourceManager->addShader("radarShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs")));
+
+    gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
@@ -50,40 +51,21 @@ void App::Init() {
     auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat);
     eatManager = new EatManager(eatLocationHandler);
 
-    snakeRenderer = new SnakeRenderer(snake, baseShader, camera, projection, resourceManager);
-    objWallRenderer = new ObjWallRenderer(objWall, normalShader, camera, projection, resourceManager);
-    barrierRenderer = new BarrierRenderer(barriers, normalShader, camera, projection, resourceManager);
-    eatRenderer = new EatRenderer(eat, normalShader, camera, projection, resourceManager);
-    radarRenderer = new RadarRenderer(radar, orthoShader, camera, ortho, resourceManager);
+    snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
+    objWallRenderer = new ObjWallRenderer(objWall, camera, projection, resourceManager);
+    barrierRenderer = new BarrierRenderer(barriers, camera, projection, resourceManager);
+    eatRenderer = new EatRenderer(eat, camera, projection, resourceManager);
+    radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
 
+    initTexts();
+
     animateEat = new Eat;
-    animateEat->load("Assets/Objects/Coin.obj");
     animateEat->setVisible(false);
     animateEat->setPosition(eat->getPosition());
 
-    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, normalShader, camera, projection, resourceManager);
-
-    textShader->loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
-    baseShader->loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
-    normalShader->loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs");
-    orthoShader->loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs");
-
-    startText->setVisible(true);
-    startText->setColor({0.8, 0.8, 0.8});
-    startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-    startText->setFontSize(22);
-    startText->setPosition({(width - 360) / 2, height / 2, 0.0});
-    startText->setZoom({1.0f, 0, 0});
-    textRenderer->addText(startText, textShader);
-
-    tilesCounterText->setVisible(true);
-    tilesCounterText->setColor({0.8, 0.8, 0.8});
-    tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-    tilesCounterText->setFontSize(22);
-    tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
-    tilesCounterText->setZoom({1.0f, 0, 0});
-    textRenderer->addText(tilesCounterText, textShader);
+    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection,
+                                                            resourceManager);
 
     rendererManager->addRenderer(gameFieldRenderer);
     rendererManager->addRenderer(snakeRenderer);
@@ -142,7 +124,6 @@ void App::Init() {
                 this->startText->setVisible(true);
                 this->levelManager->setLive(3);
                 eat->setVisible(false);
-                this->barrierRenderer->reCreate();
                 cout << "crash callback call" << endl;
             }
         }
@@ -163,7 +144,6 @@ void App::Init() {
                 this->snake->reset();
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
-                this->barrierRenderer->reCreate();
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -177,7 +157,7 @@ void App::Init() {
                      this->levelManager->getLive(),
                      "Points left:",
                      MAX_POINT - this->levelManager->getEatCounter()
-                     );
+            );
             std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
 
@@ -187,10 +167,29 @@ void App::Init() {
     keyboardManager->addEventHandler(radarHandler);
 }
 
+void App::initTexts() {
+    if (textRenderer && resourceManager) {
+        startText->setVisible(true);
+        startText->setColor({0.8, 0.8, 0.8});
+        startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+        startText->setFontSize(22);
+        startText->setPosition({(width - 360) / 2, height / 2, 0.0});
+        startText->setZoom({1.0f, 0, 0});
+        textRenderer->addText(startText, resourceManager->getShader("textShader"));
+
+        tilesCounterText->setVisible(true);
+        tilesCounterText->setColor({0.8, 0.8, 0.8});
+        tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+        tilesCounterText->setFontSize(22);
+        tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
+        tilesCounterText->setZoom({1.0f, 0, 0});
+        textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader"));
+    }
+}
+
 Eat *App::InitEat() {
-    eat->load("Assets/Objects/Coin.obj");
-    eat->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
-    eat->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
+    eat->setVirtualX((((int) (23 - (-23)) / 2) * 32) + 16);
+    eat->setVirtualY((((int) (-3 - (-23)) / 2) * 32) + 16);
     eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
 
     eat->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1});
@@ -252,12 +251,15 @@ void App::InitResourceManager() {
     for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
         if (!is_directory(i->path())) {
             std::cout << i->path().filename() << std::endl;
-            if (i->path().filename() == "gamefield.bmp") {
-                resourceManager->createTexture(i->path().c_str(), i->path().filename(), GL_LINEAR);
-            }
-            resourceManager->createTexture(i->path().c_str(), i->path().filename());
+            auto texture = std::make_shared<TextureManager>();
+            texture->addTexture(TextureLoader::loadTexture(i->path()));
+            resourceManager->addTexture(i->path().filename(), texture);
         }
     }
+
+    const fs::path assets_dir{"Assets/Objects"};
+    resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
+    resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
 }
 
 void App::run() {

@@ -8,7 +8,7 @@ namespace Renderer {
 
     class BarrierRenderer : public ObjWallRenderer {
     public:
-        explicit BarrierRenderer(Barriers *item, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit BarrierRenderer(Barriers *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
     };
 
 } // Renderer

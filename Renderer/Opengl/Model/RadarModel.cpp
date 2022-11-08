@@ -5,22 +5,14 @@ namespace Model {
     RadarModel::RadarModel(Radar *radar) : radar(radar) {
         vector<Vertex> vertices;
 
-        createVertices(radar, radarMesh);
-        for (auto item : radar->getItems()) {
-            createVertices(item.item, itemsMeshes);
-        }
+        createVertices();
     }
 
     RadarModel::~RadarModel() {
-        for (auto data: radarMesh) {
-            delete data.first;
-            delete data.second;
-        }
-
-        radarMesh.clear();
+        delete mesh;
     }
 
-    void RadarModel::createVertices(BaseItem* item, map<Vao*, Mesh*>& storage) {
+    void RadarModel::createVertices() {
         vector<glm::vec3> vbo_vertices;
         vector<glm::vec3> vbo_normals;
         vector<glm::vec2> vbo_uvs;
@@ -108,7 +100,7 @@ namespace Model {
         vertices.push_back(vertex6);
         indices.push_back(5);
 
-        Manager::VboIndexer::computeTangentBasis(vbo_vertices, vbo_uvs, vbo_normals, tangents, biTangents);
+        VboIndexer::computeTangentBasis(vbo_vertices, vbo_uvs, vbo_normals, tangents, biTangents);
 
         int index = 0;
         for (auto iter : tangents) {
@@ -117,16 +109,11 @@ namespace Model {
             index++;
         }
 
-        auto vao = new Vao();
-        storage.insert(pair<Vao*, Mesh*>(vao, new Mesh(vertices, indices, *vao, item)));
+        mesh = new Mesh(vertices, indices);
     }
 
-    const map<Vao *, Mesh *> &RadarModel::getRadarMesh() const {
-        return radarMesh;
+    Mesh *RadarModel::getMesh() const {
+        return mesh;
     }
 
-    const map<Vao *, Mesh *> &RadarModel::getItemsMeshes() const {
-        return itemsMeshes;
-    }
-
-} // Model
+} // ObjModelLoader

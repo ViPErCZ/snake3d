@@ -86,7 +86,7 @@ namespace Physic {
         return false;
     }
 
-    void CollisionDetector::blendBarrierDetect(BaseItem *snakeHead, ObjItem *barrier) {
+    void CollisionDetector::blendBarrierDetect(BaseItem *snakeHead, Cube *barrier) {
 //        glm::vec3 headPosition = snakeHead->getPosition();
 //        glm::vec3 barrierPosition = barrier->getPosition();
 //

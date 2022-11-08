@@ -3,19 +3,19 @@
 
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Eat.h"
-#include "Model/EatModel.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderManager.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace ItemsDto;
 using namespace Manager;
-using namespace Model;
 
 namespace Renderer {
 
     class EatRenderer : public BaseRenderer {
     public:
-        EatRenderer(Eat *eat, ShaderManager *shaderManager, Camera *camera, const glm::mat4 &projection,
+        EatRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,
                     ResourceManager *resourceManager);
 
         void render() override;
@@ -23,11 +23,14 @@ namespace Renderer {
         void afterRender() override;
     protected:
         Eat* eat;
-        EatModel* model;
-        ShaderManager* shaderManager;
+        Mesh* mesh;
         Camera* camera;
         glm::mat4 projection{};
         ResourceManager* resourceManager;
+        ShaderManager* shader;
+        TextureManager* texture1;
+        TextureManager* texture2;
+        TextureManager* texture3;
         double lastTime{};
     };
 

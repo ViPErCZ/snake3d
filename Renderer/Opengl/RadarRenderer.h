@@ -3,6 +3,8 @@
 
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Radar.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderManager.h"
 #include "Model/RadarModel.h"
 
 using namespace Model;
@@ -11,7 +13,7 @@ namespace Renderer {
 
     class RadarRenderer : public BaseRenderer {
     public:
-        explicit RadarRenderer(Radar* radar, ShaderManager* shader, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit RadarRenderer(Radar* radar, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~RadarRenderer() override;
 
     public:
@@ -23,6 +25,7 @@ namespace Renderer {
         RadarModel* model;
         ResourceManager* resourceManager;
         ShaderManager* shader;
+        TextureManager* frameTexture;
         Camera* camera;
         glm::mat4 projection{};
     };
