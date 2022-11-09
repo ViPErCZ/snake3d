@@ -46,7 +46,6 @@ namespace ItemsDto {
 
     Cube *Barriers::wallFactory(const glm::vec3 &position) {
         auto wall = new Cube();
-//        wall->load("Assets/Objects/Cube.obj");
         wall->setPosition(position);
         wall->setVirtualX((((int)(position.x - (-23)) / 2) * 32));
         wall->setVirtualY((((int)(position.y - (-23)) / 2) * 32));
