@@ -1,5 +1,4 @@
 #include "Barriers.h"
-#include "ObjItem.h"
 
 namespace ItemsDto {
     Barriers::~Barriers() {
