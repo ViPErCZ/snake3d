@@ -21,11 +21,11 @@ namespace Handler {
         void onFirstPlaceHandler();
         void onCheckPlaceHandler();
         bool rePosition();
+        bool isFieldEmpty(int x, int y);
     protected:
         Snake* snake{};
         Barriers* barriers;
         Eat* eat{};
-        bool isFieldEmpty(int x, int y);
         void addTile();
         glm::vec2 getPosition();
     };

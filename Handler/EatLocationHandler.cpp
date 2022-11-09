@@ -16,7 +16,7 @@ namespace Handler {
         try {
             glm::vec2 newPos = getPosition();
             glm::vec3 pos = eat->getPosition();
-            cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
+            //cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
             eat->setVirtualX((int)newPos.x * 32 + 16);
             eat->setVirtualY((int)newPos.y * 32 + 16);
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
@@ -36,19 +36,15 @@ namespace Handler {
         int posY = y * 32;
 
         for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
-            if ((int) (*Iter)->tile->getPosition().x - 16 + 32 >= posX && (int) (*Iter)->tile->getPosition().x - 16 <= posX
-                && (int) (*Iter)->tile->getPosition().y - 16 + 32 >= posY && (int) (*Iter)->tile->getPosition().y - 16 <= posY) {
-                cout << "Not empty field" << endl;
-
+            if ((int) (*Iter)->tile->getVirtualX() - 16 + 32 >= posX && (int) (*Iter)->tile->getVirtualX() - 16 <= posX
+                && (int) (*Iter)->tile->getVirtualY() - 16 + 32 >= posY && (int) (*Iter)->tile->getVirtualY() - 16 <= posY) {
                 return false;
             }
         }
 
         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); Iter++) {
-            if ((int) (*Iter)->getPosition().x - 16 + 32 > posX && (int) (*Iter)->getPosition().x - 16 <= posX
-                && (int) (*Iter)->getPosition().y - 16 + 32 > posY && (int) (*Iter)->getPosition().y - 16 <= posY) {
-                cout << "Not empty field" << endl;
-
+            if ((int) (*Iter)->getVirtualX() - 16 + 32 > posX && (int) (*Iter)->getVirtualX() - 16 <= posX
+                && (int) (*Iter)->getVirtualY() - 16 + 32 > posY && (int) (*Iter)->getVirtualY() - 16 <= posY) {
                 return false;
             }
         }
@@ -79,9 +75,6 @@ namespace Handler {
 
         int numberX = fields(gen);
         int numberY = fields(gen);
-
-        cout << "X: " << numberX << endl;
-        cout << "Y: " << numberY << endl;
 
         // tady musim checknout, ze je to policko prazdne, jinak musim najit jine
         glm::vec3 pos = eat->getPosition();
