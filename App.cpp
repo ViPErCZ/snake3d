@@ -6,6 +6,7 @@ App::App(int width, int height) : width(width), height(height) {
     startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
     eat = new Eat;
+    skybox = new Cube();
     eatManager = nullptr;
     camera = new Camera(glm::vec3(0.0f, -1.0f, 2.0f));
 }
@@ -17,6 +18,7 @@ App::~App() {
     delete eatManager;
     delete collisionDetector;
     delete eat;
+    delete skybox;
     delete levelManager;
     delete camera;
 }
@@ -37,6 +39,8 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs")));
     resourceManager->addShader("radarShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs")));
+    resourceManager->addShader("skyboxShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/skybox.vs", "Assets/Shaders/skybox.fs")));
 
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
@@ -57,6 +61,7 @@ void App::Init() {
     eatRenderer = new EatRenderer(eat, camera, projection, resourceManager);
     radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
+    skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
 
     initTexts();
 
@@ -74,6 +79,7 @@ void App::Init() {
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(radarRenderer);
+    rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(textRenderer);
     camera->setStickyPoint(snake->getHeadTile());
 
@@ -260,6 +266,18 @@ void App::InitResourceManager() {
     const fs::path assets_dir{"Assets/Objects"};
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
+
+    vector<string> faces;
+    faces.emplace_back("Assets/Skybox/cloud/right.jpg");
+    faces.emplace_back("Assets/Skybox/cloud/left.jpg");
+    faces.emplace_back("Assets/Skybox/cloud/top.jpg");
+    faces.emplace_back("Assets/Skybox/cloud/bottom.jpg");
+    faces.emplace_back("Assets/Skybox/cloud/front.jpg");
+    faces.emplace_back("Assets/Skybox/cloud/back.jpg");
+    unsigned int cubeMapTexture = TextureLoader::loadSkyboxTexture(faces);
+    auto texture = std::make_shared<TextureManager>();
+    texture->addTexture(cubeMapTexture);
+    resourceManager->addTexture("skybox", texture);
 }
 
 void App::run() {

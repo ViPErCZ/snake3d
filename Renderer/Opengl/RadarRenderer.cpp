@@ -72,13 +72,15 @@ namespace Renderer {
     }
 
     void RadarRenderer::beforeRender() {
-        glDepthMask(0);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
     }
 
     void RadarRenderer::afterRender() {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         glDepthMask(1);
+        glDepthFunc(GL_LESS); // set depth function back to default
     }
 
 } // Renderer
