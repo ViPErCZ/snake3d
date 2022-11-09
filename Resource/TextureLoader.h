@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -15,6 +16,7 @@ namespace Resource {
     class TextureLoader {
     public:
         static unsigned int loadTexture(const fs::path& path);
+        static unsigned int loadSkyboxTexture(vector<std::string> faces);
     };
 
 } // Resource

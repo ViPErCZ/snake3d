@@ -13,10 +13,10 @@ namespace Manager {
 
         void addTexture(unsigned int id);
         void bind() const;
+        void cubeBind() const;
         void bind(int index, int item = 0);
         void unbind() const;
     protected:
-        unsigned int id;
         vector<unsigned int> textures;
     };
 

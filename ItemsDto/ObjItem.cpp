@@ -7,7 +7,7 @@ namespace ItemsDto {
         generateBuffer();
     }
 
-    ObjItem::ObjItem() {}
+    ObjItem::ObjItem() = default;
 
     const vector<glm::vec3> &ObjItem::getVertices() const {
         return vertices;

@@ -39,4 +39,10 @@ namespace Manager {
         }
     }
 
+    void TextureManager::cubeBind() const {
+        glActiveTexture(GL_TEXTURE0);
+        auto id = textures.begin();
+        glBindTexture(GL_TEXTURE_CUBE_MAP, (*id));
+    }
+
 } // Manager

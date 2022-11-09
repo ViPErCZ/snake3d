@@ -10,6 +10,7 @@
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
 #include "Renderer/Opengl/GameFieldRenderer.h"
+#include "Renderer/Opengl/SkyboxRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
 #include "Handler/SnakeMoveHandler.h"
@@ -61,12 +62,14 @@ private:
     RenderManager* rendererManager;
     GameField* gameField{};
     GameFieldRenderer* gameFieldRenderer{};
+    SkyboxRenderer* skyboxRenderer{};
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
     ObjWall* objWall{};
     Barriers* barriers{};
     Radar* radar{};
+    Cube* skybox{};
     SnakeRenderer* snakeRenderer{};
     ObjWallRenderer* objWallRenderer{};
     BarrierRenderer* barrierRenderer{};

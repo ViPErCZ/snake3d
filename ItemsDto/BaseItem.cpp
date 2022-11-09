@@ -1,7 +1,7 @@
 #include "BaseItem.h"
 
 namespace ItemsDto {
-    BaseItem::BaseItem(): width(1), height(1) {
+    BaseItem::BaseItem(): width(1), height(1), visible(true) {
         rotate[0].a = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
         rotate[1].a = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
         rotate[2].a = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;

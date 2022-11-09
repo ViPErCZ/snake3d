@@ -25,7 +25,7 @@ namespace Renderer {
         Eat* eat;
         Mesh* mesh;
         Camera* camera;
-        glm::mat4 projection{};
+        glm::mat4 projection;
         ResourceManager* resourceManager;
         ShaderManager* shader;
         TextureManager* texture1;
