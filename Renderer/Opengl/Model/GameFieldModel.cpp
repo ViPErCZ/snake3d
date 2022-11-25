@@ -14,7 +14,7 @@ namespace Model {
 
         Vertex vertex{};
         vertex.position = {-1.0f, -1.0f, -1.0f};
-        vertex.normal = glm::normalize(vertex.position);
+        vertex.normal = {0.0f, 1.0f, 0.0f};
         vertex.color = {1.0f, 1.0f, 1.0f};
         vertex.texUV = {0.0f, 0.0f};
 
@@ -27,7 +27,7 @@ namespace Model {
 
         Vertex vertex2{};
         vertex2.position = {3.0f, -1.0f, -1.0f};
-        vertex2.normal = glm::normalize(vertex2.position);
+        vertex2.normal = {0.0f, 1.0f, 0.0f};
         vertex2.color = {1.0f, 1.0f, 1.0f};
         vertex2.texUV = {2.0f, 0.0f};
 
@@ -40,7 +40,7 @@ namespace Model {
 
         Vertex vertex3{};
         vertex3.position = {3.0f, 3.0f, -1.0f};
-        vertex3.normal = glm::normalize(vertex3.position);
+        vertex3.normal = {0.0f, 1.0f, 0.0f};
         vertex3.color = {1.0f, 1.0f, 1.0f};
         vertex3.texUV = {2.0f, 2.0f};
 
@@ -53,7 +53,7 @@ namespace Model {
 
         Vertex vertex4{};
         vertex4.position = {3.0f, 3.0f, -1.0f};
-        vertex4.normal = glm::normalize(vertex4.position);
+        vertex4.normal = {0.0f, 1.0f, 0.0f};
         vertex4.color = {1.0f, 1.0f, 1.0f};
         vertex4.texUV = {2.0f, 2.0f};
 
@@ -66,7 +66,7 @@ namespace Model {
 
         Vertex vertex5{};
         vertex5.position = {-1.0f, 3.0f, -1.0f};
-        vertex5.normal = glm::normalize(vertex5.position);
+        vertex5.normal = {0.0f, 1.0f, 0.0f};
         vertex5.color = {1.0f, 1.0f, 1.0f};
         vertex5.texUV = {0.0f, 2.0f};
 
@@ -79,7 +79,7 @@ namespace Model {
 
         Vertex vertex6{};
         vertex6.position = {-1.0f, -1.0f, -1.0f};
-        vertex6.normal = glm::normalize(vertex6.position);
+        vertex6.normal = {0.0f, 1.0f, 0.0f};
         vertex6.color = {1.0f, 1.0f, 1.0f};
         vertex6.texUV = {0.0f, 0.0f};
 

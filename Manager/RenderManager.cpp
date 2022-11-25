@@ -11,6 +11,7 @@ namespace Manager {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             delete (*Iter);
         }
+        delete depthMapRenderer;
     }
 
     void RenderManager::addRenderer(BaseRenderer *renderer) {
@@ -22,10 +23,32 @@ namespace Manager {
         glLoadIdentity();
         glClearColor(.0, .0, .0, 0);
 
+        if (depthMapRenderer) {
+            depthMapRenderer->beforeRender();
+        }
+
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
             (*Iter)->render();
             (*Iter)->afterRender();
+            (*Iter)->setShadow(true);
+        }
+
+        if (depthMapRenderer) {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            // reset viewport
+            glViewport(0, 0, width, height);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            depthMapRenderer->render();
+            depthMapRenderer->afterRender();
+        }
+
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+            (*Iter)->beforeRender();
+            (*Iter)->render();
+            (*Iter)->afterRender();
+            (*Iter)->setShadow(false);
         }
     }
 
@@ -36,4 +59,9 @@ namespace Manager {
     void RenderManager::setHeight(int height) {
         RenderManager::height = height;
     }
+
+    void RenderManager::setDepthMapRenderer(DepthMapRenderer *depthMapRenderer) {
+        RenderManager::depthMapRenderer = depthMapRenderer;
+    }
+
 } // Manager

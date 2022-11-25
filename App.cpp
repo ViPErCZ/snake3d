@@ -1,6 +1,6 @@
 #include "App.h"
 
-App::App(int width, int height) : width(width), height(height) {
+App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
     startText = new Text("Press start I, K or L...");
@@ -8,7 +8,6 @@ App::App(int width, int height) : width(width), height(height) {
     eat = new Eat;
     skybox = new Cube();
     eatManager = nullptr;
-    camera = new Camera(glm::vec3(0.0f, -1.0f, 2.0f));
 }
 
 App::~App() {
@@ -41,7 +40,14 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs")));
     resourceManager->addShader("skyboxShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/skybox.vs", "Assets/Shaders/skybox.fs")));
+    resourceManager->addShader("shadowShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/shadow_map.vs", "Assets/Shaders/shadow_map.fs")));
+    resourceManager->addShader("shadowDepthShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs")));
+    resourceManager->addShader("debugQuadShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
 
+    depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
     eat = InitEat();
@@ -72,15 +78,18 @@ void App::Init() {
     eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection,
                                                             resourceManager);
 
+    rendererManager->setWidth(width);
+    rendererManager->setHeight(height);
     rendererManager->addRenderer(gameFieldRenderer);
     rendererManager->addRenderer(snakeRenderer);
-    rendererManager->addRenderer(objWallRenderer);
-    rendererManager->addRenderer(barrierRenderer);
+//    rendererManager->addRenderer(objWallRenderer);
+//    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
-    rendererManager->addRenderer(eatRemoveAnimateRenderer);
-    rendererManager->addRenderer(radarRenderer);
-    rendererManager->addRenderer(skyboxRenderer);
-    rendererManager->addRenderer(textRenderer);
+//    rendererManager->addRenderer(eatRemoveAnimateRenderer);
+//    rendererManager->addRenderer(radarRenderer);
+//    rendererManager->addRenderer(skyboxRenderer);
+//    rendererManager->addRenderer(textRenderer);
+    rendererManager->setDepthMapRenderer(depthMapRenderer);
     camera->setStickyPoint(snake->getHeadTile());
 
     auto *snakeMoveHandler = new SnakeMoveHandler(snake);

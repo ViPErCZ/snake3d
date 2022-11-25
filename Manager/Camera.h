@@ -9,8 +9,12 @@ using namespace ItemsDto;
 
 namespace Manager {
 
-    const float YAW = -90.0f;
-    const float PITCH = 56.0f;
+    enum Camera_Movement {
+        FORWARD,
+        BACKWARD,
+        LEFT,
+        RIGHT
+    };
 
     class Camera {
     public:
@@ -19,7 +23,10 @@ namespace Manager {
         [[nodiscard]] glm::mat4 getViewMatrix() const;
         [[nodiscard]] const glm::vec3 &getPosition() const;
         void setStickyPoint(BaseItem *stickyPoint);
+        glm::vec3 getStickyPosition();
         void updateStickyPoint();
+        void processMouseMovement(double x, double y);
+        void processKeyboard(Camera_Movement direction, float deltaTime);
 
     protected:
         glm::vec3 position{};
@@ -29,6 +36,8 @@ namespace Manager {
         glm::vec3 worldUp{};
         float zoom;
         BaseItem* stickyPoint{};
+        float YAW = -90.0f;
+        float PITCH = 56.0f;
 
         void updateCameraVectors();
     };

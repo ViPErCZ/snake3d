@@ -15,10 +15,10 @@ namespace Renderer {
         virtual void render() = 0;
         virtual void beforeRender() = 0;
         virtual void afterRender() = 0;
-
+        void setShadow(bool shadow);
     protected:
         BaseItem* item{};
-        bool ortho;
+        bool shadow;
     };
 
 } // Manager

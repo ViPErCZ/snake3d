@@ -5,7 +5,7 @@ namespace Renderer {
     SnakeRenderer::SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager)
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager) {
         mesh = resourceManager->getModel("cube")->getMesh();
-        shader = resourceManager->getShader("basicShader");
+        shader = resourceManager->getShader("shadowShader");
         snakeTileTexture = resourceManager->getTexture("snake.bmp");
         snakeHeadTexture = resourceManager->getTexture("head.bmp");
     }
@@ -15,14 +15,27 @@ namespace Renderer {
     }
 
     void SnakeRenderer::render() {
+        if (!shadow) {
+            shader = resourceManager->getShader("shadowDepthShader");
+        } else {
+            shader = resourceManager->getShader("basicShader");
+        }
+
         int index = 0;
         shader->use();
-        shader->setMat4("view", camera->getViewMatrix());
-        shader->setMat4("projection", this->projection);
-        shader->setInt("diffuseMap", 0);
-        shader->setInt("normalMap", 1);
-        shader->setInt("specularMap", 2);
-        shader->setFloat("alpha", 1.0);
+
+        if (shadow) {
+            shader->setMat4("view", camera->getViewMatrix());
+            shader->setMat4("projection", projection);
+            shader->setVec3("viewPos", camera->getPosition());
+        }
+
+//        shader->setMat4("view", camera->getViewMatrix());
+//        shader->setMat4("projection", this->projection);
+//        shader->setInt("diffuseMap", 0);
+//        shader->setInt("normalMap", 1);
+//        shader->setInt("specularMap", 2);
+//        shader->setFloat("alpha", 1.0);
 
         for (auto snakeTileIter = snake->getItems().begin(); snakeTileIter < snake->getItems().end(); snakeTileIter++) {
             if ((*snakeTileIter)->tile->isVisible()) {
