@@ -30,13 +30,6 @@ namespace Renderer {
             shader->setVec3("viewPos", camera->getPosition());
         }
 
-//        shader->setMat4("view", camera->getViewMatrix());
-//        shader->setMat4("projection", this->projection);
-//        shader->setInt("diffuseMap", 0);
-//        shader->setInt("normalMap", 1);
-//        shader->setInt("specularMap", 2);
-//        shader->setFloat("alpha", 1.0);
-
         for (auto snakeTileIter = snake->getItems().begin(); snakeTileIter < snake->getItems().end(); snakeTileIter++) {
             if ((*snakeTileIter)->tile->isVisible()) {
                 glLoadIdentity();
@@ -53,7 +46,11 @@ namespace Renderer {
                 glm::mat4 model = glm::mat4(1.0f);
                 // Transform the matrices to their correct form
                 model = glm::translate(model, {0.0, 0.0, 0.0});
-                model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
+                if (snakeTileIter == this->snake->getItems().begin()) {
+                    model = glm::scale(model, {0.0416660f, 0.0416660f, 0.0416660f});
+                } else {
+                    model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
+                }
                 model = glm::translate(model, position);
 
                 shader->setMat4("model", model);

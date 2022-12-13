@@ -85,8 +85,8 @@ void App::Init() {
     rendererManager->addRenderer(objWallRenderer);
 //    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
-//    rendererManager->addRenderer(eatRemoveAnimateRenderer);
-//    rendererManager->addRenderer(radarRenderer);
+    rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
 //    rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
