@@ -67,8 +67,12 @@ namespace Renderer {
     }
 
     void SnakeRenderer::beforeRender() {
+        glCullFace(GL_FRONT);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(2.0f, 2.0f);
     }
 
     void SnakeRenderer::afterRender() {
+        glCullFace(GL_BACK);
     }
 } // Renderer

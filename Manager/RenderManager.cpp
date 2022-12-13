@@ -27,12 +27,14 @@ namespace Manager {
             depthMapRenderer->beforeRender();
         }
 
+        glCullFace(GL_FRONT);
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
             (*Iter)->render();
             (*Iter)->afterRender();
             (*Iter)->setShadow(true);
         }
+        glCullFace(GL_BACK); // don't forget to reset original culling face
 
         if (depthMapRenderer) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);

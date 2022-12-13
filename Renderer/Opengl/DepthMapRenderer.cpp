@@ -10,7 +10,7 @@ namespace Renderer {
         shader->setInt("diffuseTexture", 0);
         shader->setInt("shadowMap", 1);
 
-        const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 768;
+        const unsigned int SHADOW_WIDTH = 1024*4, SHADOW_HEIGHT = 1024*4;
         glGenFramebuffers(1, &depthMapFBO);
         // create depth texture
         glGenTextures(1, &depthMap);
@@ -20,6 +20,7 @@ namespace Renderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
         float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
         // attach depth texture as FBO's depth buffer
@@ -33,7 +34,7 @@ namespace Renderer {
         texture->addTexture(depthMap);
         resourceManager->addTexture("depth", texture);
         test = 0;
-        lightPos = {-2.0f, 6.0f, 0.0f};
+        lightPos = {0.0f, 7.0f, 11.0f};
 
         float planeVertices[] = {
                 // positions            // normals         // texcoords
@@ -62,10 +63,10 @@ namespace Renderer {
 
         glm::mat4 lightProjection, lightView;
         //glm::mat4 lightSpaceMatrix;
-        float near_plane = 1.0f, far_plane = 7.5f;
+        float near_plane = 1.0f, far_plane = 17.5f;
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(1.0f, 0.0f, -23.0f), glm::vec3(0.0, 0.0, 1.0));
+        lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
         auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
         simpleDepthShader->use();
@@ -101,12 +102,12 @@ namespace Renderer {
         // render scene from light's point of view
         auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
 
-        glViewport(0, 0, 1024, 768);
+        glViewport(0, 0, 1024*4, 1024*4);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        resourceManager->getTexture("gamefield.bmp")->bind(0);
-        renderScene(simpleDepthShader);
+//        resourceManager->getTexture("gamefield.bmp")->bind(0);
+//        renderScene(simpleDepthShader);
 //        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //
 //        // reset viewport
@@ -138,18 +139,18 @@ namespace Renderer {
         // 2. render scene as normal using the generated depth/shadow map
         // --------------------------------------------------------------
         shader->use();
-        glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)1920 / (float)1080, 0.1f, 100.0f);
-        glm::mat4 view = camera->getViewMatrix();
+        //glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float)1920 / (float)1080, 0.1f, 100.0f);
         shader->setMat4("projection", projection);
-        shader->setMat4("view", view);
+        shader->setMat4("view", camera->getViewMatrix());
         // set light uniforms
         shader->setVec3("viewPos", camera->getPosition());
         shader->setVec3("lightPos", lightPos);
         shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
 //        resourceManager->getTexture("gamefield.bmp")->bind(0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        renderScene(shader);
+//        glActiveTexture(GL_TEXTURE1);
+//        glBindTexture(GL_TEXTURE_2D, depthMap);
+//        renderScene(shader);
 
 
 // -------------------------------------------------------------------------------
@@ -175,8 +176,6 @@ namespace Renderer {
     }
 
     void DepthMapRenderer::afterRender() {
-        test -= 0.1;
-
         auto debugDepthQuad = resourceManager->getShader("debugQuadShader");
         debugDepthQuad->use();
         debugDepthQuad->setFloat("near_plane", 1.0f);
@@ -189,11 +188,11 @@ namespace Renderer {
     void DepthMapRenderer::renderScene(const ShaderManager *shader)
     {
         // floor
-//        glm::mat4 model = glm::mat4(1.0f);
-//        shader->setMat4("model", model);
-//        glBindVertexArray(planeVAO);
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//        // cubes
+        glm::mat4 model = glm::mat4(1.0f);
+        shader->setMat4("model", model);
+        glBindVertexArray(planeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // cubes
 //        model = glm::mat4(1.0f);
 //        model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
 //        model = glm::scale(model, glm::vec3(0.5f));
@@ -204,12 +203,12 @@ namespace Renderer {
 //        model = glm::scale(model, glm::vec3(0.5f));
 //        shader->setMat4("model", model);
 //        renderCube();
-//        model = glm::mat4(1.0f);
-//        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
-//        model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-//        model = glm::scale(model, glm::vec3(0.25));
-//        shader->setMat4("model", model);
-//        renderCube();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(1.0f, 0.1f, -1.0));
+        model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+        model = glm::scale(model, glm::vec3(0.25));
+        shader->setMat4("model", model);
+        renderCube();
     }
 
     void DepthMapRenderer::renderQuad()

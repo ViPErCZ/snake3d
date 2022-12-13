@@ -15,23 +15,35 @@ namespace Renderer {
 
     void EatRenderer::render() {
         if (eat->isVisible()) {
+            if (!shadow) {
+                shader = resourceManager->getShader("shadowDepthShader");
+            } else {
+                shader = resourceManager->getShader("normalShader");
+            }
             shader->use();
-            shader->setMat4("view", camera->getViewMatrix());
-            shader->setMat4("projection", this->projection);
-            shader->setInt("diffuseMap", 0);
-            shader->setInt("normalMap", 1);
-            shader->setInt("specularMap", 2);
-            shader->setFloat("alpha", 0.1);
+            if (shadow) {
+                shader->setMat4("view", camera->getViewMatrix());
+                shader->setMat4("projection", this->projection);
+                shader->setInt("diffuseMap", 0);
+                shader->setInt("normalMap", 1);
+                shader->setInt("specularMap", 2);
+                shader->setFloat("alpha", 1.0);
+            }
 
             // lighting info
             // -------------
-            glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
+            //glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
+
 
             glLoadIdentity();
 
-            texture1->bind(0);
-            texture2->bind(1);
-            texture3->bind(2);
+            if (shadow) {
+                texture1->bind(0);
+                texture2->bind(1);
+                texture3->bind(2);
+            } else {
+                resourceManager->getTexture("depth")->bind(0);
+            }
 
             glm::vec3 position = eat->getPosition();
             const glm::vec4 *rotate = eat->getRotate();
@@ -54,8 +66,10 @@ namespace Renderer {
             model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
 
             shader->setMat4("model", model);
-            shader->setVec3("viewPos", camera->getPosition());
-            shader->setVec3("lightPos", lightPos);
+            if (shadow) {
+                shader->setVec3("viewPos", camera->getPosition());
+            }
+//            shader->setVec3("lightPos", lightPos);
 
             mesh->bind();
             glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
@@ -68,8 +82,12 @@ namespace Renderer {
     }
 
     void EatRenderer::beforeRender() {
+        glCullFace(GL_FRONT);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(3.0f, 3.0f);
     }
 
     void EatRenderer::afterRender() {
+        glCullFace(GL_BACK);
     }
 } // Renderer
