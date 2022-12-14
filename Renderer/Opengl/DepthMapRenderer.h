@@ -11,6 +11,9 @@ using namespace Manager;
 
 namespace Renderer {
 
+    const int SHADOW_WIDTH = 4096;
+    const int SHADOW_HEIGHT = 4096;
+
     class DepthMapRenderer : public BaseRenderer {
     public:
         DepthMapRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
@@ -18,7 +21,6 @@ namespace Renderer {
         void beforeRender() override;
         void afterRender() override;
         void renderQuad();
-
         void renderShadowMap() override;
 
     protected:
@@ -29,13 +31,9 @@ namespace Renderer {
         unsigned int depthMapFBO{};
         unsigned int depthMap{};
         glm::mat4 lightSpaceMatrix{};
-        int width;
-        int height;
-        unsigned int planeVAO;
-        unsigned int planeVBO;
         unsigned int quadVAO = 0;
-        unsigned int quadVBO;
-        glm::vec3 lightPos;
+        unsigned int quadVBO{};
+        glm::vec3 lightPos{};
     };
 
 } // Renderer
