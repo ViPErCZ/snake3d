@@ -17,13 +17,13 @@ namespace Renderer {
     void EatRemoveAnimateRenderer::render() {
 
         if (eat && !completed && eat->isVisible()) {
-            shader->use();
-            shader->setMat4("view", camera->getViewMatrix());
-            shader->setMat4("projection", this->projection);
-            shader->setInt("diffuseMap", 0);
-            shader->setInt("normalMap", 1);
-            shader->setInt("specularMap", 2);
-            shader->setFloat("alpha", alpha);
+            baseShader->use();
+            baseShader->setMat4("view", camera->getViewMatrix());
+            baseShader->setMat4("projection", this->projection);
+            baseShader->setInt("diffuseMap", 0);
+            baseShader->setInt("normalMap", 1);
+            baseShader->setInt("specularMap", 2);
+            baseShader->setFloat("alpha", alpha);
 
             // lighting info
             // -------------
@@ -59,9 +59,9 @@ namespace Renderer {
             model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
             model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
 
-            shader->setMat4("model", model);
-            shader->setVec3("viewPos", camera->getPosition());
-            shader->setVec3("lightPos", lightPos);
+            baseShader->setMat4("model", model);
+            baseShader->setVec3("viewPos", camera->getPosition());
+            baseShader->setVec3("lightPos", lightPos);
 
             mesh->bind();
             glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
@@ -93,6 +93,9 @@ namespace Renderer {
 
     void EatRemoveAnimateRenderer::setCompleted(bool completed) {
         EatRemoveAnimateRenderer::completed = completed;
+    }
+
+    void EatRemoveAnimateRenderer::renderShadowMap() {
     }
 
 } // Renderer

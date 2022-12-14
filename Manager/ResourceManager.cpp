@@ -50,7 +50,7 @@ namespace Manager {
         std::unique_lock lock(mutex);
         const auto result = shader.emplace(name, res);
         if (!result.second) {
-            throw invalid_argument("Failed to add shader " + name + ", already contains.");
+            throw invalid_argument("Failed to add baseShader " + name + ", already contains.");
         }
     }
 

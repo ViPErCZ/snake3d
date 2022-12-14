@@ -19,18 +19,22 @@ namespace Renderer {
                     ResourceManager *resourceManager);
 
         void render() override;
+        void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;
     protected:
+        void renderScene(ShaderManager* shader);
         Eat* eat;
         Mesh* mesh;
         Camera* camera;
         glm::mat4 projection;
         ResourceManager* resourceManager;
-        ShaderManager* shader;
+        ShaderManager* baseShader;
+        ShaderManager* shadowShader;
         TextureManager* texture1;
         TextureManager* texture2;
         TextureManager* texture3;
+        TextureManager* depthTexture;
         double lastTime{};
     };
 

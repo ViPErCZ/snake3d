@@ -22,35 +22,36 @@ namespace Manager {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
         glClearColor(.0, .0, .0, 0);
+        glViewport(0, 0, width, height);
 
-        if (depthMapRenderer) {
-            depthMapRenderer->beforeRender();
+        if (shadows) {
+            if (depthMapRenderer) {
+                depthMapRenderer->beforeRender();
+            }
+
+            glCullFace(GL_FRONT);
+            for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+                if ((*Iter)->isShadow()) {
+                    (*Iter)->renderShadowMap();
+                }
+            }
+            glCullFace(GL_BACK); // don't forget to reset original culling face
+
+            if (depthMapRenderer) {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                // reset viewport
+                glViewport(0, 0, width, height);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                depthMapRenderer->render();
+                depthMapRenderer->afterRender();
+            }
         }
 
-        glCullFace(GL_FRONT);
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
             (*Iter)->render();
             (*Iter)->afterRender();
-            (*Iter)->setShadow(true);
-        }
-        glCullFace(GL_BACK); // don't forget to reset original culling face
-
-        if (depthMapRenderer) {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            // reset viewport
-            glViewport(0, 0, width, height);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            depthMapRenderer->render();
-            depthMapRenderer->afterRender();
-        }
-
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
-            (*Iter)->beforeRender();
-            (*Iter)->render();
-            (*Iter)->afterRender();
-            (*Iter)->setShadow(false);
         }
     }
 
@@ -64,6 +65,22 @@ namespace Manager {
 
     void RenderManager::setDepthMapRenderer(DepthMapRenderer *depthMapRenderer) {
         RenderManager::depthMapRenderer = depthMapRenderer;
+    }
+
+    void RenderManager::enableShadows() {
+        shadows = true;
+        updateShadows();
+    }
+
+    void RenderManager::disableShadows() {
+        shadows = false;
+        updateShadows();
+    }
+
+    void RenderManager::updateShadows() {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+            (*Iter)->setShadow(shadows);
+        }
     }
 
 } // Manager

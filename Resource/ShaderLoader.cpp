@@ -8,6 +8,8 @@ namespace Resource {
         // Read shaders
         string vertShaderStr = readFile(vertexPath);
         string fragShaderStr = readFile(fragmentPath);
+        cout << fragmentPath.parent_path() << endl;
+        replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragShaderStr);
         const char *vertShaderSrc = vertShaderStr.c_str();
         const char *fragShaderSrc = fragShaderStr.c_str();
 
@@ -91,6 +93,39 @@ namespace Resource {
         fileStream.close();
 
         return content;
+    }
+
+    void ShaderLoader::replaceIncludes(const fs::path &base_dir, const string &path, string &source) {
+        try {
+            resolveIncludes(base_dir, source);
+        } catch (const shader_file_not_found& not_found) {
+            throw shader_include_not_found("Failed to resolve include for " + path + ": " + not_found.what());
+        }
+    }
+
+    void ShaderLoader::resolveIncludes(const fs::path &base_dir, string &src) {
+        static constexpr std::string_view include = "#include";
+
+        std::size_t found {};
+        while (true) {
+            found = src.find(include, found);
+
+            if (found == std::string::npos) {
+                return;
+            }
+
+            size_t beg = found + include.length() + 2;
+            size_t end = src.find('"', beg);
+            size_t name_length = end - beg;
+
+            fs::path file_name = src.substr(beg, name_length);
+
+            auto include_src = readFile(base_dir / file_name);
+
+            resolveIncludes(base_dir / file_name.parent_path(), include_src);
+
+            src.replace(found, include.length() + 3 + name_length, include_src);
+        }
     }
 
 } // Resource

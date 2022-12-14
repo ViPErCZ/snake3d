@@ -13,3 +13,7 @@ Renderer::BaseRenderer::~BaseRenderer() {
 void Renderer::BaseRenderer::setShadow(bool shadow) {
     BaseRenderer::shadow = shadow;
 }
+
+bool Renderer::BaseRenderer::isShadow() const {
+    return shadow;
+}

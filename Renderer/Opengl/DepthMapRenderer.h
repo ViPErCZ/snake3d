@@ -17,9 +17,9 @@ namespace Renderer {
         void render() override;
         void beforeRender() override;
         void afterRender() override;
-        void renderScene(const ShaderManager *shader);
         void renderQuad();
-        void renderCube();
+
+        void renderShadowMap() override;
 
     protected:
         ResourceManager* resourceManager;
@@ -31,13 +31,10 @@ namespace Renderer {
         glm::mat4 lightSpaceMatrix{};
         int width;
         int height;
-        float test;
         unsigned int planeVAO;
         unsigned int planeVBO;
         unsigned int quadVAO = 0;
         unsigned int quadVBO;
-        unsigned int cubeVAO = 0;
-        unsigned int cubeVBO = 0;
         glm::vec3 lightPos;
     };
 

@@ -83,13 +83,14 @@ void App::Init() {
     rendererManager->addRenderer(gameFieldRenderer);
     rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(objWallRenderer);
-//    rendererManager->addRenderer(barrierRenderer);
+    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
-//    rendererManager->addRenderer(textRenderer);
+    rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
+    //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
     auto *snakeMoveHandler = new SnakeMoveHandler(snake);
@@ -300,4 +301,15 @@ void App::run() {
 
 void App::processInput(int keyCode) {
     keyboardManager->onKeyPress(keyCode);
+
+    switch (keyCode) {
+        case GLFW_KEY_V:
+            rendererManager->enableShadows();
+            break;
+        case GLFW_KEY_B:
+            rendererManager->disableShadows();
+            break;
+        default:
+            break;
+    }
 }

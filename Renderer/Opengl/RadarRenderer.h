@@ -20,6 +20,8 @@ namespace Renderer {
         void render() override;
         void beforeRender() override;
         void afterRender() override;
+        void renderShadowMap() override {};
+
     protected:
         Radar* radar;
         RadarModel* model;

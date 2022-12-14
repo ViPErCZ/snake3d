@@ -24,12 +24,16 @@ namespace Manager {
         void setDepthMapRenderer(DepthMapRenderer *depthMapRenderer);
         void setWidth(int width);
         void setHeight(int height);
+        void enableShadows();
+        void disableShadows();
 
     protected:
+        void updateShadows();
         vector<BaseRenderer*> renderers;
         DepthMapRenderer* depthMapRenderer{};
         int width;
         int height;
+        bool shadows{};
     };
 
 } // Manager

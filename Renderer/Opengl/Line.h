@@ -37,17 +37,17 @@ public:
                                            "   FragColor = vec4(color, 1.0f);\n"
                                            "}\n\0";
 
-        // vertex shader
+        // vertex baseShader
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
         glCompileShader(vertexShader);
-        // check for shader compile errors
+        // check for baseShader compile errors
 
-        // fragment shader
+        // fragment baseShader
         int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
         glCompileShader(fragmentShader);
-        // check for shader compile errors
+        // check for baseShader compile errors
 
         // link shaders
         shaderProgram = glCreateProgram();

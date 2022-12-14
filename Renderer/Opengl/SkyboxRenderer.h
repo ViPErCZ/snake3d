@@ -19,9 +19,11 @@ namespace Renderer {
     public:
         SkyboxRenderer(Cube *cube, Camera *camera, const glm::mat4 &projection,
                        ResourceManager *resourceManager);
+
         void render() override;
         void beforeRender() override;
         void afterRender() override;
+        void renderShadowMap() override {};
     protected:
         Cube* cube;
         Mesh* mesh;

@@ -22,6 +22,8 @@ namespace Renderer {
         void beforeRender() override;
         void afterRender() override;
         void addText(ItemsDto::Text* text, ShaderManager* shader);
+        void renderShadowMap() override {};
+
     protected:
         void release();
         vector<Model::TextModel*> texts;

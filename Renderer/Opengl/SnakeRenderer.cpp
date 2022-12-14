@@ -5,7 +5,8 @@ namespace Renderer {
     SnakeRenderer::SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager)
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager) {
         mesh = resourceManager->getModel("cube")->getMesh();
-        shader = resourceManager->getShader("shadowShader");
+        baseShader = resourceManager->getShader("basicShader");
+        shadowShader = resourceManager->getShader("shadowDepthShader");
         snakeTileTexture = resourceManager->getTexture("snake.bmp");
         snakeHeadTexture = resourceManager->getTexture("head.bmp");
     }
@@ -15,20 +16,20 @@ namespace Renderer {
     }
 
     void SnakeRenderer::render() {
-        if (!shadow) {
-            shader = resourceManager->getShader("shadowDepthShader");
-        } else {
-            shader = resourceManager->getShader("basicShader");
-        }
+        baseShader->use();
+        baseShader->setMat4("view", camera->getViewMatrix());
+        baseShader->setMat4("projection", projection);
+        baseShader->setVec3("viewPos", camera->getPosition());
+        renderScene(baseShader);
+    }
 
+    void SnakeRenderer::renderShadowMap() {
+        shadowShader->use();
+        renderScene(shadowShader);
+    }
+
+    void SnakeRenderer::renderScene(ShaderManager *shader) {
         int index = 0;
-        shader->use();
-
-        if (shadow) {
-            shader->setMat4("view", camera->getViewMatrix());
-            shader->setMat4("projection", projection);
-            shader->setVec3("viewPos", camera->getPosition());
-        }
 
         for (auto snakeTileIter = snake->getItems().begin(); snakeTileIter < snake->getItems().end(); snakeTileIter++) {
             if ((*snakeTileIter)->tile->isVisible()) {

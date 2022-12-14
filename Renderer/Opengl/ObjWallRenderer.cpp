@@ -50,6 +50,7 @@ namespace Renderer {
             shader->setMat4("model", model);
             shader->setVec3("viewPos", camera->getPosition());
             shader->setVec3("lightPos", lightPos);
+            shader->setBool("shadowEnable", true);
 
             mesh->bind();
             glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
@@ -62,6 +63,10 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::afterRender() {
+    }
+
+    void ObjWallRenderer::renderShadowMap() {
+
     }
 
 } // Renderer
