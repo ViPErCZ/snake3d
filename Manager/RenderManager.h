@@ -26,6 +26,7 @@ namespace Manager {
         void setHeight(int height);
         void enableShadows();
         void disableShadows();
+        void toggleShadows();
 
     protected:
         void updateShadows();

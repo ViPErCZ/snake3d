@@ -58,16 +58,9 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::beforeRender() {
-        if (shadow) {
-            glDisable(GL_POLYGON_OFFSET_FILL);
-        }
     }
 
     void ObjWallRenderer::afterRender() {
-        if (shadow) {
-            glEnable(GL_POLYGON_OFFSET_FILL);
-            glPolygonOffset(3.0f, 3.0f);
-        }
     }
 
     void ObjWallRenderer::renderShadowMap() {

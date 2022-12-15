@@ -25,6 +25,8 @@ namespace Manager {
         glViewport(0, 0, width, height);
 
         if (shadows) {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(3.0f, 3.0f);
             if (depthMapRenderer) {
                 depthMapRenderer->beforeRender();
             }
@@ -46,6 +48,7 @@ namespace Manager {
                 depthMapRenderer->render();
                 depthMapRenderer->afterRender();
             }
+            glDisable(GL_POLYGON_OFFSET_FILL);
         }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
@@ -68,14 +71,11 @@ namespace Manager {
     }
 
     void RenderManager::enableShadows() {
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(3.0f, 3.0f);
         shadows = true;
         updateShadows();
     }
 
     void RenderManager::disableShadows() {
-        glDisable(GL_POLYGON_OFFSET_FILL);
         shadows = false;
         updateShadows();
     }
@@ -84,6 +84,11 @@ namespace Manager {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->setShadow(shadows);
         }
+    }
+
+    void RenderManager::toggleShadows() {
+        shadows = !shadows;
+        updateShadows();
     }
 
 }

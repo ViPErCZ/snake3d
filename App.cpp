@@ -3,7 +3,7 @@
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
-    startText = new Text("Press start I, K or L...");
+    startText = new Text("Press start I, K or L... V => on / off shadows");
     tilesCounterText = new Text("");
     eat = new Eat;
     skybox = new Cube();
@@ -304,10 +304,7 @@ void App::processInput(int keyCode) {
 
     switch (keyCode) {
         case GLFW_KEY_V:
-            rendererManager->enableShadows();
-            break;
-        case GLFW_KEY_B:
-            rendererManager->disableShadows();
+            rendererManager->toggleShadows();
             break;
         default:
             break;
