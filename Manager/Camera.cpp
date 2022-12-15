@@ -4,7 +4,7 @@ namespace Manager {
     Camera::Camera(glm::vec3 position, glm::vec3 up) : front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         this->position = position;
         worldUp = up;
-        zoom = 40; //20
+        zoom = 20;
         updateCameraVectors();
     }
 
@@ -39,11 +39,11 @@ namespace Manager {
 
     void Camera::updateStickyPoint() {
         glm::vec3 pos = stickyPoint->getPosition();
-//        position = pos;
-//        position.x /= 26;
-//        position.y /= 26;
-//        position.y -= 3;
-//        position.z = 1;
+        position = pos;
+        position.x /= 26;
+        position.y /= 26;
+        position.y -= 3;
+        position.z = 1;
     }
 
     glm::vec3 Camera::getStickyPosition() {
@@ -57,7 +57,7 @@ namespace Manager {
         YAW   += (float)x;
         PITCH += (float)y;
 
-        updateCameraVectors();
+//        updateCameraVectors();
     }
 
     void Camera::processKeyboard(Camera_Movement direction, float deltaTime)

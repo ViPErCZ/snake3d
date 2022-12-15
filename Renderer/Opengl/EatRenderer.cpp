@@ -72,12 +72,8 @@ namespace Renderer {
     }
 
     void EatRenderer::beforeRender() {
-        glCullFace(GL_FRONT);
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(3.0f, 3.0f);
     }
 
     void EatRenderer::afterRender() {
-        glCullFace(GL_BACK);
     }
-} // Renderer
+}

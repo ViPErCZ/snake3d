@@ -68,11 +68,14 @@ namespace Manager {
     }
 
     void RenderManager::enableShadows() {
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(3.0f, 3.0f);
         shadows = true;
         updateShadows();
     }
 
     void RenderManager::disableShadows() {
+        glDisable(GL_POLYGON_OFFSET_FILL);
         shadows = false;
         updateShadows();
     }
@@ -83,4 +86,4 @@ namespace Manager {
         }
     }
 
-} // Manager
+}

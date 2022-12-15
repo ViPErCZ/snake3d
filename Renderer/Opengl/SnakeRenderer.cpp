@@ -48,7 +48,7 @@ namespace Renderer {
                 // Transform the matrices to their correct form
                 model = glm::translate(model, {0.0, 0.0, 0.0});
                 if (snakeTileIter == this->snake->getItems().begin()) {
-                    model = glm::scale(model, {0.0416660f, 0.0416660f, 0.0416660f});
+                    model = glm::scale(model, {0.0416760f, 0.0416760f, 0.0416760f});
                 } else {
                     model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
                 }
@@ -65,12 +65,8 @@ namespace Renderer {
     }
 
     void SnakeRenderer::beforeRender() {
-        glCullFace(GL_FRONT);
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(2.0f, 2.0f);
     }
 
     void SnakeRenderer::afterRender() {
-        glCullFace(GL_BACK);
     }
 } // Renderer

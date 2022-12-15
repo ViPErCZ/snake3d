@@ -17,7 +17,6 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::render() {
-        int index = 0;
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setMat4("projection", this->projection);
@@ -28,7 +27,7 @@ namespace Renderer {
 
         // lighting info
         // -------------
-        glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 26.3f);
+        glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 36.3f);
 
         for (auto item: wall->getItems()) {
             glLoadIdentity();
@@ -44,7 +43,6 @@ namespace Renderer {
             // Transform the matrices to their correct form
             model = glm::translate(model, {0.0, 0.0, 0.0});
             model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
-            //model = glm::translate(model, {-25.0, -25.0, -23.0f}); // levy spodni okraj
             model = glm::translate(model, position);
 
             shader->setMat4("model", model);
@@ -60,9 +58,16 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::beforeRender() {
+        if (shadow) {
+            glDisable(GL_POLYGON_OFFSET_FILL);
+        }
     }
 
     void ObjWallRenderer::afterRender() {
+        if (shadow) {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(3.0f, 3.0f);
+        }
     }
 
     void ObjWallRenderer::renderShadowMap() {
