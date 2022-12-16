@@ -48,7 +48,7 @@ namespace Renderer {
                 // Transform the matrices to their correct form
                 model = glm::translate(model, {0.0, 0.0, 0.0});
                 if (snakeTileIter == this->snake->getItems().begin()) {
-                    model = glm::scale(model, {0.0416760f, 0.0416760f, 0.0416760f});
+                    model = glm::scale(model, {0.041667f, 0.041667f, 0.041667f});
                 } else {
                     model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
                 }
