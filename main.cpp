@@ -17,7 +17,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
 
-App *app = new App(W_WIDTH, W_HEIGHT);
+auto camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+App *app = new App(camera, W_WIDTH, W_HEIGHT);
 
 int main(int argc, char *argv[]) {
     GLFWwindow *window;
@@ -92,18 +93,18 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
     }
 
-//    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-//        camera.processKeyboard(FORWARD, deltaTime);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-//        camera.processKeyboard(BACKWARD, deltaTime);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-//        camera.processKeyboard(LEFT, deltaTime);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-//        camera.processKeyboard(RIGHT, deltaTime);
-//    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera->processKeyboard(Camera_Movement::FORWARD, 0.1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera->processKeyboard(Camera_Movement::BACKWARD, 0.1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera->processKeyboard(Camera_Movement::LEFT, 0.1);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera->processKeyboard(Camera_Movement::RIGHT, 0.1);
+    }
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -132,7 +133,7 @@ void mouse_callback(GLFWwindow* window, double x, double y)
     lastX = x;
     lastY = y;
 
-    //camera.processMouseMovement(offsetX, offsetY);
+    camera->processMouseMovement(offsetX, offsetY);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

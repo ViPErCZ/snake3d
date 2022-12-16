@@ -20,6 +20,7 @@ namespace Renderer {
         void render() override;
         void beforeRender() override;
         void afterRender() override;
+        void renderShadowMap() override;
 
     protected:
         ObjWall* wall;

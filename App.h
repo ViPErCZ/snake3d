@@ -13,6 +13,7 @@
 #include "Renderer/Opengl/SkyboxRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
+#include "Renderer/Opengl/DepthMapRenderer.h"
 #include "Handler/SnakeMoveHandler.h"
 #include "Handler/RadarHandler.h"
 #include "Handler/EatLocationHandler.h"
@@ -42,7 +43,7 @@ using namespace Resource;
 
 class App {
 public:
-    App(int width, int height);
+    App(Camera* camera, int width, int height);
     ~App();
     void Init();
     void run();
@@ -76,6 +77,7 @@ private:
     EatRenderer* eatRenderer{};
     RadarRenderer* radarRenderer{};
     TextRenderer* textRenderer{};
+    DepthMapRenderer* depthMapRenderer{};
     EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};

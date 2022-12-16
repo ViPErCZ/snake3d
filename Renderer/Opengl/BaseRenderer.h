@@ -13,12 +13,15 @@ namespace Renderer {
         explicit BaseRenderer(BaseItem *item);
         virtual ~BaseRenderer();
         virtual void render() = 0;
+        virtual void renderShadowMap() = 0;
         virtual void beforeRender() = 0;
         virtual void afterRender() = 0;
+        void setShadow(bool shadow);
+        [[nodiscard]] bool isShadow() const;
 
     protected:
         BaseItem* item{};
-        bool ortho;
+        bool shadow;
     };
 
 } // Manager

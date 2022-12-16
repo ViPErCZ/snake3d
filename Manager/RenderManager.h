@@ -2,6 +2,7 @@
 #define SNAKE3_RENDERMANAGER_H
 
 #include "../Renderer/Opengl/BaseRenderer.h"
+#include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../stdafx.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,14 +21,20 @@ namespace Manager {
         virtual ~RenderManager();
         void render();
         void addRenderer(BaseRenderer* renderer);
+        void setDepthMapRenderer(DepthMapRenderer *depthMapRenderer);
         void setWidth(int width);
         void setHeight(int height);
+        void enableShadows();
+        void disableShadows();
+        void toggleShadows();
 
     protected:
+        void updateShadows();
         vector<BaseRenderer*> renderers;
+        DepthMapRenderer* depthMapRenderer{};
         int width;
         int height;
-        float test = 0;
+        bool shadows{};
     };
 
 } // Manager

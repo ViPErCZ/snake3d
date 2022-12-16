@@ -22,6 +22,7 @@ namespace Renderer {
         [[nodiscard]] bool isCompleted() const;
         void setCompleted(bool completed);
         void render() override;
+        void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;
     protected:

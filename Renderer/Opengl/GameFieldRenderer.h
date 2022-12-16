@@ -22,12 +22,17 @@ namespace Renderer {
         void render() override;
         void beforeRender() override;
         void afterRender() override;
+        void renderShadowMap() override;
+
     protected:
+        void renderScene(ShaderManager* shader);
         ResourceManager* resourceManager;
-        ShaderManager* shader;
+        ShaderManager* baseShader;
+        ShaderManager* shadowShader;
         TextureManager* texture1;
         TextureManager* texture2;
         TextureManager* texture3;
+        TextureManager* texture4;
         GameField* gameField;
         GameFieldModel* model;
         Camera* camera;

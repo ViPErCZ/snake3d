@@ -16,13 +16,16 @@ namespace Renderer {
         SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
         ~SnakeRenderer() override;
         void render() override;
+        void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;
     protected:
+        void renderScene(ShaderManager* shader);
         Snake* snake;
         Camera* camera;
         glm::mat4 projection;
-        ShaderManager* shader;
+        ShaderManager* baseShader;
+        ShaderManager* shadowShader;
         TextureManager* snakeTileTexture;
         TextureManager* snakeHeadTexture;
         ResourceManager* resourceManager;
