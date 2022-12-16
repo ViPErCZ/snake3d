@@ -29,6 +29,9 @@
 #include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
 #include <filesystem>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alut.h>
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -87,6 +90,8 @@ private:
     Camera* camera;
     int width;
     int height;
+    ALuint musicSource{}, coinSource{};
+    ALuint coinBuffer{}, musicBuffer{};
 };
 
 
