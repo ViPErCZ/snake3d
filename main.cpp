@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     glewInit();
+    alutInit (&argc, argv);
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
 
     delete app;
+    alutExit();
 
     return 0;
 }

@@ -3,7 +3,7 @@
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
-    startText = new Text("Press start I, K or L... V => on / off shadows");
+    startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
     eat = new Eat;
     skybox = new Cube();
@@ -20,6 +20,10 @@ App::~App() {
     delete skybox;
     delete levelManager;
     delete camera;
+    alDeleteSources(1, &musicSource);
+    alDeleteSources(1, &coinSource);
+    alDeleteBuffers(1, &musicBuffer);
+    alDeleteBuffers(1, &coinBuffer);
 }
 
 void App::Init() {
@@ -146,6 +150,13 @@ void App::Init() {
     });
     snakeMoveHandler->setEatenUpCallback([this]() {
         if (this->levelManager && this->snake && this->barrierRenderer) {
+            alSourcePlay (coinSource);
+            ALCenum error;
+
+            error = alGetError();
+            if (error != AL_NO_ERROR) {
+                cout << "Sound error" << endl;
+            }
 
             if (this->eatRemoveAnimateRenderer && this->animateEat) {
                 this->animateEat->setPosition(eat->getPosition());
@@ -181,6 +192,21 @@ void App::Init() {
     });
     keyboardManager->addEventHandler(snakeMoveHandler);
     keyboardManager->addEventHandler(radarHandler);
+
+    musicBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/snake.wav");
+    coinBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/coin.wav");
+    alGenSources (1, &musicSource);
+    alGenSources (1, &coinSource);
+    alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
+    alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
+    alSourcei (musicSource, AL_LOOPING, true);
+    alSourcePlay (musicSource);
+    ALCenum error;
+
+    error = alGetError();
+    if (error != AL_NO_ERROR) {
+        cout << "Sound error" << endl;
+    }
 }
 
 void App::initTexts() {
@@ -306,6 +332,15 @@ void App::processInput(int keyCode) {
         case GLFW_KEY_V:
             rendererManager->toggleShadows();
             break;
+        case GLFW_KEY_M:
+            ALint source_state;
+            alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
+
+            if (source_state == AL_PLAYING) {
+                alSourceStop(musicSource);
+            } else {
+                alSourcePlay(musicSource);
+            }
         default:
             break;
     }
