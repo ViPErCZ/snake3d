@@ -4,6 +4,7 @@
 #include "../Renderer/Opengl/BaseRenderer.h"
 #include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../stdafx.h"
+#include "../Renderer/Opengl/BloomRenderer.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,7 @@ namespace Manager {
         void render();
         void addRenderer(BaseRenderer* renderer);
         void setDepthMapRenderer(DepthMapRenderer *depthMapRenderer);
+        void setBloomRenderer(BloomRenderer *bloomRenderer);
         void setWidth(int width);
         void setHeight(int height);
         void enableShadows();
@@ -32,6 +34,7 @@ namespace Manager {
         void updateShadows();
         vector<BaseRenderer*> renderers;
         DepthMapRenderer* depthMapRenderer{};
+        BloomRenderer* bloomRenderer{};
         int width;
         int height;
         bool shadows{};

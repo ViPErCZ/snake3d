@@ -12,6 +12,7 @@ namespace Manager {
             delete (*Iter);
         }
         delete depthMapRenderer;
+        delete bloomRenderer;
     }
 
     void RenderManager::addRenderer(BaseRenderer *renderer) {
@@ -51,11 +52,15 @@ namespace Manager {
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
 
+        bloomRenderer->render();
+
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
             (*Iter)->render();
             (*Iter)->afterRender();
         }
+
+        this->bloomRenderer->afterRender();
     }
 
     void RenderManager::setWidth(int width) {
@@ -89,6 +94,10 @@ namespace Manager {
     void RenderManager::toggleShadows() {
         shadows = !shadows;
         updateShadows();
+    }
+
+    void RenderManager::setBloomRenderer(BloomRenderer *bloomRenderer) {
+        RenderManager::bloomRenderer = bloomRenderer;
     }
 
 }

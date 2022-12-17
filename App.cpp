@@ -51,6 +51,7 @@ void App::Init() {
     resourceManager->addShader("debugQuadShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
 
+    bloomRenderer = new BloomRenderer(camera, projection, resourceManager);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
@@ -94,6 +95,7 @@ void App::Init() {
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
+    rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
