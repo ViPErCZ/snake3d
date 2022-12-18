@@ -19,6 +19,8 @@ namespace Renderer {
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;
+        void toggleBlur();
+
     protected:
         void renderScene(ShaderManager* shader);
         Snake* snake;
@@ -26,10 +28,12 @@ namespace Renderer {
         glm::mat4 projection;
         ShaderManager* baseShader;
         ShaderManager* shadowShader;
+        ShaderManager* shaderLight;
         TextureManager* snakeTileTexture;
         TextureManager* snakeHeadTexture;
         ResourceManager* resourceManager;
         Mesh* mesh;
+        bool blur;
     };
 
 } // Renderer

@@ -22,19 +22,18 @@ namespace Renderer {
         void renderQuad();
         ResourceManager* resourceManager;
         ShaderManager* shader;
-        ShaderManager* shaderLight;
         ShaderManager* shaderBlur;
         ShaderManager* shaderBloomFinal;
         Camera* camera;
         glm::mat4 projection{};
         vector<glm::vec3> lightPositions;
         vector<glm::vec3> lightColors;
-        unsigned int hdrFBO;
-        unsigned int pingpongFBO[2];
-        unsigned int colorBuffers[2];
-        unsigned int pingpongColorbuffers[2];
+        unsigned int hdrFBO{};
+        unsigned int pingpongFBO[2]{};
+        unsigned int colorBuffers[2]{};
+        unsigned int pingpongColorbuffers[2]{};
         unsigned int quadVAO = 0;
-        unsigned int quadVBO;
+        unsigned int quadVBO{};
     public:
         void renderShadowMap() override;
 

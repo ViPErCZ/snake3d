@@ -29,6 +29,7 @@ namespace Manager {
         void enableShadows();
         void disableShadows();
         void toggleShadows();
+        void toggleBloom();
 
     protected:
         void updateShadows();
@@ -37,7 +38,8 @@ namespace Manager {
         BloomRenderer* bloomRenderer{};
         int width;
         int height;
-        bool shadows{};
+        bool shadows;
+        bool bloom;
     };
 
 } // Manager

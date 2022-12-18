@@ -1,7 +1,7 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(int width, int height) : width(width), height(height) {
+    RenderManager::RenderManager(int width, int height) : width(width), height(height), bloom(false), shadows(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
@@ -52,7 +52,9 @@ namespace Manager {
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
 
-        bloomRenderer->render();
+        if (bloom) {
+            bloomRenderer->render();
+        }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
@@ -60,7 +62,9 @@ namespace Manager {
             (*Iter)->afterRender();
         }
 
-        this->bloomRenderer->afterRender();
+        if (bloom) {
+            this->bloomRenderer->afterRender();
+        }
     }
 
     void RenderManager::setWidth(int width) {
@@ -98,6 +102,10 @@ namespace Manager {
 
     void RenderManager::setBloomRenderer(BloomRenderer *bloomRenderer) {
         RenderManager::bloomRenderer = bloomRenderer;
+    }
+
+    void RenderManager::toggleBloom() {
+        bloom = !bloom;
     }
 
 }

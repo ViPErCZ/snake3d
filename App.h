@@ -82,7 +82,7 @@ private:
     RadarRenderer* radarRenderer{};
     TextRenderer* textRenderer{};
     DepthMapRenderer* depthMapRenderer{};
-    BloomRenderer* bloomRenderer;
+    BloomRenderer* bloomRenderer{};
     EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};

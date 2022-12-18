@@ -8,15 +8,12 @@ Renderer::BloomRenderer::BloomRenderer(Camera* camera, glm::mat4 proj, ResourceM
 
     resourceManager->addShader("bloom", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/bloom.fs")));
-    resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
     resourceManager->addShader("blur", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/blur.vs", "Assets/Shaders/bloom/blur.fs")));
     resourceManager->addShader("bloomFinal", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom_final.vs", "Assets/Shaders/bloom/bloom_final.fs")));
 
     shader = resourceManager->getShader("bloom");
-    shaderLight = resourceManager->getShader("bloomLight");
     shaderBlur = resourceManager->getShader("blur");
     shaderBloomFinal = resourceManager->getShader("bloomFinal");
 
@@ -67,19 +64,6 @@ Renderer::BloomRenderer::BloomRenderer(Camera* camera, glm::mat4 proj, ResourceM
             std::cout << "Framebuffer not complete!" << std::endl;
     }
 
-    // lighting info
-    // -------------
-    // positions
-    lightPositions.emplace_back( 23.0f, -3.0f,  -23.0f);
-    //lightPositions.emplace_back(-4.0f, 0.5f, -3.0f);
-    //lightPositions.emplace_back( 3.0f, 0.5f,  1.0f);
-    //lightPositions.emplace_back(-.8f,  2.4f, -1.0f);
-    // colors
-    //lightColors.emplace_back(5.0f,   5.0f,  5.0f); // bila
-    lightColors.emplace_back(10.0f,  0.0f,  0.0f); // cervena
-    //lightColors.emplace_back(0.0f,   0.0f,  15.0f); // modra
-    //lightColors.emplace_back(0.0f,   5.0f,  0.0f); // zelena
-
     shader->use();
     shader->setInt("diffuseTexture", 0);
     shaderBlur->use();
@@ -97,7 +81,6 @@ void Renderer::BloomRenderer::render() {
     shader->use();
     shader->setMat4("projection", projection);
     shader->setMat4("view", view);
-    //resourceManager->getTexture("gamefield.bmp")->bind(0);
     // set lighting uniforms
     for (unsigned int i = 0; i < lightPositions.size(); i++)
     {
@@ -105,71 +88,6 @@ void Renderer::BloomRenderer::render() {
         shader->setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
     }
     shader->setVec3("viewPos", camera->getPosition());
-    // create one large cube that acts as the floor
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0));
-//    model = glm::scale(model, glm::vec3(12.5f, 0.5f, 12.5f));
-//    shader->setMat4("model", model);
-//    renderCube();
-//    // then create multiple cubes as the scenery
-//    resourceManager->getTexture("gamefield.bmp")->bind(0);
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-//    model = glm::scale(model, glm::vec3(0.5f));
-//    shader->setMat4("model", model);
-//    renderCube();
-//
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-//    model = glm::scale(model, glm::vec3(0.5f));
-//    shader->setMat4("model", model);
-//    renderCube();
-//
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(-1.0f, -1.0f, 2.0));
-//    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-//    shader->setMat4("model", model);
-//    renderCube();
-//
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(0.0f, 2.7f, 4.0));
-//    model = glm::rotate(model, glm::radians(23.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-//    model = glm::scale(model, glm::vec3(1.25));
-//    shader->setMat4("model", model);
-//    renderCube();
-//
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(-2.0f, 1.0f, -3.0));
-//    model = glm::rotate(model, glm::radians(124.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-//    shader->setMat4("model", model);
-//    renderCube();
-//
-//    model = glm::mat4(1.0f);
-//    model = glm::translate(model, glm::vec3(-3.0f, 0.0f, 0.0));
-//    model = glm::scale(model, glm::vec3(0.5f));
-//    shader->setMat4("model", model);
-//    renderCube();
-
-    // finally show all the light sources as bright cubes
-    shaderLight->use();
-    shaderLight->setMat4("projection", projection);
-    shaderLight->setMat4("view", view);
-
-    for (unsigned int i = 0; i < lightPositions.size(); i++)
-    {
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, {0.0, 0.0, 0.0});
-        model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
-        model = glm::translate(model, camera->getStickyPosition());
-        //model = glm::scale(model, glm::vec3(0.25f));
-        shaderLight->setMat4("model", model);
-        shaderLight->setVec3("lightColor", lightColors[i]);
-        auto mesh = resourceManager->getModel("cube")->getMesh();
-
-        mesh->bind();
-        glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-    }
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::BloomRenderer::afterRender() {
