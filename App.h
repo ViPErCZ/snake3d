@@ -28,6 +28,7 @@
 #include "Manager/LevelManager.h"
 #include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
+#include "Renderer/Opengl/BloomRenderer.h"
 #include <filesystem>
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -81,6 +82,7 @@ private:
     RadarRenderer* radarRenderer{};
     TextRenderer* textRenderer{};
     DepthMapRenderer* depthMapRenderer{};
+    BloomRenderer* bloomRenderer{};
     EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};

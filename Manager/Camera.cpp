@@ -57,7 +57,7 @@ namespace Manager {
         YAW   += (float)x;
         PITCH += (float)y;
 
-//        updateCameraVectors();
+        //updateCameraVectors();
     }
 
     void Camera::processKeyboard(Camera_Movement direction, float deltaTime)

@@ -50,7 +50,10 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs")));
     resourceManager->addShader("debugQuadShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
+    resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
 
+    bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
@@ -85,15 +88,16 @@ void App::Init() {
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(objWallRenderer);
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
+    rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
@@ -215,7 +219,7 @@ void App::initTexts() {
         startText->setColor({0.8, 0.8, 0.8});
         startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
         startText->setFontSize(22);
-        startText->setPosition({(width - 360) / 2, height / 2, 0.0});
+        startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
         startText->setZoom({1.0f, 0, 0});
         textRenderer->addText(startText, resourceManager->getShader("textShader"));
 
@@ -331,6 +335,12 @@ void App::processInput(int keyCode) {
     switch (keyCode) {
         case GLFW_KEY_V:
             rendererManager->toggleShadows();
+            break;
+        case GLFW_KEY_B:
+            rendererManager->toggleBloom();
+            if (snakeRenderer) {
+                snakeRenderer->toggleBlur();
+            }
             break;
         case GLFW_KEY_M:
             ALint source_state;
