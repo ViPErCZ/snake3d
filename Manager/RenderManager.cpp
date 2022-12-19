@@ -53,7 +53,7 @@ namespace Manager {
         }
 
         if (bloom) {
-            bloomRenderer->render();
+            bloomRenderer->beforeRender();
         }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {

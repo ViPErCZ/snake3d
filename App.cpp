@@ -53,7 +53,7 @@ void App::Init() {
     resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
 
-    bloomRenderer = new BloomRenderer(camera, projection, resourceManager);
+    bloomRenderer = new BloomRenderer(resourceManager);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     Snake *snake = InitSnake();
@@ -88,11 +88,11 @@ void App::Init() {
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(objWallRenderer);
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(textRenderer);

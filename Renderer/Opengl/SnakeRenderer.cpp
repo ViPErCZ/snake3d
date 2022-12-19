@@ -37,9 +37,7 @@ namespace Renderer {
     }
 
     void SnakeRenderer::renderScene(ShaderManager *shader) {
-        int index = 0;
-
-        for (auto snakeTileIter = snake->getItems().begin(); snakeTileIter < snake->getItems().end(); snakeTileIter++) {
+        for (auto snakeTileIter = snake->getItems().end()-1; snakeTileIter >= snake->getItems().begin(); snakeTileIter--) {
             if ((*snakeTileIter)->tile->isVisible()) {
                 glLoadIdentity();
 
@@ -50,10 +48,7 @@ namespace Renderer {
                 }
 
                 glm::vec3 position = (*snakeTileIter)->tile->getPosition();
-
-                // Initialize matrices
                 glm::mat4 model = glm::mat4(1.0f);
-                // Transform the matrices to their correct form
                 model = glm::translate(model, {0.0, 0.0, 0.0});
                 if (snakeTileIter == this->snake->getItems().begin()) {
                     model = glm::scale(model, {0.041667f, 0.041667f, 0.041667f});
@@ -73,8 +68,6 @@ namespace Renderer {
                 mesh->bind();
 
                 glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-
-                index++;
             }
         }
     }

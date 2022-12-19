@@ -1,10 +1,8 @@
 #include "BloomRenderer.h"
 #include "../../Resource/ShaderLoader.h"
 
-Renderer::BloomRenderer::BloomRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager) {
+Renderer::BloomRenderer::BloomRenderer(ResourceManager* resManager) {
     resourceManager = resManager;
-    this->camera = camera;
-    this->projection = proj;
 
     resourceManager->addShader("bloom", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/bloom.fs")));
@@ -74,20 +72,6 @@ Renderer::BloomRenderer::BloomRenderer(Camera* camera, glm::mat4 proj, ResourceM
 }
 
 void Renderer::BloomRenderer::render() {
-    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm::mat4 view = camera->getViewMatrix();
-    glm::mat4 model = glm::mat4(1.0f);
-    shader->use();
-    shader->setMat4("projection", projection);
-    shader->setMat4("view", view);
-    // set lighting uniforms
-    for (unsigned int i = 0; i < lightPositions.size(); i++)
-    {
-        shader->setVec3("lights[" + std::to_string(i) + "].Position", camera->getStickyPosition());
-        shader->setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
-    }
-    shader->setVec3("viewPos", camera->getPosition());
 }
 
 void Renderer::BloomRenderer::afterRender() {
@@ -144,10 +128,9 @@ void Renderer::BloomRenderer::renderQuad() {
     glBindVertexArray(0);
 }
 
-void Renderer::BloomRenderer::renderShadowMap() {
-
-}
-
 void Renderer::BloomRenderer::beforeRender() {
-
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+void Renderer::BloomRenderer::renderShadowMap() {}
