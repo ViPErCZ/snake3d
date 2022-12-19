@@ -13,7 +13,7 @@ using namespace std;
 namespace Renderer {
     class BloomRenderer : public BaseRenderer {
     public:
-        explicit BloomRenderer(ResourceManager* resManager);
+        explicit BloomRenderer(ResourceManager* resManager, int width, int height);
         void beforeRender() override;
         void afterRender() override;
         void render() override;
@@ -30,6 +30,8 @@ namespace Renderer {
         unsigned int pingpongColorbuffers[2]{};
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
+        int width;
+        int height;
     };
 }
 
