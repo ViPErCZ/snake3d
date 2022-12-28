@@ -23,6 +23,7 @@ namespace Renderer {
         baseShader->setInt("specularMap", 2);
         baseShader->setFloat("alpha", 1.0);
         baseShader->setVec3("viewPos", camera->getPosition());
+        baseShader->setBool("parallaxEnable", false);
         texture1->bind(0);
         texture2->bind(1);
         texture3->bind(2);

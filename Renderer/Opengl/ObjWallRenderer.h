@@ -21,6 +21,9 @@ namespace Renderer {
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override;
+        void toggleParallax();
+        void downScale();
+        void upScale();
 
     protected:
         ObjWall* wall;
@@ -32,6 +35,9 @@ namespace Renderer {
         TextureManager* texture1;
         TextureManager* texture2;
         TextureManager* texture3;
+        TextureManager* texture4;
+        bool parallax;
+        float heightScale;
     };
 
 } // Renderer

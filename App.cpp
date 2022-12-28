@@ -336,6 +336,21 @@ void App::processInput(int keyCode) {
         case GLFW_KEY_V:
             rendererManager->toggleShadows();
             break;
+        case GLFW_KEY_P:
+            if (objWallRenderer) {
+                objWallRenderer->toggleParallax();
+            }
+            break;
+        case GLFW_KEY_RIGHT:
+            if (objWallRenderer) {
+                objWallRenderer->upScale();
+            }
+            break;
+        case GLFW_KEY_LEFT:
+            if (objWallRenderer) {
+                objWallRenderer->downScale();
+            }
+            break;
         case GLFW_KEY_B:
             rendererManager->toggleBloom();
             if (snakeRenderer) {
