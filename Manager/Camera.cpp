@@ -43,7 +43,7 @@ namespace Manager {
         position.x /= 26;
         position.y /= 26;
         position.y -= 3;
-        position.z = 1;
+        position.z = 1; // -3
     }
 
     glm::vec3 Camera::getStickyPosition() {
@@ -57,7 +57,7 @@ namespace Manager {
         YAW   += (float)x;
         PITCH += (float)y;
 
-        //updateCameraVectors();
+        updateCameraVectors();
     }
 
     void Camera::processKeyboard(Camera_Movement direction, float deltaTime)

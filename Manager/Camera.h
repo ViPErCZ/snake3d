@@ -36,7 +36,7 @@ namespace Manager {
         glm::vec3 worldUp{};
         float zoom;
         BaseItem* stickyPoint{};
-        float YAW = -90.0f;
+        float YAW = -90.0f; // 90
         float PITCH = 56.0f;
 
         void updateCameraVectors();
