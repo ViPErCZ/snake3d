@@ -321,7 +321,7 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
-    camera->upsideDownRotate();
+//    camera->upsideDownRotate();
     camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();
@@ -361,9 +361,9 @@ void App::processInput(int keyCode) {
         case GLFW_KEY_F:
             rendererManager->toggleFog();
             break;
-        case GLFW_KEY_U:
-            camera->startUpsideDownRotate();
-            break;
+//        case GLFW_KEY_U:
+//            camera->startUpsideDownRotate();
+//            break;
         case GLFW_KEY_M:
             ALint source_state;
             alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
