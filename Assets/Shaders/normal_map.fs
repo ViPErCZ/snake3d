@@ -21,6 +21,7 @@ uniform vec3 viewPos;
 uniform bool parallaxEnable = false;
 
 #include "pipeline/parallax/parallax.glsl"
+#include "pipeline/fog/fog.glsl"
 
 void main()
 {
@@ -55,4 +56,11 @@ void main()
 
     vec3 specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, texCoords));
     FragColor = vec4(ambient + diffuse + specular, fs_in.alpha);
+
+    if (fogEnable) {
+        vec3 V = fs_in.FragPos;
+        float d = distance(viewPos, V);
+        float alpha = getFogFactor(d);
+        FragColor = mix(FragColor, vec4(0.6f, 0.6f, 0.7f, 1.f), alpha);
+    }
 }

@@ -26,6 +26,7 @@ void Renderer::GameFieldRenderer::render() {
     baseShader->setMat4("projection", projection);
     baseShader->setVec3("viewPos", camera->getPosition());
     baseShader->setBool("shadowsEnable", shadow);
+    baseShader->setBool("fogEnable", fog);
 
     if (!shadow) {
         glm::vec3 lightPos(camera->getPosition().x + 6, camera->getPosition().y + 6, -1.3f);

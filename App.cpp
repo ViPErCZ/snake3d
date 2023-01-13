@@ -204,7 +204,7 @@ void App::Init() {
     alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
     alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
     alSourcei (musicSource, AL_LOOPING, true);
-    alSourcePlay (musicSource);
+    //alSourcePlay (musicSource);
     ALCenum error;
 
     error = alGetError();
@@ -321,6 +321,7 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
+    camera->upsideDownRotate();
     camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();
@@ -356,6 +357,12 @@ void App::processInput(int keyCode) {
             if (snakeRenderer) {
                 snakeRenderer->toggleBlur();
             }
+            break;
+        case GLFW_KEY_F:
+            rendererManager->toggleFog();
+            break;
+        case GLFW_KEY_U:
+            camera->startUpsideDownRotate();
             break;
         case GLFW_KEY_M:
             ALint source_state;

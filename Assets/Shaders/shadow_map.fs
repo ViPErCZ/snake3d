@@ -18,6 +18,7 @@ uniform vec3 viewPos;
 uniform bool shadowsEnable = true;
 
 #include "pipeline/shading/shading.glsl"
+#include "pipeline/fog/fog.glsl"
 
 void main()
 {
@@ -56,5 +57,11 @@ void main()
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, shadowMap);
         vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
         FragColor = vec4(lighting, 1.0);
+    }
+
+    if (fogEnable) {
+        float d = distance(viewPos, fs_in.FragPos);
+        float alpha = getFogFactor(d);
+        FragColor = mix(FragColor, vec4(0.6f, 0.6f, 0.7f, 1.f), alpha);
     }
 }

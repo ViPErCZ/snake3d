@@ -1,7 +1,8 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(int width, int height) : width(width), height(height), bloom(false), shadows(false) {
+    RenderManager::RenderManager(int width, int height) :
+        width(width), height(height), bloom(false), shadows(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
@@ -106,6 +107,17 @@ namespace Manager {
 
     void RenderManager::toggleBloom() {
         bloom = !bloom;
+    }
+
+    void RenderManager::toggleFog() {
+        fog = !fog;
+        updateFog();
+    }
+
+    void RenderManager::updateFog() {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+            (*Iter)->setFog(fog);
+        }
     }
 
 }

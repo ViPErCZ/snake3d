@@ -24,6 +24,7 @@ namespace Renderer {
             baseShader->setInt("normalMap", 1);
             baseShader->setInt("specularMap", 2);
             baseShader->setFloat("alpha", alpha);
+            baseShader->setBool("fogEnable", fog);
 
             // lighting info
             // -------------
