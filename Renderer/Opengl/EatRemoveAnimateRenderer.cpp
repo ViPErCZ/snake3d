@@ -4,8 +4,7 @@ namespace Renderer {
 
     EatRemoveAnimateRenderer::EatRemoveAnimateRenderer(Eat *eat, Camera *camera,
                                                        const glm::mat4 &projection, ResourceManager *resourceManager) :
-            EatRenderer(eat, camera, projection, resourceManager),
-            alpha(1.0) {
+            EatRenderer(eat, camera, projection, resourceManager) {
         mesh = resourceManager->getModel("coin")->getMesh();
         zoom = {0.013888889, 0.013888889, 0.013888889};
     }
@@ -16,14 +15,14 @@ namespace Renderer {
 
     void EatRemoveAnimateRenderer::render() {
 
-        if (eat && !completed && eat->isVisible()) {
+        if (eat && eat->isVisible()) {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", this->projection);
             baseShader->setInt("diffuseMap", 0);
             baseShader->setInt("normalMap", 1);
             baseShader->setInt("specularMap", 2);
-            baseShader->setFloat("alpha", alpha);
+            baseShader->setFloat("alpha", eat->getAlpha());
             baseShader->setBool("fogEnable", fog);
 
             // lighting info
@@ -44,7 +43,6 @@ namespace Renderer {
             if (now > lastTime + 0.0001) {
                 angle++;
                 position.z += 0.2;
-                alpha -= 0.02;
 
                 eat->setPosition(position);
                 lastTime = now;
@@ -71,11 +69,7 @@ namespace Renderer {
 
             glActiveTexture(GL_TEXTURE0);
 
-            if (alpha <= 0) {
-                completed = true;
-                //zoom = {0.013888889, 0.013888889, 0.013888889};
-                alpha = 1.0f;
-            }
+            eat->fadeStep(0.02f);
         }
     }
 
@@ -86,14 +80,6 @@ namespace Renderer {
 
     void EatRemoveAnimateRenderer::afterRender() {
         glDisable(GL_BLEND);
-    }
-
-    bool EatRemoveAnimateRenderer::isCompleted() const {
-        return completed;
-    }
-
-    void EatRemoveAnimateRenderer::setCompleted(bool completed) {
-        EatRemoveAnimateRenderer::completed = completed;
     }
 
     void EatRemoveAnimateRenderer::renderShadowMap() {

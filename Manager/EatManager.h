@@ -15,7 +15,7 @@ namespace Manager {
     public:
         explicit EatManager(EatLocationHandler *handler);
         virtual ~EatManager();
-        enum eat_EVENT { none, eatenUp, firstPlace, checkPlace };
+        enum eat_EVENT { none, eatenUp, firstPlace, checkPlace, clean };
         void run(eat_EVENT event = none);
     protected:
         EatLocationHandler* handler;

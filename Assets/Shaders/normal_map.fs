@@ -8,7 +8,6 @@ in VS_OUT {
     vec3 TangentLightPos;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
-    float alpha;
 } fs_in;
 
 uniform sampler2D diffuseMap;
@@ -22,6 +21,7 @@ uniform bool parallaxEnable = false;
 
 #include "pipeline/parallax/parallax.glsl"
 #include "pipeline/fog/fog.glsl"
+#include "pipeline/blending/alpha.glsl"
 
 void main()
 {
@@ -55,7 +55,7 @@ void main()
     // vec3 specular = vec3(0.2) * spec;
 
     vec3 specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, texCoords));
-    FragColor = vec4(ambient + diffuse + specular, fs_in.alpha);
+    FragColor = alphaBlending(vec3(ambient + diffuse + specular));
 
     if (fogEnable) {
         vec3 V = fs_in.FragPos;
