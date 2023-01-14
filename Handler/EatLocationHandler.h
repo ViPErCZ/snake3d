@@ -20,6 +20,7 @@ namespace Handler {
         void onDefaultHandler() override;
         void onFirstPlaceHandler();
         void onCheckPlaceHandler();
+        void onCleanHandler();
         bool rePosition();
         bool isFieldEmpty(int x, int y);
     protected:
@@ -28,6 +29,7 @@ namespace Handler {
         Eat* eat{};
         void addTile();
         glm::vec2 getPosition();
+        int counter;
     };
 
 } // Handler

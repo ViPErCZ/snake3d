@@ -18,6 +18,7 @@ namespace Renderer {
             glm::mat4 view = camera->getViewMatrix();
             view = glm::mat4(glm::mat3(camera->getViewMatrix())); // remove translation from the view matrix
             shader->setMat4("view", view);
+            shader->setVec3("viewPos", camera->getPosition());
             shader->setMat4("projection", projection);
 
             // skybox cube

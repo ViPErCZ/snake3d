@@ -112,7 +112,7 @@ void App::Init() {
     snakeMoveHandler->setStartMoveCallback([this]() {
         if (this->levelManager) {
             this->eatManager->run(Manager::EatManager::firstPlace);
-            this->startText->setVisible(false);
+            this->startText->fadeOut();
             char buff[100];
             snprintf(buff, sizeof(buff),
                      "%s %d, %s %d, %s %d",
@@ -125,6 +125,10 @@ void App::Init() {
             );
             std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
+            if (this->tilesCounterText->getAlpha() == 1.0f) {
+                this->tilesCounterText->setAlpha(0.0f);
+                this->tilesCounterText->fadeIn();
+            }
         }
     });
     snakeMoveHandler->setCrashCallback([this]() {
@@ -165,7 +169,7 @@ void App::Init() {
             if (this->eatRemoveAnimateRenderer && this->animateEat) {
                 this->animateEat->setPosition(eat->getPosition());
                 this->animateEat->setVisible(true);
-                this->eatRemoveAnimateRenderer->setCompleted(false);
+                this->animateEat->fadeOut();
             }
 
             this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
@@ -175,6 +179,7 @@ void App::Init() {
                 this->snake->reset();
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
+                this->eatManager->run(Manager::EatManager::clean);
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -204,7 +209,7 @@ void App::Init() {
     alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
     alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
     alSourcei (musicSource, AL_LOOPING, true);
-    alSourcePlay (musicSource);
+    //alSourcePlay (musicSource);
     ALCenum error;
 
     error = alGetError();
@@ -321,6 +326,7 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
+//    camera->upsideDownRotate();
     camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();
@@ -357,6 +363,12 @@ void App::processInput(int keyCode) {
                 snakeRenderer->toggleBlur();
             }
             break;
+        case GLFW_KEY_F:
+            rendererManager->toggleFog();
+            break;
+//        case GLFW_KEY_U:
+//            camera->startUpsideDownRotate();
+//            break;
         case GLFW_KEY_M:
             ALint source_state;
             alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);

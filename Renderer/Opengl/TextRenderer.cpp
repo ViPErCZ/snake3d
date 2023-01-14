@@ -14,8 +14,12 @@ namespace Renderer {
 
     void TextRenderer::render() {
         for (auto Iter = texts.begin(); Iter < texts.end(); Iter++) {
-            if ((*Iter)->getText()->isVisible()) {
+            auto text = (*Iter)->getText();
+            if (text->isVisible()) {
                 (*Iter)->render();
+                if (text->isStartFade()) {
+                    text->fadeStep();
+                }
             }
         }
     }

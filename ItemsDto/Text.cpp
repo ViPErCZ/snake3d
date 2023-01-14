@@ -36,4 +36,4 @@ namespace ItemsDto {
     void Text::setFontPath(const string &fontPath) {
         Text::fontPath = fontPath;
     }
-} // ItemsDto
+}

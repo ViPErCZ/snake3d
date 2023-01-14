@@ -33,7 +33,7 @@ namespace Model {
     void TextModel::load(Text* text) {
         this->text = text;
         // first clear the previously loaded Characters
-        this->characters.clear();
+        characters.clear();
         // then initialize and load the FreeType library
         FT_Library ft;
         if (FT_Init_FreeType(&ft)) // all functions return a value different than 0 whenever an error occurred
@@ -82,7 +82,7 @@ namespace Model {
             character->setSize(glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows));
             character->setBearing(glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top));
             character->setAdvance(static_cast<unsigned int>(face->glyph->advance.x));
-            this->characters.insert(std::pair<char, Character*>(c, character));
+            characters.insert(std::pair<char, Character*>(c, character));
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         // destroy FreeType once we're finished
@@ -92,8 +92,10 @@ namespace Model {
 
     void TextModel::render() {
         // activate corresponding render state
-        this->shader->use();
-        this->shader->setVec3("textColor", text->getColor());
+        shader->use();
+        shader->setVec3("textColor", text->getColor());
+        shader->setFloat("alpha", text->getAlpha());
+
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(this->VAO);
 
@@ -105,7 +107,7 @@ namespace Model {
             Character* ch = characters[c];
 
             float xpos = x + (float)ch->getBearing().x * scale;
-            float ypos = y + (float)(this->characters['H']->getBearing().y - ch->getBearing().y) * scale;
+            float ypos = y + (float)(characters['H']->getBearing().y - ch->getBearing().y) * scale;
 
             float w = (float)ch->getSize().x * scale;
             float h = (float)ch->getSize().y * scale;
@@ -122,7 +124,7 @@ namespace Model {
             // render glyph texture over quad
             glBindTexture(GL_TEXTURE_2D, ch->getTextureId());
             // update content of VBO memory
-            glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             // render quad

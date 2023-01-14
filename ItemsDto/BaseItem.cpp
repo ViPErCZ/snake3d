@@ -1,7 +1,7 @@
 #include "BaseItem.h"
 
 namespace ItemsDto {
-    BaseItem::BaseItem(): width(1), height(1), visible(true) {
+    BaseItem::BaseItem(): width(1), height(1), visible(true), alpha(1.0f), startFadeOut(false) {
         rotate[0].a = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
         rotate[1].a = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
         rotate[2].a = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
@@ -21,6 +21,9 @@ namespace ItemsDto {
 
     void BaseItem::setVisible(bool visible) {
         BaseItem::visible = visible;
+        alpha = 1.0f;
+        startFadeOut = false;
+        startFadeIn = false;
     }
 
     GLfloat BaseItem::getWidth() const {
@@ -75,6 +78,50 @@ namespace ItemsDto {
 
     void BaseItem::setVirtualY(int virtualY) {
         virtual_Y = virtualY;
+    }
+
+    void BaseItem::fadeOut() {
+        if (alpha == 1.0) {
+            startFadeOut = true;
+        }
+    }
+
+    void BaseItem::fadeIn() {
+        if (alpha == 0.0) {
+            startFadeIn = true;
+        }
+    }
+
+    float BaseItem::getAlpha() const {
+        return alpha;
+    }
+
+    bool BaseItem::isStartFade() const {
+        return startFadeOut || startFadeIn;
+    }
+
+    void BaseItem::setAlpha(float alpha) {
+        BaseItem::alpha = alpha;
+    }
+
+    void BaseItem::fadeStep(const float FADE_STEP) {
+        double now = glfwGetTime();
+        if (now > lastTime + 0.0001) {
+            lastTime = now;
+            if (startFadeOut && alpha > 0) {
+                alpha -= FADE_STEP;
+
+                return;
+            } else if (startFadeIn && alpha < 1) {
+                alpha += FADE_STEP;
+
+                return;
+            }
+
+            visible = !startFadeOut;
+            startFadeOut = false;
+            startFadeIn = false;
+        }
     }
 
 } // ItemsDto

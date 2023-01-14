@@ -29,6 +29,7 @@ namespace Renderer {
             baseShader->setVec3("viewPos", camera->getPosition());
             renderScene(baseShader);
         }
+        baseShader->setBool("fogEnable", fog);
     }
 
     void SnakeRenderer::renderShadowMap() {
