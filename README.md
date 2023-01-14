@@ -7,16 +7,21 @@ Modern C++ Opengl 3D Snake example.
 - M - stop / play music
 - V - show / hide shadows
 - B - enable / disable blur effect
+- F - enable / disable fog effect
 
-![Printscreen](printscreen.png "Printscreen")
+![Printscreen](Screens/printscreen.png "Printscreen")
 
 and with shadows and skybox
 
-![Printscreen](printscreen_shadows.png "Printscreen shadows")
+![Printscreen](Screens/printscreen_shadows.png "Printscreen shadows")
 
 and blur effect activated
 
-![Printscreen](printscreen_blur.png "Printscreen blur")
+![Printscreen](Screens/printscreen_blur.png "Printscreen blur")
+
+and fog effect
+
+![Printscreen](Screens/printscreen_fog.png "Printscreen blur")
 
 ### Dependencies:
 - stb_image - v2.27 - public domain image loader - http://nothings.org/stb
