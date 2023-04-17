@@ -8,6 +8,7 @@ Modern C++ Opengl 3D Snake example.
 - V - show / hide shadows
 - B - enable / disable blur effect
 - F - enable / disable fog effect
+- W - enable / disable rain and rain drops
 
 ![Printscreen](Screens/printscreen.png "Printscreen")
 
@@ -22,6 +23,10 @@ and blur effect activated
 and fog effect
 
 ![Printscreen](Screens/printscreen_fog.png "Printscreen blur")
+
+and rain with drops
+
+![Printscreen](Screens/rain_drops.gif "Video rain with drops")
 
 ### Dependencies:
 - stb_image - v2.27 - public domain image loader - http://nothings.org/stb
