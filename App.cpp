@@ -52,11 +52,15 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
     resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
+    resourceManager->addShader("rain", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/rain/rain.vs", "Assets/Shaders/rain/rain.fs")));
+    resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
-    Snake *snake = InitSnake();
+    InitSnake();
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
@@ -75,6 +79,10 @@ void App::Init() {
     radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
     skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
+    rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
+    rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
+    auto storm = new BaseItem();
+    storm->setVisible(false);
 
     initTexts();
 
@@ -92,9 +100,11 @@ void App::Init() {
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
+    rendererManager->addRenderer(rainRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
@@ -271,7 +281,7 @@ Barriers *App::InitBarriers() {
 }
 
 Radar *App::InitRadar() {
-    radar = new Radar();
+    auto radar = new Radar();
     radar->setVisible(true);
     radar->setPosition({125.0, 160.0, 0.0});
     radar->setZoom({100, 100, 1});
@@ -365,6 +375,10 @@ void App::processInput(int keyCode) {
             break;
         case GLFW_KEY_F:
             rendererManager->toggleFog();
+            break;
+        case GLFW_KEY_W:
+            rainRenderer->toggle();
+            rainDropRenderer->setEnable(rainRenderer->isEnable());
             break;
 //        case GLFW_KEY_U:
 //            camera->startUpsideDownRotate();

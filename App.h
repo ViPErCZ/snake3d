@@ -29,6 +29,8 @@
 #include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
 #include "Renderer/Opengl/BloomRenderer.h"
+#include "Renderer/Opengl/RainRenderer.h"
+#include "Renderer/Opengl/RainDropRenderer.h"
 #include <filesystem>
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -73,7 +75,6 @@ private:
     Eat* eat;
     ObjWall* objWall{};
     Barriers* barriers{};
-    Radar* radar{};
     Cube* skybox{};
     SnakeRenderer* snakeRenderer{};
     ObjWallRenderer* objWallRenderer{};
@@ -84,6 +85,8 @@ private:
     DepthMapRenderer* depthMapRenderer{};
     BloomRenderer* bloomRenderer{};
     EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
+    RainRenderer* rainRenderer{};
+    RainDropRenderer* rainDropRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};
     EatManager* eatManager;

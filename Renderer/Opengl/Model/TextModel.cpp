@@ -6,7 +6,7 @@ namespace Model {
     TextModel::TextModel(unsigned int width, unsigned int height, ShaderManager *shader) : shader(shader) {
         this->shader = shader;
         this->shader->use();
-        this->shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f));
+        this->shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f));
         this->shader->setInt("text", 0);
         // configure VAO/VBO for texture quads
         glGenVertexArrays(1, &this->VAO);
