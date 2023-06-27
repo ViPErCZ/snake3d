@@ -31,6 +31,7 @@
 #include "Renderer/Opengl/BloomRenderer.h"
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
+#include "Renderer/Opengl/AnimRenderer.h"
 #include <filesystem>
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -86,6 +87,7 @@ private:
     BloomRenderer* bloomRenderer{};
     EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
     RainRenderer* rainRenderer{};
+    AnimRenderer* animRenderer{};
     RainDropRenderer* rainDropRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};

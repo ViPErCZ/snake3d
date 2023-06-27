@@ -66,9 +66,9 @@ namespace Renderer {
                         shader->setVec3("lightColor", {0.0f, 5.0f, 0.0f});
                     }
                 }
-                mesh->bind();
+                //mesh->bind();
 
-                glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                //glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             }
         }
     }

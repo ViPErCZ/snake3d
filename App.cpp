@@ -1,4 +1,5 @@
 #include "App.h"
+#include "Resource/AnimLoader.h"
 
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
@@ -57,6 +58,9 @@ void App::Init() {
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
+    const fs::path assets_dir{"Assets/Objects"};
+    auto pacman = AnimLoader::loadObj(assets_dir / "skeleton.glb"); //pac-man-ghosts-blue.glb
+    animRenderer = new AnimRenderer(pacman, camera, projection, resourceManager);
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
@@ -102,8 +106,9 @@ void App::Init() {
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(snakeRenderer);
+    rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(radarRenderer);
-    rendererManager->addRenderer(skyboxRenderer);
+//    rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
@@ -319,6 +324,7 @@ void App::InitResourceManager() {
     }
 
     const fs::path assets_dir{"Assets/Objects"};
+
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
 

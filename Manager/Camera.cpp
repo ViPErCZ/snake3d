@@ -39,11 +39,11 @@ namespace Manager {
 
     void Camera::updateStickyPoint() {
         glm::vec3 pos = stickyPoint->getPosition();
-        position = pos;
-        position.x /= 26;
-        position.y /= 26;
-        position.y -= 3;
-        position.z = 1; // -3
+//        position = pos;
+//        position.x /= 26;
+//        position.y /= 26;
+//        position.y -= 3;
+//        position.z = 1; // -3
     }
 
     glm::vec3 Camera::getStickyPosition() {

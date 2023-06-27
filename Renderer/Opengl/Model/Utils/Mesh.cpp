@@ -1,8 +1,8 @@
 #include "Mesh.h"
 
 namespace ModelUtils {
-    Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices)
-            : vertices(vertices), indices(indices) {
+    Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, bool hasBones)
+            : vertices(vertices), indices(indices), hasBones(hasBones) {
         vao = new Vao();
         vao->bind();
         // Generates Vertex Buffer Object and links it to vertices
@@ -16,6 +16,8 @@ namespace ModelUtils {
         vao->linkAttrib(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), (void *) (9 * sizeof(float)));
         vao->linkAttrib(vbo, 4, 3, GL_FLOAT, sizeof(Vertex), (void *) (11 * sizeof(float)));
         vao->linkAttrib(vbo, 5, 3, GL_FLOAT, sizeof(Vertex), (void *) (14 * sizeof(float)));
+        vao->linkAttribI(vbo, 6, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, BoneIDs));
+        vao->linkAttrib(vbo, 7, 4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, Weights));
         // Unbind all to prevent accidentally modifying them
         vao->unBind();
         vbo.unBind();
@@ -32,6 +34,18 @@ namespace ModelUtils {
 
     void Mesh::bind() {
         vao->bind();
+    }
+
+    const glm::mat4 &Mesh::getGlobalTransformation() const {
+        return globalTransformation;
+    }
+
+    void Mesh::setGlobalTransformation(const glm::mat4 &globalTransformation) {
+        Mesh::globalTransformation = globalTransformation;
+    }
+
+    bool Mesh::isHasBones() const {
+        return hasBones;
     }
 
 } // ModelUtils
