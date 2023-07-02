@@ -1,8 +1,10 @@
 #include "Mesh.h"
 
+#include <utility>
+
 namespace ModelUtils {
-    Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, bool hasBones)
-            : vertices(vertices), indices(indices), hasBones(hasBones) {
+    Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, bool hasBones, string name)
+            : vertices(vertices), indices(indices), hasBones(hasBones), name(std::move(name)) {
         vao = new Vao();
         vao->bind();
         // Generates Vertex Buffer Object and links it to vertices
@@ -46,6 +48,10 @@ namespace ModelUtils {
 
     bool Mesh::isHasBones() const {
         return hasBones;
+    }
+
+    const string &Mesh::getName() const {
+        return name;
     }
 
 } // ModelUtils

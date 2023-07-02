@@ -42,10 +42,10 @@ namespace Resource {
                 const auto* channel = anim->mChannels[j];
 
                 auto bi = bone_map.find(channel->mNodeName.C_Str());
-                if (bi == bone_map.end()) {
-                    bones.emplace_back(channel->mNodeName.C_Str(), glm::mat4(1.f));
-                    bone_map.emplace(channel->mNodeName.C_Str(), bones.size() - 1);
-                }
+//                if (bi == bone_map.end()) {
+//                    bones.emplace_back(channel->mNodeName.C_Str(), glm::mat4(1.f));
+//                    bone_map.emplace(channel->mNodeName.C_Str(), bones.size() - 1);
+//                }
 
                 auto& bone = bones.at(bone_map.at(channel->mNodeName.C_Str()));
                 std::vector<KeyFrame<glm::vec3>> pos_frames;
@@ -81,7 +81,7 @@ namespace Resource {
             if (auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
             } else {
-                bones.emplace_back(str, glm::mat4(1.f));
+                bones.emplace_back(str, "", glm::mat4(1.f));
                 bone_map.emplace(str, bones.size() - 1);
                 return static_cast<uint32_t>(bones.size() - 1);
             }
@@ -140,11 +140,13 @@ namespace Resource {
 
             for (uint32_t j = 0; j < mesh->mNumBones; ++j) {
                 std::string bone_name = mesh->mBones[j]->mName.C_Str();
+                std::string mesh_name = mesh->mName.C_Str();
                 auto bi = bone_map.find(bone_name);
                 auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
                 uint32_t bone_index;
                 if (bi == bone_map.end()) {
-                    bones.emplace_back(bone_name, offset_mat);
+//                    bones.emplace_back(bone_name, offset_mat);
+                    bones.emplace_back(bone_name, mesh_name, offset_mat);
                     bone_index = bones.size() - 1;
                     bone_map.insert({bone_name, bone_index});
                 } else {
@@ -250,6 +252,6 @@ namespace Resource {
 //        std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-        return new Mesh(vertices, indices, mesh->HasBones());
+        return new Mesh(vertices, indices, mesh->HasBones(), mesh->mName.C_Str());
     }
 } // Resource

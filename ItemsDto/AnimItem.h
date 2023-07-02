@@ -21,11 +21,13 @@ namespace ItemsDto {
 
     struct Bone {
         std::string name;
+        std::string meshName;
         glm::mat4 node_transform {1.0f};
         glm::mat4 offset_matrix {1.0f};
 
-        Bone(string name, const glm::mat4& _offset_matrix) noexcept
+        Bone(string name, string meshName, const glm::mat4& _offset_matrix) noexcept
                 : name {std::move(name)}
+                , meshName {std::move(meshName)}
                 , offset_matrix {_offset_matrix} {
         }
 

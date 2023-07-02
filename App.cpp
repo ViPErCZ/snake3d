@@ -59,8 +59,11 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
     const fs::path assets_dir{"Assets/Objects"};
-    auto pacman = AnimLoader::loadObj(assets_dir / "skeleton.glb"); //pac-man-ghosts-blue.glb
+    auto pacman = AnimLoader::loadObj(assets_dir / "pacman.glb"); //pac-man-ghosts-blue.glb
     animRenderer = new AnimRenderer(pacman, camera, projection, resourceManager);
+    animRenderer->addPlay("KostraAction");
+//    animRenderer->addPlay("Kostra2Action.002");
+//    animRenderer->addPlay("Kostra3Action");
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
