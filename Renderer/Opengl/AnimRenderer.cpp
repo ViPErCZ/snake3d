@@ -9,7 +9,7 @@ namespace Renderer {
         resourceManager = resManager;
         this->camera = camera;
         this->projection = projection;
-        baseShader = resourceManager->getShader("basicShader");
+        baseShader = resourceManager->getShader("normalShader");
     }
 
     void AnimRenderer::render() {
@@ -18,11 +18,14 @@ namespace Renderer {
         baseShader->setMat4("projection", projection);
         baseShader->setVec3("viewPos", camera->getPosition());
         baseShader->setBool("useMaterial", true);
+        baseShader->setVec3("lightPos", glm::vec3(-20.0, 26.0, 60.0));
 
         glm::mat4 modelTrans = glm::mat4(1.0f);
         modelTrans = glm::translate(modelTrans, {0.0, 0.0, 0.0});
 //        modelTrans = glm::scale(modelTrans, {10.041666667f, 10.041666667f, 10.041666667f});
         modelTrans = glm::scale(modelTrans, {0.41666667f, 0.41666667f, 0.41666667f});
+
+//        resourceManager->getTexture("Skeleton_Body.png")->bind();
 
         for (auto animName: animationPlay) {
             const auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
@@ -58,6 +61,9 @@ namespace Renderer {
             item->bind();
             glDrawElements(GL_TRIANGLES, (int) item->getIndices().size(), GL_UNSIGNED_INT, nullptr);
         }
+
+        baseShader->setBool("useBones", false);
+        baseShader->setBool("useMaterial", false);
     }
 
     void AnimRenderer::renderShadowMap() {

@@ -27,6 +27,8 @@ namespace Renderer {
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", projection);
             baseShader->setVec3("viewPos", camera->getPosition());
+            baseShader->setBool("useMaterial", false);
+            baseShader->setBool("useBones", false);
             renderScene(baseShader);
         }
         baseShader->setBool("fogEnable", fog);
@@ -66,9 +68,9 @@ namespace Renderer {
                         shader->setVec3("lightColor", {0.0f, 5.0f, 0.0f});
                     }
                 }
-                //mesh->bind();
+                mesh->bind();
 
-                //glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
             }
         }
     }

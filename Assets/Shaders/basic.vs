@@ -10,27 +10,19 @@ out vec2 TexCoords;
 out vec3 fragPos;
 out vec3 Color;
 
-const int MAX_BONES = 100;
-const int MAX_BONE_INFLUENCE = 4;
-
 uniform bool useBones = true;
-uniform mat4 finalBonesMatrices[MAX_BONES];
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+#include "pipeline/skeleton/bonesTransform.glsl"
+
 void main()
 {
     if (useBones) {
-        mat4 BoneTransform = finalBonesMatrices[boneIds[0]] * weights[0];
-        BoneTransform += finalBonesMatrices[boneIds[1]] * weights[1];
-        BoneTransform += finalBonesMatrices[boneIds[2]] * weights[2];
-        BoneTransform += finalBonesMatrices[boneIds[3]] * weights[3];
-
-        vec4 PosL = BoneTransform * vec4(aPos, 1.0);
-
         mat4 viewModel = view * model;
-        gl_Position = projection * viewModel * PosL;
+        gl_Position = projection * viewModel * boneTransform(boneIds, weights);
     } else {
         gl_Position = projection * view * model * vec4(aPos, 1.0);
     }
