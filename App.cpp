@@ -58,9 +58,7 @@ void App::Init() {
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
-    const fs::path assets_dir{"Assets/Objects"};
-    auto pacman = AnimLoader::loadObj(assets_dir / "pac-man-ghosts-blue.glb"); //pac-man-ghosts-blue.glb
-    animRenderer = new AnimRenderer(pacman, camera, projection, resourceManager);
+    animRenderer = new AnimRenderer(resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
     animRenderer->addPlay("KostraAction");
     animRenderer->addPlay("Armature|Take 001|BaseLayer");
     animRenderer->addPlay("Kostra2Action.002");
@@ -331,6 +329,7 @@ void App::InitResourceManager() {
 
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
+    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");

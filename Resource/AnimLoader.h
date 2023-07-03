@@ -38,7 +38,7 @@ namespace Resource {
 
     class AnimLoader {
         public:
-            static AnimationModel* loadObj(const fs::path &path);
+            static shared_ptr<AnimationModel> loadObj(const fs::path &path);
         protected:
             static void processNode(aiNode *node, const aiScene *scene, vector<Mesh*>* meshes, glm::mat4 parentTransformation, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
             static Mesh* processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);

@@ -1,7 +1,7 @@
 #include "AnimLoader.h"
 
 namespace Resource {
-    AnimationModel* AnimLoader::loadObj(const fs::path &path) {
+    shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
                                                        aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -26,7 +26,9 @@ namespace Resource {
         cout << "Loading OBJ file " << path << " success" << endl;
         importer.FreeScene();
 
-        return new AnimationModel(meshes, std::move(animations), std::move(bones), std::move(animation_tree), std::move(bone_map), glm::inverse(global_matrix));
+        return std::make_shared<AnimationModel>(meshes, std::move(animations), std::move(bones),
+                                                std::move(animation_tree), std::move(bone_map),
+                                                glm::inverse(global_matrix));
     }
 
     std::vector<Animation> AnimLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {

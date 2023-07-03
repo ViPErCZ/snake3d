@@ -37,10 +37,27 @@ namespace Manager {
         }
     }
 
+    void ResourceManager::addModel(const string &name, std::shared_ptr<AnimationModel> res) {
+        std::unique_lock lock(mutex);
+        const auto result = animationModel.emplace(name, std::move(res));
+        if (!result.second) {
+            throw invalid_argument("Failed to add model " + name + ", already contains.");
+        }
+    }
+
     ObjItem* ResourceManager::getModel(const string &name) {
         std::unique_lock lock(mutex);
         try {
             return model.at(name).get();
+        } catch (...) {
+            throw invalid_argument("No such resource called " + name);
+        }
+    }
+
+    AnimationModel* ResourceManager::getAnimationModel(const string &name) {
+        std::unique_lock lock(mutex);
+        try {
+            return animationModel.at(name).get();
         } catch (...) {
             throw invalid_argument("No such resource called " + name);
         }
