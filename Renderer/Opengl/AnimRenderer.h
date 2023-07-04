@@ -14,7 +14,7 @@ namespace Renderer {
     class AnimRenderer : public BaseRenderer {
     public:
         explicit AnimRenderer(const Model::AnimationModel* sharedPtr, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
-
+        ~AnimRenderer() override;
         void render() override;
         void renderShadowMap() override;
         void beforeRender() override;

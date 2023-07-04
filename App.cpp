@@ -329,7 +329,7 @@ void App::InitResourceManager() {
 
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
-    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
+    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman-ghosts-blue.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
@@ -345,7 +345,6 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
-//    camera->upsideDownRotate();
     camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();

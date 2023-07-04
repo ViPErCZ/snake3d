@@ -9,19 +9,19 @@ namespace Model {
                                    const glm::mat4& _global_matrix) :
         meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)), skeleton(skeleton), bones_map(bones_map), global_inverse {_global_matrix} {
 
-        meshes.erase(
+        this->meshes.erase(
                 std::remove_if(
-                        meshes.begin(),
-                        meshes.end(),
+                        this->meshes.begin(),
+                        this->meshes.end(),
                         [this](Mesh *p) {
                             if (!p->isHasBones()) {
                                 noBonesMeshes.push_back(p);
-                                return false;
+                                return true;
                             }
-                            return true;
+                            return false;
                         }
                 ),
-                meshes.end()
+                this->meshes.end()
         );
 
         for (const auto& anim: animations) {
@@ -32,6 +32,30 @@ namespace Model {
             meta->bone_transform.resize(this->bones.size(), glm::mat4(1.0f));
             metadata.emplace(anim.name, meta);
         }
+    }
+
+    AnimationModel::~AnimationModel() {
+        animations.clear();
+        bones.clear();
+        bones_map.clear();
+
+        for (auto & iter : metadata) {
+            delete iter.second;
+        }
+
+        metadata.clear();
+
+        for (auto mesh : meshes) {
+            delete mesh;
+        }
+
+        meshes.clear();
+
+        for (auto mesh : noBonesMeshes) {
+            delete mesh;
+        }
+
+        noBonesMeshes.clear();
     }
 
     const vector<Mesh *> &AnimationModel::getMeshes() const {

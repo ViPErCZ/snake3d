@@ -33,6 +33,9 @@ namespace Model {
     public:
         AnimationModel(vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones, decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map,
                        const glm::mat4& _global_matrix);
+
+        virtual ~AnimationModel();
+
         [[nodiscard]] const vector<Mesh *> &getMeshes() const;
         [[nodiscard]] const vector<Animation> &getAnimations() const;
         [[nodiscard]] const vector<Bone> &getBones() const;

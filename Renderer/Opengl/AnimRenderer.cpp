@@ -12,6 +12,10 @@ namespace Renderer {
         baseShader = resourceManager->getShader("normalShader");
     }
 
+    AnimRenderer::~AnimRenderer() {
+        animationPlay.clear();
+    }
+
     void AnimRenderer::render() {
         baseShader->use();
         baseShader->setMat4("view", camera->getViewMatrix());

@@ -6,6 +6,7 @@ namespace Manager {
     }
 
     bool ResourceManager::Release() {
+        animationModel.clear();
         model.clear();
         texture.clear();
 
