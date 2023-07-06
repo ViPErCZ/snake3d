@@ -18,6 +18,7 @@ namespace Model {
         chrono::time_point<std::chrono::steady_clock> last_time;
         chrono::duration<double> animation_duration;
         vector<glm::mat4> bone_transform;
+        bool pause;
     };
 
     class AnimationModel {
@@ -31,6 +32,7 @@ namespace Model {
         Tree<uint32_t> skeleton;
         glm::mat4 global_inverse;
         unordered_map<string, AnimationMeta*> metadata;
+        bool globalPause;
     public:
         AnimationModel(BaseItem* item, vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
                        decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map, const glm::mat4& _global_matrix);
@@ -48,8 +50,8 @@ namespace Model {
         void updateAnimation(const Animation* animation) const;
         AnimationMeta* getMetadata(const Animation* animation) const;
         BaseItem *getBaseItem() const;
-
         void setBaseItem(BaseItem *baseItem);
+        void setGlobalPause(bool globalPause);
     };
 
 } // Model

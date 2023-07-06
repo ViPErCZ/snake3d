@@ -9,7 +9,7 @@ namespace Model {
                                    decltype(bones_map)&& bones_map,
                                    const glm::mat4& _global_matrix) :
             baseItem(item), meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
-            skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix} {
+            skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(true) {
 
         this->meshes.erase(
                 std::remove_if(
@@ -32,6 +32,7 @@ namespace Model {
             meta->animation_duration = std::chrono::seconds(0);
             meta->last_time = std::chrono::time_point<std::chrono::steady_clock>();
             meta->bone_transform.resize(this->bones.size(), glm::mat4(1.0f));
+            meta->pause = globalPause;
             metadata.emplace(anim.name, meta);
         }
     }
@@ -101,7 +102,7 @@ namespace Model {
 
     void AnimationModel::updateAnimation(const Animation *animation) const {
         auto meta = metadata.at(animation->name);
-        if (meta) {
+        if (meta && !meta->pause) {
             const Animation &anim = *animation;
             const auto current_time = std::chrono::steady_clock::now();
             if (meta->last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
@@ -133,8 +134,6 @@ namespace Model {
                 auto transform = parent_mat * local_transform;
 
                 if (anim_node) {
-                    //bone_transform[*node] = local_transform;
-//                } else {
                     meta->bone_transform[*node] = parent_mat * local_transform *
                                             (getBones()[*node]).offset_matrix;
                 } else {
@@ -164,6 +163,13 @@ namespace Model {
 
     void AnimationModel::setBaseItem(BaseItem *baseItem) {
         AnimationModel::baseItem = baseItem;
+    }
+
+    void AnimationModel::setGlobalPause(bool globalPause) {
+        AnimationModel::globalPause = globalPause;
+        for (auto &meta: metadata) {
+            meta.second->pause = globalPause;
+        }
     }
 
 } // Model

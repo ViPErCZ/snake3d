@@ -3,7 +3,7 @@
 
 namespace Renderer {
 
-    AnimRenderer::AnimRenderer(sSNAKE_TILE* tile, const AnimationModel *sharedPtr, Camera *camera, const glm::mat4 &projection,
+    AnimRenderer::AnimRenderer(sSNAKE_TILE* tile, AnimationModel *sharedPtr, Camera *camera, const glm::mat4 &projection,
                                ResourceManager *resManager): show(true) {
         model = sharedPtr;
         resourceManager = resManager;
@@ -25,8 +25,7 @@ namespace Renderer {
             baseShader->setMat4("projection", projection);
             baseShader->setVec3("viewPos", camera->getPosition());
             baseShader->setBool("useMaterial", true);
-            glm::vec3 lightPos(model->getBaseItem()->getPosition().x, model->getBaseItem()->getPosition().y + 6, -5.3f);
-            baseShader->setVec3("lightPos", glm::vec3(-20.0, 26.0, 60.0));
+            glm::vec3 lightPos(model->getBaseItem()->getPosition().x, model->getBaseItem()->getPosition().y + 6, -55.3f);
             baseShader->setVec3("lightPos", lightPos);
 
             renderScene(baseShader);
@@ -47,26 +46,31 @@ namespace Renderer {
 
         switch (tile->direction) {
             case ItemsDto::RIGHT:
+                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::LEFT:
+                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {180, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::UP:
+                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {90, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::DOWN:
+                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {-90, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             default:
+                model->setGlobalPause(true);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
