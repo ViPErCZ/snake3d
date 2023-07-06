@@ -27,4 +27,21 @@ namespace ItemsDto {
             (*Iter).radarPresent->setPosition(pos);
         }
     }
+
+    void Radar::addItem(const BaseItem *item, glm::vec3 color) {
+        sRADAR_item radarItem{};
+        radarItem.item = item;
+        radarItem.texture = nullptr;
+        radarItem.radarPresent = new BaseItem();
+        radarItem.radarPresent->setVisible(true);
+        radarItem.radarPresent->setZoom({2,2,1});
+        radarItem.color = color;
+
+        items.push_back(radarItem);
+    }
+
+    void Radar::reset() {
+        items.clear();
+    }
+
 } // ItemsDto

@@ -73,7 +73,8 @@ void App::Init() {
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
-    Radar *radar = InitRadar();
+    radar = CreateRadar();
+    InitRadar();
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
@@ -203,6 +204,7 @@ void App::Init() {
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
                 this->eatManager->run(Manager::EatManager::clean);
+                InitRadar();
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -293,8 +295,8 @@ Barriers *App::InitBarriers() {
     return barriers;
 }
 
-Radar *App::InitRadar() {
-    auto radar = new Radar();
+void App::InitRadar() {
+    radar->reset();
     radar->setVisible(true);
     radar->setPosition({125.0, 160.0, 0.0});
     radar->setZoom({100, 100, 1});
@@ -302,11 +304,15 @@ Radar *App::InitRadar() {
     radar->setHeight(176);
 
     if (resourceManager) {
-        if (snake) {
-            radar->addItem(snake->getHeadTile(), resourceManager->getTexture("radar_snake.bmp"));
+        for (auto tile: snake->getItems()) {
+            radar->addItem(tile->tile, {0.278,1.,0.});
         }
-        radar->addItem(eat, resourceManager->getTexture("eat.bmp"));
+        radar->addItem(eat, {1.,0.953,0.});
     }
+}
+
+Radar *App::CreateRadar() {
+    auto radar = new Radar();
 
     return radar;
 }

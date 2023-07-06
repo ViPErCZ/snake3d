@@ -61,7 +61,8 @@ protected:
     Snake* InitSnake();
     ObjWall* InitObjWall(); // outer wall
     Barriers* InitBarriers(); // inter barriers
-    Radar* InitRadar();
+    static Radar* CreateRadar();
+    void InitRadar();
     Eat *InitEat();
     void initTexts();
 private:
@@ -74,6 +75,7 @@ private:
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
+    Radar* radar;
     ObjWall* objWall{};
     Barriers* barriers{};
     Cube* skybox{};
