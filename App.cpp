@@ -1,5 +1,8 @@
 #include "App.h"
+#include "Resource/AnimLoader.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NullDereference"
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
@@ -52,11 +55,21 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
     resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
+    resourceManager->addShader("rain", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/rain/rain.vs", "Assets/Shaders/rain/rain.fs")));
+    resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
+    InitSnake();
+    animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
+    animRenderer->addPlay("KostraAction");
+    snake->getHeadTile()->setVisible(false);
+//    animRenderer->addPlay("Armature|Take 001|BaseLayer");
+//    animRenderer->addPlay("Kostra2Action.002");
+//    animRenderer->addPlay("Kostra3Action");
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
-    Snake *snake = InitSnake();
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
@@ -75,6 +88,10 @@ void App::Init() {
     radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
     skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
+    rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
+    rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
+    auto storm = new BaseItem();
+    storm->setVisible(false);
 
     initTexts();
 
@@ -92,16 +109,21 @@ void App::Init() {
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(snakeRenderer);
+    rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
+    rendererManager->addRenderer(rainRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
-    auto *snakeMoveHandler = new SnakeMoveHandler(snake);
+    auto animHead = resourceManager->getAnimationModel("pacman");
+    animHead->setBaseItem(snake->getHeadTile());
+    auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
     auto *radarHandler = new RadarHandler(radar);
 
     collisionDetector = new CollisionDetector();
@@ -109,10 +131,11 @@ void App::Init() {
     collisionDetector->setBarriers(barriers);
     collisionDetector->addStaticItem(eat);
     snakeMoveHandler->setCollisionDetector(collisionDetector);
-    snakeMoveHandler->setStartMoveCallback([this]() {
+    snakeMoveHandler->setStartMoveCallback([this, animHead]() {
         if (this->levelManager) {
+            animHead->setGlobalPause(false);
             this->eatManager->run(Manager::EatManager::firstPlace);
-            this->startText->setVisible(false);
+            this->startText->fadeOut();
             char buff[100];
             snprintf(buff, sizeof(buff),
                      "%s %d, %s %d, %s %d",
@@ -125,6 +148,10 @@ void App::Init() {
             );
             std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
+            if (this->tilesCounterText->getAlpha() == 1.0f) {
+                this->tilesCounterText->setAlpha(0.0f);
+                this->tilesCounterText->fadeIn();
+            }
         }
     });
     snakeMoveHandler->setCrashCallback([this]() {
@@ -165,7 +192,7 @@ void App::Init() {
             if (this->eatRemoveAnimateRenderer && this->animateEat) {
                 this->animateEat->setPosition(eat->getPosition());
                 this->animateEat->setVisible(true);
-                this->eatRemoveAnimateRenderer->setCompleted(false);
+                this->animateEat->fadeOut();
             }
 
             this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
@@ -175,6 +202,7 @@ void App::Init() {
                 this->snake->reset();
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
+                this->eatManager->run(Manager::EatManager::clean);
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -204,7 +232,7 @@ void App::Init() {
     alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
     alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
     alSourcei (musicSource, AL_LOOPING, true);
-    alSourcePlay (musicSource);
+    //alSourcePlay (musicSource);
     ALCenum error;
 
     error = alGetError();
@@ -266,7 +294,7 @@ Barriers *App::InitBarriers() {
 }
 
 Radar *App::InitRadar() {
-    radar = new Radar();
+    auto radar = new Radar();
     radar->setVisible(true);
     radar->setPosition({125.0, 160.0, 0.0});
     radar->setZoom({100, 100, 1});
@@ -304,8 +332,11 @@ void App::InitResourceManager() {
     }
 
     const fs::path assets_dir{"Assets/Objects"};
+
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
+    resourceManager->addModel("tile", AnimLoader::loadObj(assets_dir / "Tile.obj"));
+    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
@@ -357,6 +388,16 @@ void App::processInput(int keyCode) {
                 snakeRenderer->toggleBlur();
             }
             break;
+        case GLFW_KEY_F:
+            rendererManager->toggleFog();
+            break;
+        case GLFW_KEY_W:
+            rainRenderer->toggle();
+            rainDropRenderer->setEnable(rainRenderer->isEnable());
+            break;
+//        case GLFW_KEY_U:
+//            camera->startUpsideDownRotate();
+//            break;
         case GLFW_KEY_M:
             ALint source_state;
             alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
@@ -366,7 +407,20 @@ void App::processInput(int keyCode) {
             } else {
                 alSourcePlay(musicSource);
             }
+            break;
+        case GLFW_KEY_1: // show classic red head
+            snake->getHeadTile()->setVisible(true);
+            animRenderer->setShow(false);
+            snakeRenderer->toggleStyle(1);
+            break;
+        case GLFW_KEY_2: // show animated pacman head
+            snake->getHeadTile()->setVisible(false);
+            animRenderer->setShow(true);
+            snakeRenderer->toggleStyle(2);
+            break;
         default:
             break;
     }
 }
+
+#pragma clang diagnostic pop

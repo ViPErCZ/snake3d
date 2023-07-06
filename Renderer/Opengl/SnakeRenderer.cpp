@@ -3,8 +3,8 @@
 namespace Renderer {
 
     SnakeRenderer::SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager *resManager)
-            : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false) {
-        mesh = resourceManager->getModel("cube")->getMesh();
+            : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
+        mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
         baseShader = resourceManager->getShader("basicShader");
         shadowShader = resourceManager->getShader("shadowDepthShader");
         shaderLight = resourceManager->getShader("bloomLight");
@@ -27,8 +27,11 @@ namespace Renderer {
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", projection);
             baseShader->setVec3("viewPos", camera->getPosition());
+            baseShader->setBool("useMaterial", false);
+            baseShader->setBool("useBones", false);
             renderScene(baseShader);
         }
+        baseShader->setBool("fogEnable", fog);
     }
 
     void SnakeRenderer::renderShadowMap() {
@@ -44,7 +47,11 @@ namespace Renderer {
                 if (snakeTileIter == this->snake->getItems().begin()) {
                     snakeTileTexture->bind();
                 } else {
-                    snakeHeadTexture->bind();
+                    if (renderStyle == 2) {
+                        baseShader->setBool("useMaterial", true);
+                    } else {
+                        snakeHeadTexture->bind();
+                    }
                 }
 
                 glm::vec3 position = (*snakeTileIter)->tile->getPosition();
@@ -80,5 +87,15 @@ namespace Renderer {
 
     void SnakeRenderer::toggleBlur() {
         blur = !blur;
+    }
+
+    void SnakeRenderer::toggleStyle(int style) {
+        if (style == 1) {
+            mesh = resourceManager->getModel("cube")->getMesh();
+            renderStyle = 1;
+        } else {
+            mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
+            renderStyle = 2;
+        }
     }
 } // Renderer

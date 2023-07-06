@@ -12,6 +12,8 @@ namespace Manager {
             case eatenUp:
                 handler->onDefaultHandler();
                 break;
+            case clean:
+                handler->onCleanHandler();
             case firstPlace:
                 handler->onFirstPlaceHandler();
                 break;

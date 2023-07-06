@@ -2,10 +2,9 @@
 
 namespace Renderer {
     RadarRenderer::RadarRenderer(Radar *radar, Camera *camera, glm::mat4 proj,
-                                 ResourceManager *resManager) : radar(radar) {
+                                 ResourceManager *resManager) : radar(radar), camera(camera) {
         resourceManager = resManager;
-        this->camera = camera;
-        this->projection = proj;
+        projection = proj;
         model = new RadarModel(radar);
         shader = resourceManager->getShader("radarShader");
         frameTexture = resourceManager->getTexture("red_screen.bmp");
@@ -21,7 +20,7 @@ namespace Renderer {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
             shader->use();
-            shader->setMat4("projection", this->projection);
+            shader->setMat4("projection", projection);
             shader->setInt("texture_diffuse1", 0);
             shader->setFloat("alpha", 1.0);
 

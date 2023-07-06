@@ -18,10 +18,13 @@ namespace Renderer {
         virtual void afterRender() = 0;
         void setShadow(bool shadow);
         [[nodiscard]] bool isShadow() const;
+        void setFog(bool fog);
+        [[nodiscard]] bool isFog() const;
 
     protected:
         BaseItem* item{};
         bool shadow;
+        bool fog;
     };
 
 } // Manager

@@ -30,9 +30,11 @@ namespace Manager {
         void disableShadows();
         void toggleShadows();
         void toggleBloom();
+        void toggleFog();
 
     protected:
         void updateShadows();
+        void updateFog();
         vector<BaseRenderer*> renderers;
         DepthMapRenderer* depthMapRenderer{};
         BloomRenderer* bloomRenderer{};
@@ -40,6 +42,7 @@ namespace Manager {
         int height;
         bool shadows;
         bool bloom;
+        bool fog;
     };
 
 } // Manager

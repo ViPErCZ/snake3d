@@ -29,6 +29,12 @@ namespace ItemsDto {
         void setVirtualX(int virtualX);
         [[nodiscard]] int getVirtualY() const;
         void setVirtualY(int virtualY);
+        void fadeOut();
+        void fadeIn();
+        [[nodiscard]] float getAlpha() const;
+        void setAlpha(float alpha);
+        void fadeStep(float FADE_STEP = 0.01f);
+        [[nodiscard]] bool isStartFade() const;
 
     protected:
         glm::vec3 position{};
@@ -39,6 +45,10 @@ namespace ItemsDto {
         GLfloat height;
         int virtual_X{};
         int virtual_Y{};
+        double lastTime{};
+        bool startFadeOut;
+        bool startFadeIn{};
+        float alpha;
     };
 
 } // ItemsDto

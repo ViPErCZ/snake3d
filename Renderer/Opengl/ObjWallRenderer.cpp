@@ -26,6 +26,7 @@ namespace Renderer {
         shader->setBool("parallaxEnable", parallax);
         shader->setFloat("alpha", 1.0);
         shader->setFloat("heightScale", heightScale);
+        shader->setBool("fogEnable", fog);
 
         // lighting info
         // -------------

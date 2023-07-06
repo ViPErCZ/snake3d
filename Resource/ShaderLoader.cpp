@@ -10,6 +10,7 @@ namespace Resource {
         string fragShaderStr = readFile(fragmentPath);
         cout << fragmentPath.parent_path() << endl;
         replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragShaderStr);
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertShaderStr);
         const char *vertShaderSrc = vertShaderStr.c_str();
         const char *fragShaderSrc = fragShaderStr.c_str();
 

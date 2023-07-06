@@ -15,6 +15,7 @@ namespace ModelUtils {
         Vao();
         // Links a VBO Attribute such as a position or color to the VAO
         void linkAttrib(Vbo& VBO, GLuint layout, int numComponents, GLenum type, int stride, void* offset) const;
+        void linkAttribI(Vbo &VBO, GLuint layout, int numComponents, GLenum type, int stride, void *offset) const;
         // Binds the VAO
         void bind() const;
         // Unbinds the VAO
