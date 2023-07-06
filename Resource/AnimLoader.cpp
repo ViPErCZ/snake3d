@@ -44,8 +44,9 @@ namespace Resource {
                 const auto* channel = anim->mChannels[j];
 
                 auto bi = bone_map.find(channel->mNodeName.C_Str());
+//                transformace na objektu bez kosti (pohnu-li v animaci objektem a ne kosti) - zatim nepodporovano
 //                if (bi == bone_map.end()) {
-//                    bones.emplace_back(channel->mNodeName.C_Str(), glm::mat4(1.f));
+//                    bones.emplace_back("", channel->mNodeName.C_Str(), glm::mat4(1.f));
 //                    bone_map.emplace(channel->mNodeName.C_Str(), bones.size() - 1);
 //                }
 
