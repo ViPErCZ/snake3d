@@ -26,7 +26,7 @@ namespace Resource {
         cout << "Loading OBJ file " << path << " success" << endl;
         importer.FreeScene();
 
-        return std::make_shared<AnimationModel>(meshes, std::move(animations), std::move(bones),
+        return std::make_shared<AnimationModel>(new BaseItem(), meshes, std::move(animations), std::move(bones),
                                                 std::move(animation_tree), std::move(bone_map),
                                                 glm::inverse(global_matrix));
     }

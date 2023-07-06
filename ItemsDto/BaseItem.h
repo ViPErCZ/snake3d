@@ -47,7 +47,7 @@ namespace ItemsDto {
         int virtual_Y{};
         double lastTime{};
         bool startFadeOut;
-        bool startFadeIn;
+        bool startFadeIn{};
         float alpha;
     };
 

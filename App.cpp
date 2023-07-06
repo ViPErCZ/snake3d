@@ -1,6 +1,8 @@
 #include "App.h"
 #include "Resource/AnimLoader.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NullDereference"
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
@@ -58,15 +60,16 @@ void App::Init() {
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
-    animRenderer = new AnimRenderer(resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
+    InitSnake();
+    animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
     animRenderer->addPlay("KostraAction");
-    animRenderer->addPlay("Armature|Take 001|BaseLayer");
-    animRenderer->addPlay("Kostra2Action.002");
-    animRenderer->addPlay("Kostra3Action");
+    snake->getHeadTile()->setVisible(false);
+//    animRenderer->addPlay("Armature|Take 001|BaseLayer");
+//    animRenderer->addPlay("Kostra2Action.002");
+//    animRenderer->addPlay("Kostra3Action");
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
-    InitSnake();
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
@@ -118,6 +121,7 @@ void App::Init() {
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
+    resourceManager->getAnimationModel("pacman")->setBaseItem(snake->getHeadTile());
     auto *snakeMoveHandler = new SnakeMoveHandler(snake);
     auto *radarHandler = new RadarHandler(radar);
 
@@ -329,7 +333,7 @@ void App::InitResourceManager() {
 
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
-    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman-ghosts-blue.glb")); //pac-man-ghosts-blue.glb
+    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
@@ -400,7 +404,18 @@ void App::processInput(int keyCode) {
             } else {
                 alSourcePlay(musicSource);
             }
+            break;
+        case GLFW_KEY_1: // show classic red head
+            snake->getHeadTile()->setVisible(true);
+            animRenderer->setShow(false);
+            break;
+        case GLFW_KEY_2: // show animated pacman head
+            snake->getHeadTile()->setVisible(false);
+            animRenderer->setShow(true);
+            break;
         default:
             break;
     }
 }
+
+#pragma clang diagnostic pop

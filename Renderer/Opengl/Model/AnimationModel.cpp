@@ -1,13 +1,15 @@
 #include "AnimationModel.h"
 
 namespace Model {
-    AnimationModel::AnimationModel(vector<Mesh *> &meshes,
+    AnimationModel::AnimationModel(BaseItem* item,
+                                   vector<Mesh *> &meshes,
                                    decltype(animations)&& _animations,
                                    decltype(bones)&& bones,
                                    decltype(skeleton)&& skeleton,
                                    decltype(bones_map)&& bones_map,
                                    const glm::mat4& _global_matrix) :
-        meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)), skeleton(skeleton), bones_map(bones_map), global_inverse {_global_matrix} {
+            baseItem(item), meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
+            skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix} {
 
         this->meshes.erase(
                 std::remove_if(
@@ -154,6 +156,14 @@ namespace Model {
 
     AnimationMeta *AnimationModel::getMetadata(const Animation *animation) const {
         return metadata.at(animation->name);
+    }
+
+    BaseItem *AnimationModel::getBaseItem() const {
+        return baseItem;
+    }
+
+    void AnimationModel::setBaseItem(BaseItem *baseItem) {
+        AnimationModel::baseItem = baseItem;
     }
 
 } // Model

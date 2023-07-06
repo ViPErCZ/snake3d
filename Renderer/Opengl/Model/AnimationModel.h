@@ -22,6 +22,7 @@ namespace Model {
 
     class AnimationModel {
     protected:
+        BaseItem* baseItem{};
         vector<Mesh*> meshes;
         vector<Mesh*> noBonesMeshes;
         vector<Animation> animations;
@@ -31,8 +32,8 @@ namespace Model {
         glm::mat4 global_inverse;
         unordered_map<string, AnimationMeta*> metadata;
     public:
-        AnimationModel(vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones, decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map,
-                       const glm::mat4& _global_matrix);
+        AnimationModel(BaseItem* item, vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
+                       decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map, const glm::mat4& _global_matrix);
 
         virtual ~AnimationModel();
 
@@ -46,6 +47,9 @@ namespace Model {
         [[nodiscard]] static const AnimationNode* findAnimationNode(const Animation * animation, const Bone& bone) noexcept;
         void updateAnimation(const Animation* animation) const;
         AnimationMeta* getMetadata(const Animation* animation) const;
+        BaseItem *getBaseItem() const;
+
+        void setBaseItem(BaseItem *baseItem);
     };
 
 } // Model
