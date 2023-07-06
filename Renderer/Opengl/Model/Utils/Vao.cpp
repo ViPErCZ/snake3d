@@ -12,6 +12,13 @@ namespace ModelUtils {
         VBO.unBind();
     }
 
+    void Vao::linkAttribI(Vbo &VBO, GLuint layout, int numComponents, GLenum type, int stride, void *offset) const {
+        VBO.bind();
+        glVertexAttribIPointer(layout, numComponents, type, stride, offset);
+        glEnableVertexAttribArray(layout);
+        VBO.unBind();
+    }
+
     void Vao::bind() const {
         glBindVertexArray(ID);
     }

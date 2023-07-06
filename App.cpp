@@ -1,5 +1,8 @@
 #include "App.h"
+#include "Resource/AnimLoader.h"
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "NullDereference"
 App::App(Camera* camera, int width, int height) : width(width), height(height), camera(camera) {
     rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
@@ -57,10 +60,16 @@ void App::Init() {
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
 
+    InitSnake();
+    animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
+    animRenderer->addPlay("KostraAction");
+    snake->getHeadTile()->setVisible(false);
+//    animRenderer->addPlay("Armature|Take 001|BaseLayer");
+//    animRenderer->addPlay("Kostra2Action.002");
+//    animRenderer->addPlay("Kostra3Action");
     bloomRenderer = new BloomRenderer(resourceManager, width, height);
     depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
-    InitSnake();
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     Barriers *barriers = InitBarriers();
@@ -102,6 +111,7 @@ void App::Init() {
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(snakeRenderer);
+    rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
@@ -111,7 +121,9 @@ void App::Init() {
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
-    auto *snakeMoveHandler = new SnakeMoveHandler(snake);
+    auto animHead = resourceManager->getAnimationModel("pacman");
+    animHead->setBaseItem(snake->getHeadTile());
+    auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
     auto *radarHandler = new RadarHandler(radar);
 
     collisionDetector = new CollisionDetector();
@@ -119,8 +131,9 @@ void App::Init() {
     collisionDetector->setBarriers(barriers);
     collisionDetector->addStaticItem(eat);
     snakeMoveHandler->setCollisionDetector(collisionDetector);
-    snakeMoveHandler->setStartMoveCallback([this]() {
+    snakeMoveHandler->setStartMoveCallback([this, animHead]() {
         if (this->levelManager) {
+            animHead->setGlobalPause(false);
             this->eatManager->run(Manager::EatManager::firstPlace);
             this->startText->fadeOut();
             char buff[100];
@@ -319,8 +332,11 @@ void App::InitResourceManager() {
     }
 
     const fs::path assets_dir{"Assets/Objects"};
+
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
+    resourceManager->addModel("tile", AnimLoader::loadObj(assets_dir / "Tile.obj"));
+    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
@@ -336,7 +352,6 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
-//    camera->upsideDownRotate();
     camera->updateStickyPoint();
     rendererManager->render();
     keyboardManager->runDefault();
@@ -392,7 +407,20 @@ void App::processInput(int keyCode) {
             } else {
                 alSourcePlay(musicSource);
             }
+            break;
+        case GLFW_KEY_1: // show classic red head
+            snake->getHeadTile()->setVisible(true);
+            animRenderer->setShow(false);
+            snakeRenderer->toggleStyle(1);
+            break;
+        case GLFW_KEY_2: // show animated pacman head
+            snake->getHeadTile()->setVisible(false);
+            animRenderer->setShow(true);
+            snakeRenderer->toggleStyle(2);
+            break;
         default:
             break;
     }
 }
+
+#pragma clang diagnostic pop

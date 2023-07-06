@@ -22,6 +22,7 @@ namespace Renderer {
             baseShader->setVec3("viewPos", camera->getPosition());
             baseShader->setBool("fogEnable", false);
             baseShader->setInt("texture_diffuse1", 0);
+            baseShader->setBool("useBones", false);
             baseShader->setFloat("TIME", lastFrame);
             texture->bind(0);
             model->getMesh()->bind();

@@ -20,6 +20,7 @@ namespace Renderer {
         void beforeRender() override;
         void afterRender() override;
         void toggleBlur();
+        void toggleStyle(int style);
 
     protected:
         void renderScene(ShaderManager* shader);
@@ -34,6 +35,7 @@ namespace Renderer {
         ResourceManager* resourceManager;
         Mesh* mesh;
         bool blur;
+        int renderStyle;
     };
 
 } // Renderer

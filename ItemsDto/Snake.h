@@ -26,7 +26,7 @@ namespace ItemsDto {
     struct sSNAKE_TILE {
         Cube* tile;
         eDIRECTION direction = NONE;
-        eDIRECTION prevPauseDirection;
+        eDIRECTION prevPauseDirection; // smer pred pauzou (je treba si zapamatovat smer nez doslo ke stisku pause)
         float alpha;
         vector<std::function<bool(sSNAKE_TILE*)>> moveCallbacks;
     };

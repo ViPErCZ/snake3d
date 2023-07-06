@@ -19,6 +19,8 @@ namespace ModelUtils {
         glm::vec2 texUV;
         glm::vec3 tangents;
         glm::vec2 biTangents;
+        int BoneIDs[4];
+        float Weights[4];
     };
 
     class Vbo {

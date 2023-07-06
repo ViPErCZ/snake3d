@@ -1,7 +1,7 @@
 #include "SnakeMoveHandler.h"
 
 namespace Handler {
-    SnakeMoveHandler::SnakeMoveHandler(Snake *snake) : snake(snake), eatenUpCallbackCalled(false) {
+    SnakeMoveHandler::SnakeMoveHandler(Snake *snake, AnimationModel* animHead) : snake(snake), animHead(animHead), eatenUpCallbackCalled(false) {
         snakeHead = (*snake->getItems().begin());
         stop = false;
     }
@@ -29,6 +29,7 @@ namespace Handler {
     void SnakeMoveHandler::StopMove() {
         if (!changeCallback) {
             stop = !stop;
+            animHead->setGlobalPause(stop);
         }
     }
 
@@ -58,10 +59,10 @@ namespace Handler {
 
                 switch (direction) {
                     case GLFW_KEY_J: // left
-                        head->direction = LEFT;
+                        head->direction = ItemsDto::LEFT;
                         break;
                     case GLFW_KEY_L: // right
-                        head->direction = RIGHT;
+                        head->direction = ItemsDto::RIGHT;
                         break;
                     case GLFW_KEY_I:
                         head->direction = UP;
@@ -76,7 +77,7 @@ namespace Handler {
                 for (auto Iter = snake->getItems().begin() + 1; Iter < snake->getItems().end(); Iter++) {
                     // prvni rozbehnuti tela je vzdy vpravo, protoze na startu je hlava vpravo od tela
                     if ((*Iter)->direction == NONE) {
-                        (*Iter)->direction = RIGHT;
+                        (*Iter)->direction = ItemsDto::RIGHT;
                     }
                 }
 
@@ -123,11 +124,11 @@ namespace Handler {
 
                 glm::vec3 pos = (*Iter)->tile->getPosition();
                 switch (direction) {
-                    case LEFT:
+                    case ItemsDto::LEFT:
                         pos.x -= UNIT_MOVE;
                         (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() - VIRTUAL_MOVE);
                         break;
-                    case RIGHT:
+                    case ItemsDto::RIGHT:
                         pos.x += UNIT_MOVE;
                         (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() + VIRTUAL_MOVE);
                         break;
@@ -195,7 +196,7 @@ namespace Handler {
 
         switch (direction) {
             case GLFW_KEY_L:
-                if (headTile->direction == LEFT || headTile->direction == RIGHT) {
+                if (headTile->direction == ItemsDto::LEFT || headTile->direction == ItemsDto::RIGHT) {
                     return false;
                 }
                 return true;
@@ -205,7 +206,7 @@ namespace Handler {
                 }
                 return true;
             case GLFW_KEY_J:
-                if (headTile->direction == RIGHT || headTile->direction == LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
+                if (headTile->direction == ItemsDto::RIGHT || headTile->direction == ItemsDto::LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
                     return false;
                 }
                 return true;
@@ -238,9 +239,9 @@ namespace Handler {
     eDIRECTION SnakeMoveHandler::findDirection(sSNAKE_TILE* snakeTile, sSNAKE_TILE* mySelf) {
         // najdi kosticku co je hned vedle
         if (snakeTile->tile->getPosition().x > mySelf->tile->getPosition().x) {
-            return RIGHT;
+            return ItemsDto::RIGHT;
         } else if (snakeTile->tile->getPosition().x < mySelf->tile->getPosition().x) {
-            return LEFT;
+            return ItemsDto::LEFT;
         } else if (snakeTile->tile->getPosition().y < mySelf->tile->getPosition().y) {
             return DOWN;
         } else if (snakeTile->tile->getPosition().y > mySelf->tile->getPosition().y) {
