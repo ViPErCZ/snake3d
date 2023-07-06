@@ -128,7 +128,6 @@ namespace ItemsDto {
 //        snakeTile->tile->setPosition({45, -3, -23});
         snakeTile->tile->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
         snakeTile->tile->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
-        snakeTile->tile->setVisible(true);
         snakeTile->direction = STOP;
         snakeTile->prevPauseDirection = NONE;
 

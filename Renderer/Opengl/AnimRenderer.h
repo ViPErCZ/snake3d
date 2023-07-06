@@ -26,9 +26,11 @@ namespace Renderer {
         void setShow(bool show);
 
     protected:
+        void renderScene(ShaderManager* shader);
         const AnimationModel* model;
         ResourceManager* resourceManager;
         ShaderManager* baseShader;
+        ShaderManager* shadowShader;
         glm::mat4 projection{};
         Camera* camera;
         vector<string> animationPlay;
