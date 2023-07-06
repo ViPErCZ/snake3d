@@ -46,31 +46,26 @@ namespace Renderer {
 
         switch (tile->direction) {
             case ItemsDto::RIGHT:
-                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::LEFT:
-                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {180, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::UP:
-                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {90, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             case ItemsDto::DOWN:
-                model->setGlobalPause(false);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {-90, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
                 break;
             default:
-                model->setGlobalPause(true);
                 model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
                 modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});

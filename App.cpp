@@ -121,8 +121,9 @@ void App::Init() {
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
-    resourceManager->getAnimationModel("pacman")->setBaseItem(snake->getHeadTile());
-    auto *snakeMoveHandler = new SnakeMoveHandler(snake);
+    auto animHead = resourceManager->getAnimationModel("pacman");
+    animHead->setBaseItem(snake->getHeadTile());
+    auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
     auto *radarHandler = new RadarHandler(radar);
 
     collisionDetector = new CollisionDetector();
@@ -130,8 +131,9 @@ void App::Init() {
     collisionDetector->setBarriers(barriers);
     collisionDetector->addStaticItem(eat);
     snakeMoveHandler->setCollisionDetector(collisionDetector);
-    snakeMoveHandler->setStartMoveCallback([this]() {
+    snakeMoveHandler->setStartMoveCallback([this, animHead]() {
         if (this->levelManager) {
+            animHead->setGlobalPause(false);
             this->eatManager->run(Manager::EatManager::firstPlace);
             this->startText->fadeOut();
             char buff[100];
@@ -333,6 +335,7 @@ void App::InitResourceManager() {
 
     resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
+    resourceManager->addModel("tile", AnimLoader::loadObj(assets_dir / "Tile.obj"));
     resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
 
     vector<string> faces;
@@ -408,10 +411,12 @@ void App::processInput(int keyCode) {
         case GLFW_KEY_1: // show classic red head
             snake->getHeadTile()->setVisible(true);
             animRenderer->setShow(false);
+            snakeRenderer->toggleStyle(1);
             break;
         case GLFW_KEY_2: // show animated pacman head
             snake->getHeadTile()->setVisible(false);
             animRenderer->setShow(true);
+            snakeRenderer->toggleStyle(2);
             break;
         default:
             break;

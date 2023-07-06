@@ -150,6 +150,8 @@ namespace Model {
             } catch (const std::exception &e) {
                 throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
             }
+        } else {
+            meta->last_time = std::chrono::steady_clock::now();
         }
     }
 
