@@ -14,6 +14,10 @@ Modern C++ Opengl 3D Snake example.
 
 ![Printscreen](Screens/printscreen.png "Printscreen")
 
+and press button "2" switch to new animated head style
+
+![Printscreen](Screens/animated.png "Animated Printscreen")
+
 and with shadows and skybox
 
 ![Printscreen](Screens/printscreen_shadows.png "Printscreen shadows")
