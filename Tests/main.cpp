@@ -14,7 +14,8 @@ TEST_CASE( "Checking if field is empty to place food..." ) {
     snake->reset();
     auto eat = new Eat;
     auto barriers = new Barriers;
-    auto eatLocation = new EatLocationHandler(barriers, snake, eat);
+    auto radar = new Radar;
+    auto eatLocation = new EatLocationHandler(barriers, snake, eat, radar);
     auto levelManager = new LevelManager(1, 3, barriers);
     levelManager->createLevel(2);
 
