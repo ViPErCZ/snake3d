@@ -72,14 +72,14 @@ void App::Init() {
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
-    Barriers *barriers = InitBarriers();
+    barriers = InitBarriers();
     radar = CreateRadar();
     InitRadar();
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
 
-    auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat);
+    auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
     eatManager = new EatManager(eatLocationHandler);
 
     snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
@@ -157,6 +157,8 @@ void App::Init() {
     });
     snakeMoveHandler->setCrashCallback([this]() {
         if (this->levelManager && this->barrierRenderer) {
+            snake->reset();
+            InitRadar();
             this->levelManager->setLive(this->levelManager->getLive() - 1);
             this->levelManager->setEatCounter(0);
             char buff[100];
@@ -290,7 +292,6 @@ Snake *App::InitSnake() {
 
 Barriers *App::InitBarriers() {
     barriers = new Barriers();
-    barriers->init();
 
     return barriers;
 }
@@ -306,6 +307,9 @@ void App::InitRadar() {
     if (resourceManager) {
         for (auto tile: snake->getItems()) {
             radar->addItem(tile->tile, {0.278,1.,0.});
+        }
+        for (auto block: barriers->getItems()) {
+            radar->addItem(block, {0.694,0.078,0.016});
         }
         radar->addItem(eat, {1.,0.953,0.});
     }

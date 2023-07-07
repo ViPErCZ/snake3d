@@ -75,7 +75,7 @@ private:
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
-    Radar* radar;
+    Radar* radar{};
     ObjWall* objWall{};
     Barriers* barriers{};
     Cube* skybox{};

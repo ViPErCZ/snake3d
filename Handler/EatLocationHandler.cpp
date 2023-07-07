@@ -1,8 +1,8 @@
 #include "EatLocationHandler.h"
 
 namespace Handler {
-    EatLocationHandler::EatLocationHandler(Barriers* barriers, Snake *snake, Eat *eat) :
-        barriers(barriers), eat(eat), snake(snake), counter(0) {
+    EatLocationHandler::EatLocationHandler(Barriers* barriers, Snake *snake, Eat *eat, Radar* radar) :
+        barriers(barriers), eat(eat), snake(snake), counter(0), radar(radar) {
     }
 
     EatLocationHandler::~EatLocationHandler() = default;
@@ -98,7 +98,10 @@ namespace Handler {
         counter++;
 
         for(int x = 0; x < counter + 1; x++) {
-            snake->addTile((*snake->getItems().begin())->direction);
+            auto tile = snake->addTile((*snake->getItems().begin())->direction);
+            if (tile != nullptr) {
+                radar->addItem(tile->tile, {0.278, 1., 0.});
+            }
         }
     }
 

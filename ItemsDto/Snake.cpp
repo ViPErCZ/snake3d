@@ -24,7 +24,7 @@ namespace ItemsDto {
         reset();
     }
 
-    void Snake::addTile(eDIRECTION aDirection) {
+    sSNAKE_TILE* Snake::addTile(eDIRECTION aDirection) {
         if (!tiles.empty()) {
             auto *snakeTile = new sSNAKE_TILE;
             snakeTile->tile = new Cube();
@@ -42,7 +42,7 @@ namespace ItemsDto {
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
                             delete snakeTile;
-                            return;
+                            return nullptr;
                         }
                         break;
                     case RIGHT:
@@ -51,7 +51,7 @@ namespace ItemsDto {
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
                             delete snakeTile;
-                            return;
+                            return nullptr;
                         }
                         break;
                     case UP:
@@ -60,7 +60,7 @@ namespace ItemsDto {
                             pos.y = (*PrevIter)->tile->getPosition().y - 2;
                         } else {
                             delete snakeTile;
-                            return;
+                            return nullptr;
                         }
                         break;
                     case DOWN:
@@ -69,7 +69,7 @@ namespace ItemsDto {
                             pos.y = (*PrevIter)->tile->getPosition().y + 2;
                         } else {
                             delete snakeTile;
-                            return;
+                            return nullptr;
                         }
                         break;
                     default:
@@ -83,7 +83,11 @@ namespace ItemsDto {
             snakeTile->tile->setVisible(true);
             snakeTile->prevPauseDirection = NONE;
             tiles.push_back(snakeTile);
+
+            return snakeTile;
         }
+
+        return nullptr;
     }
 
     const vector<sSNAKE_TILE *> &Snake::getItems() const {

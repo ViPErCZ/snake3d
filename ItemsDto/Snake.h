@@ -35,7 +35,7 @@ namespace ItemsDto {
     public:
         virtual ~Snake();
         void init() override;
-        void addTile(eDIRECTION aDirection);
+        sSNAKE_TILE* addTile(eDIRECTION aDirection);
         void reset();
         Cube* getHeadTile();
         [[nodiscard]] const vector<sSNAKE_TILE *> &getItems() const override;
