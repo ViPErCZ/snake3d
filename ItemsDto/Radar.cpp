@@ -1,16 +1,6 @@
 #include "Radar.h"
 
 namespace ItemsDto {
-    void Radar::addItem(const BaseItem *item, const TextureManager* texture) {
-        sRADAR_item radarItem{};
-        radarItem.item = item;
-        radarItem.texture = texture;
-        radarItem.radarPresent = new BaseItem();
-        radarItem.radarPresent->setVisible(true);
-        radarItem.radarPresent->setZoom({2,2,1});
-
-        items.push_back(radarItem);
-    }
 
     const vector<Radar::sRADAR_item> &Radar::getItems() const {
         return items;
@@ -27,4 +17,20 @@ namespace ItemsDto {
             (*Iter).radarPresent->setPosition(pos);
         }
     }
+
+    void Radar::addItem(const BaseItem *item, glm::vec3 color) {
+        sRADAR_item radarItem{};
+        radarItem.item = item;
+        radarItem.radarPresent = new BaseItem();
+        radarItem.radarPresent->setVisible(true);
+        radarItem.radarPresent->setZoom({2,2,1});
+        radarItem.color = color;
+
+        items.push_back(radarItem);
+    }
+
+    void Radar::reset() {
+        items.clear();
+    }
+
 } // ItemsDto
