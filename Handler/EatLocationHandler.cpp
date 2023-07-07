@@ -89,7 +89,7 @@ namespace Handler {
     }
 
     void EatLocationHandler::onCheckPlaceHandler() {
-        if (!eat->isVisible()) {
+        if (!eat->isVisible() && (*snake->getItems().begin())->direction > STOP && (*snake->getItems().begin())->direction < CRASH) {
             rePosition();
         }
     }

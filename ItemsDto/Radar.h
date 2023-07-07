@@ -14,12 +14,10 @@ namespace ItemsDto {
         struct sRADAR_item {
             const BaseItem* item;
             BaseItem* radarPresent;
-            const TextureManager* texture;
             glm::vec3 color;
         };
     public:
         void updatePositions();
-        void addItem(const BaseItem* item, const TextureManager* texture);
         void addItem(const BaseItem* item, glm::vec3 color);
         void reset();
         [[nodiscard]] const vector<Radar::sRADAR_item> &getItems() const;

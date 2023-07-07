@@ -173,11 +173,11 @@ void App::Init() {
             );
             std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
+            eat->setVisible(false);
             if (this->levelManager->getLive() == 0) { // Game Over
                 this->levelManager->createLevel(1);
                 this->startText->setVisible(true);
                 this->levelManager->setLive(3);
-                eat->setVisible(false);
                 cout << "crash callback call" << endl;
             }
         }
@@ -271,7 +271,7 @@ Eat *App::InitEat() {
     eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
 
     eat->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1});
-    eat->setVisible(true);
+    eat->setVisible(false);
 
     return eat;
 }
