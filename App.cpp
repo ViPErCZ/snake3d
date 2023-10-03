@@ -72,13 +72,14 @@ void App::Init() {
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
-    Barriers *barriers = InitBarriers();
-    Radar *radar = InitRadar();
+    barriers = InitBarriers();
+    radar = CreateRadar();
+    InitRadar();
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
 
-    auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat);
+    auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
     eatManager = new EatManager(eatLocationHandler);
 
     snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
@@ -156,6 +157,8 @@ void App::Init() {
     });
     snakeMoveHandler->setCrashCallback([this]() {
         if (this->levelManager && this->barrierRenderer) {
+            snake->reset();
+            InitRadar();
             this->levelManager->setLive(this->levelManager->getLive() - 1);
             this->levelManager->setEatCounter(0);
             char buff[100];
@@ -170,11 +173,11 @@ void App::Init() {
             );
             std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
+            eat->setVisible(false);
             if (this->levelManager->getLive() == 0) { // Game Over
                 this->levelManager->createLevel(1);
                 this->startText->setVisible(true);
                 this->levelManager->setLive(3);
-                eat->setVisible(false);
                 cout << "crash callback call" << endl;
             }
         }
@@ -203,6 +206,7 @@ void App::Init() {
                 this->eat->setVisible(false);
                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
                 this->eatManager->run(Manager::EatManager::clean);
+                InitRadar();
             } else {
                 this->eatManager->run(Manager::EatManager::eatenUp);
             }
@@ -267,7 +271,7 @@ Eat *App::InitEat() {
     eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
 
     eat->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1});
-    eat->setVisible(true);
+    eat->setVisible(false);
 
     return eat;
 }
@@ -288,13 +292,12 @@ Snake *App::InitSnake() {
 
 Barriers *App::InitBarriers() {
     barriers = new Barriers();
-    barriers->init();
 
     return barriers;
 }
 
-Radar *App::InitRadar() {
-    auto radar = new Radar();
+void App::InitRadar() {
+    radar->reset();
     radar->setVisible(true);
     radar->setPosition({125.0, 160.0, 0.0});
     radar->setZoom({100, 100, 1});
@@ -302,11 +305,18 @@ Radar *App::InitRadar() {
     radar->setHeight(176);
 
     if (resourceManager) {
-        if (snake) {
-            radar->addItem(snake->getHeadTile(), resourceManager->getTexture("radar_snake.bmp"));
+        for (auto tile: snake->getItems()) {
+            radar->addItem(tile->tile, {0.278,1.,0.});
         }
-        radar->addItem(eat, resourceManager->getTexture("eat.bmp"));
+        for (auto block: barriers->getItems()) {
+            radar->addItem(block, {0.694,0.078,0.016});
+        }
+        radar->addItem(eat, {1.,0.953,0.});
     }
+}
+
+Radar *App::CreateRadar() {
+    auto radar = new Radar();
 
     return radar;
 }

@@ -38,6 +38,7 @@ namespace Renderer {
             model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
 
             shader->setMat4("model", model);
+            shader->setBool("useMaterial", false);
 
             auto radarMesh = this->model->getMesh();
 
@@ -46,27 +47,30 @@ namespace Renderer {
             glDisable(GL_BLEND);
 
             int index = 0;
-            for (const auto& radarItem: radar->getItems()) {
-                glLoadIdentity();
-
-                radarItem.texture->bind();
-
-                glm::vec3 position = radarItem.radarPresent->getPosition();
-                glm::vec3 zoom = radarItem.radarPresent->getZoom();
-
-                // Initialize matrices
-                glm::mat4 model = glm::mat4(1.0f);
-
-                model = glm::translate(model, position);
-                model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
-
-                shader->setMat4("model", model);
-
-                glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-                index++;
-            }
-
             radar->updatePositions();
+
+            for (const auto& radarItem: radar->getItems()) {
+                if (radarItem.item->isVisible()) {
+                    glLoadIdentity();
+
+                    shader->setBool("useMaterial", true);
+                    shader->setVec3("Color", radarItem.color);
+
+                    glm::vec3 position = radarItem.radarPresent->getPosition();
+                    glm::vec3 zoom = radarItem.radarPresent->getZoom();
+
+                    // Initialize matrices
+                    glm::mat4 model = glm::mat4(1.0f);
+
+                    model = glm::translate(model, position);
+                    model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
+
+                    shader->setMat4("model", model);
+
+                    glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                    index++;
+                }
+            }
         }
     }
 

@@ -5,6 +5,7 @@
 #include "BaseHandler.h"
 #include "../Physic/CollisionDetector.h"
 #include "../ItemsDto/Eat.h"
+#include "../ItemsDto/Radar.h"
 #include <random>
 
 using namespace ItemsDto;
@@ -16,7 +17,7 @@ namespace Handler {
     class EatLocationHandler : public BaseHandler {
     public:
         ~EatLocationHandler() override;
-        explicit EatLocationHandler(Barriers* barriers, Snake* snake, Eat* eat);
+        explicit EatLocationHandler(Barriers* barriers, Snake* snake, Eat* eat, Radar* radar);
         void onDefaultHandler() override;
         void onFirstPlaceHandler();
         void onCheckPlaceHandler();
@@ -24,9 +25,10 @@ namespace Handler {
         bool rePosition();
         bool isFieldEmpty(int x, int y);
     protected:
-        Snake* snake{};
+        Radar* radar;
+        Snake* snake;
         Barriers* barriers;
-        Eat* eat{};
+        Eat* eat;
         void addTile();
         glm::vec2 getPosition();
         int counter;

@@ -102,11 +102,6 @@ namespace Handler {
                 }
             }
 
-            if (snakeHead->direction == CRASH) { // pokud je hlava mrtva, resetujeme hada
-                snake->reset();
-                return;
-            }
-
             if (snakeHead->direction == NONE || snakeHead->direction == STOP) {
                 return;
             }
@@ -172,10 +167,6 @@ namespace Handler {
                         crashCallback(); // doslo k narazu
                     }
                     changeCallback = nullptr;
-                    for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
-                        (*Iter)->direction = CRASH;
-                        (*Iter)->prevPauseDirection = NONE;
-                    }
                 }
             }
         }

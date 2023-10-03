@@ -14,11 +14,13 @@ namespace Manager {
                 break;
             case clean:
                 handler->onCleanHandler();
+                break;
             case firstPlace:
                 handler->onFirstPlaceHandler();
                 break;
             case checkPlace:
                 handler->onCheckPlaceHandler();
+                break;
             case none:
                 break;
         }
