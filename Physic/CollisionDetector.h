@@ -25,8 +25,8 @@ namespace Physic {
         void addStaticItem(BaseItem* item);
     protected:
         vector<BaseItem*> movingItems;
-        ObjWall* perimeter;
-        Barriers* barriers;
+        ObjWall*perimeter = nullptr;
+        Barriers*barriers = nullptr;
         vector<BaseItem*> staticItems;
     };
 

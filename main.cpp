@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "App.h"
 #include <iostream>
+#include <AL/alut.h>
 
 using namespace std;
 

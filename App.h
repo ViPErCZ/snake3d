@@ -5,7 +5,6 @@
 #include "ItemsDto/Snake.h"
 #include "ItemsDto/ObjWall.h"
 #include "Resource/ObjModelLoader.h"
-#include "Resource/ShaderLoader.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
@@ -14,10 +13,8 @@
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
 #include "Renderer/Opengl/DepthMapRenderer.h"
-#include "Handler/SnakeMoveHandler.h"
 #include "Handler/RadarHandler.h"
 #include "Handler/EatLocationHandler.h"
-#include "stdafx.h"
 #include "Renderer/Opengl/EatRenderer.h"
 #include "Renderer/Opengl/TextRenderer.h"
 #include "ItemsDto/Eat.h"
@@ -32,10 +29,8 @@
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Renderer/Opengl/AnimRenderer.h"
-#include <filesystem>
+#include "Particle/FireParticleSystem.h"
 #include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -47,6 +42,7 @@ using namespace Manager;
 using namespace Renderer;
 using namespace Handler;
 using namespace Resource;
+using namespace Particle;
 
 class App {
 public:
@@ -101,6 +97,7 @@ private:
     int height;
     ALuint musicSource{}, coinSource{};
     ALuint coinBuffer{}, musicBuffer{};
+    std::vector<std::unique_ptr<FireParticleSystem>> fires;
 };
 
 

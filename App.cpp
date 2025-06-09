@@ -1,5 +1,8 @@
+#include <AL/alc.h>
+#include <AL/alut.h>
 #include "App.h"
 #include "Resource/AnimLoader.h"
+#include "Resource/ShaderLoader.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "NullDereference"
@@ -59,6 +62,8 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/rain/rain.vs", "Assets/Shaders/rain/rain.fs")));
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
+    resourceManager->addShader("fire", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/fire/fire.vs", "Assets/Shaders/fire/fire.fs")));
 
     InitSnake();
     animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
@@ -91,10 +96,15 @@ void App::Init() {
     skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
     rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
     rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
-    auto storm = new BaseItem();
+    const auto storm = new BaseItem();
     storm->setVisible(false);
 
     initTexts();
+
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 0)));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 0)));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 19)));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 19)));
 
     animateEat = new Eat;
     animateEat->setVisible(false);
@@ -120,7 +130,7 @@ void App::Init() {
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
-    camera->setStickyPoint(snake->getHeadTile());
+    //camera->setStickyPoint(snake->getHeadTile());
 
     auto animHead = resourceManager->getAnimationModel("pacman");
     animHead->setBaseItem(snake->getHeadTile());
@@ -147,7 +157,7 @@ void App::Init() {
                      "Points left:",
                      MAX_POINT - this->levelManager->getEatCounter()
             );
-            std::string buffAsStdStr = buff;
+            const std::string buffAsStdStr = buff;
             this->tilesCounterText->setText(buffAsStdStr);
             if (this->tilesCounterText->getAlpha() == 1.0f) {
                 this->tilesCounterText->setAlpha(0.0f);
@@ -185,10 +195,8 @@ void App::Init() {
     snakeMoveHandler->setEatenUpCallback([this]() {
         if (this->levelManager && this->snake && this->barrierRenderer) {
             alSourcePlay (coinSource);
-            ALCenum error;
 
-            error = alGetError();
-            if (error != AL_NO_ERROR) {
+            if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
                 cout << "Sound error" << endl;
             }
 
@@ -362,8 +370,23 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
-    camera->updateStickyPoint();
-    rendererManager->render();
+    static float lastFrame = 0.0f;
+    const auto currentFrame = static_cast<float>(glfwGetTime());
+    float deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    // omez deltaTime
+    deltaTime = std::min(deltaTime, 0.05f);
+
+    camera->setPosition(glm::vec3(0, 5, 10));
+    camera->setFront(glm::vec3(0, -0.5f, -1));
+    camera->setUp(glm::vec3(0, 1, 0));
+
+    //camera->updateStickyPoint();
+    //rendererManager->render();
+    for (const auto& fire : fires) {
+        fire->update(deltaTime);
+        fire->draw(camera->getViewMatrix());
+    }
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);

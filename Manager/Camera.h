@@ -28,6 +28,10 @@ namespace Manager {
         void processMouseMovement(double x, double y);
         void processKeyboard(Camera_Movement direction, float deltaTime);
 
+        void setPosition(const glm::vec3& pos);
+        void setFront(const glm::vec3& front);
+        void setUp(const glm::vec3& up);
+
     protected:
         glm::vec3 position{};
         glm::vec3 front;

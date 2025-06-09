@@ -4,7 +4,7 @@ namespace Manager {
     Camera::Camera(glm::vec3 position, glm::vec3 up) : front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         this->position = position;
         worldUp = up;
-        zoom = 20;
+        zoom = 40;
         updateCameraVectors();
     }
 
@@ -48,6 +48,18 @@ namespace Manager {
 
     glm::vec3 Camera::getStickyPosition() {
         return stickyPoint->getPosition();
+    }
+
+    void Camera::setPosition(const glm::vec3& pos) {
+        position = pos;
+    }
+
+    void Camera::setFront(const glm::vec3& front) {
+        this->front = glm::normalize(front);
+    }
+
+    void Camera::setUp(const glm::vec3& up) {
+        this->up = up;
     }
 
     void Camera::processMouseMovement(double x, double y) {
