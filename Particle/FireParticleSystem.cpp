@@ -2,8 +2,8 @@
 #include <cstdlib>
 
 namespace Particle {
-    FireParticleSystem::FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin)
-        : resourceManager(resourceManager), origin(origin) {
+    FireParticleSystem::FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin, glm::mat4 proj)
+        : resourceManager(resourceManager), origin(origin), projection(proj) {
         shader = resourceManager->getShader("fire");
         texture = resourceManager->getTexture("fire.png");
 
@@ -14,14 +14,15 @@ namespace Particle {
 
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(FireParticle), nullptr, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(FireParticle), particles.data(), GL_DYNAMIC_DRAW);
 
-        glEnableVertexAttribArray(0); // position
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FireParticle),
-                              (void *) offsetof(FireParticle, position));
+        // Pos: location 0
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void*)offsetof(FireParticle, position));
 
-        glEnableVertexAttribArray(1); // color
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void *) offsetof(FireParticle, color));
+        // Color: location 1
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void*)offsetof(FireParticle, color));
 
         glBindVertexArray(0);
 
@@ -50,20 +51,38 @@ namespace Particle {
 
     void FireParticleSystem::draw(const glm::mat4 &viewProj) {
         shader->use();
-        shader->setMat4("uViewProj", viewProj);
+        shader->setMat4("uViewProj", projection * viewProj);
         texture->bind(0);
         shader->setInt("uTexture", 0);
 
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_PROGRAM_POINT_SIZE);
 
+        std::cout << "VAO bound: " << VAO << ", VBO: " << VBO << std::endl;
+
         glBindVertexArray(VAO);
+        GLint currentVAO = 0;
+        glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
+        std::cout << "Currently bound VAO: " << currentVAO << std::endl;
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(FireParticle), particles.data());
+
+        GLint bufferSize;
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        std::cout << "VBO size: " << bufferSize << ", expected: " << particles.size() * sizeof(FireParticle) << std::endl;
+        GLint posLoc = glGetAttribLocation(shader->getId(), "aPos");
+        GLint colLoc = glGetAttribLocation(shader->getId(), "aColor");
+        std::cout << "aPos loc: " << posLoc << ", aColor loc: " << colLoc << std::endl;
+
         glDrawArrays(GL_POINTS, 0, particles.size());
         glBindVertexArray(0);
 
         glDisable(GL_BLEND);
+
+        std::cout << "Drawing " << particles.size() << " particles." << std::endl;
+        while (auto err = glGetError()) {
+            std::cout << "GL Error after draw: " << std::hex << err << std::dec << "\n";
+        }
     }
 } // Particle

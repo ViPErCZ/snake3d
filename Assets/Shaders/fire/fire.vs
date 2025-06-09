@@ -9,5 +9,5 @@ uniform mat4 uViewProj;
 void main() {
     gl_Position = uViewProj * vec4(aPos, 1.0);
     vColor = aColor;
-    gl_PointSize = 32.0;
+    gl_PointSize = 64.0;
 }

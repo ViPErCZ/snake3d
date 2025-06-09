@@ -101,10 +101,10 @@ void App::Init() {
 
     initTexts();
 
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 0)));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 0)));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 19)));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 19)));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 0), projection));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 0), projection));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 19), projection));
+    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 19), projection));
 
     animateEat = new Eat;
     animateEat->setVisible(false);

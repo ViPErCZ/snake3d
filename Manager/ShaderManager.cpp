@@ -56,4 +56,7 @@ namespace Manager {
         glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
+    GLuint ShaderManager::getId() const {
+        return id;
+    }
 } // Manager

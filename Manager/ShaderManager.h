@@ -27,6 +27,7 @@ namespace Manager {
         void setMat2(const string &name, const glm::mat2 &mat) const;
         void setMat3(const string &name, const glm::mat3 &mat) const;
         void setMat4(const string &name, const glm::mat4 &mat) const;
+        [[nodiscard]] GLuint getId() const;
     protected:
         GLuint id;
     };

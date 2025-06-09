@@ -18,7 +18,7 @@ namespace Particle {
 
     class FireParticleSystem {
     public:
-        FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin);
+        FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin, glm::mat4 proj);
 
         void update(float deltaTime);
 
@@ -26,7 +26,7 @@ namespace Particle {
 
     private:
         void respawnParticle(FireParticle &particle);
-
+        glm::mat4 projection{};
         std::vector<FireParticle> particles;
         glm::vec3 origin;
 
