@@ -8,7 +8,6 @@ namespace Particle {
         texture = resourceManager->getTexture("fire.png");
 
         particles.resize(100);
-
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
 
@@ -16,19 +15,15 @@ namespace Particle {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, particles.size() * sizeof(FireParticle), particles.data(), GL_DYNAMIC_DRAW);
 
-        // Pos: location 0
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void*)offsetof(FireParticle, position));
 
-        // Color: location 1
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void*)offsetof(FireParticle, color));
-
         glBindVertexArray(0);
 
-        for (auto &p: particles) {
+        for (auto& p : particles)
             respawnParticle(p);
-        }
     }
 
     void FireParticleSystem::respawnParticle(FireParticle &p) {
@@ -51,38 +46,24 @@ namespace Particle {
 
     void FireParticleSystem::draw(const glm::mat4 &viewProj) {
         shader->use();
-        shader->setMat4("uViewProj", projection * viewProj);
+        shader->setMat4("uViewProj", glm::mat4(1.0f));
         texture->bind(0);
         shader->setInt("uTexture", 0);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_PROGRAM_POINT_SIZE);
+        glEnable(GL_POINT_SPRITE);
 
-        std::cout << "VAO bound: " << VAO << ", VBO: " << VBO << std::endl;
-
-        glBindVertexArray(VAO);
-        GLint currentVAO = 0;
-        glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &currentVAO);
-        std::cout << "Currently bound VAO: " << currentVAO << std::endl;
+        // Update particle data
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(FireParticle), particles.data());
 
-        GLint bufferSize;
-        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
-        std::cout << "VBO size: " << bufferSize << ", expected: " << particles.size() * sizeof(FireParticle) << std::endl;
-        GLint posLoc = glGetAttribLocation(shader->getId(), "aPos");
-        GLint colLoc = glGetAttribLocation(shader->getId(), "aColor");
-        std::cout << "aPos loc: " << posLoc << ", aColor loc: " << colLoc << std::endl;
-
+        glBindVertexArray(VAO);
         glDrawArrays(GL_POINTS, 0, particles.size());
         glBindVertexArray(0);
 
         glDisable(GL_BLEND);
-
-        std::cout << "Drawing " << particles.size() << " particles." << std::endl;
-        while (auto err = glGetError()) {
-            std::cout << "GL Error after draw: " << std::hex << err << std::dec << "\n";
-        }
+        glEnable(GL_DEPTH_TEST);
     }
 } // Particle

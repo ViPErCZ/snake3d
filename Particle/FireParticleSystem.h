@@ -19,9 +19,7 @@ namespace Particle {
     class FireParticleSystem {
     public:
         FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin, glm::mat4 proj);
-
         void update(float deltaTime);
-
         void draw(const glm::mat4 &viewProj);
 
     private:

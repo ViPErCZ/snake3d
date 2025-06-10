@@ -377,9 +377,10 @@ void App::run() {
     // omez deltaTime
     deltaTime = std::min(deltaTime, 0.05f);
 
-    camera->setPosition(glm::vec3(0, 5, 10));
-    camera->setFront(glm::vec3(0, -0.5f, -1));
-    camera->setUp(glm::vec3(0, 1, 0));
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    glClearColor(1.0, 1.0, 1.0, 0);
+    glViewport(0, 0, width, height);
 
     //camera->updateStickyPoint();
     //rendererManager->render();

@@ -1,4 +1,12 @@
+#version 330 core
+
+in vec4 vColor;
+
 out vec4 FragColor;
+
+uniform sampler2D uTexture;
+
 void main() {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0); // červená tečka
+    vec4 texColor = texture(uTexture, gl_PointCoord);
+    FragColor = texColor * vColor;
 }
