@@ -56,7 +56,6 @@ namespace Particle {
     }
 
     void SmokeParticleSystem::update(float dt, glm::vec3 offset) {
-        // Přidáme méně kouřových částic, ale s offsetem
         addParticle(offset);
 
         for (int i = 0; i < maxParticles; ++i) {
@@ -85,6 +84,7 @@ namespace Particle {
         smokeShader->use();
         smokeShader->setMat4("view", view);
         smokeShader->setMat4("projection", projection);
+        smokeShader->setFloat("overallSize", 0.4f);
         this->resourceManager.getTexture("smoke.png")->bind();
 
         // Připravíme data pro GPU
@@ -114,20 +114,19 @@ namespace Particle {
             if (particles[index].life <= 0.0f) {
                 SmokeParticle& p = particles[index];
 
-                // Rodí se v úzkém kruhu a na pozici ohně
-                glm::vec2 spawnDisk = glm::diskRand(0.1f); // Menší poloměr
-                p.position = glm::vec3(spawnDisk.x, 0.0f, spawnDisk.y) + offset;
+                glm::vec2 spawnDisk = glm::diskRand(0.05f);
+                p.position = glm::vec3(spawnDisk.x, 0.2f, spawnDisk.y) + offset; // Rodí se kousek nad ohněm
 
-                // Rychlost je hlavně vzhůru, s minimálním pohybem do stran
-                p.velocity.x = glm::linearRand(-0.05f, 0.05f);
-                p.velocity.y = glm::linearRand(0.3f, 0.7f); // Pomalejší stoupání
-                p.velocity.z = glm::linearRand(-0.05f, 0.05f);
+                p.velocity.x = glm::linearRand(-0.02f, 0.02f);
+                p.velocity.y = glm::linearRand(0.2f, 0.4f); // Mnohem pomalejší stoupání
+                p.velocity.z = glm::linearRand(-0.02f, 0.02f);
 
-                float greyTone = glm::linearRand(0.1f, 0.25f);
-                p.color = glm::vec4(greyTone + 0.02f, greyTone, greyTone, 0.5f);
-                p.life = 5.0f;
+                float greyTone = glm::linearRand(0.05f, 0.15f);
+                // Nižší počáteční alfa, aby byl kouř průhlednější
+                p.color = glm::vec4(greyTone + 0.05f, greyTone, greyTone, 0.25f);
+                p.life = 6.0f; // Delší životnost pro rozptýlení
 
-                p.size = glm::linearRand(0.05f, 0.1f); // Začíná menší
+                p.size = glm::linearRand(0.08f, 0.15f); // Výrazně menší počáteční velikost
                 p.rotation = glm::linearRand(0.0f, 2.0f * 3.14159f);
                 p.rotationSpeed = glm::linearRand(-0.2f, 0.2f);
 

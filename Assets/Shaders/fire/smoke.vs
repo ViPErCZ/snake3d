@@ -12,12 +12,13 @@ out vec4 ParticleColor;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform float overallSize;
 
 void main() {
     TexCoords = aTexCoords;
     ParticleColor = instanceColor;
 
-    float particleSize = sizeAndRotation.x;
+    float particleSize = sizeAndRotation.x * overallSize;
     float particleRotation = sizeAndRotation.y;
 
     // Rotační matice pro 2D rotaci billboardu

@@ -396,8 +396,8 @@ void App::run() {
     rendererManager->render();
     fires->update(deltaTime);
     smokes->update(deltaTime, glm::vec3(0.0f, 3.0f, -0.8f));
-    fires->render(camera->getViewMatrix(), projection);
     smokes->render(camera->getViewMatrix(), projection);
+    fires->render(camera->getViewMatrix(), projection);
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);
