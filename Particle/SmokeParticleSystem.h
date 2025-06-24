@@ -1,8 +1,7 @@
 #ifndef SMOKEPARTICLESYSTEM_H
 #define SMOKEPARTICLESYSTEM_H
 
-#include "../Manager/TextureManager.h"
-#include "../Manager/ResourceManager.h"
+#include "FireParticleSystem.h"
 
 namespace Particle {
     struct SmokeParticle {
@@ -17,22 +16,23 @@ namespace Particle {
 
     class SmokeParticleSystem {
     public:
-        SmokeParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin, const glm::mat4 &proj);
-        void update(float deltaTime);
-        void draw(const glm::mat4 &viewProj);
+        SmokeParticleSystem(ResourceManager& resourceManager, int maxParticles);
+
+        void update(float dt);
+        void render(const glm::mat4& view, const glm::mat4& projection);
 
     private:
-        void respawnParticle(SmokeParticle &particle);
-        glm::mat4 projection{};
-        std::vector<SmokeParticle> particles;
-        glm::vec3 origin;
+        void init();
+        void addParticle();
 
-        ShaderManager* shader;
-        TextureManager* texture;
-        // std::shared_ptr<TextureManager> texture;
+        std::vector<FireParticle> particles;
+        int maxParticles;
 
-        unsigned int VAO{}, VBO{};
-        ResourceManager *resourceManager;
+        unsigned int VAO{};
+        unsigned int quadVBO{}, instanceVBO{};
+
+        ResourceManager& resourceManager;
+        int lastUsedParticle = 0;
     };
 }
 

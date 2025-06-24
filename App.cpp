@@ -105,10 +105,11 @@ void App::Init() {
     initTexts();
 
     fires = new FireParticleSystem(*resourceManager, 500); // 500 = počet částic
+    smokes = new SmokeParticleSystem(*resourceManager, 500); // 500 = počet částic
     //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
-    smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
+    // smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
     //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
-    smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
+    // smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
     // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 49), projection));
     // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(49, 0, 49), projection));
 
@@ -394,11 +395,9 @@ void App::run() {
     camera->updateStickyPoint();
     rendererManager->render();
     fires->update(deltaTime);
+    smokes->update(deltaTime);
     fires->render(camera->getViewMatrix(), projection);
-    for (const auto& smoke : smokes) {
-        smoke->update(deltaTime);
-        smoke->draw(camera->getViewMatrix());
-    }
+    smokes->render(camera->getViewMatrix(), projection);
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);

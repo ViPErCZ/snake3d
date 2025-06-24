@@ -100,7 +100,7 @@ private:
     ALuint musicSource{}, coinSource{};
     ALuint coinBuffer{}, musicBuffer{};
     FireParticleSystem* fires;
-    std::vector<std::unique_ptr<SmokeParticleSystem>> smokes;
+    SmokeParticleSystem* smokes;
 };
 
 
