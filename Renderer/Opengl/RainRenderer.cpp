@@ -4,7 +4,7 @@ Renderer::RainRenderer::RainRenderer(BaseItem *item, Camera *camera, glm::mat4 p
         : BaseRenderer(item), resourceManager(resourceManager), camera(camera), projection(proj), enable(false) {
     baseShader = resourceManager->getShader("rain");
     texture = resourceManager->getTexture("rain.jpg");
-    model = new RainModel(item, 6000);
+    model = new RainModel(item, 500);
 }
 
 Renderer::RainRenderer::~RainRenderer() {
@@ -44,6 +44,7 @@ void Renderer::RainRenderer::renderShadowMap() {
 void Renderer::RainRenderer::beforeRender() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDepthMask(GL_FALSE);
 //    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
     auto currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;

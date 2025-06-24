@@ -33,6 +33,7 @@ namespace Model {
         glm::mat4 global_inverse;
         unordered_map<string, AnimationMeta*> metadata;
         bool globalPause;
+        float acceleration;
     public:
         AnimationModel(BaseItem* item, vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
                        decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map, const glm::mat4& _global_matrix);
@@ -52,6 +53,7 @@ namespace Model {
         BaseItem *getBaseItem() const;
         void setBaseItem(BaseItem *baseItem);
         void setGlobalPause(bool globalPause);
+        void setAcceleration(float acceleration);
     };
 
 } // Model

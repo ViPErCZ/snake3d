@@ -14,9 +14,7 @@ namespace ItemsDto {
     }
 
     void GameField::Init() {
-        Cube* field;
-
-        field = new Cube();
+        auto *field = new Cube();
         field->setPosition({0.0f, 0.0f, 0.0f});
         field->setZoom({1, 1, 0.0});
         field->setVisible(true);

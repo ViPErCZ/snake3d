@@ -24,6 +24,7 @@ namespace Renderer {
         void afterRender() override;
         void addPlay(const string& name);
         void setShow(bool show);
+        void setAcceleration(float acceleration) const;
 
     protected:
         void renderScene(ShaderManager* shader);

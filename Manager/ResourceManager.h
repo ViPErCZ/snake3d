@@ -27,10 +27,10 @@ namespace Manager {
         void addShader(const string& name, const shared_ptr<ShaderManager>& res);
         void addModel(const string& name, shared_ptr<ObjItem> res);
         void addModel(const string& name, shared_ptr<AnimationModel> res);
-        TextureManager* getTexture(const string &name);
-        ShaderManager* getShader(const string &name);
-        ObjItem* getModel(const string &name);
-        AnimationModel* getAnimationModel(const string &name);
+        TextureManager* getTexture(const string &name) const;
+        ShaderManager* getShader(const string &name) const;
+        ObjItem* getModel(const string &name) const;
+        AnimationModel* getAnimationModel(const string &name) const;
         bool Release();
     protected:
         mutable std::mutex mutex {};

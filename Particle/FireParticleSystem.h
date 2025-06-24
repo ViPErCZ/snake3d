@@ -8,33 +8,34 @@
 #include "../Manager/TextureManager.h"
 #include "../Manager/ResourceManager.h"
 
-namespace Particle {
-    struct FireParticle {
-        glm::vec3 position;
-        glm::vec3 velocity;
-        float life;
-        glm::vec4 color;
-    };
 
-    class FireParticleSystem {
-    public:
-        FireParticleSystem(ResourceManager *resourceManager, const glm::vec3 &origin, glm::mat4 proj);
-        void update(float deltaTime);
-        void draw(const glm::mat4 &viewProj);
+// FireParticle struct (zůstává stejná)
+struct FireParticle {
+    glm::vec3 position, velocity;
+    glm::vec4 color;
+    float life;
+};
 
-    private:
-        void respawnParticle(FireParticle &particle);
-        glm::mat4 projection{};
-        std::vector<FireParticle> particles;
-        glm::vec3 origin;
+class FireParticleSystem {
+public:
+    FireParticleSystem(ResourceManager& resourceManager, int maxParticles);
 
-        ShaderManager* shader;
-        TextureManager* texture;
-        // std::shared_ptr<TextureManager> texture;
+    void update(float dt);
+    void render(const glm::mat4& view, const glm::mat4& projection) const;
 
-        unsigned int VAO{}, VBO{};
-        ResourceManager *resourceManager;
-    };
-} // Particle
+private:
+    void init();
+    void addParticle();
+
+    std::vector<FireParticle> particles;
+    int maxParticles;
+
+    // VAO a VBO buffery jsou nyní členské proměnné
+    unsigned int VAO{};
+    unsigned int quadVBO{}, instanceVBO{};
+
+    ResourceManager& resourceManager;
+    int lastUsedParticle = 0;
+};
 
 #endif //FIREPARTICLESYSTEM_H

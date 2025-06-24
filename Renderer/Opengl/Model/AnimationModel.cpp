@@ -11,6 +11,7 @@ namespace Model {
             baseItem(item), meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
             skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(true) {
 
+        this->acceleration = 1.0;
         this->meshes.erase(
                 std::remove_if(
                         this->meshes.begin(),
@@ -109,7 +110,7 @@ namespace Model {
                 meta->last_time = current_time;
             }
             const auto delta_time = current_time - meta->last_time;
-            meta->animation_duration += delta_time;
+            meta->animation_duration += delta_time * this->acceleration;
             meta->last_time = current_time;
             const auto animation_time = glm::mod(meta->animation_duration.count() * anim.tps, anim.duration);
 
@@ -172,6 +173,10 @@ namespace Model {
         for (auto &meta: metadata) {
             meta.second->pause = globalPause;
         }
+    }
+
+    void AnimationModel::setAcceleration(const float acceleration) {
+        this->acceleration = acceleration;
     }
 
 } // Model

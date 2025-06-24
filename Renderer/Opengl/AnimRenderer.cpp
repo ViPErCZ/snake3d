@@ -125,8 +125,11 @@ namespace Renderer {
         animationPlay.push_back(name);
     }
 
-    void AnimRenderer::setShow(bool show) {
+    void AnimRenderer::setShow(const bool show) {
         AnimRenderer::show = show;
     }
 
+    void AnimRenderer::setAcceleration(const float acceleration) const {
+        model->setAcceleration(acceleration);
+    }
 } // Renderer

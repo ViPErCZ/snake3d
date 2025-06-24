@@ -57,17 +57,20 @@ void App::Init() {
     resourceManager->addShader("debugQuadShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
     resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/light.fs")));
+            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/bloom.fs")));
     resourceManager->addShader("rain", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/rain/rain.vs", "Assets/Shaders/rain/rain.fs")));
     resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
     resourceManager->addShader("fire", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/fire/fire.vs", "Assets/Shaders/fire/fire.fs")));
+    resourceManager->addShader("smoke", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/fire/smoke.vs", "Assets/Shaders/fire/smoke.fs")));
 
     InitSnake();
     animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
     animRenderer->addPlay("KostraAction");
+    animRenderer->setAcceleration(2.2f);
     snake->getHeadTile()->setVisible(false);
 //    animRenderer->addPlay("Armature|Take 001|BaseLayer");
 //    animRenderer->addPlay("Kostra2Action.002");
@@ -101,10 +104,13 @@ void App::Init() {
 
     initTexts();
 
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 0), projection));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 0), projection));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 19), projection));
-    fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(19, 0, 19), projection));
+    fires = new FireParticleSystem(*resourceManager, 500); // 500 = počet částic
+    //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
+    smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
+    //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
+    smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
+    // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 49), projection));
+    // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(49, 0, 49), projection));
 
     animateEat = new Eat;
     animateEat->setVisible(false);
@@ -130,7 +136,7 @@ void App::Init() {
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
-    //camera->setStickyPoint(snake->getHeadTile());
+    camera->setStickyPoint(snake->getHeadTile());
 
     auto animHead = resourceManager->getAnimationModel("pacman");
     animHead->setBaseItem(snake->getHeadTile());
@@ -355,6 +361,7 @@ void App::InitResourceManager() {
     resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
     resourceManager->addModel("tile", AnimLoader::loadObj(assets_dir / "Tile.obj"));
     resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
+    resourceManager->addModel("torch", ObjModelLoader::loadObj(assets_dir / "torch.obj"));
 
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
@@ -370,6 +377,8 @@ void App::InitResourceManager() {
 }
 
 void App::run() {
+    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float) width / (float) height, 1.5f,
+                                            2600.0f);
     static float lastFrame = 0.0f;
     const auto currentFrame = static_cast<float>(glfwGetTime());
     float deltaTime = currentFrame - lastFrame;
@@ -379,14 +388,16 @@ void App::run() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
-    glClearColor(1.0, 1.0, 1.0, 0);
+    glClearColor(.0, .0, .0, 0);
     glViewport(0, 0, width, height);
 
-    //camera->updateStickyPoint();
-    //rendererManager->render();
-    for (const auto& fire : fires) {
-        fire->update(deltaTime);
-        fire->draw(camera->getViewMatrix());
+    camera->updateStickyPoint();
+    rendererManager->render();
+    fires->update(deltaTime);
+    fires->render(camera->getViewMatrix(), projection);
+    for (const auto& smoke : smokes) {
+        smoke->update(deltaTime);
+        smoke->draw(camera->getViewMatrix());
     }
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti

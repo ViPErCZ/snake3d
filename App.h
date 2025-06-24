@@ -32,6 +32,8 @@
 #include "Particle/FireParticleSystem.h"
 #include <AL/al.h>
 
+#include "Particle/SmokeParticleSystem.h"
+
 #define MAX_POINT 6
 #define MAX_LIVES 4
 #define START_LEVEL 1
@@ -97,7 +99,8 @@ private:
     int height;
     ALuint musicSource{}, coinSource{};
     ALuint coinBuffer{}, musicBuffer{};
-    std::vector<std::unique_ptr<FireParticleSystem>> fires;
+    FireParticleSystem* fires;
+    std::vector<std::unique_ptr<SmokeParticleSystem>> smokes;
 };
 
 

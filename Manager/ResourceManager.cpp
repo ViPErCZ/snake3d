@@ -15,13 +15,12 @@ namespace Manager {
 
     void ResourceManager::addTexture(const string& name, const shared_ptr<TextureManager>& res) {
         std::unique_lock lock(mutex);
-        const auto result = texture.emplace(name, res);
-        if (!result.second) {
+        if (const auto [fst, snd] = texture.emplace(name, res); !snd) {
             throw invalid_argument("Failed to add texture " + name + ", already contains.");
         }
     }
 
-    TextureManager* ResourceManager::getTexture(const string &name) {
+    TextureManager* ResourceManager::getTexture(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return texture.at(name).get();
@@ -32,21 +31,19 @@ namespace Manager {
 
     void ResourceManager::addModel(const string &name, std::shared_ptr<ObjItem> res) {
         std::unique_lock lock(mutex);
-        const auto result = model.emplace(name, std::move(res));
-        if (!result.second) {
+        if (const auto [fst, snd] = model.emplace(name, std::move(res)); !snd) {
             throw invalid_argument("Failed to add model " + name + ", already contains.");
         }
     }
 
     void ResourceManager::addModel(const string &name, std::shared_ptr<AnimationModel> res) {
         std::unique_lock lock(mutex);
-        const auto result = animationModel.emplace(name, std::move(res));
-        if (!result.second) {
+        if (const auto [fst, snd] = animationModel.emplace(name, std::move(res)); !snd) {
             throw invalid_argument("Failed to add model " + name + ", already contains.");
         }
     }
 
-    ObjItem* ResourceManager::getModel(const string &name) {
+    ObjItem* ResourceManager::getModel(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return model.at(name).get();
@@ -55,7 +52,7 @@ namespace Manager {
         }
     }
 
-    AnimationModel* ResourceManager::getAnimationModel(const string &name) {
+    AnimationModel* ResourceManager::getAnimationModel(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return animationModel.at(name).get();
@@ -66,13 +63,12 @@ namespace Manager {
 
     void ResourceManager::addShader(const string &name, const shared_ptr<ShaderManager> &res) {
         std::unique_lock lock(mutex);
-        const auto result = shader.emplace(name, res);
-        if (!result.second) {
+        if (const auto [fst, snd] = shader.emplace(name, res); !snd) {
             throw invalid_argument("Failed to add baseShader " + name + ", already contains.");
         }
     }
 
-    ShaderManager *ResourceManager::getShader(const string &name) {
+    ShaderManager *ResourceManager::getShader(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return shader.at(name).get();
