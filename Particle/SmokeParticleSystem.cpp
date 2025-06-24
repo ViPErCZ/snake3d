@@ -64,12 +64,17 @@ namespace Particle {
                 p.life -= dt;
                 p.position += p.velocity * dt;
 
-                // Přidáme lehký vítr, který kouř odnáší
-                p.position.x += 0.1f * dt;
+                // Lehký vítr zůstává
+                p.position.x += 0.08f * dt;
+
+                // **NOVINKA: Částice postupně zpomaluje (simulace odporu vzduchu)**
+                // Každý snímek ztratí kousek své rychlosti.
+                // Můžeš experimentovat s hodnotou 0.995f. Čím menší, tím dříve se zastaví.
+                p.velocity *= 0.995f;
 
                 p.rotation += p.rotationSpeed * dt;
-                p.size += dt * 0.05f; // Zpomalíme růst velikosti
-                p.color.a = glm::smoothstep(0.0f, 0.5f, p.life / 5.0f); // Bledne pomaleji a více postupně
+                p.size += dt * 0.03f;
+                p.color.a = glm::smoothstep(0.0f, 0.4f, p.life / 3.0f); // Životnost je nyní kratší
             }
         }
     }
@@ -84,7 +89,7 @@ namespace Particle {
         smokeShader->use();
         smokeShader->setMat4("view", view);
         smokeShader->setMat4("projection", projection);
-        smokeShader->setFloat("overallSize", 0.4f);
+        smokeShader->setFloat("overallSize", 0.07f);
         this->resourceManager.getTexture("smoke.png")->bind();
 
         // Připravíme data pro GPU
@@ -114,19 +119,19 @@ namespace Particle {
             if (particles[index].life <= 0.0f) {
                 SmokeParticle& p = particles[index];
 
-                glm::vec2 spawnDisk = glm::diskRand(0.05f);
-                p.position = glm::vec3(spawnDisk.x, 0.2f, spawnDisk.y) + offset; // Rodí se kousek nad ohněm
+                glm::vec2 spawnDisk = glm::diskRand(0.1f);
+                p.position = glm::vec3(spawnDisk.x, 0.2f, spawnDisk.y) + offset;
 
-                p.velocity.x = glm::linearRand(-0.02f, 0.02f);
-                p.velocity.y = glm::linearRand(0.2f, 0.4f); // Mnohem pomalejší stoupání
-                p.velocity.z = glm::linearRand(-0.02f, 0.02f);
+                // **VÝRAZNĚ SNÍŽENÁ RYCHLOST A ŽIVOTNOST**
+                p.velocity.x = glm::linearRand(-0.03f, 0.03f);
+                p.velocity.y = glm::linearRand(0.15f, 0.35f); // Kouř stoupá mnohem pomaleji
+                p.velocity.z = glm::linearRand(-0.03f, 0.03f);
 
                 float greyTone = glm::linearRand(0.05f, 0.15f);
-                // Nižší počáteční alfa, aby byl kouř průhlednější
                 p.color = glm::vec4(greyTone + 0.05f, greyTone, greyTone, 0.25f);
-                p.life = 6.0f; // Delší životnost pro rozptýlení
+                p.life = 3.0f; // Životnost zkrácena na 3 sekundy (z 5.0f)
 
-                p.size = glm::linearRand(0.08f, 0.15f); // Výrazně menší počáteční velikost
+                p.size = glm::linearRand(0.08f, 0.15f);
                 p.rotation = glm::linearRand(0.0f, 2.0f * 3.14159f);
                 p.rotationSpeed = glm::linearRand(-0.2f, 0.2f);
 
