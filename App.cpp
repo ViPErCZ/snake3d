@@ -395,7 +395,7 @@ void App::run() {
     camera->updateStickyPoint();
     rendererManager->render();
     fires->update(deltaTime);
-    smokes->update(deltaTime);
+    smokes->update(deltaTime, glm::vec3(0.0f, 3.0f, -0.8f));
     fires->render(camera->getViewMatrix(), projection);
     smokes->render(camera->getViewMatrix(), projection);
     keyboardManager->runDefault();

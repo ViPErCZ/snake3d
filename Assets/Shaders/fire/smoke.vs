@@ -1,19 +1,36 @@
 #version 330 core
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec4 aColor;
-layout(location = 2) in float aSize;
 
-out vec4 vColor;
-uniform mat4 uViewProj;
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoords;
+layout (location = 2) in vec3 instancePosition;
+layout (location = 3) in vec4 instanceColor;
+// Přidáme další atributy pro každou instanci
+layout (location = 4) in vec2 sizeAndRotation; // x = velikost, y = rotace v radiánech
+
+out vec2 TexCoords;
+out vec4 ParticleColor;
+
+uniform mat4 view;
+uniform mat4 projection;
 
 void main() {
-    gl_Position = uViewProj * vec4(aPos,1.0);
-    float life = aColor.a;
-    if (aSize < 0.1) {
-        gl_PointSize = 20.0;
-    } else {
-        gl_PointSize = aSize;
-    }
+    TexCoords = aTexCoords;
+    ParticleColor = instanceColor;
 
-    vColor = aColor;
+    float particleSize = sizeAndRotation.x;
+    float particleRotation = sizeAndRotation.y;
+
+    // Rotační matice pro 2D rotaci billboardu
+    mat2 rotMatrix = mat2(
+        cos(particleRotation), -sin(particleRotation),
+        sin(particleRotation),  cos(particleRotation)
+    );
+    vec2 rotatedPos = rotMatrix * aPos;
+
+    vec3 cameraRight = vec3(view[0][0], view[1][0], view[2][0]);
+    vec3 cameraUp = vec3(view[0][1], view[1][1], view[2][1]);
+
+    vec3 pos = instancePosition + (cameraRight * rotatedPos.x + cameraUp * rotatedPos.y) * particleSize;
+
+    gl_Position = projection * view * vec4(pos, 1.0);
 }

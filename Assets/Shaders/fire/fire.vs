@@ -10,7 +10,7 @@ out vec4 ParticleColor;
 
 uniform mat4 view;
 uniform mat4 projection;
-uniform float particleSize; // ZMĚNA: Velikost je nyní uniform proměnná
+uniform float particleSize;
 
 void main() {
     TexCoords = aTexCoords;

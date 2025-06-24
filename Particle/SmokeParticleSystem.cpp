@@ -3,8 +3,15 @@
 #include <glm/gtc/random.hpp>
 
 namespace Particle {
-    SmokeParticleSystem::SmokeParticleSystem(ResourceManager &resourceManager, const int maxParticles)
-        : maxParticles(maxParticles), resourceManager(resourceManager) {
+    // Vytvoříme si pomocnou strukturu pro posílání dat do VBO, aby odpovídala atributům v shaderu
+    struct SmokeParticleGPUData {
+        glm::vec3 position;
+        glm::vec4 color;
+        glm::vec2 sizeAndRotation;
+    };
+
+    SmokeParticleSystem::SmokeParticleSystem(ResourceManager& resourceManager, int maxParticles)
+        : resourceManager(resourceManager), maxParticles(maxParticles) {
         init();
     }
 
@@ -28,66 +35,72 @@ namespace Particle {
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
+
+
         glGenBuffers(1, &instanceVBO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, maxParticles * sizeof(FireParticle), nullptr, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FireParticle),
-                              (void *) offsetof(FireParticle, position));
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(FireParticle), (void *) offsetof(FireParticle, color));
+        glBufferData(GL_ARRAY_BUFFER, maxParticles * sizeof(SmokeParticleGPUData), nullptr, GL_DYNAMIC_DRAW);
+
+        glEnableVertexAttribArray(2); // Pozice
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SmokeParticleGPUData), (void*)offsetof(SmokeParticleGPUData, position));
+        glEnableVertexAttribArray(3); // Barva
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SmokeParticleGPUData), (void*)offsetof(SmokeParticleGPUData, color));
+        glEnableVertexAttribArray(4); // Velikost a rotace
+        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(SmokeParticleGPUData), (void*)offsetof(SmokeParticleGPUData, sizeAndRotation));
+
         glVertexAttribDivisor(2, 1);
         glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+
         glBindVertexArray(0);
     }
 
-    void SmokeParticleSystem::update(float dt) {
-        // Přidáváme méně kouřových částic než ohnivých
-        addParticle();
+    void SmokeParticleSystem::update(float dt, glm::vec3 offset) {
+        // Přidáme méně kouřových částic, ale s offsetem
+        addParticle(offset);
 
         for (int i = 0; i < maxParticles; ++i) {
-            FireParticle &p = particles[i];
+            SmokeParticle& p = particles[i];
             if (p.life > 0.0f) {
                 p.life -= dt;
                 p.position += p.velocity * dt;
 
-                // Kouř postupně bledne
-                p.color.a = glm::smoothstep(0.0f, 1.0f, p.life / 4.0f);
+                // Přidáme lehký vítr, který kouř odnáší
+                p.position.x += 0.1f * dt;
+
+                p.rotation += p.rotationSpeed * dt;
+                p.size += dt * 0.05f; // Zpomalíme růst velikosti
+                p.color.a = glm::smoothstep(0.0f, 0.5f, p.life / 5.0f); // Bledne pomaleji a více postupně
             }
         }
     }
 
-    void SmokeParticleSystem::render(const glm::mat4 &view, const glm::mat4 &projection) {
+    void SmokeParticleSystem::render(const glm::mat4& view, const glm::mat4& projection) {
         glEnable(GL_BLEND);
-        // **KLÍČOVÁ ZMĚNA: Normální alfa blending pro kouř**
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
 
-        // Můžeme znovu použít stejný shader jako pro oheň!
-        auto smokeShader = this->resourceManager.getShader("fire");
+        // Použijeme nový shader pro kouř
+        const auto smokeShader = this->resourceManager.getShader("smoke");
         smokeShader->use();
         smokeShader->setMat4("view", view);
         smokeShader->setMat4("projection", projection);
-
-        // Zvětšíme částice kouře, aby byl efekt plnější
-        smokeShader->setFloat("particleSize", 0.008f);
-
-        // Použijeme texturu kouře
         this->resourceManager.getTexture("smoke.png")->bind();
 
-        std::vector<FireParticle> liveParticles;
-        liveParticles.reserve(maxParticles);
-        for (const auto &p: particles) {
+        // Připravíme data pro GPU
+        std::vector<SmokeParticleGPUData> gpuData;
+        gpuData.reserve(particles.size());
+        for (const auto& p : particles) {
             if (p.life > 0.0f) {
-                liveParticles.push_back(p);
+                gpuData.push_back({p.position, p.color, {p.size, p.rotation}});
             }
         }
 
-        if (!liveParticles.empty()) {
+        if (!gpuData.empty()) {
             glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, liveParticles.size() * sizeof(FireParticle), liveParticles.data());
+            glBufferSubData(GL_ARRAY_BUFFER, 0, gpuData.size() * sizeof(SmokeParticleGPUData), gpuData.data());
             glBindVertexArray(VAO);
-            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, liveParticles.size());
+            glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, gpuData.size());
             glBindVertexArray(0);
         }
 
@@ -95,25 +108,29 @@ namespace Particle {
         glDisable(GL_BLEND);
     }
 
-    void SmokeParticleSystem::addParticle() {
+    void SmokeParticleSystem::addParticle(glm::vec3 offset) {
         for (int i = 0; i < maxParticles; ++i) {
             int index = (lastUsedParticle + i) % maxParticles;
             if (particles[index].life <= 0.0f) {
-                FireParticle &p = particles[index];
+                SmokeParticle& p = particles[index];
 
-                // Rodí se na stejném místě jako oheň
-                glm::vec2 spawnDisk = glm::diskRand(0.015f);
-                p.position = glm::vec3(spawnDisk.x,3.0f, -0.8f);
+                // Rodí se v úzkém kruhu a na pozici ohně
+                glm::vec2 spawnDisk = glm::diskRand(0.1f); // Menší poloměr
+                p.position = glm::vec3(spawnDisk.x, 0.0f, spawnDisk.y) + offset;
 
-                // Rychlost kouře je pomalejší a více se rozptyluje
-                p.velocity.x = glm::linearRand(-0.005f, 0.005f);
-                p.velocity.y = glm::linearRand(0.04f, 0.07f); // Stoupá pomaleji než oheň
+                // Rychlost je hlavně vzhůru, s minimálním pohybem do stran
+                p.velocity.x = glm::linearRand(-0.05f, 0.05f);
+                p.velocity.y = glm::linearRand(0.3f, 0.7f); // Pomalejší stoupání
                 p.velocity.z = glm::linearRand(-0.05f, 0.05f);
 
-                // Barva kouře - tmavě šedá s náhodnou světlostí
-                float greyTone = glm::linearRand(0.2f, 0.4f);
-                p.color = glm::vec4(greyTone, greyTone, greyTone, 0.7f); // Začíná poloprůhledný
-                p.life = 4.0f; // Žije déle než oheň
+                float greyTone = glm::linearRand(0.1f, 0.25f);
+                p.color = glm::vec4(greyTone + 0.02f, greyTone, greyTone, 0.5f);
+                p.life = 5.0f;
+
+                p.size = glm::linearRand(0.05f, 0.1f); // Začíná menší
+                p.rotation = glm::linearRand(0.0f, 2.0f * 3.14159f);
+                p.rotationSpeed = glm::linearRand(-0.2f, 0.2f);
+
                 lastUsedParticle = index;
                 return;
             }

@@ -4,28 +4,26 @@
 #include "FireParticleSystem.h"
 
 namespace Particle {
+    // Vytvoříme novou, bohatší strukturu pro částice kouře
     struct SmokeParticle {
-        glm::vec3 position;  // 12 B
-        float size;          // 4 B → dorovnáme první 16B blok
-
-        glm::vec4 color;     // 16 B → zarovnáno
-
-        glm::vec3 velocity;  // 12 B
-        float life;          // 4 B → dorovná 16 B
+        glm::vec3 position, velocity;
+        glm::vec4 color;
+        float life;
+        float size;
+        float rotation;
+        float rotationSpeed;
     };
 
     class SmokeParticleSystem {
     public:
         SmokeParticleSystem(ResourceManager& resourceManager, int maxParticles);
-
-        void update(float dt);
+        void update(float dt, glm::vec3 offset);
         void render(const glm::mat4& view, const glm::mat4& projection);
-
     private:
         void init();
-        void addParticle();
+        void addParticle(glm::vec3 offset);
 
-        std::vector<FireParticle> particles;
+        std::vector<SmokeParticle> particles;
         int maxParticles;
 
         unsigned int VAO{};
