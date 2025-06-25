@@ -15,7 +15,7 @@ namespace Renderer {
     public:
         SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
         ~SnakeRenderer() override;
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

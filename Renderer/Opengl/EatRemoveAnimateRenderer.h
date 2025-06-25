@@ -19,7 +19,7 @@ namespace Renderer {
         explicit EatRemoveAnimateRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,
                                                        ResourceManager *resourceManager);
         ~EatRemoveAnimateRenderer() override;
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

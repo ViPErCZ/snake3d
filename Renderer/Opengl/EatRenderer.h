@@ -18,7 +18,7 @@ namespace Renderer {
         EatRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,
                     ResourceManager *resourceManager);
 
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

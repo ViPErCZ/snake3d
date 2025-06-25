@@ -20,7 +20,7 @@ Renderer::GameFieldRenderer::~GameFieldRenderer() {
     delete model;
 }
 
-void Renderer::GameFieldRenderer::render() {
+void Renderer::GameFieldRenderer::render(float dt) {
     baseShader->use();
     baseShader->setMat4("view", camera->getViewMatrix());
     baseShader->setMat4("projection", projection);

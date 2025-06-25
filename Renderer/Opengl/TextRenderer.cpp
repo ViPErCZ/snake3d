@@ -12,7 +12,7 @@ namespace Renderer {
         release();
     }
 
-    void TextRenderer::render() {
+    void TextRenderer::render(float dt) {
         for (auto Iter = texts.begin(); Iter < texts.end(); Iter++) {
             auto text = (*Iter)->getText();
             if (text->isVisible()) {

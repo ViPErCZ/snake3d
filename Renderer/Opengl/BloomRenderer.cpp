@@ -71,7 +71,7 @@ Renderer::BloomRenderer::BloomRenderer(ResourceManager* resManager, int width, i
     shaderBloomFinal->setInt("bloomBlur", 1);
 }
 
-void Renderer::BloomRenderer::render() {
+void Renderer::BloomRenderer::render(float dt) {
 }
 
 void Renderer::BloomRenderer::afterRender() {

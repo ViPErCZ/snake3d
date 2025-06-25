@@ -1,5 +1,4 @@
 #include "AnimRenderer.h"
-#include "Model/Utils/Tree.h"
 
 namespace Renderer {
 
@@ -18,7 +17,7 @@ namespace Renderer {
         animationPlay.clear();
     }
 
-    void AnimRenderer::render() {
+    void AnimRenderer::render(float dt) {
         if (show) {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());

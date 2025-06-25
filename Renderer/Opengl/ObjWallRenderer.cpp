@@ -15,7 +15,7 @@ namespace Renderer {
         delete wall;
     }
 
-    void ObjWallRenderer::render() {
+    void ObjWallRenderer::render(float dt) {
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setMat4("projection", this->projection);

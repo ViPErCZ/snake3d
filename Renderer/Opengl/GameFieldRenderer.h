@@ -19,7 +19,7 @@ namespace Renderer {
     public:
         explicit GameFieldRenderer(GameField *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~GameFieldRenderer() override;
-        void render() override;
+        void render(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override;

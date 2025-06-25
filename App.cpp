@@ -99,13 +99,12 @@ void App::Init() {
     skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
     rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
     rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
+    fireRenderer = new FireRenderer(camera, projection, resourceManager);
     const auto storm = new BaseItem();
     storm->setVisible(false);
 
     initTexts();
 
-    fires = new FireParticleSystem(*resourceManager, 500); // 500 = počet částic
-    smokes = new SmokeParticleSystem(*resourceManager, 500); // 500 = počet částic
     //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
     // smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
     //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
@@ -133,6 +132,7 @@ void App::Init() {
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
+    rendererManager->addRenderer(fireRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
@@ -384,7 +384,6 @@ void App::run() {
     const auto currentFrame = static_cast<float>(glfwGetTime());
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    // omez deltaTime
     deltaTime = std::min(deltaTime, 0.05f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -393,11 +392,7 @@ void App::run() {
     glViewport(0, 0, width, height);
 
     camera->updateStickyPoint();
-    rendererManager->render();
-    fires->update(deltaTime);
-    smokes->update(deltaTime, glm::vec3(0.0f, 3.0f, -0.8f));
-    smokes->render(camera->getViewMatrix(), projection);
-    fires->render(camera->getViewMatrix(), projection);
+    rendererManager->render(deltaTime);
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);

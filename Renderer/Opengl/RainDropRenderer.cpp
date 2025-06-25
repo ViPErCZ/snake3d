@@ -14,7 +14,7 @@ namespace Renderer {
         delete model;
     }
 
-    void RainDropRenderer::render() {
+    void RainDropRenderer::render(float dt) {
         if (enable) {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
@@ -67,7 +67,7 @@ namespace Renderer {
         glDisable(GL_BLEND);
     }
 
-    void RainDropRenderer::setEnable(bool enable) {
+    void RainDropRenderer::setEnable(const bool enable) {
         RainDropRenderer::enable = enable;
     }
 } // Renderer

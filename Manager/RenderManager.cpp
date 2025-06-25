@@ -20,7 +20,7 @@ namespace Manager {
         renderers.push_back(renderer);
     }
 
-    void RenderManager::render() {
+    void RenderManager::render(float dt) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
         glClearColor(.0, .0, .0, 0);
@@ -47,7 +47,7 @@ namespace Manager {
                 // reset viewport
                 glViewport(0, 0, width, height);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                depthMapRenderer->render();
+                depthMapRenderer->render(dt);
                 depthMapRenderer->afterRender();
             }
             glDisable(GL_POLYGON_OFFSET_FILL);
@@ -59,7 +59,7 @@ namespace Manager {
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->beforeRender();
-            (*Iter)->render();
+            (*Iter)->render(dt);
             (*Iter)->afterRender();
         }
 

@@ -4,7 +4,7 @@
 
 // Konstruktor si uloží referenci na ResourceManager
 FireParticleSystem::FireParticleSystem(ResourceManager& resourceManager, const int maxParticles)
-    : resourceManager(resourceManager), maxParticles(maxParticles) {
+    : maxParticles(maxParticles), resourceManager(resourceManager) {
     init();
 }
 
@@ -95,8 +95,11 @@ void FireParticleSystem::update(float dt) {
 
             // Plynulý přechod barev a mizení
             float lifeRatio = p.life / 1.5f;
-            p.color.r = glm::mix(2.0f, 6.0f, lifeRatio); // Červená složka slábne pomaleji
-            p.color.g = glm::mix(0.5f, 3.5f, lifeRatio); // Zelená složka slábne rychleji
+
+            p.color.r = glm::mix(2.0f, 7.0f, lifeRatio); // Červená složka od 2.0 do 7.0
+            p.color.g = glm::mix(0.5f, 4.5f, lifeRatio); // Zelená složka od 0.5 do 4.5
+            p.color.b = glm::mix(0.1f, 1.5f, lifeRatio); // Modrá složka jen lehce
+
             p.color.a = glm::smoothstep(0.0f, 0.8f, lifeRatio);
         }
     }

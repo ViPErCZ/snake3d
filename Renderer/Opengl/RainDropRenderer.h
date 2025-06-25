@@ -17,7 +17,7 @@ namespace Renderer {
     public:
         RainDropRenderer(BaseItem *item, Camera *camera, glm::mat4 proj, ResourceManager *resourceManager);
         ~RainDropRenderer() override;
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

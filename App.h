@@ -29,10 +29,10 @@
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Renderer/Opengl/AnimRenderer.h"
-#include "Particle/FireParticleSystem.h"
 #include <AL/al.h>
 
 #include "Particle/SmokeParticleSystem.h"
+#include "Renderer/Opengl/FireRenderer.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -89,6 +89,7 @@ private:
     RainRenderer* rainRenderer{};
     AnimRenderer* animRenderer{};
     RainDropRenderer* rainDropRenderer{};
+    FireRenderer* fireRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};
     EatManager* eatManager;
@@ -99,8 +100,6 @@ private:
     int height;
     ALuint musicSource{}, coinSource{};
     ALuint coinBuffer{}, musicBuffer{};
-    FireParticleSystem* fires;
-    SmokeParticleSystem* smokes;
 };
 
 

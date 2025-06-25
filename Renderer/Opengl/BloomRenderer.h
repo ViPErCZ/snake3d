@@ -16,7 +16,7 @@ namespace Renderer {
         explicit BloomRenderer(ResourceManager* resManager, int width, int height);
         void beforeRender() override;
         void afterRender() override;
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
     protected:
         void renderQuad();

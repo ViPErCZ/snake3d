@@ -12,7 +12,7 @@ namespace Renderer {
         BaseRenderer();
         explicit BaseRenderer(BaseItem *item);
         virtual ~BaseRenderer();
-        virtual void render() = 0;
+        virtual void render(float dt) = 0;
         virtual void renderShadowMap() = 0;
         virtual void beforeRender() = 0;
         virtual void afterRender() = 0;

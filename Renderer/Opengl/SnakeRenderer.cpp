@@ -16,7 +16,7 @@ namespace Renderer {
         delete snake;
     }
 
-    void SnakeRenderer::render() {
+    void SnakeRenderer::render(float dt) {
         if (blur) {
             shaderLight->use();
             shaderLight->setMat4("projection", projection);

@@ -15,7 +15,7 @@ namespace Renderer {
         delete radar;
     }
 
-    void RadarRenderer::render() {
+    void RadarRenderer::render(float dt) {
         if (radar->isVisible()) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);

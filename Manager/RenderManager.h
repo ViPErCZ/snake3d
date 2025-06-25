@@ -20,7 +20,7 @@ namespace Manager {
     public:
         RenderManager(int width, int height);
         virtual ~RenderManager();
-        void render();
+        void render(float dt);
         void addRenderer(BaseRenderer* renderer);
         void setDepthMapRenderer(DepthMapRenderer *depthMapRenderer);
         void setBloomRenderer(BloomRenderer *bloomRenderer);

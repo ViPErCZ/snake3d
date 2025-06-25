@@ -17,7 +17,7 @@ namespace Renderer {
     class DepthMapRenderer : public BaseRenderer {
     public:
         DepthMapRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
-        void render() override;
+        void render(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderQuad();

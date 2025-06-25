@@ -10,7 +10,7 @@ namespace Renderer {
         texture = resourceManager->getTexture("skybox");
     }
 
-    void SkyboxRenderer::render() {
+    void SkyboxRenderer::render(float dt) {
         if (cube->isVisible()) {
             shader->use();
             shader->setInt("skybox", 0);

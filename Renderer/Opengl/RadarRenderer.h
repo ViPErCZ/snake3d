@@ -17,7 +17,7 @@ namespace Renderer {
         ~RadarRenderer() override;
 
     public:
-        void render() override;
+        void render(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override {};

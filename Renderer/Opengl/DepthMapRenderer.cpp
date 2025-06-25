@@ -55,7 +55,7 @@ namespace Renderer {
         glClear(GL_DEPTH_BUFFER_BIT);
     }
 
-    void DepthMapRenderer::render() {
+    void DepthMapRenderer::render(float dt) {
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setVec3("viewPos", camera->getPosition());

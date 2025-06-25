@@ -11,7 +11,8 @@ Renderer::RainRenderer::~RainRenderer() {
     delete model;
 }
 
-void Renderer::RainRenderer::render() {
+void Renderer::RainRenderer::render(const float dt) {
+    deltaTime = dt;
     if (enable) {
         baseShader->use();
         for (Particle particle: model->getParticles()) {
@@ -47,7 +48,6 @@ void Renderer::RainRenderer::beforeRender() {
     glDepthMask(GL_FALSE);
 //    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
     auto currentFrame = (float)glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
     if (currentFrame > lastFrame) {
         item->setPosition({0.0, 0, -2.5});
         model->update(deltaTime, 130);
@@ -59,6 +59,7 @@ void Renderer::RainRenderer::afterRender() {
     // don't forget to reset to default blending mode
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
 }
 
 void Renderer::RainRenderer::toggle() {

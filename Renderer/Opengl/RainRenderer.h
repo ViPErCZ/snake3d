@@ -12,11 +12,11 @@ using namespace Model;
 using namespace Manager;
 
 namespace Renderer {
-    class RainRenderer : public BaseRenderer {
+    class RainRenderer final : public BaseRenderer {
     public:
         RainRenderer(BaseItem *item, Camera *camera, glm::mat4 proj, ResourceManager *resourceManager);
         ~RainRenderer() override;
-        void render() override;
+        void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;
