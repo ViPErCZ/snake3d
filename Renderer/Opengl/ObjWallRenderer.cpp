@@ -78,7 +78,7 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::toggleParallax() {
-        ObjWallRenderer::parallax = !parallax;
+        parallax = !parallax;
 
         if (parallax) {
             texture1 = resourceManager->getTexture("bricks2.jpg");

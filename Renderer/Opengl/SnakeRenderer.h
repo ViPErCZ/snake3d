@@ -23,7 +23,7 @@ namespace Renderer {
         void toggleStyle(int style);
 
     protected:
-        void renderScene(ShaderManager* shader);
+        void renderScene(const ShaderManager* shader) const;
         Snake* snake;
         Camera* camera;
         glm::mat4 projection;

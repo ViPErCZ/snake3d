@@ -39,8 +39,8 @@ namespace Renderer {
         renderScene(shadowShader);
     }
 
-    void SnakeRenderer::renderScene(ShaderManager *shader) {
-        for (auto snakeTileIter = snake->getItems().end()-1; snakeTileIter >= snake->getItems().begin(); snakeTileIter--) {
+    void SnakeRenderer::renderScene(const ShaderManager *shader) const {
+        for (auto snakeTileIter = snake->getItems().end()-1; snakeTileIter >= snake->getItems().begin(); --snakeTileIter) {
             if ((*snakeTileIter)->tile->isVisible()) {
                 glLoadIdentity();
 
@@ -55,7 +55,7 @@ namespace Renderer {
                 }
 
                 glm::vec3 position = (*snakeTileIter)->tile->getPosition();
-                glm::mat4 model = glm::mat4(1.0f);
+                auto model = glm::mat4(1.0f);
                 model = glm::translate(model, {0.0, 0.0, 0.0});
                 if (snakeTileIter == this->snake->getItems().begin()) {
                     model = glm::scale(model, {0.041667f, 0.041667f, 0.041667f});
@@ -67,14 +67,14 @@ namespace Renderer {
                 shader->setMat4("model", model);
                 if (blur) {
                     if (snakeTileIter == this->snake->getItems().begin()) {
-                        shader->setVec3("lightColor", {10.0f, 0.0f, 0.0f});
+                        shader->setVec3("lightColor", {5.0f, 2.0f, 0.0f});
                     } else {
-                        shader->setVec3("lightColor", {0.0f, 5.0f, 0.0f});
+                        shader->setVec3("lightColor", {2.0f, 2.0f, 0.0f});
                     }
                 }
                 mesh->bind();
 
-                glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
             }
         }
     }
@@ -89,7 +89,7 @@ namespace Renderer {
         blur = !blur;
     }
 
-    void SnakeRenderer::toggleStyle(int style) {
+    void SnakeRenderer::toggleStyle(const int style) {
         if (style == 1) {
             mesh = resourceManager->getModel("cube")->getMesh();
             renderStyle = 1;
