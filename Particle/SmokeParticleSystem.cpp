@@ -65,7 +65,7 @@ namespace Particle {
                 p.position += p.velocity * dt;
 
                 // Lehký vítr zůstává
-                p.position.x += 0.08f * dt;
+                p.position.x += 0.0008f * dt;
 
                 // **NOVINKA: Částice postupně zpomaluje (simulace odporu vzduchu)**
                 // Každý snímek ztratí kousek své rychlosti.
@@ -73,7 +73,7 @@ namespace Particle {
                 p.velocity *= 0.995f;
 
                 p.rotation += p.rotationSpeed * dt;
-                p.size += dt * 0.03f;
+                p.size += dt * 0.04f;
                 p.color.a = glm::smoothstep(0.0f, 0.4f, p.life / 3.0f); // Životnost je nyní kratší
             }
         }
@@ -119,19 +119,19 @@ namespace Particle {
             if (particles[index].life <= 0.0f) {
                 SmokeParticle& p = particles[index];
 
-                glm::vec2 spawnDisk = glm::diskRand(0.1f);
-                p.position = glm::vec3(spawnDisk.x, 0.2f, spawnDisk.y) + offset;
+                glm::vec2 spawnDisk = glm::diskRand(0.004f);
+                p.position = glm::vec3(spawnDisk.x, 0.05f, spawnDisk.y) + offset;
 
                 // **VÝRAZNĚ SNÍŽENÁ RYCHLOST A ŽIVOTNOST**
-                p.velocity.x = glm::linearRand(-0.03f, 0.03f);
-                p.velocity.y = glm::linearRand(0.15f, 0.35f); // Kouř stoupá mnohem pomaleji
+                p.velocity.x = glm::linearRand(-0.05f, 0.01f);
+                p.velocity.y = glm::linearRand(0.05f, 0.25f); // Kouř stoupá mnohem pomaleji
                 p.velocity.z = glm::linearRand(-0.03f, 0.03f);
 
-                float greyTone = glm::linearRand(0.05f, 0.15f);
-                p.color = glm::vec4(greyTone + 0.05f, greyTone, greyTone, 0.25f);
-                p.life = 3.0f; // Životnost zkrácena na 3 sekundy (z 5.0f)
+                const float shade = glm::linearRand(0.90f, 1.0f);
+                p.color = glm::vec4(shade, shade, shade, glm::linearRand(0.03f, 0.08f));
+                p.life = 2.0f; // Životnost zkrácena na 3 sekundy (z 5.0f)
 
-                p.size = glm::linearRand(0.08f, 0.15f);
+                p.size = glm::linearRand(0.08f, 0.11f);
                 p.rotation = glm::linearRand(0.0f, 2.0f * 3.14159f);
                 p.rotationSpeed = glm::linearRand(-0.2f, 0.2f);
 
