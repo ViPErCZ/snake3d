@@ -33,6 +33,7 @@
 
 #include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/FireRenderer.h"
+#include "Renderer/Opengl/TorchRenderer.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -90,6 +91,7 @@ private:
     AnimRenderer* animRenderer{};
     RainDropRenderer* rainDropRenderer{};
     FireRenderer* fireRenderer{};
+    TorchRenderer* torchRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};
     EatManager* eatManager;

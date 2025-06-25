@@ -23,6 +23,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Particle/SmokeParticleSystem.h
         Renderer/Opengl/FireRenderer.cpp
         Renderer/Opengl/FireRenderer.h
+        Renderer/Opengl/TorchRenderer.cpp
+        Renderer/Opengl/TorchRenderer.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
 

@@ -1,6 +1,8 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 #include "App.h"
+
+#include "Renderer/Opengl/TorchRenderer.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 
@@ -83,6 +85,8 @@ void App::Init() {
     barriers = InitBarriers();
     radar = CreateRadar();
     InitRadar();
+    const auto torch = new Cube();
+    torch->setPosition(glm::vec3(0.3, 0, -8.2));
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
@@ -100,6 +104,7 @@ void App::Init() {
     rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
     rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
     fireRenderer = new FireRenderer(camera, projection, resourceManager);
+    torchRenderer = new TorchRenderer(torch, camera, projection, resourceManager);
     const auto storm = new BaseItem();
     storm->setVisible(false);
 
@@ -133,6 +138,7 @@ void App::Init() {
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
     rendererManager->addRenderer(fireRenderer);
+    rendererManager->addRenderer(torchRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
