@@ -18,8 +18,11 @@ void main()
     }
     // tone mapping
     vec3 result = hdrColor;
+    //vec3 mappedColor = hdrColor / (hdrColor + vec3(1.0));
+
     //vec3 result = vec3(1.0) - exp(-hdrColor * 2.0); // lightning storm
     // also gamma correct while we're at it
     result = pow(result, vec3(1.0 / gamma));
+
     FragColor = vec4(result, 1.0);
 }

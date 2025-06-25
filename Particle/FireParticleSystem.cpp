@@ -94,9 +94,10 @@ void FireParticleSystem::update(float dt) {
             p.position += p.velocity * dt;
 
             // Plynulý přechod barev a mizení
-            float lifeRatio = p.life / 2.5f; // Životnost je 2.5s
-            p.color.g = glm::mix(0.1f, 1.0f, lifeRatio);
-            p.color.a = glm::smoothstep(0.0f, 0.7f, lifeRatio);
+            float lifeRatio = p.life / 1.5f;
+            p.color.r = glm::mix(2.0f, 6.0f, lifeRatio); // Červená složka slábne pomaleji
+            p.color.g = glm::mix(0.5f, 3.5f, lifeRatio); // Zelená složka slábne rychleji
+            p.color.a = glm::smoothstep(0.0f, 0.8f, lifeRatio);
         }
     }
 }
@@ -117,8 +118,8 @@ void FireParticleSystem::addParticle() {
             p.velocity.y = glm::linearRand(0.06f, 0.1f);   // Menší rychlost nahoru
             p.velocity.z = glm::linearRand(-0.05f, 0.05f);
 
-            p.color = glm::vec4(1.0f, 1.0f, 0.7f, 1.0f);
-            p.life = 2.0f; // Životnost
+            p.color = glm::vec4(6.0f, 3.5f, 1.0f, 1.0f);
+            p.life = 1.5f; // Životnost
             lastUsedParticle = index;
             return; // Našli jsme volné místo, končíme
         }

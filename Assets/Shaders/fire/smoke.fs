@@ -1,25 +1,26 @@
 #version 330 core
 
+layout (location = 0) out vec4 gColor;
+layout (location = 1) out vec4 gBloom;
+
 in vec2 TexCoords;
-in vec4 ParticleColor;
+in vec4 ParticleColor; // Barva kouře z VS
 
-out vec4 FragColor;
-
-uniform sampler2D smoke_texture; // Použij správný název uniformu
+uniform sampler2D smoke_texture; // Ujisti se, že název uniformu sedí
 
 void main() {
-    // Maska z textury
     float textureMask = texture(smoke_texture, TexCoords).r;
-
-    // Procedurální maska, která zaručí měkký kruhový okraj
     float proceduralMask = 1.0 - smoothstep(0.45, 0.5, length(TexCoords - vec2(0.5)));
-
-    // Zkombinujeme obě masky - získáme detail textury A měkký okraj
     float finalMask = textureMask * proceduralMask;
 
-    FragColor = vec4(ParticleColor.rgb, ParticleColor.a * finalMask);
+    vec4 finalColor = vec4(ParticleColor.rgb, ParticleColor.a * finalMask);
 
-    if (FragColor.a < 0.01) {
+    if (finalColor.a < 0.01) {
         discard;
     }
+
+    // Kouř je vidět ve finální scéně
+    gColor = finalColor;
+    // Kouř ale nezáří, takže do bloom bufferu pošleme černou
+    gBloom = vec4(0.0, 0.0, 0.0, 1.0);
 }
