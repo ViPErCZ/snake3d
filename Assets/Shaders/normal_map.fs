@@ -65,11 +65,11 @@ void main()
         // get diffuse color
         vec3 color = texture(diffuseMap, texCoords).rgb;
         // ambient
-        vec3 ambient = 0.1 * color;
+        vec3 ambient = 0.0001 * color;
         // diffuse
         vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
         float diff = max(dot(lightDir, normal), 0.0);
-        vec3 diffuse = diff * color;
+        vec3 diffuse = (diff * color) / 2;
         // specular
         //vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
@@ -78,7 +78,7 @@ void main()
 
         // vec3 specular = vec3(0.2) * spec;
 
-        vec3 specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, texCoords));
+        vec3 specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, texCoords)) / 2;
 
         FragColor = alphaBlending(vec3(ambient + diffuse + specular));
     }

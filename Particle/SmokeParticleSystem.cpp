@@ -122,14 +122,13 @@ namespace Particle {
                 glm::vec2 spawnDisk = glm::diskRand(0.004f);
                 p.position = glm::vec3(spawnDisk.x, 0.05f, spawnDisk.y) + offset;
 
-                // **VÝRAZNĚ SNÍŽENÁ RYCHLOST A ŽIVOTNOST**
                 p.velocity.x = glm::linearRand(-0.05f, 0.01f);
-                p.velocity.y = glm::linearRand(0.05f, 0.25f); // Kouř stoupá mnohem pomaleji
-                p.velocity.z = glm::linearRand(-0.03f, 0.03f);
+                p.velocity.y = glm::linearRand(0.001f, 0.025f); // Kouř stoupá mnohem pomaleji
+                p.velocity.z = glm::linearRand(0.05f, 0.09f);
 
                 const float shade = glm::linearRand(0.90f, 1.0f);
                 p.color = glm::vec4(shade, shade, shade, glm::linearRand(0.03f, 0.08f));
-                p.life = 2.0f; // Životnost zkrácena na 3 sekundy (z 5.0f)
+                p.life = 2.0f;
 
                 p.size = glm::linearRand(0.08f, 0.11f);
                 p.rotation = glm::linearRand(0.0f, 2.0f * 3.14159f);

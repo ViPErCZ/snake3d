@@ -37,7 +37,7 @@
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
-#define START_LEVEL 1
+#define START_LEVEL 2
 
 namespace fs = std::filesystem;
 using namespace ItemsDto;

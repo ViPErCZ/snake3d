@@ -6,10 +6,13 @@ namespace Renderer {
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
         mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
         baseShader = resourceManager->getShader("basicShader");
+        respawn = resourceManager->getShader("respawnShader");
         shadowShader = resourceManager->getShader("shadowDepthShader");
         shaderLight = resourceManager->getShader("bloomLight");
         snakeTileTexture = resourceManager->getTexture("snake.bmp");
         snakeHeadTexture = resourceManager->getTexture("head.bmp");
+        noise = resourceManager->getTexture("fast_noise.bmp");
+        startTime = glfwGetTime();
     }
 
     SnakeRenderer::~SnakeRenderer() {
@@ -23,15 +26,22 @@ namespace Renderer {
             shaderLight->setMat4("view", camera->getViewMatrix());
             renderScene(shaderLight);
         } else {
-            baseShader->use();
-            baseShader->setMat4("view", camera->getViewMatrix());
-            baseShader->setMat4("projection", projection);
-            baseShader->setVec3("viewPos", camera->getPosition());
-            baseShader->setBool("useMaterial", false);
-            baseShader->setBool("useBones", false);
-            renderScene(baseShader);
+            const double elapsed = glfwGetTime() - startTime;
+            respawn->use();
+            respawn->setMat4("view", camera->getViewMatrix());
+            respawn->setMat4("projection", projection);
+            respawn->setVec3("viewPos", camera->getPosition());
+            respawn->setInt("u_NoiseTexture", 0);
+            respawn->setVec4("u_LightColor", glm::vec4(1.000000, 0.898039, 0.100000, 1.0f));
+            respawn->setFloat("u_Speed", 2.0f);
+            respawn->setFloat("u_Delay", 1.0f); // zpoždění 1 sekundy před startem animace
+            respawn->setFloat("u_FloatParameter", 0.1);
+            respawn->setFloat("u_Time", static_cast<float>(elapsed));
+            respawn->setBool("useBones", false);
+            respawn->setBool("useMaterial", true);
+            noise->bind();
+            renderScene(respawn);
         }
-        baseShader->setBool("fogEnable", fog);
     }
 
     void SnakeRenderer::renderShadowMap() {
@@ -80,9 +90,12 @@ namespace Renderer {
     }
 
     void SnakeRenderer::beforeRender() {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_BACK);
     }
 
     void SnakeRenderer::afterRender() {
+        glDisable(GL_DEPTH_TEST);
     }
 
     void SnakeRenderer::toggleBlur() {

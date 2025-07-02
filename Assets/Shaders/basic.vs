@@ -32,4 +32,3 @@ void main()
     Color = aColor;
     fragPos = vec3(model * vec4(aPos, 1.0));
 }
-

@@ -27,7 +27,7 @@ namespace Renderer {
         void setAcceleration(float acceleration) const;
 
     protected:
-        void renderScene(ShaderManager* shader);
+        void renderScene(const ShaderManager* shader);
         AnimationModel* model;
         ResourceManager* resourceManager;
         ShaderManager* baseShader;

@@ -24,14 +24,17 @@ namespace Renderer {
 
     protected:
         void renderScene(const ShaderManager* shader) const;
+        double startTime;
         Snake* snake;
         Camera* camera;
         glm::mat4 projection;
         ShaderManager* baseShader;
         ShaderManager* shadowShader;
         ShaderManager* shaderLight;
+        ShaderManager* respawn;
         TextureManager* snakeTileTexture;
         TextureManager* snakeHeadTexture;
+        TextureManager* noise;
         ResourceManager* resourceManager;
         Mesh* mesh;
         bool blur;

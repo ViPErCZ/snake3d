@@ -18,19 +18,21 @@ namespace Renderer {
     TorchRenderer::~TorchRenderer() = default;
 
     void TorchRenderer::render(float dt) {
+        baseShader->use();
         baseShader->setMat4("view", camera->getViewMatrix());
         baseShader->setMat4("projection", projection);
-        baseShader->setVec3("viewPos", camera->getPosition());
         baseShader->setInt("diffuseMap", 0);
         baseShader->setInt("normalMap", 1);
         baseShader->setInt("specularMap", 2);
         baseShader->setFloat("alpha", 1.0);
         baseShader->setVec3("viewPos", camera->getPosition());
         baseShader->setBool("parallaxEnable", false);
-        baseShader->setBool("useMaterial", true);
         baseShader->setBool("fogEnable", fog);
+        texture->bind(0);
+        texture2->bind(1);
+        texture->bind(2);
 
-        glm::vec3 lightPos(cube->getPosition().x - 6, cube->getPosition().y - 6, cube->getPosition().z + 5);
+        glm::vec3 lightPos(cube->getPosition().x, cube->getPosition().y - 6, cube->getPosition().z + 5);
         baseShader->setVec3("lightPos", lightPos);
 
         texture->bind(0);
@@ -50,7 +52,6 @@ namespace Renderer {
     }
 
     void TorchRenderer::renderScene(const ShaderManager *shader) {
-        shader->use();
         glLoadIdentity();
 
         glm::vec3 position = cube->getPosition();

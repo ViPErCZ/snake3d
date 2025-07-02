@@ -17,6 +17,7 @@ namespace Renderer {
 
     void ObjWallRenderer::render(float dt) {
         shader->use();
+
         shader->setMat4("view", camera->getViewMatrix());
         shader->setMat4("projection", this->projection);
         shader->setInt("diffuseMap", 0);
@@ -68,9 +69,13 @@ namespace Renderer {
 
     void ObjWallRenderer::beforeRender() {
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void ObjWallRenderer::afterRender() {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
     }
 
     void ObjWallRenderer::renderShadowMap() {

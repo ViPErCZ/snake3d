@@ -16,6 +16,7 @@ namespace Renderer {
     }
 
     void EatRenderer::render(float dt) {
+        baseShader->use();
         baseShader->setMat4("view", camera->getViewMatrix());
         baseShader->setMat4("projection", projection);
         baseShader->setInt("diffuseMap", 0);
@@ -28,6 +29,7 @@ namespace Renderer {
         texture1->bind(0);
         texture2->bind(1);
         texture3->bind(2);
+
         renderScene(baseShader);
     }
 
@@ -38,7 +40,6 @@ namespace Renderer {
 
     void EatRenderer::renderScene(ShaderManager *shader) {
         if (eat->isVisible()) {
-            shader->use();
             glLoadIdentity();
 
             glm::vec3 position = eat->getPosition();

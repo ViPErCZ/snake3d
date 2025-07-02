@@ -9,7 +9,7 @@ namespace Manager {
     }
 
     void ShaderManager::setBool(const string &name, bool value) const {
-        glUniform1i(glGetUniformLocation(id, name.c_str()), (int) value);
+        glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
 
     void ShaderManager::setInt(const string &name, int value) const {

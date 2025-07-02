@@ -34,7 +34,7 @@ namespace Renderer {
         }
     }
 
-    void AnimRenderer::renderScene(ShaderManager *shader) {
+    void AnimRenderer::renderScene(const ShaderManager *shader) {
         glm::mat4 modelTrans = glm::mat4(1.0f);
         glm::vec3 position = model->getBaseItem()->getPosition();
         modelTrans = glm::translate(modelTrans, {0.0, 0.0, 0.0});
@@ -114,6 +114,7 @@ namespace Renderer {
     }
 
     void AnimRenderer::beforeRender() {
+        glEnable(GL_DEPTH_TEST);
     }
 
     void AnimRenderer::afterRender() {

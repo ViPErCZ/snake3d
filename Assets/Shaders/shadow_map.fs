@@ -17,8 +17,11 @@ uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform bool shadowsEnable = true;
 
+vec2 TexCoords = fs_in.TexCoords;
+
 #include "pipeline/shading/shading.glsl"
 #include "pipeline/fog/fog.glsl"
+#include "functions/light_point.glsl"
 
 void main()
 {
@@ -33,6 +36,7 @@ void main()
     vec3 lightColor = vec3(0.3);
     if (shadowsEnable == false) {
         lightColor = texture(diffuseMap, fs_in.TexCoords).rgb;
+        lightColor /= 2;
     }
     // ambient
     vec3 ambient = 0.3 * lightColor;
@@ -51,7 +55,21 @@ void main()
     if (shadowsEnable == false) {
         spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
         specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, fs_in.TexCoords));
-        FragColor = vec4(ambient + diffuse + specular, 1.0);
+        specular = vec3(0.0);
+
+        vec3 norm = normalize(fs_in.Normal);
+        vec3 result = vec3(0); //CalcDirLight(dirLight, norm, viewDir);
+
+//         for(int i = 0; i < NR_POINT_LIGHTS; i++) {
+//             result += CalcPointLight(pointLights[i], norm, fs_in.FragPos, viewDir);
+//         }
+
+        // phase 3: spot light
+        for(int i = 0; i < NR_POINT_LIGHTS; i++) {
+            result += CalcSpotLight(spotLight[i], norm, fs_in.FragPos, viewDir);
+        }
+
+        FragColor = vec4(result + lightColor / 4, 1.0);
     } else {
         // calculate shadow
         float shadow = ShadowCalculation(fs_in.FragPosLightSpace, shadowMap);

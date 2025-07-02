@@ -15,7 +15,7 @@ namespace Renderer {
 
     void FireRenderer::render(const float dt) {
         fires->update(dt);
-        smokes->update(dt, glm::vec3(0.0f, 3.0f, -0.8f));
+        smokes->update(dt, glm::vec3(0.038, -0.012f, -0.76f));
         fires->render(camera->getViewMatrix(), projection);
         smokes->render(camera->getViewMatrix(), projection);
     }

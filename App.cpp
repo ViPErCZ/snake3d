@@ -46,6 +46,8 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs")));
     resourceManager->addShader("basicShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs")));
+    resourceManager->addShader("respawnShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/respawn/respawn.fs")));
     resourceManager->addShader("normalShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs")));
     resourceManager->addShader("radarShader", std::make_shared<ShaderManager>(
@@ -127,18 +129,18 @@ void App::Init() {
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     rendererManager->addRenderer(gameFieldRenderer);
+    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(objWallRenderer);
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(rainDropRenderer);
-    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
-    rendererManager->addRenderer(fireRenderer);
     rendererManager->addRenderer(torchRenderer);
+    rendererManager->addRenderer(fireRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
