@@ -37,8 +37,6 @@ file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 ### TESTING #################################################
 enable_testing()
 #
-find_package(Catch2 REQUIRED)
-
 # --- FetchContent pro Catch2 ---
 include(FetchContent)
 
