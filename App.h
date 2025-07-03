@@ -64,7 +64,7 @@ protected:
     static Radar* CreateRadar();
     void InitRadar();
     Eat *InitEat();
-    void initTexts();
+    void initTexts() const;
 private:
     LevelManager* levelManager{};
     ResourceManager* resourceManager{};

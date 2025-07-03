@@ -38,10 +38,8 @@ App::~App() {
 void App::Init() {
     InitResourceManager();
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float) width / (float) height, 1.5f,
-                                            2600.0f);
-    glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
-    glm::mat4 view = camera->getViewMatrix();
+    const glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float) width / (float) height, 1.5f,2600.0f);
+    const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
 
     resourceManager->addShader("textShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs")));
@@ -123,8 +121,7 @@ void App::Init() {
     animateEat->setVisible(false);
     animateEat->setPosition(eat->getPosition());
 
-    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection,
-                                                            resourceManager);
+    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection, resourceManager);
 
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
@@ -269,7 +266,7 @@ void App::Init() {
     }
 }
 
-void App::initTexts() {
+void App::initTexts() const {
     if (textRenderer && resourceManager) {
         startText->setVisible(true);
         startText->setColor({0.8, 0.8, 0.8});
