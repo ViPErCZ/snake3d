@@ -163,7 +163,7 @@ namespace Renderer {
         // Reset časovače
         timeSinceLastBolt = 0.0f;
 
-        lightning->trigger();
+        lightning->triggerSequence({1.0f, 0.6f, 0.8f}, 0.05f);
     }
 
     void BoltRenderer::beforeRender() {

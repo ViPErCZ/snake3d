@@ -15,22 +15,30 @@ namespace Effects {
         flashShader->setInt("screenTexture", 0);
     }
 
-    void LightningFlashEffect::trigger() {
-        flashing = true;
-        timer = 0.0f;
-        alpha = 1.0f;
+    void LightningFlashEffect::triggerSequence(const std::vector<float>& pulses, float duration) {
+        while (!pulseQueue.empty()) pulseQueue.pop();
+        for (float p : pulses) pulseQueue.push(p);
+        pulseDuration = duration;
+        nextPulse();
+    }
+
+    void LightningFlashEffect::nextPulse() {
+        if (pulseQueue.empty()) {
+            flashing = false;
+            alpha = 0.0f;
+        } else {
+            alpha = pulseQueue.front();
+            pulseQueue.pop();
+            timer = 0.0f;
+            flashing = true;
+        }
     }
 
     void LightningFlashEffect::update(float deltaTime) {
         if (!flashing) return;
-
         timer += deltaTime;
-        alpha = 1.0f - (timer / duration);
-
-        if (timer >= duration) {
-            alpha = 0.0f;
-            flashing = false;
-        }
+        alpha = alpha * (1.0f - (timer / pulseDuration));
+        if (timer >= pulseDuration) nextPulse();
     }
 
     bool LightningFlashEffect::isActive() const {

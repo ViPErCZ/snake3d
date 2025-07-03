@@ -1,6 +1,7 @@
 #ifndef LIGHTNINGFLASHEFFECT_H
 #define LIGHTNINGFLASHEFFECT_H
 
+#include <queue>
 #include <GL/glew.h>
 #include "../../../Manager/ResourceManager.h"
 #include "../../../Manager/ShaderManager.h"
@@ -13,14 +14,14 @@ class LightningFlashEffect {
 public:
     LightningFlashEffect(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
     void init();
-    void trigger();
+    void triggerSequence(const std::vector<float>& pulses, float pulseDuration);
     void update(float deltaTime);
     void render() const;
     bool isActive() const;
 
 private:
     float alpha = 0.0f;
-    float duration = 0.3f;
+    float pulseDuration = 0.1f;
     float timer = 0.0f;
     bool flashing = false;
 
@@ -30,8 +31,10 @@ private:
     glm::mat4 projection{};
     ResourceManager* resourceManager;
     ShaderManager* flashShader;
+    std::queue<float> pulseQueue;
 
     void setupFullscreenQuad();
+    void nextPulse();
 };
 
 } // Effects
