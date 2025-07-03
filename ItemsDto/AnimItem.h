@@ -3,6 +3,7 @@
 
 #include "BaseItem.h"
 #include <memory>
+#include <array>
 #include <vector>
 #include <glm/gtx/quaternion.hpp>
 
