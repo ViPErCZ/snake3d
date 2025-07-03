@@ -58,4 +58,3 @@ target_link_libraries(Tests
 #target_include_directories(Tests PRIVATE ${catch2_SOURCE_DIR}/single_include)
 include(CTest)
 include(Catch)
-catch_discover_tests(Tests)
