@@ -34,6 +34,9 @@ jobs:
           libgl1-mesa-dev \
           libfreetype6-dev
 
+      - name: Clear build directory
+        run: rm -rf build
+
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 

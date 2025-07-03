@@ -35,25 +35,114 @@ target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut
 file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
 ### TESTING #################################################
+# Povolení testování
 enable_testing()
-#
+
 # --- FetchContent pro Catch2 ---
 include(FetchContent)
-
 FetchContent_Declare(
         catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.4.0
+        GIT_TAG v3.4.0 # Zvažte použití novější verze, např. v3.6.0
 )
-
 FetchContent_MakeAvailable(catch2)
 
-file(GLOB_RECURSE TEST_SOURCES Tests/*.cpp)
+# --- Zdrojové soubory APLIKACE ---
+# Definujte zde všechny .cpp soubory vaší hry (mimo složku Tests/)
+# POZNÁMKA: Hlavičkové soubory (.h) se sem nepíšou!
+set(APP_SOURCES
+        ItemsDto/BaseItem.cpp
+        ItemsDto/Cube.cpp
+        Manager/ResourceManager.cpp
+        Manager/RenderManager.cpp
+        Manager/KeyboardManager.cpp
+        Manager/EatManager.cpp
+        Manager/ShaderManager.cpp
+        Manager/LevelManager.cpp
+        Manager/VboIndexer.cpp
+        Manager/Camera.cpp
+        Manager/TextureManager.cpp
+        ItemsDto/GameField.cpp
+        ItemsDto/Snake.cpp
+        ItemsDto/BaseContainer.cpp
+        ItemsDto/BaseContainerInterface.cpp
+        ItemsDto/Text.cpp
+        ItemsDto/Eat.cpp
+        ItemsDto/ObjItem.cpp
+        ItemsDto/Radar.cpp
+        ItemsDto/Barriers.cpp
+        ItemsDto/ObjWall.cpp
+        ItemsDto/AnimItem.cpp
+        Renderer/Opengl/GameFieldRenderer.cpp
+        Renderer/Opengl/BaseRenderer.cpp
+        Renderer/Opengl/SnakeRenderer.cpp
+        Renderer/Opengl/EatRenderer.cpp
+        Renderer/Opengl/TextRenderer.cpp
+        Renderer/Opengl/RadarRenderer.cpp
+        Renderer/Opengl/EatRemoveAnimateRenderer.cpp
+        Renderer/Opengl/BarrierRenderer.cpp
+        Renderer/Opengl/ObjWallRenderer.cpp
+        Renderer/Opengl/BloomRenderer.cpp
+        Renderer/Opengl/RainRenderer.cpp
+        Renderer/Opengl/RainDropRenderer.cpp
+        Renderer/Opengl/AnimRenderer.cpp
+        Renderer/Opengl/Model/TextModel.cpp
+        Renderer/Opengl/Model/Character.cpp
+        Renderer/Opengl/Model/Utils/Vao.cpp
+        Renderer/Opengl/Model/Utils/Vbo.cpp
+        Renderer/Opengl/Model/Utils/Ebo.cpp
+        Renderer/Opengl/Model/Utils/Mesh.cpp
+        Renderer/Opengl/Model/GameFieldModel.cpp
+        Renderer/Opengl/Model/RadarModel.cpp
+        Renderer/Opengl/Model/RainModel.cpp
+        Renderer/Opengl/Model/MeshModel.cpp
+        Renderer/Opengl/Model/AnimationModel.cpp
+        Handler/SnakeMoveHandler.cpp
+        Handler/BaseHandler.cpp
+        Handler/EatLocationHandler.cpp
+        Handler/RadarHandler.cpp
+        Handler/BaseKeydownHandle.cpp
+        Physic/CollisionDetector.cpp
+        Resource/ObjModelLoader.cpp
+        Resource/TextureLoader.cpp
+        Resource/ShaderLoader.cpp
+        Resource/AnimLoader.cpp
+)
+
+# --- Vytvoření KNIHOVNY z herních souborů ---
+add_library(snake3d_lib ${APP_SOURCES})
+
+# Přidání cest k hlavičkovým souborům pro vaši knihovnu
+# PUBLIC znamená, že kdokoliv, kdo se nalinkuje na snake3d_lib, také dostane tyto cesty
+target_include_directories(snake3d_lib PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        # Můžete explicitně vyjmenovat složky, pokud jich není moc
+        # např. ${CMAKE_CURRENT_SOURCE_DIR}/Manager
+)
+
+# Linkování knihovny proti jejím závislostem (GLFW, OpenGL, atd.)
+target_link_libraries(snake3d_lib PUBLIC
+        glfw glut GLU GL GLEW freetype assimp
+)
+
+
+# --- Zdrojové soubory TESTŮ ---
+# Použijte GLOB pouze pro testy, pokud chcete, ale lepší je vypsat je
+file(GLOB TEST_SOURCES "Tests/*.cpp")
+
+# --- Vytvoření spustitelného souboru pro TESTY ---
+add_executable(Tests ${TEST_SOURCES})
+
+# --- Linkování TESTŮ proti herní knihovně a Catch2 ---
+# Použijte Catch2::Catch2WithMain, aby Catch2 automaticky vytvořil funkci main().
+# Je to jednodušší a spolehlivější.
+target_link_libraries(Tests PRIVATE
+        snake3d_lib
+        Catch2::Catch2WithMain
+)
+
+# --- Integrace CTest ---
 include(CTest)
 include(Catch)
-add_executable(Tests Tests/main.cpp ${TEST_SOURCES} ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h ItemsDto/Cube.cpp ItemsDto/Cube.h Manager/ResourceManager.cpp Manager/ResourceManager.h ItemsDto/GameField.cpp ItemsDto/GameField.h Renderer/Opengl/GameFieldRenderer.cpp Renderer/Opengl/GameFieldRenderer.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h ItemsDto/Snake.cpp ItemsDto/Snake.h Renderer/Opengl/SnakeRenderer.cpp Renderer/Opengl/SnakeRenderer.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h ItemsDto/BaseContainer.cpp ItemsDto/BaseContainer.h ItemsDto/BaseContainerInterface.cpp ItemsDto/BaseContainerInterface.h Renderer/Opengl/EatRenderer.cpp Renderer/Opengl/EatRenderer.h Renderer/Opengl/TextRenderer.cpp Renderer/Opengl/TextRenderer.h ItemsDto/Text.cpp ItemsDto/Text.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h ItemsDto/Eat.cpp ItemsDto/Eat.h ItemsDto/ObjItem.cpp ItemsDto/ObjItem.h ItemsDto/Radar.cpp ItemsDto/Radar.h Renderer/Opengl/RadarRenderer.cpp Renderer/Opengl/RadarRenderer.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.cpp Handler/BaseKeydownHandle.h Renderer/Opengl/EatRemoveAnimateRenderer.cpp Renderer/Opengl/EatRemoveAnimateRenderer.h ItemsDto/Barriers.cpp ItemsDto/Barriers.h Renderer/Opengl/BarrierRenderer.cpp Renderer/Opengl/BarrierRenderer.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h ItemsDto/ObjWall.cpp ItemsDto/ObjWall.h Renderer/Opengl/ObjWallRenderer.cpp Renderer/Opengl/ObjWallRenderer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/TextModel.cpp Renderer/Opengl/Model/TextModel.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Renderer/Opengl/Model/GameFieldModel.cpp Renderer/Opengl/Model/GameFieldModel.h Renderer/Opengl/Model/RadarModel.cpp Renderer/Opengl/Model/RadarModel.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainRenderer.cpp Renderer/Opengl/RainRenderer.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/AnimationModel.cpp Renderer/Opengl/Model/AnimationModel.h Renderer/Opengl/AnimRenderer.cpp Renderer/Opengl/AnimRenderer.h Renderer/Opengl/Model/Utils/Tree.h)
-target_link_libraries(Tests
-        glfw glut GLU GL GLEW freetype assimp
-        Catch2::Catch2
-)
+catch_discover_tests(Tests)
 #target_include_directories(Tests PRIVATE ${catch2_SOURCE_DIR}/single_include)

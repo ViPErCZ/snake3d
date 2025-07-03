@@ -1,7 +1,8 @@
 #include "../App.h"
 #include <iostream>
 #define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch_all.hpp> // Modernější hlavička pro Catch v3
 #include <cstdint>
 
 using namespace Handler;
