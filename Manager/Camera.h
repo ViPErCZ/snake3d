@@ -22,6 +22,7 @@ namespace Manager {
         [[nodiscard]] float getZoom() const;
         [[nodiscard]] glm::mat4 getViewMatrix() const;
         [[nodiscard]] const glm::vec3 &getPosition() const;
+        [[nodiscard]] const glm::vec3 &getFront() const;
         void setStickyPoint(BaseItem *stickyPoint);
         glm::vec3 getStickyPosition();
         void updateStickyPoint();

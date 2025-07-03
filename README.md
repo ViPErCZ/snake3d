@@ -35,7 +35,7 @@ and rain with drops
 ![Printscreen](Screens/rain_drops.gif "Video rain with drops")
 
 ### Dependencies:
-- assimp - https://assimp-docs.readthedocs.io/en/latest/
+- assimp - v5.2.0 https://github.com/assimp/assimp
 - stb_image - v2.27 - public domain image loader - http://nothings.org/stb
 - tiny_obj_loader - v2.00 - obj model loader - https://github.com/tinyobjloader/tinyobjloader
 - OpenAL

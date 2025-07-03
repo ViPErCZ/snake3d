@@ -1,4 +1,5 @@
 #include "AnimLoader.h"
+#include <assimp/postprocess.h>
 
 namespace Resource {
     shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {

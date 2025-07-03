@@ -29,11 +29,7 @@ void Renderer::GameFieldRenderer::render(float dt) {
     baseShader->setBool("fogEnable", fog);
 
     if (!shadow) {
-        // glm::vec3 lightPos(camera->getPosition().x + 6, camera->getPosition().y + 6, -1.3f);
-        // baseShader->setVec3("lightPos", lightPos);
-        // positions of the point lights
         glm::vec3 pointLightPositions[] = {
-            // glm::vec3( 0.05f,  0.36f,  -0.70f),
             glm::vec3( 0.05f,  0.56f,  1.70f),
             glm::vec3( 1.19f,  0.56f,  1.70f),
         };
@@ -115,24 +111,21 @@ void Renderer::GameFieldRenderer::renderShadowMap() {
     renderScene(shadowShader);
 }
 
-void Renderer::GameFieldRenderer::renderScene(ShaderManager *shader) {
+void Renderer::GameFieldRenderer::renderScene(const ShaderManager *shader) const {
     int x = 0;
     glEnable(GL_DEPTH_TEST);
 
-    for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); Iter++) {
+    for (auto Iter = gameField->getTiles().begin(); Iter < gameField->getTiles().end(); ++Iter) {
         glLoadIdentity();
         if ((*Iter)->isVisible()) {
 
             glm::vec3 position = (*Iter)->getPosition();
-            glm::vec3 zoom = (*Iter)->getZoom();
-
-            // Initialize matrices
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, position);
             shader->setMat4("model", model);
 
             this->model->getMesh()->bind();
-            glDrawElements(GL_TRIANGLES, (int) this->model->getMesh()->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(this->model->getMesh()->getIndices().size()), GL_UNSIGNED_INT, nullptr);
             x++;
         }
     }

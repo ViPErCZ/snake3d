@@ -25,7 +25,7 @@ namespace Renderer {
         void renderShadowMap() override;
 
     protected:
-        void renderScene(ShaderManager* shader);
+        void renderScene(const ShaderManager* shader) const;
         ResourceManager* resourceManager;
         ShaderManager* baseShader;
         ShaderManager* shadowShader;

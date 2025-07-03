@@ -33,6 +33,10 @@ namespace Manager {
         return position;
     }
 
+    const glm::vec3 & Camera::getFront() const {
+        return front;
+    }
+
     void Camera::setStickyPoint(BaseItem *stickyPoint) {
         this->stickyPoint = stickyPoint;
     }

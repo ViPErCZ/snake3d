@@ -2,6 +2,7 @@
 #include <AL/alut.h>
 #include "App.h"
 
+#include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
@@ -70,6 +71,11 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/fire/fire.vs", "Assets/Shaders/fire/fire.fs")));
     resourceManager->addShader("smoke", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/fire/smoke.vs", "Assets/Shaders/fire/smoke.fs")));
+    resourceManager->addShader("boltShader", std::make_shared<ShaderManager>(
+        ShaderLoader::loadShader("Assets/Shaders/bolt/bolt.vs", "Assets/Shaders/bolt/bolt.fs")));
+    resourceManager->addShader("flash", std::make_shared<ShaderManager>(
+        ShaderLoader::loadShader("Assets/Shaders/bolt/flash.vs", "Assets/Shaders/bolt/flash.fs")));
+
 
     InitSnake();
     animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
@@ -107,17 +113,11 @@ void App::Init() {
     rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
     fireRenderer = new FireRenderer(camera, projection, resourceManager);
     torchRenderer = new TorchRenderer(torch, camera, projection, resourceManager);
+    boltRenderer = new BoltRenderer(camera, projection, resourceManager);
     const auto storm = new BaseItem();
     storm->setVisible(false);
 
     initTexts();
-
-    //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
-    // smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(0, 0, -1), projection));
-    //fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
-    // smokes.push_back(std::make_unique<SmokeParticleSystem>(resourceManager, glm::vec3(2.5f, 0, -1), projection));
-    // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(0, 0, 49), projection));
-    // fires.push_back(std::make_unique<FireParticleSystem>(resourceManager, glm::vec3(49, 0, 49), projection));
 
     animateEat = new Eat;
     animateEat->setVisible(false);
@@ -128,8 +128,8 @@ void App::Init() {
 
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
+    rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(objWallRenderer);
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
@@ -137,10 +137,11 @@ void App::Init() {
     rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(radarRenderer);
-    rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(rainRenderer);
+    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(torchRenderer);
     rendererManager->addRenderer(fireRenderer);
+    rendererManager->addRenderer(boltRenderer);
     rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
@@ -464,6 +465,11 @@ void App::processInput(int keyCode) {
             snake->getHeadTile()->setVisible(false);
             animRenderer->setShow(true);
             snakeRenderer->toggleStyle(2);
+            break;
+        case GLFW_KEY_T: // nebo jiná klávesa
+            if (boltRenderer) {
+                boltRenderer->triggerBolt();
+            }
             break;
         default:
             break;

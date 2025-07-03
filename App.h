@@ -32,6 +32,7 @@
 #include <AL/al.h>
 
 #include "Particle/SmokeParticleSystem.h"
+#include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/FireRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 
@@ -92,6 +93,7 @@ private:
     RainDropRenderer* rainDropRenderer{};
     FireRenderer* fireRenderer{};
     TorchRenderer* torchRenderer{};
+    BoltRenderer* boltRenderer{};
     KeyboardManager* keyboardManager;
     CollisionDetector* collisionDetector{};
     EatManager* eatManager;
