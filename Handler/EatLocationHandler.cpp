@@ -36,7 +36,7 @@ namespace Handler {
         int posX = x * 32;
         int posY = y * 32;
 
-        for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
+        for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); ++Iter) {
             if ((int) (*Iter)->tile->getVirtualX() - 16 + 32 >= posX && (int) (*Iter)->tile->getVirtualX() - 16 <= posX
                 && (int) (*Iter)->tile->getVirtualY() - 16 + 32 >= posY && (int) (*Iter)->tile->getVirtualY() - 16 <= posY) {
                 return false;

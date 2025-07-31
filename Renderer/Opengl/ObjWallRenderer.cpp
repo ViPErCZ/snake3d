@@ -34,28 +34,37 @@ namespace Renderer {
         glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 36.3f);
 
         const float fadeSpeed = 4.0f * dt;
-        glm::vec3 cameraPos = glm::vec3(snake->getHeadTile()->getPosition().x, snake->getHeadTile()->getPosition().y, snake->getHeadTile()->getPosition().z);
-        cameraPos.y -= 2;
-        glm::vec3 snakePos = snake->getHeadTile()->getPosition();
-        glm::vec3 rayDir = glm::normalize(snakePos - cameraPos);
-        float rayLen = glm::distance(snakePos, cameraPos);
 
         for (const auto item: wall->getItems()) {
             glLoadIdentity();
 
             bool isOccluding = false;
 
-            // Zde si spočti AABB pro objekt (např. z pozice a velikosti)
-            glm::vec3 itemMin = item->getPosition() - glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
-            glm::vec3 itemMax = item->getPosition() + glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
+            for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); ++Iter) {
+                glm::vec3 snakePos = (*Iter)->tile->getPosition();
+                glm::vec3 cameraPos = snakePos;
+                cameraPos.y -= 2;
+                cameraPos.x -= 1;
+                glm::vec3 rayDir = glm::normalize(snakePos - cameraPos);
+                float rayLen = glm::distance(snakePos, cameraPos);
 
-            if (rayIntersectsAABB(cameraPos, rayDir, itemMin, itemMax, rayLen)) {
-                // item je mezi kamerou a hadem → zprůhlednit
-                isOccluding = true;
+                // Zde si spočti AABB pro objekt (např. z pozice a velikosti)
+                glm::vec3 itemMin = item->getPosition() - glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
+                glm::vec3 itemMax = item->getPosition() + glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
+
+                if (rayIntersectsAABB(cameraPos, rayDir, itemMin, itemMax, rayLen)) {
+                    // item je mezi kamerou a hadem → zprůhlednit
+                    isOccluding = true;
+                    break;
+                }
             }
 
             const float targetAlpha = isOccluding ? 0.1f : 1.0f;
-            item->setCurrentAlpha(glm::mix(item->getCurrentAlpha(), targetAlpha, fadeSpeed));
+            if (item->getCurrentAlpha() == 1.0f) {
+                item->setCurrentAlpha(targetAlpha);
+            } else {
+                item->setCurrentAlpha(glm::mix(item->getCurrentAlpha(), targetAlpha, fadeSpeed));
+            }
 
             if (parallax) {
                 texture1->bind(0);
