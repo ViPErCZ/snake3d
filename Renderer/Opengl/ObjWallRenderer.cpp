@@ -1,8 +1,8 @@
 #include "ObjWallRenderer.h"
 
 namespace Renderer {
-    ObjWallRenderer::ObjWallRenderer(ObjWall *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager)
-        : wall(item), resourceManager(resManager), camera(camera), projection(proj), parallax(false), heightScale(0.1f) {
+    ObjWallRenderer::ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
+        : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false), heightScale(0.1f) {
         mesh = resourceManager->getModel("cube")->getMesh();
         shader = resourceManager->getShader("normalShader");
         texture1 = resourceManager->getTexture("brickwork-texture.jpg");
@@ -25,7 +25,7 @@ namespace Renderer {
         shader->setInt("specularMap", 2);
         shader->setInt("depthMap", 2);
         shader->setBool("parallaxEnable", parallax);
-        shader->setFloat("alpha", 1.0);
+        shader->setFloat("alpha", 0.2);
         shader->setFloat("heightScale", heightScale);
         shader->setBool("fogEnable", fog);
 
@@ -33,8 +33,29 @@ namespace Renderer {
         // -------------
         glm::vec3 lightPos(camera->getPosition().x - 26, camera->getPosition().y - 26, 36.3f);
 
-        for (auto item: wall->getItems()) {
+        const float fadeSpeed = 4.0f * dt;
+        glm::vec3 cameraPos = glm::vec3(snake->getHeadTile()->getPosition().x, snake->getHeadTile()->getPosition().y, snake->getHeadTile()->getPosition().z);
+        cameraPos.y -= 2;
+        glm::vec3 snakePos = snake->getHeadTile()->getPosition();
+        glm::vec3 rayDir = glm::normalize(snakePos - cameraPos);
+        float rayLen = glm::distance(snakePos, cameraPos);
+
+        for (const auto item: wall->getItems()) {
             glLoadIdentity();
+
+            bool isOccluding = false;
+
+            // Zde si spočti AABB pro objekt (např. z pozice a velikosti)
+            glm::vec3 itemMin = item->getPosition() - glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
+            glm::vec3 itemMax = item->getPosition() + glm::vec3(1.0f, 1.0f, 1.0f); // bounding box offset
+
+            if (rayIntersectsAABB(cameraPos, rayDir, itemMin, itemMax, rayLen)) {
+                // item je mezi kamerou a hadem → zprůhlednit
+                isOccluding = true;
+            }
+
+            const float targetAlpha = isOccluding ? 0.1f : 1.0f;
+            item->setCurrentAlpha(glm::mix(item->getCurrentAlpha(), targetAlpha, fadeSpeed));
 
             if (parallax) {
                 texture1->bind(0);
@@ -59,9 +80,20 @@ namespace Renderer {
             shader->setVec3("viewPos", camera->getPosition());
             shader->setVec3("lightPos", lightPos);
             shader->setBool("shadowEnable", true);
+            shader->setFloat("alpha", item->getCurrentAlpha());
+
+            // directional light
+            shader->setVec3("dirLight.direction", lightPos.x, lightPos.y, lightPos.z);
+            shader->setVec3("dirLight.ambient", 0.005f, 0.005f, 0.05f);
+            shader->setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+            shader->setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+            // point light 1
+            shader->setFloat("material.shininess", 32.0f);
+            shader->setInt("material.diffuse", 0);
+            shader->setInt("material.specular", 1);
 
             mesh->bind();
-            glDrawElements(GL_TRIANGLES, (int)mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
         }
 
         glEnable(GL_TEXTURE0);
@@ -110,6 +142,29 @@ namespace Renderer {
         } else {
             heightScale = 1.0f;
         }
+    }
+
+    bool ObjWallRenderer::rayIntersectsAABB(
+        const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& boxMin, const glm::vec3& boxMax, const float maxDistance) {
+        float tMin = 0.0f;
+        float tMax = maxDistance;
+
+        for (int i = 0; i < 3; ++i) {
+            if (std::abs(rayDir[i]) < 1e-8) {
+                if (rayOrigin[i] < boxMin[i] || rayOrigin[i] > boxMax[i])
+                    return false; // Ray parallel to slab
+            } else {
+                float ood = 1.0f / rayDir[i];
+                float t1 = (boxMin[i] - rayOrigin[i]) * ood;
+                float t2 = (boxMax[i] - rayOrigin[i]) * ood;
+                if (t1 > t2) std::swap(t1, t2);
+                tMin = std::max(tMin, t1);
+                tMax = std::min(tMax, t2);
+                if (tMin > tMax)
+                    return false;
+            }
+        }
+        return true;
     }
 
 } // Renderer

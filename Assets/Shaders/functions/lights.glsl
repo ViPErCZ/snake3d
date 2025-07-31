@@ -12,6 +12,13 @@ struct DirLight {
     vec3 specular;
 };
 
+struct MaterialDirLight {
+    vec3 direction;
+
+    vec3 diffuse;
+    vec3 specular;
+};
+
 struct PointLight {
     vec3 position;
 
@@ -42,6 +49,7 @@ struct SpotLight {
 #define NR_POINT_LIGHTS 1
 
 uniform DirLight dirLight;
+uniform MaterialDirLight materialDirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight[NR_POINT_LIGHTS];
 uniform Material material;
@@ -65,6 +73,21 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+
+    return (ambient + diffuse + specular);
+}
+
+vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient)
+{
+    vec3 lightDir = normalize(light.direction - fragPos);
+    // diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+    // specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    // combine results
+    vec3 diffuse = light.diffuse * diff;
+    vec3 specular = light.specular * spec;
 
     return (ambient + diffuse + specular);
 }

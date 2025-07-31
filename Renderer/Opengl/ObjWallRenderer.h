@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../../ItemsDto/ObjWall.h"
+#include "../../ItemsDto/Snake.h"
+
 
 using namespace ItemsDto;
 using namespace Manager;
@@ -15,7 +17,7 @@ namespace Renderer {
 
     class ObjWallRenderer : public BaseRenderer {
     public:
-        explicit ObjWallRenderer(ObjWall *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager);
         ~ObjWallRenderer() override;
         void render(float dt) override;
         void beforeRender() override;
@@ -26,6 +28,8 @@ namespace Renderer {
         void upScale();
 
     protected:
+        static bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& boxMin, const glm::vec3& boxMax, float maxDistance);
+        Snake* snake;
         ObjWall* wall;
         Mesh* mesh;
         Camera* camera;

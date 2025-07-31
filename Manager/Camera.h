@@ -24,7 +24,7 @@ namespace Manager {
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] const glm::vec3 &getFront() const;
         void setStickyPoint(BaseItem *stickyPoint);
-        glm::vec3 getStickyPosition();
+        glm::vec3 getStickyPosition() const;
         void updateStickyPoint();
         void processMouseMovement(double x, double y);
         void processKeyboard(Camera_Movement direction, float deltaTime);

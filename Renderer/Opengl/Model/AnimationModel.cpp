@@ -102,7 +102,7 @@ namespace Model {
     }
 
     void AnimationModel::updateAnimation(const Animation *animation) const {
-        auto meta = metadata.at(animation->name);
+        const auto meta = metadata.at(animation->name);
         if (meta && !meta->pause) {
             const Animation &anim = *animation;
             const auto current_time = std::chrono::steady_clock::now();
@@ -151,7 +151,7 @@ namespace Model {
             } catch (const std::exception &e) {
                 throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
             }
-        } else {
+        } else if (meta) {
             meta->last_time = std::chrono::steady_clock::now();
         }
     }
@@ -170,8 +170,8 @@ namespace Model {
 
     void AnimationModel::setGlobalPause(bool globalPause) {
         AnimationModel::globalPause = globalPause;
-        for (auto &meta: metadata) {
-            meta.second->pause = globalPause;
+        for (const auto &[key, meta]: metadata) {
+            meta->pause = globalPause;
         }
     }
 

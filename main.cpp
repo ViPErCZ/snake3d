@@ -8,8 +8,8 @@ using namespace std;
 int W_WIDTH = 1920;
 int W_HEIGHT = 1080;
 
-double lastX = (double)W_WIDTH / 2.0f;
-double lastY = (double)W_HEIGHT / 2.0f;
+double lastX = static_cast<double>(W_WIDTH) / 2.0f;
+double lastY = static_cast<double>(W_HEIGHT) / 2.0f;
 bool firstMouse = true;
 
 void mouse_callback(GLFWwindow* window, double x, double y);
@@ -22,7 +22,6 @@ auto camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 App *app = new App(camera, W_WIDTH, W_HEIGHT);
 
 int main(int argc, char *argv[]) {
-    GLFWwindow *window;
     if (!glfwInit()) { return 1; }
 
     glfwSetErrorCallback([](int error, const char *description) {
@@ -35,7 +34,7 @@ int main(int argc, char *argv[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     //glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Snake 3", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(W_WIDTH, W_HEIGHT, "Snake 3", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         return 1;
@@ -53,9 +52,7 @@ int main(int argc, char *argv[]) {
     glViewport(0, 0, W_WIDTH, W_HEIGHT);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    // Enables the Stencil Buffer
     glEnable(GL_STENCIL_TEST);
-    // Sets rules for outcomes of stecil tests
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     GLenum err;
@@ -88,30 +85,30 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
+// process all inputs: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ----------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera->processKeyboard(Camera_Movement::FORWARD, 0.1);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera->processKeyboard(Camera_Movement::BACKWARD, 0.1);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera->processKeyboard(Camera_Movement::LEFT, 0.1);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera->processKeyboard(Camera_Movement::RIGHT, 0.1);
-    }
+    // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    //     camera->processKeyboard(Camera_Movement::FORWARD, 0.1);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    //     camera->processKeyboard(Camera_Movement::BACKWARD, 0.1);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    //     camera->processKeyboard(Camera_Movement::LEFT, 0.1);
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    //     camera->processKeyboard(Camera_Movement::RIGHT, 0.1);
+    // }
 }
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+// glfw: whenever the window size changed (by OS or user resize), this callback function executes
+// ----------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, const int width, const int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
@@ -123,32 +120,32 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double x, double y)
 {
-    if (firstMouse)
-    {
-        lastX = x;
-        lastY = y;
-        firstMouse = false;
-    }
-
-    double offsetX = x - lastX;
-    double offsetY = lastY - y; // reversed since y-coordinates go from bottom to top
-
-    lastX = x;
-    lastY = y;
-
-//    camera->processMouseMovement(offsetX, offsetY);
+    // if (firstMouse)
+    // {
+    //     lastX = x;
+    //     lastY = y;
+    //     firstMouse = false;
+    // }
+    //
+    // const double offsetX = x - lastX;
+    // const double offsetY = lastY - y; // reversed since y-coordinates go from bottom to top
+    //
+    // lastX = x;
+    // lastY = y;
+    //
+    // camera->processMouseMovement(offsetX, offsetY);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double offsetX, double offsetY)
 {
-    //camera.processMouseScroll(offsetY);
+    // camera->processMouseScroll(offsetY);
 }
 
 // glfw: keyboard callback is called
 // ----------------------------------------------------------------------
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
 {
     if (action == GLFW_PRESS) {
         app->processInput(key);

@@ -101,8 +101,8 @@ void App::Init() {
     eatManager = new EatManager(eatLocationHandler);
 
     snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
-    objWallRenderer = new ObjWallRenderer(objWall, camera, projection, resourceManager);
-    barrierRenderer = new BarrierRenderer(barriers, camera, projection, resourceManager);
+    objWallRenderer = new ObjWallRenderer(snake, objWall, camera, projection, resourceManager);
+    barrierRenderer = new BarrierRenderer(snake, barriers, camera, projection, resourceManager);
     eatRenderer = new EatRenderer(eat, camera, projection, resourceManager);
     radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
     textRenderer = new TextRenderer(width, height);
@@ -127,15 +127,15 @@ void App::Init() {
     rendererManager->setHeight(height);
     rendererManager->addRenderer(skyboxRenderer);
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(objWallRenderer);
-    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
-    rendererManager->addRenderer(rainDropRenderer);
     rendererManager->addRenderer(animRenderer);
+    rendererManager->addRenderer(snakeRenderer);
+    rendererManager->addRenderer(rainDropRenderer);
+    rendererManager->addRenderer(objWallRenderer);
+    rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(radarRenderer);
     rendererManager->addRenderer(rainRenderer);
-    rendererManager->addRenderer(snakeRenderer);
     rendererManager->addRenderer(torchRenderer);
     rendererManager->addRenderer(fireRenderer);
     rendererManager->addRenderer(boltRenderer);
@@ -144,6 +144,9 @@ void App::Init() {
     rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
+
+    // pruhlednost se objevuje nepresne
+    // idealni aby nebyla kosticka cela pruhledna, spodek kostky by mohl byt nepruhledny, ted to kvuli tomu divne mrka
 
     auto animHead = resourceManager->getAnimationModel("pacman");
     animHead->setBaseItem(snake->getHeadTile());
@@ -397,7 +400,6 @@ void App::run() {
     glClearColor(.0, .0, .0, 0);
     glViewport(0, 0, width, height);
 
-    camera->updateStickyPoint();
     rendererManager->render(deltaTime);
     keyboardManager->runDefault();
     if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti

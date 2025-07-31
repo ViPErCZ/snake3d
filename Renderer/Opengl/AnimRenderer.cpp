@@ -9,7 +9,7 @@ namespace Renderer {
         this->camera = camera;
         this->projection = projection;
         this->tile = tile;
-        baseShader = resourceManager->getShader("normalShader");
+        shader = resourceManager->getShader("normalShader");
         shadowShader = resourceManager->getShader("shadowDepthShader");
     }
 
@@ -19,18 +19,29 @@ namespace Renderer {
 
     void AnimRenderer::render(float dt) {
         if (show) {
-            baseShader->use();
-            baseShader->setMat4("view", camera->getViewMatrix());
-            baseShader->setMat4("projection", projection);
-            baseShader->setVec3("viewPos", camera->getPosition());
-            baseShader->setBool("useMaterial", true);
-            glm::vec3 lightPos(model->getBaseItem()->getPosition().x, model->getBaseItem()->getPosition().y + 6, -55.3f);
-            baseShader->setVec3("lightPos", lightPos);
+            shader->use();
+            shader->setMat4("view", camera->getViewMatrix());
+            shader->setMat4("projection", projection);
+            shader->setVec3("viewPos", camera->getPosition());
+            shader->setBool("useMaterial", true);
+            const glm::vec3 lightPos(
+                model->getBaseItem()->getPosition().x,
+                model->getBaseItem()->getPosition().y,
+                model->getBaseItem()->getPosition().z + glfwGetTime()
+            );
+            // shader->setVec3("lightPos", lightPos);
+            shader->setBool("useMaterial", true);
+            // directional light
+            shader->setVec3("materialDirLight.direction", lightPos.x, lightPos.y, lightPos.z);
+            shader->setVec3("materialDirLight.diffuse", 0.8f, 0.8f, 0.8f);
+            shader->setVec3("materialDirLight.specular", 0.5f, 0.5f, 0.5f);
+            // point light 1
+            shader->setFloat("material.shininess", 32.0f);
 
-            renderScene(baseShader);
+            renderScene(shader);
 
-            baseShader->setBool("useBones", false);
-            baseShader->setBool("useMaterial", false);
+            shader->setBool("useBones", false);
+            shader->setBool("useMaterial", false);
         }
     }
 
@@ -80,17 +91,17 @@ namespace Renderer {
                 auto animation = &(*found);
                 model->updateAnimation(animation);
                 for (int i = 0; i < model->getMetadata(animation)->bone_transform.size(); ++i) {
-                    baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
+                    shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
                                         model->getMetadata(animation)->bone_transform[i]);
                 }
                 for (auto item: model->getMeshes()) {
                     if (item->getName() ==
                         animation->nodes[0].bone.meshName) {
                         if (!item->isHasBones()) {
-                            baseShader->setBool("useBones", false);
+                            shader->setBool("useBones", false);
                             shader->setMat4("model", modelTrans * item->getGlobalTransformation());
                         } else {
-                            baseShader->setBool("useBones", true);
+                            shader->setBool("useBones", true);
                             shader->setMat4("model", modelTrans);
                         }
                         item->bind();
@@ -101,7 +112,7 @@ namespace Renderer {
         }
 
         for (auto item: model->getNoBonesMeshes()) {
-            baseShader->setBool("useBones", false);
+            shader->setBool("useBones", false);
             shader->setMat4("model", modelTrans * item->getGlobalTransformation());
             item->bind();
             glDrawElements(GL_TRIANGLES, (int) item->getIndices().size(), GL_UNSIGNED_INT, nullptr);

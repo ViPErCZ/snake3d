@@ -21,7 +21,7 @@ vec2 TexCoords = fs_in.TexCoords;
 
 #include "pipeline/shading/shading.glsl"
 #include "pipeline/fog/fog.glsl"
-#include "functions/light_point.glsl"
+#include "functions/lights.glsl"
 
 void main()
 {
@@ -58,13 +58,8 @@ void main()
         specular = vec3(0.0);
 
         vec3 norm = normalize(fs_in.Normal);
-        vec3 result = vec3(0); //CalcDirLight(dirLight, norm, viewDir);
+        vec3 result = vec3(0);
 
-//         for(int i = 0; i < NR_POINT_LIGHTS; i++) {
-//             result += CalcPointLight(pointLights[i], norm, fs_in.FragPos, viewDir);
-//         }
-
-        // phase 3: spot light
         for(int i = 0; i < NR_POINT_LIGHTS; i++) {
             result += CalcSpotLight(spotLight[i], norm, fs_in.FragPos, viewDir);
         }

@@ -6,8 +6,12 @@
 namespace ItemsDto {
 
     class Cube : public BaseItem  {
+    public:
+        float getCurrentAlpha() const;
+        void setCurrentAlpha(float currentAlpha);
+    protected:
+        float currentAlpha = 1.0f;
     };
-
 } // ItemsDto
 
 #endif //SNAKE3_CUBE_H

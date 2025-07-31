@@ -16,15 +16,18 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
-uniform vec3 lightPos;
+// uniform vec3 lightPos;
 uniform vec3 viewPos;
 
 uniform bool useMaterial = false;
 uniform bool parallaxEnable = false;
 
+vec2 TexCoords = fs_in.TexCoords;
+
 #include "pipeline/parallax/parallax.glsl"
 #include "pipeline/fog/fog.glsl"
 #include "pipeline/blending/alpha.glsl"
+#include "functions/lights.glsl"
 
 void main()
 {
@@ -33,20 +36,9 @@ void main()
         float ambientStrength = 0.4;
         vec3 ambient = ambientStrength * fs_in.Color;
 
-        // diffuse
-        vec3 norm = normalize(fs_in.FragPos);
-        vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * vec3(0.8, 0.8, 0.8);
-
-        // specular
-        float specularStrength = 0.6;
         vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-        vec3 specular = specularStrength * spec * fs_in.Color;
-
-        vec3 result = (ambient + diffuse + specular) * fs_in.Color;
+        vec3 norm = normalize(fs_in.FragPos);
+        vec3 result = CalcDirLightMaterial(materialDirLight, norm, viewDir, fs_in.FragPos, ambient) * fs_in.Color;
         FragColor = alphaBlending(result);
     } else {
         vec2 texCoords = fs_in.TexCoords;

@@ -30,7 +30,7 @@ namespace Renderer {
         void renderScene(const ShaderManager* shader);
         AnimationModel* model;
         ResourceManager* resourceManager;
-        ShaderManager* baseShader;
+        ShaderManager* shader;
         ShaderManager* shadowShader;
         glm::mat4 projection{};
         Camera* camera;
