@@ -24,6 +24,7 @@ namespace Manager {
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] const glm::vec3 &getFront() const;
         void setStickyPoint(BaseItem *stickyPoint);
+        BaseItem* getStickyPoint() const;
         glm::vec3 getStickyPosition() const;
         void updateStickyPoint();
         void processMouseMovement(double x, double y);
@@ -32,6 +33,7 @@ namespace Manager {
         void setPosition(const glm::vec3& pos);
         void setFront(const glm::vec3& front);
         void setUp(const glm::vec3& up);
+        void onMouseDown(int button, int action, int mods);
 
     protected:
         glm::vec3 position{};
@@ -43,6 +45,7 @@ namespace Manager {
         BaseItem* stickyPoint{};
         float YAW = -90.0f; // 90
         float PITCH = 56.0f;
+        bool rightButtonPressed = false;
 
         void updateCameraVectors();
     };

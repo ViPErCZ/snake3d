@@ -2,7 +2,7 @@
 
 namespace Renderer {
     ObjWallRenderer::ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
-        : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false), heightScale(0.1f) {
+        : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false) {
         mesh = resourceManager->getModel("cube")->getMesh();
         shader = resourceManager->getShader("normalShader");
         texture1 = resourceManager->getTexture("brickwork-texture.jpg");
@@ -26,7 +26,6 @@ namespace Renderer {
         shader->setInt("depthMap", 2);
         shader->setBool("parallaxEnable", parallax);
         shader->setFloat("alpha", 0.2);
-        shader->setFloat("heightScale", heightScale);
         shader->setBool("fogEnable", fog);
 
         // lighting info
@@ -134,22 +133,6 @@ namespace Renderer {
             texture1 = resourceManager->getTexture("brickwork-texture.jpg");
             texture2 = resourceManager->getTexture("brickwork_normal-map.jpg");
             texture3 = resourceManager->getTexture("brickwork-bump-map.jpg");
-        }
-    }
-
-    void ObjWallRenderer::downScale() {
-        if (heightScale > 0.0f) {
-            heightScale -= 0.05f;
-        } else {
-            heightScale = 0.0f;
-        }
-    }
-
-    void ObjWallRenderer::upScale() {
-        if (heightScale < 1.0f) {
-            heightScale += 0.05f;
-        } else {
-            heightScale = 1.0f;
         }
     }
 

@@ -2,6 +2,7 @@
 #include <AL/alut.h>
 #include "App.h"
 
+#include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Resource/AnimLoader.h"
@@ -45,6 +46,8 @@ void App::Init() {
             ShaderLoader::loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs")));
     resourceManager->addShader("basicShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs")));
+    resourceManager->addShader("colorShader", std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader("Assets/Shaders/color.vs", "Assets/Shaders/color.fs")));
     resourceManager->addShader("respawnShader", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/respawn/respawn.fs")));
     resourceManager->addShader("normalShader", std::make_shared<ShaderManager>(
@@ -73,6 +76,12 @@ void App::Init() {
         ShaderLoader::loadShader("Assets/Shaders/bolt/bolt.vs", "Assets/Shaders/bolt/bolt.fs")));
     resourceManager->addShader("flash", std::make_shared<ShaderManager>(
         ShaderLoader::loadShader("Assets/Shaders/bolt/flash.vs", "Assets/Shaders/bolt/flash.fs")));
+    resourceManager->addShader("gizmoShader", std::make_shared<ShaderManager>(
+        ShaderLoader::loadShader(
+            "Assets/Shaders/gizmo/gizmo.vs",
+            "Assets/Shaders/gizmo/gizmo.geom",
+            "Assets/Shaders/gizmo/gizmo.fs"
+            )));
 
 
     InitSnake();
@@ -88,11 +97,16 @@ void App::Init() {
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
-    barriers = InitBarriers();
+    barriers = new Barriers();
     radar = CreateRadar();
     InitRadar();
     const auto torch = new Cube();
-    torch->setPosition(glm::vec3(0.3, 0, -8.2));
+    torch->setPosition(glm::vec3(0.33, 0, -8.2));
+    torch->setRotate(
+        glm::vec4(1.0, 0.0, 0.0, 90.0f),
+        glm::vec4(0.0, 1.0, 0.0, 0.0f),
+        glm::vec4(0.0, 0.0, 1.0, 0.0f));
+    torch->setZoom({0.12, 0.12, 0.12});
 
     levelManager = new LevelManager(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
@@ -250,8 +264,13 @@ void App::Init() {
 
         }
     });
+    const auto positionHandler = new PositionHandler(camera);
+    positionHandler->addItem(torch);
+    positionHandler->addItem(eat);
+
     keyboardManager->addEventHandler(snakeMoveHandler);
     keyboardManager->addEventHandler(radarHandler);
+    keyboardManager->addEventHandler(positionHandler);
 
     musicBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/snake.wav");
     coinBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/coin.wav");
@@ -289,12 +308,12 @@ void App::initTexts() const {
     }
 }
 
-Eat *App::InitEat() {
+Eat *App::InitEat() const {
     eat->setVirtualX((((int) (23 - (-23)) / 2) * 32) + 16);
     eat->setVirtualY((((int) (-3 - (-23)) / 2) * 32) + 16);
     eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
-
-    eat->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1});
+    eat->setZoom({0.013888889, 0.013888889, 0.013888889});
+    eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
     eat->setVisible(false);
 
     return eat;
@@ -312,12 +331,6 @@ Snake *App::InitSnake() {
     snake->init();
 
     return snake;
-}
-
-Barriers *App::InitBarriers() {
-    barriers = new Barriers();
-
-    return barriers;
 }
 
 void App::InitRadar() {
@@ -386,9 +399,7 @@ void App::InitResourceManager() {
     resourceManager->addTexture("skybox", texture);
 }
 
-void App::run() {
-    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), (float) width / (float) height, 1.5f,
-                                            2600.0f);
+void App::run() const {
     static float lastFrame = 0.0f;
     const auto currentFrame = static_cast<float>(glfwGetTime());
     float deltaTime = currentFrame - lastFrame;
@@ -407,8 +418,8 @@ void App::run() {
     }
 }
 
-void App::processInput(int keyCode) {
-    keyboardManager->onKeyPress(keyCode);
+void App::processInput(const int keyCode, int scancode, const int action, int mods) const {
+    keyboardManager->onKeyPress(keyCode, scancode, action, mods);
 
     switch (keyCode) {
         case GLFW_KEY_V:
@@ -417,16 +428,6 @@ void App::processInput(int keyCode) {
         case GLFW_KEY_P:
             if (objWallRenderer) {
                 objWallRenderer->toggleParallax();
-            }
-            break;
-        case GLFW_KEY_RIGHT:
-            if (objWallRenderer) {
-                objWallRenderer->upScale();
-            }
-            break;
-        case GLFW_KEY_LEFT:
-            if (objWallRenderer) {
-                objWallRenderer->downScale();
             }
             break;
         case GLFW_KEY_B:
@@ -473,6 +474,28 @@ void App::processInput(int keyCode) {
         default:
             break;
     }
+}
+
+void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            torchRenderer->onMouseDown(cursor, width, height);
+        } else if (action == GLFW_RELEASE) {
+            torchRenderer->onMouseUp();
+        }
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        camera->onMouseDown(button, action, mods);
+    }
+}
+
+void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
+    const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
+    torchRenderer->onMouseMove(cursor, width, height);
 }
 
 #pragma clang diagnostic pop

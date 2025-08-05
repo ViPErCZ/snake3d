@@ -13,13 +13,14 @@ double lastY = static_cast<double>(W_HEIGHT) / 2.0f;
 bool firstMouse = true;
 
 void mouse_callback(GLFWwindow* window, double x, double y);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double offsetX, double offsetY);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
 
 auto camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-App *app = new App(camera, W_WIDTH, W_HEIGHT);
+auto app = new App(camera, W_WIDTH, W_HEIGHT);
 
 int main(int argc, char *argv[]) {
     if (!glfwInit()) { return 1; }
@@ -42,6 +43,7 @@ int main(int argc, char *argv[]) {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     glewInit();
@@ -134,6 +136,11 @@ void mouse_callback(GLFWwindow* window, double x, double y)
     // lastY = y;
     //
     // camera->processMouseMovement(offsetX, offsetY);
+    app->mousePositionCallback(window, x, y);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    app->mouseButtonCallback(window, button, action, mods);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
@@ -147,7 +154,7 @@ void scroll_callback(GLFWwindow* window, double offsetX, double offsetY)
 // ----------------------------------------------------------------------
 void key_callback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
 {
-    if (action == GLFW_PRESS) {
-        app->processInput(key);
+    if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+        app->processInput(key, scancode, action, mods);
     }
 }

@@ -15,7 +15,7 @@ namespace Manager {
     public:
         virtual ~KeyboardManager();
         void addEventHandler(BaseKeydownHandle* handler);
-        void onKeyPress(int keyCode);
+        void onKeyPress(int keyCode, int scancode, const int action, int mods);
         void runDefault();
     protected:
         vector<BaseKeydownHandle*> handlers;

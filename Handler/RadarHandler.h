@@ -8,10 +8,10 @@ using namespace ItemsDto;
 
 namespace Handler {
 
-    class RadarHandler : public BaseKeydownHandle {
+    class RadarHandler final : public BaseKeydownHandle {
     public:
         explicit RadarHandler(Radar *radar);
-        void onEventHandler(unsigned int key) override;
+        void onEventHandler(unsigned int key, int scancode, int action, int mods) override;
         void onDefaultHandler() override;
 
     protected:

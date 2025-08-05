@@ -41,7 +41,6 @@ namespace Renderer {
         TextureManager* texture3;
         TextureManager* texture4;
         bool parallax;
-        float heightScale;
     };
 
 } // Renderer

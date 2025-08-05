@@ -24,6 +24,9 @@ namespace Resource {
     class ShaderLoader {
     public:
         static unsigned int loadShader(const fs::path& vertexPath, const fs::path& fragmentPath);
+        static unsigned int loadShader(const fs::path& vertexPath,
+                                 const fs::path& geometryPath,
+                                 const fs::path& fragmentPath);
     protected:
         static void replaceIncludes(const fs::path& base_dir, const string &path, string &source);
         static void resolveIncludes(const fs::path& base_dir, std::string& src);

@@ -16,7 +16,7 @@ namespace Handler {
     public:
         ~SnakeMoveHandler() override;
         explicit SnakeMoveHandler(Snake *snake, AnimationModel* animHead);
-        void onEventHandler(unsigned int key) override;
+        void onEventHandler(unsigned int key, int scancode, const int action, int mods) override;
         void onDefaultHandler() override;
         void setCollisionDetector(CollisionDetector *collisionDetector);
         void setStartMoveCallback(const function<void(void)> &startMoveCallback);

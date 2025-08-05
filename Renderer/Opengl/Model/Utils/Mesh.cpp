@@ -34,6 +34,10 @@ namespace ModelUtils {
         return indices;
     }
 
+    const vector<Vertex> & Mesh::getVertices() const {
+        return vertices;
+    }
+
     void Mesh::bind() {
         vao->bind();
     }

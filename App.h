@@ -53,17 +53,18 @@ public:
     App(Camera* camera, int width, int height);
     ~App();
     void Init();
-    void run();
-    void processInput(int keyCode);
+    void run() const;
+    void processInput(int keyCode, int scancode, int action, int mods) const;
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    void mousePositionCallback(GLFWwindow* window, double x, double y) const;
 protected:
     void InitResourceManager();
     GameField* InitGameField();
     Snake* InitSnake();
     ObjWall* InitObjWall(); // outer wall
-    Barriers* InitBarriers(); // inter barriers
     static Radar* CreateRadar();
     void InitRadar();
-    Eat *InitEat();
+    [[nodiscard]] Eat *InitEat() const;
     void initTexts() const;
 private:
     LevelManager* levelManager{};
@@ -77,7 +78,7 @@ private:
     Eat* eat;
     Radar* radar{};
     ObjWall* objWall{};
-    Barriers* barriers{};
+    Barriers* barriers = nullptr;
     Cube* skybox{};
     SnakeRenderer* snakeRenderer{};
     ObjWallRenderer* objWallRenderer{};

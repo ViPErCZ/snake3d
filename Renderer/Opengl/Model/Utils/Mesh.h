@@ -24,6 +24,7 @@ namespace ModelUtils {
         virtual ~Mesh();
 
         [[nodiscard]] const vector<GLuint> &getIndices() const;
+        [[nodiscard]] const vector<Vertex> &getVertices() const;
         [[nodiscard]] const glm::mat4 &getGlobalTransformation() const;
         [[nodiscard]] bool isHasBones() const;
         [[nodiscard]] const string &getName() const;

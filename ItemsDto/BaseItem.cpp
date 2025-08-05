@@ -1,18 +1,37 @@
 #include "BaseItem.h"
 
+#include <glm/ext/matrix_transform.hpp>
+
 namespace ItemsDto {
-    BaseItem::BaseItem(): width(1), height(1), visible(true), alpha(1.0f), startFadeOut(false) {
-        rotate[0].a = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
-        rotate[1].a = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
-        rotate[2].a = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
+    BaseItem::BaseItem(): visible(true), width(1), height(1), startFadeOut(false), alpha(1.0f) {
+        rotate[0].w = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
+        rotate[1].w = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
+        rotate[2].w = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
     }
 
     const glm::vec3 &BaseItem::getPosition() const {
         return position;
     }
 
+    glm::mat4 BaseItem::getWorldMatrix() const {
+        auto model = glm::mat4(1.0f);
+
+        model = glm::scale(model, zoom);
+        model = glm::translate(model, position);
+
+        if (rotate[0].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[0].w), glm::vec3(rotate[0].x, rotate[0].y, rotate[0].z));
+        if (rotate[1].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[1].w), glm::vec3(rotate[1].x, rotate[1].y, rotate[1].z));
+        if (rotate[2].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[2].w), glm::vec3(rotate[2].x, rotate[2].y, rotate[2].z));
+
+        return model;
+    }
+
     void BaseItem::setPosition(const glm::vec3 &position) {
         BaseItem::position = position;
+    }
+
+    void BaseItem::setWorldMatrix(const glm::mat4 &matrix) {
+        BaseItem::worldMatrix = matrix;
     }
 
     bool BaseItem::isVisible() const {

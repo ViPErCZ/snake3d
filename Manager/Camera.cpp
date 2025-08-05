@@ -24,7 +24,7 @@ namespace Manager {
     }
 
     glm::mat4 Camera::getViewMatrix() const {
-        const glm::vec3 target = stickyPoint->getPosition() / 21.0f;
+        const auto target = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
         const glm::vec3 cameraPos = target + glm::vec3(0.0f, -3.5f, 3.0f);
 
         return glm::lookAt(cameraPos, target, glm::vec3(0, 0, 1));
@@ -42,6 +42,10 @@ namespace Manager {
         this->stickyPoint = stickyPoint;
     }
 
+    BaseItem* Camera::getStickyPoint() const {
+        return stickyPoint;
+    }
+
     glm::vec3 Camera::getStickyPosition() const {
         return stickyPoint->getPosition();
     }
@@ -56,6 +60,9 @@ namespace Manager {
 
     void Camera::setUp(const glm::vec3& up) {
         this->up = up;
+    }
+
+    void Camera::onMouseDown(int button, int action, int mods) {
     }
 
     void Camera::processMouseMovement(double x, double y) {

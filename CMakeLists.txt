@@ -29,6 +29,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/BoltRenderer.h
         Renderer/Opengl/Effects/LightningFlashEffect.cpp
         Renderer/Opengl/Effects/LightningFlashEffect.h
+        Handler/Debug/PositionHandler.cpp
+        Handler/Debug/PositionHandler.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
 
@@ -107,6 +109,8 @@ set(APP_SOURCES
         Resource/TextureLoader.cpp
         Resource/ShaderLoader.cpp
         Resource/AnimLoader.cpp
+        Handler/Debug/PositionHandler.cpp
+        Handler/Debug/PositionHandler.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---

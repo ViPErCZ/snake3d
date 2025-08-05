@@ -81,10 +81,10 @@ void FireParticleSystem::render(const glm::mat4& view, const glm::mat4& projecti
     glDisable(GL_BLEND);
 }
 
-void FireParticleSystem::update(float dt) {
+void FireParticleSystem::update(float dt, glm::vec3 offset) {
     // Každý snímek přidáme několik nových částic pro plynulý efekt
     for(int i = 0; i < 5; ++i) {
-        addParticle();
+        addParticle(offset);
     }
 
     for (int i = 0; i < maxParticles; ++i) {
@@ -105,7 +105,7 @@ void FireParticleSystem::update(float dt) {
     }
 }
 
-void FireParticleSystem::addParticle() {
+void FireParticleSystem::addParticle(const glm::vec3 offset) {
     // Najdeme první "mrtvou" částici, kterou můžeme znovu použít
     for (int i = 0; i < maxParticles; ++i) {
         int index = (lastUsedParticle + i) % maxParticles;
@@ -114,7 +114,8 @@ void FireParticleSystem::addParticle() {
 
             // Rodí se v menší oblasti (poloměr 0.15f místo 0.3f)
             glm::vec2 spawnDisk = glm::diskRand(0.015f);
-            p.position = glm::vec3(0.038 + spawnDisk.x, -0.012f, -0.76f);
+            //p.position = glm::vec3(0.038 + spawnDisk.x, -0.012f, -0.76f);
+            p.position = glm::vec3(spawnDisk.x, 0.012f, spawnDisk.y) + offset;
 
             // Rychlost je menší, aby oheň nebyl tak vysoký
             p.velocity.x = glm::linearRand(-0.005f, 0.005f); // Menší rozptyl do stran

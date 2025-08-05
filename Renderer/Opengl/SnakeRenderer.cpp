@@ -67,11 +67,7 @@ namespace Renderer {
                 glm::vec3 position = (*snakeTileIter)->tile->getPosition();
                 auto model = glm::mat4(1.0f);
                 model = glm::translate(model, {0.0, 0.0, 0.0});
-                if (snakeTileIter == this->snake->getItems().begin()) {
-                    model = glm::scale(model, {0.041667f, 0.041667f, 0.041667f});
-                } else {
-                    model = glm::scale(model, {0.041666667f, 0.041666667f, 0.041666667f});
-                }
+                model = glm::scale(model, (*snakeTileIter)->tile->getZoom());
                 model = glm::translate(model, position);
 
                 shader->setMat4("model", model);

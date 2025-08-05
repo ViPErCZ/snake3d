@@ -20,12 +20,12 @@ class FireParticleSystem {
 public:
     FireParticleSystem(ResourceManager& resourceManager, int maxParticles);
 
-    void update(float dt);
+    void update(float dt, glm::vec3 offset);
     void render(const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
     void init();
-    void addParticle();
+    void addParticle(glm::vec3 offset);
 
     std::vector<FireParticle> particles;
     int maxParticles;

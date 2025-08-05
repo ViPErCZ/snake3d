@@ -61,6 +61,7 @@ namespace Handler {
                 eat->setVirtualX((int)newPos.x * 32 + 16);
                 eat->setVirtualY((int)newPos.y * 32 + 16);
                 eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
+                eat->setZoom({0.013888889, 0.013888889, 0.013888889});
                 eat->setVisible(true);
                 break;
             } catch (const std::invalid_argument &e) {
@@ -98,7 +99,7 @@ namespace Handler {
         counter++;
 
         for(int x = 0; x < counter + 1; x++) {
-            auto tile = snake->addTile((*snake->getItems().begin())->direction);
+            const auto tile = snake->addTile((*snake->getItems().begin())->direction);
             if (tile != nullptr) {
                 radar->addItem(tile->tile, {0.278, 1., 0.});
             }

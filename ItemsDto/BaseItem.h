@@ -13,7 +13,9 @@ namespace ItemsDto {
         BaseItem();
 
         void setPosition(const glm::vec3 &position);
+        void setWorldMatrix(const glm::mat4 &matrix);
         [[nodiscard]] const glm::vec3 &getPosition() const;
+        [[nodiscard]] glm::mat4 getWorldMatrix() const;
         [[nodiscard]] bool isVisible() const;
         void setVisible(bool visible);
         void toggleVisible();
@@ -37,8 +39,9 @@ namespace ItemsDto {
         [[nodiscard]] bool isStartFade() const;
 
     protected:
+        glm::mat4 worldMatrix{};
         glm::vec3 position{};
-        glm::vec3 zoom{};
+        glm::vec3 zoom{1.0f, 1.0f, 1.0f};
         glm::vec4 rotate[3]{};
         bool visible{};
         GLfloat width;

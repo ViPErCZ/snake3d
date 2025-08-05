@@ -22,6 +22,7 @@ namespace Renderer {
         SmokeParticleSystem *smokes;
         Camera* camera;
         glm::mat4 projection{};
+        glm::vec3 offset{};
     };
 } // Renderer
 

@@ -56,6 +56,66 @@ namespace Resource {
         return program;
     }
 
+    unsigned int ShaderLoader::loadShader(const fs::path &vertexPath,
+                                          const fs::path &geometryPath,
+                                          const fs::path &fragmentPath) {
+        GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+        GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+        GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+        // Načtení shaderů
+        std::string vertShaderStr = readFile(vertexPath);
+        std::string geomShaderStr = readFile(geometryPath);
+        std::string fragShaderStr = readFile(fragmentPath);
+
+        // Zpracování includes
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertShaderStr);
+        replaceIncludes(geometryPath.parent_path(), geometryPath, geomShaderStr);
+        replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragShaderStr);
+
+        const char *vertShaderSrc = vertShaderStr.c_str();
+        const char *geomShaderSrc = geomShaderStr.c_str();
+        const char *fragShaderSrc = fragShaderStr.c_str();
+
+        // Kompilace vertex shaderu
+        std::cout << "Kompilace vertex shaderu." << std::endl;
+        glShaderSource(vertShader, 1, &vertShaderSrc, nullptr);
+        glCompileShader(vertShader);
+        checkCompileErrors(vertShader, "VERTEX");
+
+        // Kompilace geometry shaderu
+        std::cout << "Kompilace geometry shaderu." << std::endl;
+        glShaderSource(geomShader, 1, &geomShaderSrc, nullptr);
+        glCompileShader(geomShader);
+        checkCompileErrors(geomShader, "GEOMETRY");
+
+        // Kompilace fragment shaderu
+        std::cout << "Kompilace fragment shaderu." << std::endl;
+        glShaderSource(fragShader, 1, &fragShaderSrc, nullptr);
+        glCompileShader(fragShader);
+        checkCompileErrors(fragShader, "FRAGMENT");
+
+        // Vytvoření a linkování shader programu
+        std::cout << "Linkování programu" << std::endl;
+        GLuint program = glCreateProgram();
+        glAttachShader(program, vertShader);
+        glAttachShader(program, geomShader);
+        glAttachShader(program, fragShader);
+        glLinkProgram(program);
+        checkCompileErrors(program, "PROGRAM");
+
+        // Úklid
+        glDetachShader(program, vertShader);
+        glDetachShader(program, geomShader);
+        glDetachShader(program, fragShader);
+        glDeleteShader(vertShader);
+        glDeleteShader(geomShader);
+        glDeleteShader(fragShader);
+
+        return program;
+    }
+
+
     void ShaderLoader::checkCompileErrors(unsigned int shader, const string &type) {
         GLint success;
         GLchar infoLog[1024];
@@ -64,14 +124,14 @@ namespace Resource {
             if (!success) {
                 glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
                 cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog
-                     << "\n -- --------------------------------------------------- -- " << endl;
+                        << "\n -- --------------------------------------------------- -- " << endl;
             }
         } else {
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if (!success) {
                 glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
                 cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog
-                     << "\n -- --------------------------------------------------- -- " << endl;
+                        << "\n -- --------------------------------------------------- -- " << endl;
             }
         }
     }
@@ -99,7 +159,7 @@ namespace Resource {
     void ShaderLoader::replaceIncludes(const fs::path &base_dir, const string &path, string &source) {
         try {
             resolveIncludes(base_dir, source);
-        } catch (const shader_file_not_found& not_found) {
+        } catch (const shader_file_not_found &not_found) {
             throw shader_include_not_found("Failed to resolve include for " + path + ": " + not_found.what());
         }
     }
@@ -107,7 +167,7 @@ namespace Resource {
     void ShaderLoader::resolveIncludes(const fs::path &base_dir, string &src) {
         static constexpr std::string_view include = "#include";
 
-        std::size_t found {};
+        std::size_t found{};
         while (true) {
             found = src.find(include, found);
 
@@ -128,5 +188,4 @@ namespace Resource {
             src.replace(found, include.length() + 3 + name_length, include_src);
         }
     }
-
 } // Resource

@@ -46,28 +46,27 @@ namespace Renderer {
             const glm::vec4 *rotate = eat->getRotate();
 
             double now = glfwGetTime();
-            float angle = rotate[1].x;
+            float angle = rotate[1].w;
             if (now > lastTime + 0.005) {
                 angle++;
                 lastTime = now;
             }
 
             // Initialize matrices
-            glm::mat4 model = glm::mat4(1.0f);
-            // Transform the matrices to their correct form
-            model = glm::translate(model, {0.0, 0.0, 0.0});
-            model = glm::scale(model, {0.013888889, 0.013888889, 0.013888889});
-            //model = glm::translate(model, {-25.0, -25.0, -23.0f}); // levy spodni okraj
-            model = glm::translate(model, position);
-            model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
-            model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
+            const glm::mat4 model = eat->getWorldMatrix();
+            // model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
+            // model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
 
             shader->setMat4("model", model);
 
             mesh->bind();
             glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
 
-            eat->setRotate(rotate[0], {angle, 0, 1, 0}, rotate[2]);
+            eat->setRotate(
+                {1, 0, 0, 90.0f},
+                {0, 1, 0, angle},
+                rotate[2]
+            );
 
         }
 
