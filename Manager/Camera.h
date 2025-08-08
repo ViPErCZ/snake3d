@@ -28,7 +28,7 @@ namespace Manager {
         glm::vec3 getStickyPosition() const;
         void updateStickyPoint();
         void processMouseMovement(double x, double y);
-        void processKeyboard(Camera_Movement direction, float deltaTime);
+        void processKeyboard(GLFWwindow *window, float deltaTime);
 
         void setPosition(const glm::vec3& pos);
         void setFront(const glm::vec3& front);
@@ -45,7 +45,13 @@ namespace Manager {
         BaseItem* stickyPoint{};
         float YAW = -90.0f; // 90
         float PITCH = 56.0f;
-        bool rightButtonPressed = false;
+        bool rightButtonPressed = true;
+        bool firstMouse = true;
+        float lastX = 0.0f;
+        float lastY = 0.0f;
+        glm::vec3 offsetFromTarget = glm::vec3(0.0f, -3.5f, 3.0f); // výchozí pozice
+        // Uloží pozici kamery při vstupu do spectator módu
+        glm::vec3 spectatorStartPosition;
 
         void updateCameraVectors();
     };

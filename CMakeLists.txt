@@ -31,6 +31,20 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Effects/LightningFlashEffect.h
         Handler/Debug/PositionHandler.cpp
         Handler/Debug/PositionHandler.h
+        Renderer/Opengl/Model/Standard/StandardMesh.cpp
+        Renderer/Opengl/Model/Standard/StandardMesh.h
+        Renderer/Opengl/Model/Standard/PlaneMesh.cpp
+        Renderer/Opengl/Model/Standard/PlaneMesh.h
+        Renderer/Opengl/Model/Standard/BoxMesh.cpp
+        Renderer/Opengl/Model/Standard/BoxMesh.h
+        Renderer/Opengl/StandardMeshRenderer.cpp
+        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Material/StandardMaterial.cpp
+        Renderer/Opengl/Material/StandardMaterial.h
+        Renderer/Opengl/Material/BaseMaterial.cpp
+        Renderer/Opengl/Material/BaseMaterial.h
+        Renderer/Opengl/Material/ShaderMaterial.cpp
+        Renderer/Opengl/Material/ShaderMaterial.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
 
@@ -111,10 +125,40 @@ set(APP_SOURCES
         Resource/AnimLoader.cpp
         Handler/Debug/PositionHandler.cpp
         Handler/Debug/PositionHandler.h
+        Renderer/Opengl/Model/Standard/BoxMesh.cpp
+        Renderer/Opengl/Model/Standard/BoxMesh.h
+        Renderer/Opengl/Model/Standard/CapsuleMesh.cpp
+        Renderer/Opengl/Model/Standard/CapsuleMesh.h
+        Renderer/Opengl/Model/Standard/CylinderMesh.cpp
+        Renderer/Opengl/Model/Standard/CylinderMesh.h
+        Renderer/Opengl/Model/Standard/PlaneMesh.cpp
+        Renderer/Opengl/Model/Standard/PlaneMesh.h
+        Renderer/Opengl/Model/Standard/StandardMesh.cpp
+        Renderer/Opengl/Model/Standard/StandardMesh.h
+        Renderer/Opengl/StandardMeshRenderer.cpp
+        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Material/StandardMaterial.cpp
+        Renderer/Opengl/Material/StandardMaterial.h
+        Renderer/Opengl/Material/BaseMaterial.cpp
+        Renderer/Opengl/Material/BaseMaterial.h
+        Renderer/Opengl/Material/ShaderMaterial.cpp
+        Renderer/Opengl/Material/ShaderMaterial.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
-add_library(snake3d_lib ${APP_SOURCES})
+add_library(snake3d_lib ${APP_SOURCES}
+        Renderer/Opengl/Model/Standard/BoxMesh.cpp
+        Renderer/Opengl/Model/Standard/BoxMesh.h
+        Renderer/Opengl/Model/Standard/StandardMesh.cpp
+        Renderer/Opengl/Model/Standard/StandardMesh.h
+        Renderer/Opengl/StandardMeshRenderer.cpp
+        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Material/StandardMaterial.cpp
+        Renderer/Opengl/Material/StandardMaterial.h
+        Renderer/Opengl/Material/BaseMaterial.cpp
+        Renderer/Opengl/Material/BaseMaterial.h
+        Renderer/Opengl/Material/ShaderMaterial.cpp
+        Renderer/Opengl/Material/ShaderMaterial.h)
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
 # PUBLIC znamená, že kdokoliv, kdo se nalinkuje na snake3d_lib, také dostane tyto cesty

@@ -9,12 +9,13 @@ namespace Manager {
     }
 
     void Camera::updateCameraVectors() {
-        // calculate the new Front vector
-        glm::vec3 calculateFront;
-        calculateFront.x = cos(glm::radians(YAW)) * cos(glm::radians(PITCH));
-        calculateFront.y = sin(glm::radians(PITCH));
-        calculateFront.z = sin(glm::radians(YAW)) * cos(glm::radians(PITCH));
-        front = glm::normalize(calculateFront);
+        glm::vec3 newFront;
+        newFront.x = cos(glm::radians(PITCH)) * cos(glm::radians(YAW));
+        newFront.y = cos(glm::radians(PITCH)) * sin(glm::radians(YAW));
+        newFront.z = sin(glm::radians(PITCH));
+        front = glm::normalize(newFront);
+
+        glm::vec3 worldUp(0.0f, 0.0f, 1.0f); // Z nahoru
         right = glm::normalize(glm::cross(front, worldUp));
         up = glm::normalize(glm::cross(right, front));
     }
@@ -24,10 +25,18 @@ namespace Manager {
     }
 
     glm::mat4 Camera::getViewMatrix() const {
-        const auto target = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        const glm::vec3 cameraPos = target + glm::vec3(0.0f, -3.5f, 3.0f);
-
-        return glm::lookAt(cameraPos, target, glm::vec3(0, 0, 1));
+        if (!rightButtonPressed) {
+            // --- STANDARDNÍ MÓD ---
+            // Kamera je fixována na 'stickyPoint' s daným offsetem
+            const glm::vec3 targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+            const glm::vec3 cameraPos = targetPos + offsetFromTarget;
+            return glm::lookAt(cameraPos, targetPos, worldUp);
+        } else {
+            // --- SPECTATOR MÓD ---
+            // Kamera se volně pohybuje a dívá se, kam míří její 'front' vektor
+            // Používáme 'position' jako volnou pozici kamery
+            return glm::lookAt(position, position + front, up);
+        }
     }
 
     const glm::vec3 &Camera::getPosition() const {
@@ -40,6 +49,19 @@ namespace Manager {
 
     void Camera::setStickyPoint(BaseItem *stickyPoint) {
         this->stickyPoint = stickyPoint;
+
+        const auto targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+        position = targetPos + offsetFromTarget;
+
+        const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
+
+        // YAW: úhel v rovině X-Y
+        YAW = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
+
+        // PITCH: úhel vzhůru/dolů podle Z
+        PITCH = glm::degrees(asin(dirToTarget.z));
+
+        updateCameraVectors();
     }
 
     BaseItem* Camera::getStickyPoint() const {
@@ -63,30 +85,81 @@ namespace Manager {
     }
 
     void Camera::onMouseDown(int button, int action, int mods) {
+        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            if (action == GLFW_PRESS && stickyPoint) {
+                rightButtonPressed = true;
+                firstMouse = true;
+
+                // Uložíme si aktuální pozici kamery jako startovní bod pro spectator mód
+                const glm::vec3 targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+                position = targetPos + offsetFromTarget; // Nastavíme 'position' na aktuální vizuální pozici
+
+                // Vypočítáme YAW a PITCH, aby přechod byl plynulý
+                const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
+                YAW = glm::degrees(atan2(dirToTarget.z, dirToTarget.x));
+                PITCH = glm::degrees(asin(dirToTarget.y));
+                updateCameraVectors(); // Ihned aktualizujeme vektory
+                cout << "Spectator started..." << endl;
+            } else if (action == GLFW_RELEASE) {
+                rightButtonPressed = false;
+                // Není potřeba nic resetovat,getViewMatrix se postará o návrat na původní pozici
+            }
+        }
     }
 
     void Camera::processMouseMovement(double x, double y) {
-        x *= 0.1;
-        y *= 0.1;
+        if (!rightButtonPressed) return;
 
-        YAW   += static_cast<float>(x);
-        PITCH += static_cast<float>(y);
+        if (firstMouse) {
+            lastX = x;
+            lastY = y;
+            firstMouse = false;
+            return;
+        }
 
+        float xoffset = static_cast<float>(x - lastX);
+        float yoffset = static_cast<float>(lastY - y);
+
+        lastX = x;
+        lastY = y;
+
+        const float sensitivity = 0.1f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        YAW   -= xoffset;
+        PITCH += yoffset;
+
+        if (PITCH > 89.0f) PITCH = 89.0f;
+        if (PITCH < -89.0f) PITCH = -89.0f;
+
+        // KLÍČOVÉ: Po změně úhlů musíme aktualizovat vektory kamery
         updateCameraVectors();
     }
 
-    void Camera::processKeyboard(const Camera_Movement direction, const float deltaTime)
+    void Camera::processKeyboard(GLFWwindow *window, const float deltaTime)
     {
+        // Opustíme funkci, pokud nejsme ve spectator módu
+        if (!rightButtonPressed) return;
+
         const float velocity = 0.1f * deltaTime;
 
-        if (direction == FORWARD)
-            position += front * velocity;
-        if (direction == BACKWARD)
-            position -= front * velocity;
-        if (direction == LEFT)
-            position -= right * velocity;
-        if (direction == RIGHT)
-            position += right * velocity;
-    }
+        // Vytvoříme nulový vektor pohybu
+        glm::vec3 moveDirection(0.0f);
 
+        // Zkontrolujeme každou klávesu nezávisle a přičteme její vliv
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            moveDirection += front; // Dopředu
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            moveDirection -= front; // Dozadu
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            moveDirection -= right; // Doleva
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            moveDirection += right; // Doprava
+
+        // Normalizujeme výsledný směr, pokud se pohybuje (aby pohyb diagonálně nebyl rychlejší)
+        if (glm::length(moveDirection) > 0.0f) {
+            position += glm::normalize(moveDirection) * velocity;
+        }
+    }
 }

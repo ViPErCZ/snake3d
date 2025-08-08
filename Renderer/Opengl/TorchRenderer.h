@@ -40,8 +40,8 @@ public:
 
     glm::vec3 screenToWorldRay(const glm::vec2& screenPos, const glm::mat4& view, const glm::mat4& proj,
                            int viewportWidth, int viewportHeight);
-    glm::vec3 projectRayOntoAxis(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
-                             const glm::vec3& axisOrigin, const glm::vec3& axisDir);
+    // glm::vec3 projectRayOntoAxis(const glm::vec3& rayOrigin, const glm::vec3& rayDir,
+    //                          const glm::vec3& axisOrigin, const glm::vec3& axisDir);
     void onMouseDown(const glm::vec2& cursor, int width, int height);
     void onMouseMove(const glm::vec2& cursor, int width, int height);
     void onMouseUp();
@@ -68,11 +68,11 @@ protected:
     bool closestPointsBetweenLines(const glm::vec3& p1, const glm::vec3& d1,
                                 const glm::vec3& p2, const glm::vec3& d2,
                                 glm::vec3& outPoint1, glm::vec3& outPoint2);
-    glm::vec2 worldToScreen(const glm::vec3& worldPos,
-                            const glm::mat4& view,
-                            const glm::mat4& proj,
-                            int viewportWidth,
-                            int viewportHeight);
+    glm::vec3 worldToScreen(const glm::vec3 &worldPos,
+                                           const glm::mat4 &view,
+                                           const glm::mat4 &proj,
+                                           int width,
+                                           int height);
     float pointToSegmentDistance2D(const glm::vec2& p, const glm::vec2& a, const glm::vec2& b);
     void updateHover(const glm::vec2 &cursor, int width, int height);
     Cube* cube;

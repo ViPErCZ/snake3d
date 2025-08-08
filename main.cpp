@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    // ZAMKNE A SKRYJE KURZOR
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -155,6 +157,6 @@ void scroll_callback(GLFWwindow* window, double offsetX, double offsetY)
 void key_callback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
 {
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-        app->processInput(key, scancode, action, mods);
+        app->processInput(window, key, scancode, action, mods);
     }
 }

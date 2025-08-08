@@ -4,7 +4,9 @@
 
 #include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
+#include "Renderer/Opengl/StandardMeshRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
+#include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 
@@ -114,6 +116,13 @@ void App::Init() {
     auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
     eatManager = new EatManager(eatLocationHandler);
 
+
+    const auto standardBaseItem = make_shared<BaseItem>(BaseItem());
+    const auto standardMesh = make_shared<PlaneMesh>(PlaneMesh(standardBaseItem, 1, 1));
+    const std::shared_ptr<ShaderManager> basicShader(resourceManager->getShader("basicShader"), [](ShaderManager*) {});
+    const std::shared_ptr<Camera> sharedCamera(camera, [](Camera*) {});
+    const auto standardRenderer = new StandardMeshRenderer(sharedCamera, basicShader, projection, standardMesh);
+
     snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
     objWallRenderer = new ObjWallRenderer(snake, objWall, camera, projection, resourceManager);
     barrierRenderer = new BarrierRenderer(snake, barriers, camera, projection, resourceManager);
@@ -140,22 +149,23 @@ void App::Init() {
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     rendererManager->addRenderer(skyboxRenderer);
+    rendererManager->addRenderer(standardRenderer);
     rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(eatRenderer);
-    rendererManager->addRenderer(eatRemoveAnimateRenderer);
+    // rendererManager->addRenderer(eatRenderer);
+    // rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(animRenderer);
     rendererManager->addRenderer(snakeRenderer);
-    rendererManager->addRenderer(rainDropRenderer);
-    rendererManager->addRenderer(objWallRenderer);
-    rendererManager->addRenderer(barrierRenderer);
-    rendererManager->addRenderer(radarRenderer);
-    rendererManager->addRenderer(rainRenderer);
-    rendererManager->addRenderer(torchRenderer);
-    rendererManager->addRenderer(fireRenderer);
-    rendererManager->addRenderer(boltRenderer);
-    rendererManager->addRenderer(textRenderer);
-    rendererManager->setDepthMapRenderer(depthMapRenderer);
-    rendererManager->setBloomRenderer(bloomRenderer);
+    // rendererManager->addRenderer(rainDropRenderer);
+    // rendererManager->addRenderer(objWallRenderer);
+    // rendererManager->addRenderer(barrierRenderer);
+    // rendererManager->addRenderer(radarRenderer);
+    // rendererManager->addRenderer(rainRenderer);
+    // rendererManager->addRenderer(torchRenderer);
+    // rendererManager->addRenderer(fireRenderer);
+    // rendererManager->addRenderer(boltRenderer);
+    // rendererManager->addRenderer(textRenderer);
+    // rendererManager->setDepthMapRenderer(depthMapRenderer);
+    // rendererManager->setBloomRenderer(bloomRenderer);
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
@@ -418,7 +428,7 @@ void App::run() const {
     }
 }
 
-void App::processInput(const int keyCode, int scancode, const int action, int mods) const {
+void App::processInput(GLFWwindow *window, const int keyCode, int scancode, const int action, int mods) const {
     keyboardManager->onKeyPress(keyCode, scancode, action, mods);
 
     switch (keyCode) {
@@ -474,6 +484,11 @@ void App::processInput(const int keyCode, int scancode, const int action, int mo
         default:
             break;
     }
+
+    if (action != GLFW_PRESS && action != GLFW_REPEAT)
+        return;
+
+    camera->processKeyboard(window, 1);
 }
 
 void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -496,6 +511,7 @@ void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mo
 void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
     const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
     torchRenderer->onMouseMove(cursor, width, height);
+    camera->processMouseMovement(x, y);
 }
 
 #pragma clang diagnostic pop

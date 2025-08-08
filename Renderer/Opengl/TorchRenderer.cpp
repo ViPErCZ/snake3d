@@ -1,5 +1,4 @@
 #include "TorchRenderer.h"
-#include <glm/ext/matrix_transform.hpp>
 
 using namespace ItemsDto;
 using namespace Manager;
@@ -46,18 +45,10 @@ namespace Renderer {
         std::vector<glm::vec3> gizmoVerts = {
             // X osa (hřídel)
             {0, 0, 0}, {1, 0, 0},
-            // špička X (trojúhelník) - vlevo, vrchol, vpravo (v rámci malé orientace)
-            {1, 0, 0}, {0.85f, 0.05f, 0}, {0.85f, -0.05f, 0},
-
             // Y osa
             {0, 0, 0}, {0, 1, 0},
-            // špička Y
-            {0, 1, 0}, {0.05f, 0.85f, 0}, {-0.05f, 0.85f, 0},
-
             // Z osa
             {0, 0, 0}, {0, 0, 1},
-            // špička Z
-            {0, 0, 1}, {0.05f, 0, 0.85f}, {-0.05f, 0, 0.85f},
         };
 
         glGenVertexArrays(1, &gizmoVAO);
@@ -438,28 +429,6 @@ namespace Renderer {
         return worldDir;
     }
 
-    glm::vec3 TorchRenderer::projectRayOntoAxis(const glm::vec3 &rayOrigin, const glm::vec3 &rayDir,
-                                                const glm::vec3 &axisOrigin, const glm::vec3 &axisDir) {
-        // podle https://geomalgorithms.com/a07-_distance.html
-        glm::vec3 u = axisDir; // předpokládej normalized
-        glm::vec3 v = rayDir; // normalized
-        glm::vec3 w0 = axisOrigin - rayOrigin;
-
-        float a = glm::dot(u, u); // 1 pokud u normalizovaný
-        float b = glm::dot(u, v);
-        float c = glm::dot(v, v); // 1 pokud v normalizovaný
-        float d = glm::dot(u, w0);
-        float e = glm::dot(v, w0);
-
-        float denom = a * c - b * b;
-        float sc = 0.0f;
-        if (denom > 1e-6f) {
-            sc = (b * e - c * d) / denom;
-        }
-        // bod na ose:
-        return axisOrigin + u * sc;
-    }
-
     bool TorchRenderer::closestPointsBetweenLines(const glm::vec3 &p1, const glm::vec3 &d1,
                                                   const glm::vec3 &p2, const glm::vec3 &d2,
                                                   glm::vec3 &outPoint1, glm::vec3 &outPoint2) {
@@ -521,8 +490,8 @@ namespace Renderer {
         struct AxisTest {
             Axis axis;
             glm::vec3 dir;
-            float screenDist; // distance to projected segment in pixels
-            float worldDist; // distance ray <-> axis segment in world space
+            float screenDist;
+            float worldDist;
             glm::vec3 closestOnAxis;
             glm::vec3 segmentStart;
             glm::vec3 segmentEnd;
@@ -555,11 +524,6 @@ namespace Renderer {
             glm::vec2 screenB = worldToScreen(test.segmentEnd, camera->getViewMatrix(), projection, viewportWidth,
                                               viewportHeight);
             test.screenDist = pointToSegmentDistance2D(cursor, screenA, screenB);
-
-            // debug výpisy
-            std::cout << "Axis " << static_cast<int>(test.axis)
-                    << " screenDist(seg)=" << test.screenDist
-                    << " worldDist(ray<->axis)=" << test.worldDist << std::endl;
         }
 
         // primární filtr: musí být blízko v screen-space i world-space
@@ -588,7 +552,6 @@ namespace Renderer {
             float normWorld = t.worldDist / worldThreshold;
             float combined = normScreen * normScreen + normWorld * normWorld;
             scoreList.push_back({t.axis, combined});
-            std::cout << "Combined score axis " << static_cast<int>(t.axis) << " = " << combined << std::endl;
         }
         std::sort(scoreList.begin(), scoreList.end(), [](const ScoreEntry &a, const ScoreEntry &b) {
             return a.score < b.score;
@@ -610,10 +573,6 @@ namespace Renderer {
     }
 
     void TorchRenderer::onMouseDown(const glm::vec2 &cursor, int width, int height) {
-        std::cout << "\nMouse Down Event:" << std::endl;
-        std::cout << "Cursor position: " << vec2_to_string(cursor) << std::endl;
-        std::cout << "Window size: " << width << "x" << height << std::endl;
-
         glm::vec3 rayDir = screenToWorldRay(cursor, camera->getViewMatrix(), projection, width, height);
         glm::vec3 rayOrigin = camera->getPosition();
 
@@ -622,8 +581,6 @@ namespace Renderer {
         Axis picked = pickTranslateAxis(currentWorldCenter, rayOrigin, rayDir, gizmoScale, cursor, width, height,
                                         16.0f);
         Axis pickedRotate = pickRotationAxis(currentWorldCenter, cursor, width, height);
-        std::cout << "Picked axis: " << static_cast<int>(picked) << std::endl;
-        std::cout << "Picked rotate: " << static_cast<int>(hoveredAxis) << std::endl;
         if (picked == Axis::None && pickedRotate == Axis::None) {
             return;
         }
@@ -676,23 +633,25 @@ namespace Renderer {
         }
 
 
-        std::cout << "startGrabPoint: " << vec3_to_string(startGrabPoint)
-                << " startObjectPos: " << vec3_to_string(startObjectPos)
-                << " startAxisParam: " << startAxisParam << std::endl;
+        // std::cout << "startGrabPoint: " << vec3_to_string(startGrabPoint)
+        //         << " startObjectPos: " << vec3_to_string(startObjectPos)
+        //         << " startAxisParam: " << startAxisParam << std::endl;
     }
 
     // pomocná: promítne světový bod do screen space (pixelů)
-    glm::vec2 TorchRenderer::worldToScreen(const glm::vec3 &worldPos,
+    glm::vec3 TorchRenderer::worldToScreen(const glm::vec3 &worldPos,
                                            const glm::mat4 &view,
                                            const glm::mat4 &proj,
-                                           int viewportWidth,
-                                           int viewportHeight) {
-        glm::vec4 clip = proj * view * glm::vec4(worldPos, 1.0f);
-        if (clip.w == 0.0f) return glm::vec2(-1.0f);
-        glm::vec3 ndc = glm::vec3(clip) / clip.w;
-        float x = (ndc.x * 0.5f + 0.5f) * viewportWidth;
-        float y = (1.0f - (ndc.y * 0.5f + 0.5f)) * viewportHeight; // y s invertem, pokud máš origin top-left
-        return glm::vec2(x, y);
+                                           int width,
+                                           int height) {
+        glm::vec4 clipSpace = projection * view * glm::vec4(worldPos, 1.0f);
+        glm::vec3 ndc = glm::vec3(clipSpace) / clipSpace.w;
+        glm::vec2 screenPos = glm::vec2(
+            (ndc.x + 1.0f) * 0.5f * width,
+            (1.0f - ndc.y) * 0.5f * height
+        );
+
+        return glm::vec3(screenPos, ndc.z);
     }
 
     void TorchRenderer::onMouseMove(const glm::vec2 &cursor, int width, int height) {
@@ -718,7 +677,18 @@ namespace Renderer {
 
             // aktuální parametr podél osy
             float currentParam = glm::dot(closestOnAxis - dragLineOrigin, axisDir);
-            float deltaParam = currentParam - startAxisParam;
+
+            // Korekce pro citlivost osy podle délky projekce na obrazovku
+            glm::vec3 axisScreenA = worldToScreen(dragLineOrigin, camera->getViewMatrix(), projection, width, height);
+            glm::vec3 axisScreenB = worldToScreen(dragLineOrigin + axisDir, camera->getViewMatrix(), projection, width, height);
+            float axisScreenLength = glm::length(axisScreenB - axisScreenA);
+
+            // Základní délka pro srovnání (např. osa X)
+            float referenceScreenLength = 100.0f; // experimentuj s hodnotou
+            float scale = (axisScreenLength > 0.0001f) ? (referenceScreenLength / axisScreenLength) : 1.0f;
+            float deltaParam = (currentParam - startAxisParam) * scale;
+
+            // float deltaParam = currentParam - startAxisParam;
 
             // nová pozice objektu: startovní + posun podél osy
             glm::vec3 newPos = startObjectPos + axisDir * deltaParam;

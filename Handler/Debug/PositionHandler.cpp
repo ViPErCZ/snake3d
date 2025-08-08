@@ -123,7 +123,9 @@ namespace Handler {
             case GLFW_KEY_SPACE:
                 cout << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
                 cout << "Zoom: " << zoom.x << ", " << zoom.y << ", " << zoom.z << endl;
-                cout << "Rotation X: " << rotate[0].w << "˚, " << rotate[0].x << ", " << rotate[0].y << ", " << rotate[0].z << endl;
+                cout << "Rotation X: " << rotate[0].w << endl;
+                cout << "Rotation Y: " << rotate[1].w << endl;
+                cout << "Rotation Z: " << rotate[2].w << endl;
                 break;
             default:
                 break;

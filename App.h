@@ -47,6 +47,7 @@ using namespace Renderer;
 using namespace Handler;
 using namespace Resource;
 using namespace Particle;
+using namespace Model;
 
 class App {
 public:
@@ -54,7 +55,7 @@ public:
     ~App();
     void Init();
     void run() const;
-    void processInput(int keyCode, int scancode, int action, int mods) const;
+    void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     void mousePositionCallback(GLFWwindow* window, double x, double y) const;
 protected:
