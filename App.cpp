@@ -231,8 +231,8 @@ void App::Init() {
     planeMaterial->setNormalEnabled(true);
     // planeMaterial->setSpecular(coinMetalness);
     // planeMaterial->setSpecular(gamefieldSpecular);
-    // planeMaterial->setDirectionalLight(directionalLight);
-    // planeMaterial->addSpotLight(spotLight);
+    planeMaterial->setDirectionalLight(directionalLight);
+    planeMaterial->addSpotLight(spotLight);
     planeMaterial->addPointLight(pointLight);
     planeMaterial->setShadow(false);
     planeMaterial->setEnvironmentMap(environmentMap);

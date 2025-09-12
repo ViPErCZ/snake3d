@@ -152,16 +152,16 @@ void Material::StandardMaterial::bindShadow(const glm::mat4 &model) const {
 
 void Material::StandardMaterial::unbind() const {
     if (albedo) {
-        albedo.get()->unbind();
+        albedo.get()->unbind(0);
     }
     if (normal_enabled) {
         normal.get()->unbind(1);
     }
-    if (shadowEnabled) {
-        shadow.get()->unbind(2);
-    }
     if (specular) {
-        specular.get()->unbind(3);
+        specular.get()->unbind(2);
+    }
+    if (shadow) {
+        shadow.get()->unbind(3);
     }
     if (metalness) {
         metalness.get()->unbind(4);

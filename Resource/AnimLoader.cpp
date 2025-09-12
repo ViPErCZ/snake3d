@@ -92,7 +92,7 @@ namespace Resource {
 
         Tree<uint32_t> tree(bone_finder(scene->mRootNode->mName.C_Str(), anim));
 
-        std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
+        function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
         dfs = [&] (Tree<uint32_t>& treeDfs, const aiNode* node, const int depth) {
             bones[*treeDfs].node_transform = convert(node->mTransformation);
 
