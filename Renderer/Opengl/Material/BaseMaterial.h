@@ -3,6 +3,7 @@
 
 namespace Material {
     class BaseMaterial {
+    public:
         virtual ~BaseMaterial() = default;
     };
 } // Material

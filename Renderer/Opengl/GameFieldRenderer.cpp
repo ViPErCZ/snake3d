@@ -3,6 +3,7 @@
 Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, Camera *camera, glm::mat4 proj,
                                                ResourceManager *resManager) {
     gameField = item;
+    this->item = *gameField->getTiles().begin();
     resourceManager = resManager;
     this->camera = camera;
     this->projection = proj;
@@ -40,16 +41,17 @@ void Renderer::GameFieldRenderer::render(float dt) {
         baseShader->setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
         baseShader->setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
         // point light 1
+        // baseShader->setInt("numPointLights", 1);
         baseShader->setFloat("material.shininess", 32.0f);
         baseShader->setInt("material.diffuse", 0);
         baseShader->setInt("material.specular", 1);
-        baseShader->setVec3("pointLights[0].position", pointLightPositions[0]);
-        baseShader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-        baseShader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-        baseShader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-        baseShader->setFloat("pointLights[0].constant", 0.42f);
-        baseShader->setFloat("pointLights[0].linear", 1.0f);
-        baseShader->setFloat("pointLights[0].quadratic", 4.32f);
+        // baseShader->setVec3("pointLights[0].position", pointLightPositions[0]);
+        // baseShader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+        // baseShader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+        // baseShader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+        // baseShader->setFloat("pointLights[0].constant", 0.42f);
+        // baseShader->setFloat("pointLights[0].linear", 1.0f);
+        // baseShader->setFloat("pointLights[0].quadratic", 4.32f);
         // spotLight
         float time = glfwGetTime(); // nebo tvůj časový zdroj
         float baseCutOff = glm::radians(7.5f);
@@ -71,6 +73,7 @@ void Renderer::GameFieldRenderer::render(float dt) {
         const auto ambient = glm::vec3(0.08f * pulse);
         const auto diffuse = glm::vec3(0.85f * pulse);
 
+        baseShader->setInt("numSpotLights", 1);
         baseShader->setVec3("spotLight[0].position", pointLightPositions[0]);
         baseShader->setVec3("spotLight[0].direction", glm::normalize(glm::vec3( -0.00f,  -0.32f,  -1.50f)));
         baseShader->setVec3("spotLight[0].ambient", ambient);
@@ -131,6 +134,13 @@ void Renderer::GameFieldRenderer::renderScene(const ShaderManager *shader) const
             x++;
         }
     }
+}
+
+shared_ptr<Mesh> Renderer::GameFieldRenderer::getMesh() {
+    const std::shared_ptr<Mesh> meshShared(
+        model->getMesh(), [](Mesh*) {
+    });
+    return meshShared;
 }
 
 void Renderer::GameFieldRenderer::beforeRender() {

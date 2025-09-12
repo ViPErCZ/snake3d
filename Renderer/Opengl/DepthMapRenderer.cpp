@@ -39,14 +39,15 @@ namespace Renderer {
         resourceManager->addTexture("depth", texture);
         lightPos = {0.0f, 7.0f, 11.0f};
 
-        glm::mat4 lightProjection, lightView;
-        float near_plane = 1.0f, far_plane = 17.5f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
-        auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
-        simpleDepthShader->use();
-        simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        // glm::mat4 lightProjection, lightView;
+        // float near_plane = 1.0f, far_plane = 1.17549e-38f;
+        // //lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        // lightProjection = glm::ortho(-1.5f, 4.5f, -1.5f, 4.5f, 1.0f, 15.0f);
+        // lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
+        // lightSpaceMatrix = lightProjection * lightView;
+        // const auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
+        // simpleDepthShader->use();
+        // simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
     void DepthMapRenderer::beforeRender() {
@@ -56,14 +57,61 @@ namespace Renderer {
     }
 
     void DepthMapRenderer::render(float dt) {
+        // TODO: toto je tu jen proto, ze to nastavi lightPos, ale jeste vice dulezite lightSpaceMatrix
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setVec3("viewPos", camera->getPosition());
         shader->setVec3("lightPos", lightPos);
         shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        const auto basicShader = resourceManager->getShader("basicShader");
+        basicShader->use();
+        basicShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
     void DepthMapRenderer::renderShadowMap() {
+    }
+
+    void DepthMapRenderer::computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light, glm::vec3 lightTarget, glm::vec3 sceneMin, glm::vec3 sceneMax) {
+        glm::mat4 lightView = glm::lookAt(light.get()->getPosition(), lightTarget, glm::vec3(0,1,0));
+        glm::vec3 corners[8] = {
+            {sceneMin.x, sceneMin.y, sceneMin.z},
+            {sceneMax.x, sceneMin.y, sceneMin.z},
+            {sceneMin.x, sceneMax.y, sceneMin.z},
+            {sceneMax.x, sceneMax.y, sceneMin.z},
+            {sceneMin.x, sceneMin.y, sceneMax.z},
+            {sceneMax.x, sceneMin.y, sceneMax.z},
+            {sceneMin.x, sceneMax.y, sceneMax.z},
+            {sceneMax.x, sceneMax.y, sceneMax.z}
+        };
+
+        glm::vec3 lightMin( FLT_MAX);
+        glm::vec3 lightMax(-FLT_MAX);
+
+        for (auto corner : corners) {
+            glm::vec4 trf = lightView * glm::vec4(corner, 1.0f);
+            lightMin = glm::min(lightMin, glm::vec3(trf));
+            lightMax = glm::max(lightMax, glm::vec3(trf));
+        }
+
+        float near_plane = -lightMax.z;
+        float far_plane  = -lightMin.z;
+
+        auto lightProjection = glm::ortho(
+            lightMin.x, lightMax.x,
+            lightMin.y, lightMax.y,
+            near_plane, far_plane
+        );
+
+        lightSpaceMatrix = lightProjection * lightView;
+
+        const auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
+        simpleDepthShader->use();
+        simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    }
+
+    shared_ptr<Mesh> DepthMapRenderer::getMesh() {
+        return nullptr;
     }
 
     void DepthMapRenderer::afterRender() {
@@ -78,7 +126,7 @@ namespace Renderer {
 
     void DepthMapRenderer::renderQuad() {
         if (quadVAO == 0) {
-            float quadVertices[] = {
+            constexpr float quadVertices[] = {
                     // positions        // texture Coords
                     -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
                     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -92,9 +140,9 @@ namespace Renderer {
             glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) nullptr);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), static_cast<void *>(nullptr));
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
         }
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

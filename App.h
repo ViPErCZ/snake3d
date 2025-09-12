@@ -35,6 +35,7 @@
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/FireRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
+#include "Renderer/Opengl/Material/StandardMaterial.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -48,6 +49,7 @@ using namespace Handler;
 using namespace Resource;
 using namespace Particle;
 using namespace Model;
+using namespace Material;
 
 class App {
 public:
@@ -58,6 +60,8 @@ public:
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     void mousePositionCallback(GLFWwindow* window, double x, double y) const;
+    void setKeyState(int key, bool pressed) const;
+    void cameraProcessKeyboard(GLFWwindow *window) const;
 protected:
     void InitResourceManager();
     GameField* InitGameField();

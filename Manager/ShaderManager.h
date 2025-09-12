@@ -3,11 +3,22 @@
 
 #include "../stdafx.h"
 #include <string>
-#include <iostream>
-#include <fstream>
+#include <variant>
 #include <glm/glm.hpp>
 
 using namespace std;
+
+using UniformValue = std::variant<
+    bool,
+    int,
+    float,
+    glm::vec2,
+    glm::vec3,
+    glm::vec4,
+    glm::mat2,
+    glm::mat3,
+    glm::mat4
+>;
 
 namespace Manager {
 
@@ -27,6 +38,7 @@ namespace Manager {
         void setMat2(const string &name, const glm::mat2 &mat) const;
         void setMat3(const string &name, const glm::mat3 &mat) const;
         void setMat4(const string &name, const glm::mat4 &mat) const;
+        void setUniform(const std::string& name, const UniformValue& value) const;
         [[nodiscard]] GLuint getId() const;
     protected:
         GLuint id;

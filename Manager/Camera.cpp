@@ -15,7 +15,7 @@ namespace Manager {
         newFront.z = sin(glm::radians(PITCH));
         front = glm::normalize(newFront);
 
-        glm::vec3 worldUp(0.0f, 0.0f, 1.0f); // Z nahoru
+        constexpr glm::vec3 worldUp(0.0f, 0.0f, 1.0f); // Z nahoru
         right = glm::normalize(glm::cross(front, worldUp));
         up = glm::normalize(glm::cross(right, front));
     }
@@ -28,7 +28,7 @@ namespace Manager {
         if (!rightButtonPressed) {
             // --- STANDARDNÍ MÓD ---
             // Kamera je fixována na 'stickyPoint' s daným offsetem
-            const glm::vec3 targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+            const glm::vec3 targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
             const glm::vec3 cameraPos = targetPos + offsetFromTarget;
             return glm::lookAt(cameraPos, targetPos, worldUp);
         } else {
@@ -50,7 +50,7 @@ namespace Manager {
     void Camera::setStickyPoint(BaseItem *stickyPoint) {
         this->stickyPoint = stickyPoint;
 
-        const auto targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+        const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
         position = targetPos + offsetFromTarget;
 
         const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
@@ -91,7 +91,7 @@ namespace Manager {
                 firstMouse = true;
 
                 // Uložíme si aktuální pozici kamery jako startovní bod pro spectator mód
-                const glm::vec3 targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
+                const glm::vec3 targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
                 position = targetPos + offsetFromTarget; // Nastavíme 'position' na aktuální vizuální pozici
 
                 // Vypočítáme YAW a PITCH, aby přechod byl plynulý
@@ -137,25 +137,35 @@ namespace Manager {
         updateCameraVectors();
     }
 
+    void Camera::setKeyState(const int key, const bool pressed) {
+        if (key >= 0 && key < 1024) {
+            keys[key] = pressed;
+        }
+    }
+
     void Camera::processKeyboard(GLFWwindow *window, const float deltaTime)
     {
         // Opustíme funkci, pokud nejsme ve spectator módu
         if (!rightButtonPressed) return;
 
-        const float velocity = 0.1f * deltaTime;
+        const float velocity = 0.04f * deltaTime;
 
         // Vytvoříme nulový vektor pohybu
         glm::vec3 moveDirection(0.0f);
 
         // Zkontrolujeme každou klávesu nezávisle a přičteme její vliv
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        if (keys[GLFW_KEY_W]) {
             moveDirection += front; // Dopředu
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        }
+        if (keys[GLFW_KEY_S]) {
             moveDirection -= front; // Dozadu
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        }
+        if (keys[GLFW_KEY_A]) {
             moveDirection -= right; // Doleva
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        }
+        if (keys[GLFW_KEY_D]) {
             moveDirection += right; // Doprava
+        }
 
         // Normalizujeme výsledný směr, pokud se pohybuje (aby pohyb diagonálně nebyl rychlejší)
         if (glm::length(moveDirection) > 0.0f) {

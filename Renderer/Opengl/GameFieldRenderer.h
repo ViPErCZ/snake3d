@@ -26,6 +26,7 @@ namespace Renderer {
 
     protected:
         void renderScene(const ShaderManager* shader) const;
+        shared_ptr<Mesh> getMesh() override;
         ResourceManager* resourceManager;
         ShaderManager* baseShader;
         ShaderManager* shadowShader;

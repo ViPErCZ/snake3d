@@ -6,13 +6,14 @@ namespace Renderer {
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
         mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
         baseShader = resourceManager->getShader("basicShader");
-        respawn = resourceManager->getShader("respawnShader");
+        respawn = resourceManager->getShader("explosion");
         shadowShader = resourceManager->getShader("shadowDepthShader");
         shaderLight = resourceManager->getShader("bloomLight");
         snakeTileTexture = resourceManager->getTexture("snake.bmp");
         snakeHeadTexture = resourceManager->getTexture("head.bmp");
         noise = resourceManager->getTexture("fast_noise.bmp");
         startTime = glfwGetTime();
+        this->item = snake->getHeadTile();
     }
 
     SnakeRenderer::~SnakeRenderer() {
@@ -27,6 +28,11 @@ namespace Renderer {
             renderScene(shaderLight);
         } else {
             const double elapsed = glfwGetTime() - startTime;
+            float explosionTimer = -2.0f;
+            constexpr float fadeTime = 0.4f;
+
+            explosionTimer += static_cast<float>(elapsed);
+
             respawn->use();
             respawn->setMat4("view", camera->getViewMatrix());
             respawn->setMat4("projection", projection);
@@ -39,8 +45,13 @@ namespace Renderer {
             respawn->setFloat("u_Time", static_cast<float>(elapsed));
             respawn->setBool("useBones", false);
             respawn->setBool("useMaterial", true);
+            respawn->setFloat("time", explosionTimer);
+            respawn->setFloat("fadeTime", fadeTime);
+            respawn->setFloat("explosionRadius", 0.2f);
             noise->bind();
-            renderScene(respawn);
+            if(explosionTimer < fadeTime) {
+                renderScene(respawn);
+            }
         }
     }
 
@@ -88,10 +99,13 @@ namespace Renderer {
     void SnakeRenderer::beforeRender() {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_BACK);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void SnakeRenderer::afterRender() {
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
     }
 
     void SnakeRenderer::toggleBlur() {
@@ -106,5 +120,10 @@ namespace Renderer {
             mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
             renderStyle = 2;
         }
+    }
+
+    shared_ptr<Mesh> SnakeRenderer::getMesh() {
+        const std::shared_ptr<Mesh> meshShared(mesh, [](Mesh*) {});
+        return meshShared;
     }
 } // Renderer

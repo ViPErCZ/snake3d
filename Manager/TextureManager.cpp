@@ -13,9 +13,10 @@ namespace Manager {
 
     void TextureManager::bind() const {
         int index = 0;
-        for (auto texture: textures) {
+        for (const auto texture: textures) {
             glActiveTexture(GL_TEXTURE0 + index);
             glBindTexture(GL_TEXTURE_2D, texture);
+            index++;
         }
     }
 
@@ -24,7 +25,12 @@ namespace Manager {
         for (auto texture: textures) {
             glActiveTexture(GL_TEXTURE0 + index);
             glBindTexture(GL_TEXTURE_2D, 0);
+            index++;
         }
+    }
+
+    bool TextureManager::hasTexture() const {
+        return !textures.empty();
     }
 
     void TextureManager::addTexture(unsigned int id) {
@@ -33,16 +39,20 @@ namespace Manager {
 
     void TextureManager::bind(int index, int item) {
         glActiveTexture(GL_TEXTURE0 + index);
-        auto id = textures.begin() + item;
+        const auto id = textures.begin() + item;
         if (id < textures.end()) {
             glBindTexture(GL_TEXTURE_2D, (*id));
         }
     }
 
-    void TextureManager::cubeBind() const {
-        glActiveTexture(GL_TEXTURE0);
-        auto id = textures.begin();
-        glBindTexture(GL_TEXTURE_CUBE_MAP, (*id));
+    void TextureManager::unbind(const int index) const {
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    void TextureManager::cubeBind(int index) const {
+        glActiveTexture(GL_TEXTURE0 + index);
+        const auto id = textures.begin();
+        glBindTexture(GL_TEXTURE_CUBE_MAP, (*id));
+    }
 } // Manager

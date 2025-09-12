@@ -15,7 +15,7 @@ namespace Resource {
 
     class TextureLoader {
     public:
-        static unsigned int loadTexture(const fs::path& path);
+        static unsigned int loadTexture(const fs::path& path, bool isAlbedo = true);
         static unsigned int loadSkyboxTexture(vector<std::string> faces);
     };
 

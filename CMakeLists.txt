@@ -45,6 +45,30 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
+        Renderer/Opengl/Material/IAlbedoMaterial.h
+        Tools/Timer.cpp
+        Tools/Timer.h
+        Tools/WorldEnvironment.cpp
+        Tools/WorldEnvironment.h
+        Tools/Environment.cpp
+        Tools/Environment.h
+        Lights/DirectionalLight.cpp
+        Lights/DirectionalLight.h
+        Lights/SpotLight.cpp
+        Lights/SpotLight.h
+        Tools/Clear.h
+        ItemsDto/Transform.cpp
+        ItemsDto/Transform.h
+        Lights/PointLight.cpp
+        Lights/PointLight.h
+        Renderer/Opengl/Model/Standard/SphereMesh.cpp
+        Renderer/Opengl/Model/Standard/SphereMesh.h
+        Renderer/Opengl/Model/Standard/CapsuleMesh.cpp
+        Renderer/Opengl/Model/Standard/CapsuleMesh.h
+        Renderer/Opengl/Model/Standard/ArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/ArrayMesh.h
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
 
@@ -143,6 +167,28 @@ set(APP_SOURCES
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
+        Renderer/Opengl/Material/IAlbedoMaterial.h
+        Tools/Timer.cpp
+        Tools/Timer.h
+        Tools/WorldEnvironment.cpp
+        Tools/WorldEnvironment.h
+        Tools/Environment.cpp
+        Tools/Environment.h
+        Lights/DirectionalLight.cpp
+        Lights/DirectionalLight.h
+        Lights/SpotLight.cpp
+        Lights/SpotLight.h
+        Tools/Clear.h
+        ItemsDto/Transform.cpp
+        ItemsDto/Transform.h
+        Lights/PointLight.cpp
+        Lights/PointLight.h
+        Renderer/Opengl/Model/Standard/SphereMesh.cpp
+        Renderer/Opengl/Model/Standard/SphereMesh.h
+        Renderer/Opengl/Model/Standard/ArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/ArrayMesh.h
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -158,7 +204,31 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
-        Renderer/Opengl/Material/ShaderMaterial.h)
+        Renderer/Opengl/Material/ShaderMaterial.h
+        Renderer/Opengl/Material/IAlbedoMaterial.h
+        Tools/Timer.cpp
+        Tools/Timer.h
+        Tools/WorldEnvironment.cpp
+        Tools/WorldEnvironment.h
+        Tools/Environment.cpp
+        Tools/Environment.h
+        Lights/DirectionalLight.cpp
+        Lights/DirectionalLight.h
+        Lights/SpotLight.cpp
+        Lights/SpotLight.h
+        Tools/Clear.h
+        ItemsDto/Transform.cpp
+        ItemsDto/Transform.h
+        Lights/PointLight.cpp
+        Lights/PointLight.h
+        Renderer/Opengl/Model/Standard/SphereMesh.cpp
+        Renderer/Opengl/Model/Standard/SphereMesh.h
+        Renderer/Opengl/Model/Standard/CapsuleMesh.cpp
+        Renderer/Opengl/Model/Standard/CapsuleMesh.h
+        Renderer/Opengl/Model/Standard/ArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/ArrayMesh.h
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.cpp
+        Renderer/Opengl/Model/Standard/AnimationArrayMesh.h)
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
 # PUBLIC znamená, že kdokoliv, kdo se nalinkuje na snake3d_lib, také dostane tyto cesty

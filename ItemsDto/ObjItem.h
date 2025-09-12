@@ -1,10 +1,7 @@
 #ifndef SNAKE3_OBJITEM_H
 #define SNAKE3_OBJITEM_H
 
-#include "BaseItem.h"
-#include "../Manager/VboIndexer.h"
 #include "../Renderer/Opengl/Model/Utils/Mesh.h"
-#include <cstdio>
 
 using namespace ModelUtils;
 

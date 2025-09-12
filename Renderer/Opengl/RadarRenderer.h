@@ -15,8 +15,6 @@ namespace Renderer {
     public:
         explicit RadarRenderer(Radar* radar, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~RadarRenderer() override;
-
-    public:
         void render(float dt) override;
         void beforeRender() override;
         void afterRender() override;

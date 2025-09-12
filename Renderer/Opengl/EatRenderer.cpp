@@ -53,7 +53,7 @@ namespace Renderer {
             }
 
             // Initialize matrices
-            const glm::mat4 model = eat->getWorldMatrix();
+            const glm::mat4 model = eat->getModelMatrix();
             // model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
             // model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
 

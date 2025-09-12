@@ -34,8 +34,10 @@ namespace Manager {
         void setFront(const glm::vec3& front);
         void setUp(const glm::vec3& up);
         void onMouseDown(int button, int action, int mods);
+        void setKeyState(int key, bool pressed);
 
     protected:
+        bool keys[1024] = { false };
         glm::vec3 position{};
         glm::vec3 front;
         glm::vec3 up{};
@@ -50,8 +52,6 @@ namespace Manager {
         float lastX = 0.0f;
         float lastY = 0.0f;
         glm::vec3 offsetFromTarget = glm::vec3(0.0f, -3.5f, 3.0f); // výchozí pozice
-        // Uloží pozici kamery při vstupu do spectator módu
-        glm::vec3 spectatorStartPosition;
 
         void updateCameraVectors();
     };

@@ -2,19 +2,18 @@
 
 namespace Renderer {
     StandardMeshRenderer::StandardMeshRenderer(shared_ptr<Camera> camera,
-                                               shared_ptr<ShaderManager> baseShader,
                                                const glm::mat4 &projection,
                                                shared_ptr<StandardMesh> standardMesh)
         : camera(std::move(camera)),
-          baseShader(std::move(baseShader)),
           mesh(std::move(standardMesh)),
           projection(projection) {
+        item = mesh->getBaseItem().get();
     }
 
     StandardMeshRenderer::~StandardMeshRenderer() = default;
 
     void StandardMeshRenderer::render(float dt) {
-        renderScene(baseShader);
+        renderScene(nullptr);
     }
 
     void StandardMeshRenderer::beforeRender() {
@@ -24,24 +23,14 @@ namespace Renderer {
     }
 
     void StandardMeshRenderer::renderShadowMap() {
-    }
-
-    void StandardMeshRenderer::setMaterial(const shared_ptr<BaseMaterial> &material) {
-        this->material = material;
+        mesh->renderShadowMap(camera, projection, 1);
     }
 
     void StandardMeshRenderer::renderScene(const shared_ptr<ShaderManager> &shader) const {
-        if (mesh->getBaseItem()->isVisible()) {
-            glLoadIdentity();
-            shader->use();
-            shader->setMat4("view", camera->getViewMatrix());
-            shader->setMat4("projection", this->projection);
-            shader->setMat4("model", mesh->getBaseItem()->getWorldMatrix());
-            shader->setBool("useMaterial", true);
-            shader->setBool("useBones", false);
-            mesh->getMesh()->bind();
-            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getMesh()->getIndices().size()), GL_UNSIGNED_INT,
-                           nullptr);
-        }
+        mesh->render(camera, projection, 1);
+    }
+
+    shared_ptr<Mesh> StandardMeshRenderer::getMesh() {
+        return mesh->getMesh();
     }
 } // Renderer

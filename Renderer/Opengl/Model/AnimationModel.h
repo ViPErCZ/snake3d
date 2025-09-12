@@ -3,7 +3,6 @@
 
 #include <unordered_map>
 #include <chrono>
-#include <functional>
 #include "../../../ItemsDto/AnimItem.h"
 #include "Utils/Mesh.h"
 #include "Utils/Tree.h"
@@ -35,7 +34,7 @@ namespace Model {
         bool globalPause;
         float acceleration;
     public:
-        AnimationModel(BaseItem* item, vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
+        AnimationModel(BaseItem* item, const vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
                        decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map, const glm::mat4& _global_matrix);
 
         virtual ~AnimationModel();

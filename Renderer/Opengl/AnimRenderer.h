@@ -28,6 +28,9 @@ namespace Renderer {
 
     protected:
         void renderScene(const ShaderManager* shader);
+
+        shared_ptr<Mesh> getMesh() override;
+
         AnimationModel* model;
         ResourceManager* resourceManager;
         ShaderManager* shader;

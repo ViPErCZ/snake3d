@@ -46,39 +46,23 @@ namespace Renderer {
     }
 
     void AnimRenderer::renderScene(const ShaderManager *shader) {
-        glm::mat4 modelTrans = glm::mat4(1.0f);
-        glm::vec3 position = model->getBaseItem()->getPosition();
-        modelTrans = glm::translate(modelTrans, {0.0, 0.0, 0.0});
-        modelTrans = glm::scale(modelTrans, {0.041667f, 0.041667f, 0.041667f});
-        modelTrans = glm::translate(modelTrans, position);
-
         const glm::vec4 *rotate = model->getBaseItem()->getRotate();
 
         switch (tile->direction) {
             case ItemsDto::RIGHT:
-                model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
+                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
                 break;
             case ItemsDto::LEFT:
-                model->getBaseItem()->setRotate({90, 1, 0, 0}, {180, 0, 1, 0}, rotate[2]);
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
+                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 180}, rotate[2]);
                 break;
             case ItemsDto::UP:
-                model->getBaseItem()->setRotate({90, 1, 0, 0}, {90, 0, 1, 0}, rotate[2]);
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
+                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 90}, rotate[2]);
                 break;
             case ItemsDto::DOWN:
-                model->getBaseItem()->setRotate({90, 1, 0, 0}, {-90, 0, 1, 0}, rotate[2]);
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
+                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, -90}, rotate[2]);
                 break;
             default:
-                model->getBaseItem()->setRotate({90, 1, 0, 0}, {0, 0, 1, 0}, rotate[2]);
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[0].x), {1.0, 0.0, 0.0f});
-                modelTrans = glm::rotate(modelTrans, glm::radians(rotate[1].x), {0.0, 1.0, 0.0f});
+                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
                 break;
         }
 
@@ -88,35 +72,39 @@ namespace Renderer {
                                                 return animName == anim.name;
                                             });
             if (found != model->getAnimations().end()) {
-                auto animation = &(*found);
+                const auto animation = &(*found);
                 model->updateAnimation(animation);
                 for (int i = 0; i < model->getMetadata(animation)->bone_transform.size(); ++i) {
                     shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
                                         model->getMetadata(animation)->bone_transform[i]);
                 }
-                for (auto item: model->getMeshes()) {
+                for (const auto item: model->getMeshes()) {
                     if (item->getName() ==
                         animation->nodes[0].bone.meshName) {
                         if (!item->isHasBones()) {
                             shader->setBool("useBones", false);
-                            shader->setMat4("model", modelTrans * item->getGlobalTransformation());
+                            shader->setMat4("model", model->getBaseItem()->getModelMatrix() * item->getGlobalTransformation());
                         } else {
                             shader->setBool("useBones", true);
-                            shader->setMat4("model", modelTrans);
+                            shader->setMat4("model", model->getBaseItem()->getModelMatrix());
                         }
                         item->bind();
-                        glDrawElements(GL_TRIANGLES, (int) item->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                        glDrawElements(GL_TRIANGLES, static_cast<int>(item->getIndices().size()), GL_UNSIGNED_INT, nullptr);
                     }
                 }
             }
         }
 
-        for (auto item: model->getNoBonesMeshes()) {
+        for (const auto item: model->getNoBonesMeshes()) {
             shader->setBool("useBones", false);
-            shader->setMat4("model", modelTrans * item->getGlobalTransformation());
+            shader->setMat4("model", model->getBaseItem()->getModelMatrix() * item->getGlobalTransformation());
             item->bind();
-            glDrawElements(GL_TRIANGLES, (int) item->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(item->getIndices().size()), GL_UNSIGNED_INT, nullptr);
         }
+    }
+
+    shared_ptr<Mesh> AnimRenderer::getMesh() {
+        return nullptr;
     }
 
     void AnimRenderer::renderShadowMap() {
@@ -129,7 +117,7 @@ namespace Renderer {
     }
 
     void AnimRenderer::afterRender() {
-
+        glDisable(GL_DEPTH_TEST);
     }
 
     void AnimRenderer::addPlay(const string& name) {

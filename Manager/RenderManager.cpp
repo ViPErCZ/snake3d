@@ -9,7 +9,7 @@ namespace Manager {
     }
 
     RenderManager::~RenderManager() {
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             delete (*Iter);
         }
         delete depthMapRenderer;
@@ -23,23 +23,55 @@ namespace Manager {
     void RenderManager::render(float dt) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glLoadIdentity();
-        glClearColor(.0, .0, .0, 0);
+        if (!bloom) {
+            glClearColor(.0, .0, .0, 1.0);
+        } else {
+            glm::vec3 backgroundColor = glm::vec3(0.0, 0.0, 0.0);
+            float backgroundIntensity = {2.0f};
+            glClearColor(
+                backgroundColor.r * backgroundIntensity,
+                backgroundColor.g * backgroundIntensity,
+                backgroundColor.b * backgroundIntensity,
+                1.0f
+            );
+        }
+
         glViewport(0, 0, width, height);
 
         if (shadows) {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(3.0f, 3.0f);
             if (depthMapRenderer) {
+                glm::vec3 sceneMin(FLT_MAX);
+                glm::vec3 sceneMax(-FLT_MAX);
+
+                for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
+                    sceneMin = (*Iter)->compareSceneMin(sceneMin);
+                    sceneMax = (*Iter)->compareSceneMax(sceneMax);
+                }
+
+                // přidej padding
+                constexpr float padding = 2.0f;
+                sceneMin -= glm::vec3(padding);
+                sceneMax += glm::vec3(padding);
+
+                const glm::vec3 centerScene = {0, 0, 0}; //(sceneMin + sceneMax) / 2.0f;
+
+                // TODO: dirLight dodelat object a dosadit do render manageru
+                auto light = make_shared<DirectionalLight>(DirectionalLight());
+                light->setPosition({0.0f, 7.0f, 11.0f});
+                depthMapRenderer->computeLightSpaceMatrix(light, centerScene, sceneMin, sceneMax);
+
                 depthMapRenderer->beforeRender();
             }
 
             glCullFace(GL_FRONT);
-            for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+            for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
                 if ((*Iter)->isShadow()) {
                     (*Iter)->renderShadowMap();
                 }
             }
-            glCullFace(GL_BACK); // don't forget to reset original culling face
+            glCullFace(GL_BACK);
 
             if (depthMapRenderer) {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -57,7 +89,7 @@ namespace Manager {
             bloomRenderer->beforeRender();
         }
 
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             (*Iter)->beforeRender();
             (*Iter)->render(dt);
             (*Iter)->afterRender();

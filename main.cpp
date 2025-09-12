@@ -97,6 +97,8 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
     }
 
+    app->cameraProcessKeyboard(window);
+
     // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     //     camera->processKeyboard(Camera_Movement::FORWARD, 0.1);
     // }
@@ -154,8 +156,14 @@ void scroll_callback(GLFWwindow* window, double offsetX, double offsetY)
 
 // glfw: keyboard callback is called
 // ----------------------------------------------------------------------
-void key_callback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
+void key_callback(GLFWwindow* window, const int key, const int scancode, const int action, const int mods)
 {
+    if (action == GLFW_PRESS) {
+        app->setKeyState(key, true);
+    } else if (action == GLFW_RELEASE) {
+        app->setKeyState(key, false);
+    }
+
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         app->processInput(window, key, scancode, action, mods);
     }

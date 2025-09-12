@@ -3,19 +3,17 @@
 
 #include "../stdafx.h"
 #include <iostream>
-#include <glm/glm.hpp>
 
+#include "Transform.h"
+
+using namespace Node3D;
 using namespace std;
 
 namespace ItemsDto {
-    class BaseItem {
+    class BaseItem : public Transform{
     public:
         BaseItem();
 
-        void setPosition(const glm::vec3 &position);
-        void setWorldMatrix(const glm::mat4 &matrix);
-        [[nodiscard]] const glm::vec3 &getPosition() const;
-        [[nodiscard]] glm::mat4 getWorldMatrix() const;
         [[nodiscard]] bool isVisible() const;
         void setVisible(bool visible);
         void toggleVisible();
@@ -23,10 +21,6 @@ namespace ItemsDto {
         void setWidth(GLfloat width);
         [[nodiscard]] GLfloat getHeight() const;
         void setHeight(GLfloat height);
-        [[nodiscard]] const glm::vec3 &getZoom() const;
-        void setZoom(const glm::vec3 &zoom);
-        [[nodiscard]] const glm::vec4 *getRotate() const;
-        void setRotate(const glm::vec4 &rotateX, const glm::vec4 &rotateY, const glm::vec4 &rotateZ);
         [[nodiscard]] int getVirtualX() const;
         void setVirtualX(int virtualX);
         [[nodiscard]] int getVirtualY() const;
@@ -39,10 +33,6 @@ namespace ItemsDto {
         [[nodiscard]] bool isStartFade() const;
 
     protected:
-        glm::mat4 worldMatrix{};
-        glm::vec3 position{};
-        glm::vec3 zoom{1.0f, 1.0f, 1.0f};
-        glm::vec4 rotate[3]{};
         bool visible{};
         GLfloat width;
         GLfloat height;

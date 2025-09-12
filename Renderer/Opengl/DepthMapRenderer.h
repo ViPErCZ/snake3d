@@ -7,26 +7,36 @@
 #include "BaseRenderer.h"
 #include <glm/glm.hpp>
 
+#include "../../Lights/DirectionalLight.h"
+
 using namespace Manager;
+using namespace Lights;
 
 namespace Renderer {
-
-    const int SHADOW_WIDTH = 4096;
-    const int SHADOW_HEIGHT = 4096;
+    constexpr int SHADOW_WIDTH = 4096;
+    constexpr int SHADOW_HEIGHT = 4096;
 
     class DepthMapRenderer : public BaseRenderer {
     public:
-        DepthMapRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        DepthMapRenderer(Camera *camera, glm::mat4 proj, ResourceManager *resManager);
+
         void render(float dt) override;
+
         void beforeRender() override;
+
         void afterRender() override;
+
         void renderQuad();
+
         void renderShadowMap() override;
 
+        void computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light, glm::vec3 lightTarget, glm::vec3 sceneMin, glm::vec3 sceneMax);
+
     protected:
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        Camera* camera;
+        shared_ptr<Mesh> getMesh() override;
+        ResourceManager *resourceManager;
+        ShaderManager *shader;
+        Camera *camera;
         glm::mat4 projection{};
         unsigned int depthMapFBO{};
         unsigned int depthMap{};
@@ -35,7 +45,6 @@ namespace Renderer {
         unsigned int quadVBO{};
         glm::vec3 lightPos{};
     };
-
 } // Renderer
 
 #endif //SNAKE3_DEPTHMAPRENDERER_H

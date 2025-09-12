@@ -1,4 +1,6 @@
 #include "ObjItem.h"
+#include "BaseItem.h"
+#include "../Manager/VboIndexer.h"
 
 namespace ItemsDto {
 

@@ -10,7 +10,8 @@ using namespace std;
 namespace Model {
     class PlaneMesh final : public StandardMesh {
     public:
-        explicit PlaneMesh(std::shared_ptr<BaseItem> baseItem, float width, float height);
+        explicit PlaneMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader, float width,
+                           float height);
     };
 } // Model
 

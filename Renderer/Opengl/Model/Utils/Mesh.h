@@ -30,7 +30,11 @@ namespace ModelUtils {
         [[nodiscard]] const string &getName() const;
         void setGlobalTransformation(const glm::mat4 &globalTransformation);
 
-        void bind();
+        void bind() const;
+
+        [[nodiscard]] glm::vec3 getMin(const glm::mat4 &modelMatrix) const;
+
+        [[nodiscard]] glm::vec3 getMax(const glm::mat4 &modelMatrix) const;
 
     protected:
         vector<Vertex> vertices;
@@ -39,6 +43,8 @@ namespace ModelUtils {
         bool hasBones;
         glm::mat4 globalTransformation{};
         string name;
+        glm::vec3 localMin;
+        glm::vec3 localMax;
     };
 
 } // ModelUtils

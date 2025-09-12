@@ -131,7 +131,7 @@ namespace Renderer {
 
     void TorchRenderer::renderScene(const ShaderManager *shader) {
         glLoadIdentity();
-        glm::mat4 model = cube->getWorldMatrix();
+        glm::mat4 model = cube->getModelMatrix();
         shader->setMat4("model", model);
 
         mesh->bind();

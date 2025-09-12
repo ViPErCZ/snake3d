@@ -19,6 +19,7 @@ namespace Renderer {
         void render(float dt) override;
         void renderShadowMap() override;
     protected:
+        shared_ptr<Mesh> getMesh() override;
         void renderQuad();
         ResourceManager* resourceManager;
         ShaderManager* shader;

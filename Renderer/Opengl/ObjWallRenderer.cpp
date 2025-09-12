@@ -116,6 +116,10 @@ namespace Renderer {
     void ObjWallRenderer::afterRender() {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
+
+        texture1->unbind(0);
+        texture2->unbind(1);
+        texture3->unbind(2);
     }
 
     void ObjWallRenderer::renderShadowMap() {

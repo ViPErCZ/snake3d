@@ -21,7 +21,7 @@ namespace Renderer {
             glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
             shader->use();
             shader->setMat4("projection", projection);
-            shader->setInt("texture_diffuse1", 0);
+            shader->setInt("albedo", 0);
             shader->setFloat("alpha", 1.0);
 
             glLoadIdentity();
@@ -76,14 +76,14 @@ namespace Renderer {
 
     void RadarRenderer::beforeRender() {
         glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        glDepthFunc(GL_LEQUAL);
     }
 
     void RadarRenderer::afterRender() {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         glDepthMask(1);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        glDepthFunc(GL_LESS);
     }
 
 } // Renderer

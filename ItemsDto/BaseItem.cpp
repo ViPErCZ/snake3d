@@ -9,31 +9,6 @@ namespace ItemsDto {
         rotate[2].w = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
     }
 
-    const glm::vec3 &BaseItem::getPosition() const {
-        return position;
-    }
-
-    glm::mat4 BaseItem::getWorldMatrix() const {
-        auto model = glm::mat4(1.0f);
-
-        model = glm::scale(model, zoom);
-        model = glm::translate(model, position);
-
-        if (rotate[0].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[0].w), glm::vec3(rotate[0].x, rotate[0].y, rotate[0].z));
-        if (rotate[1].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[1].w), glm::vec3(rotate[1].x, rotate[1].y, rotate[1].z));
-        if (rotate[2].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[2].w), glm::vec3(rotate[2].x, rotate[2].y, rotate[2].z));
-
-        return model;
-    }
-
-    void BaseItem::setPosition(const glm::vec3 &position) {
-        BaseItem::position = position;
-    }
-
-    void BaseItem::setWorldMatrix(const glm::mat4 &matrix) {
-        BaseItem::worldMatrix = matrix;
-    }
-
     bool BaseItem::isVisible() const {
         return visible;
     }
@@ -59,24 +34,6 @@ namespace ItemsDto {
 
     void BaseItem::setHeight(GLfloat height) {
         BaseItem::height = height;
-    }
-
-    const glm::vec3 &BaseItem::getZoom() const {
-        return zoom;
-    }
-
-    void BaseItem::setZoom(const glm::vec3 &zoom) {
-        BaseItem::zoom = zoom;
-    }
-
-    const glm::vec4 *BaseItem::getRotate() const {
-        return rotate;
-    }
-
-    void BaseItem::setRotate(const glm::vec4 &rotateX, const glm::vec4 &rotateY, const glm::vec4 &rotateZ) {
-        rotate[0] = rotateX;
-        rotate[1] = rotateY;
-        rotate[2] = rotateZ;
     }
 
     void BaseItem::toggleVisible() {

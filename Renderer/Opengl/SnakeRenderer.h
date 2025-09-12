@@ -23,6 +23,7 @@ namespace Renderer {
         void toggleStyle(int style);
 
     protected:
+        shared_ptr<Mesh> getMesh() override;
         void renderScene(const ShaderManager* shader) const;
         double startTime;
         Snake* snake;

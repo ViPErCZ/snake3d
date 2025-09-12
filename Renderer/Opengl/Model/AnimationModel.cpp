@@ -1,8 +1,9 @@
 #include "AnimationModel.h"
+#include <functional>
 
 namespace Model {
     AnimationModel::AnimationModel(BaseItem* item,
-                                   vector<Mesh *> &meshes,
+                                   const vector<Mesh *> &meshes,
                                    decltype(animations)&& _animations,
                                    decltype(bones)&& bones,
                                    decltype(skeleton)&& skeleton,
@@ -12,19 +13,15 @@ namespace Model {
             skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(true) {
 
         this->acceleration = 1.0;
-        this->meshes.erase(
-                std::remove_if(
-                        this->meshes.begin(),
-                        this->meshes.end(),
-                        [this](Mesh *p) {
-                            if (!p->isHasBones()) {
-                                noBonesMeshes.push_back(p);
-                                return true;
-                            }
-                            return false;
-                        }
-                ),
-                this->meshes.end()
+        std::erase_if(
+            this->meshes,
+            [this](Mesh *p) {
+                if (!p->isHasBones()) {
+                    noBonesMeshes.push_back(p);
+                    return true;
+                }
+                return false;
+            }
         );
 
         for (const auto& anim: animations) {
@@ -43,19 +40,19 @@ namespace Model {
         bones.clear();
         bones_map.clear();
 
-        for (auto & iter : metadata) {
-            delete iter.second;
+        for (auto &[fst, snd] : metadata) {
+            delete snd;
         }
 
         metadata.clear();
 
-        for (auto mesh : meshes) {
+        for (const auto mesh : meshes) {
             delete mesh;
         }
 
         meshes.clear();
 
-        for (auto mesh : noBonesMeshes) {
+        for (const auto mesh : noBonesMeshes) {
             delete mesh;
         }
 
@@ -116,23 +113,23 @@ namespace Model {
 
             std::function<void(const Tree<uint32_t> &, const glm::mat4 &)> node_traversal;
             node_traversal = [&](const Tree<uint32_t> &node, const glm::mat4 &parent_mat) {
-                auto anim_node = Model::AnimationModel::findAnimationNode(animation, getBones()[*node]);
+                const auto anim_node = Model::AnimationModel::findAnimationNode(animation, getBones()[*node]);
                 auto local_transform = !getBones()[*node].isFake() ? getBones()[*node].node_transform
                                                                           : glm::mat4(1.f);
 
                 if (anim_node) {
-                    glm::vec3 scale = anim_node->scalingLerp(animation_time);
-                    glm::vec3 position = anim_node->positionLerp(animation_time);
-                    auto rotation = anim_node->rotationLerp(animation_time);
+                    const glm::vec3 scale = anim_node->scalingLerp(animation_time);
+                    const glm::vec3 position = anim_node->positionLerp(animation_time);
+                    const auto rotation = anim_node->rotationLerp(animation_time);
 
-                    auto translate = glm::translate(glm::mat4(1.f), position);
-                    auto rotate = glm::mat4_cast(rotation);
-                    auto scale_mat = glm::scale(glm::mat4(1.f), scale);
+                    const auto translate = glm::translate(glm::mat4(1.f), position);
+                    const auto rotate = glm::mat4_cast(rotation);
+                    const auto scale_mat = glm::scale(glm::mat4(1.f), scale);
 
                     local_transform = translate * rotate * scale_mat;
                 }
 
-                auto transform = parent_mat * local_transform;
+                const auto transform = parent_mat * local_transform;
 
                 if (anim_node) {
                     meta->bone_transform[*node] = parent_mat * local_transform *

@@ -1,12 +1,17 @@
 #ifndef BOX_MESH_H
 #define BOX_MESH_H
 
+#include "StandardMesh.h"
+
+using namespace std;
+
 namespace Model {
-
-class BoxMesh {
-
-};
-
+    class BoxMesh final : public StandardMesh {
+        float depth;
+    public:
+        explicit BoxMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader,
+                         float width, float height, float depth);
+    };
 } // Model
 
 #endif //BOX_MESH_H

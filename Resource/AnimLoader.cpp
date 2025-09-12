@@ -81,24 +81,23 @@ namespace Resource {
     }
 
     Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, std::vector<Animation>& anim) {
-        auto bone_finder = [&] (const std::string& str, std::vector<Animation>& anim) {
+        auto bone_finder = [&] (const std::string& str, std::vector<Animation>&) {
             if (auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
-            } else {
-                bones.emplace_back(str, "", glm::mat4(1.f));
-                bone_map.emplace(str, bones.size() - 1);
-                return static_cast<uint32_t>(bones.size() - 1);
             }
+            bones.emplace_back(str, "", glm::mat4(1.f));
+            bone_map.emplace(str, bones.size() - 1);
+            return static_cast<uint32_t>(bones.size() - 1);
         };
 
         Tree<uint32_t> tree(bone_finder(scene->mRootNode->mName.C_Str(), anim));
 
         std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
-        dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
-            bones[*tree].node_transform = convert(node->mTransformation);
+        dfs = [&] (Tree<uint32_t>& treeDfs, const aiNode* node, const int depth) {
+            bones[*treeDfs].node_transform = convert(node->mTransformation);
 
             for (uint32_t i = 0; i < node->mNumChildren; ++i) {
-                auto& child = tree.add(bone_finder(node->mChildren[i]->mName.C_Str(), anim));
+                auto& child = treeDfs.add(bone_finder(node->mChildren[i]->mName.C_Str(), anim));
                 dfs(child, node->mChildren[i], depth + 1);
             }
         };

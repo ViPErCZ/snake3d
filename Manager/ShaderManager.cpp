@@ -1,5 +1,7 @@
 #include "ShaderManager.h"
 
+#include <iostream>
+
 namespace Manager {
 
     ShaderManager::ShaderManager(GLuint id) : id(id) {}
@@ -58,5 +60,36 @@ namespace Manager {
 
     GLuint ShaderManager::getId() const {
         return id;
+    }
+
+    void ShaderManager::setUniform(const std::string& name, const UniformValue& value) const {
+        GLint location = glGetUniformLocation(id, name.c_str());
+        if (location == -1) {
+            std::cerr << "Uniform " << name << " not found in shader\n";
+            return;
+        }
+
+        std::visit([&]<typename T0>(T0&& val) {
+           using T = std::decay_t<T0>;
+           if constexpr (std::is_same_v<T, bool>) {
+               glUniform1i(location, static_cast<int>(val));
+           } else if constexpr (std::is_same_v<T, int>) {
+               glUniform1i(location, val);
+            } else if constexpr (std::is_same_v<T, float>) {
+                glUniform1f(location, val);
+            } else if constexpr (std::is_same_v<T, glm::vec2>) {
+                glUniform2fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::vec3>) {
+                glUniform3fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::vec4>) {
+                glUniform4fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::mat2>) {
+                glUniformMatrix2fv(location, 1, GL_FALSE, &val[0][0]);
+            } else if constexpr (std::is_same_v<T, glm::mat3>) {
+                glUniformMatrix3fv(location, 1, GL_FALSE, &val[0][0]);
+            } else if constexpr (std::is_same_v<T, glm::mat4>) {
+                glUniformMatrix4fv(location, 1, GL_FALSE, &val[0][0]);
+            }
+        }, value);
     }
 } // Manager

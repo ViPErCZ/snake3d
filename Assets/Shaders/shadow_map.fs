@@ -9,7 +9,6 @@ in VS_OUT {
 } fs_in;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D shadowMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 
@@ -19,8 +18,8 @@ uniform bool shadowsEnable = true;
 
 vec2 TexCoords = fs_in.TexCoords;
 
-#include "pipeline/shading/shading.glsl"
-#include "pipeline/fog/fog.glsl"
+#include "functions/shadows.glsl"
+#include "functions/fog.glsl"
 #include "functions/lights.glsl"
 
 void main()
@@ -60,14 +59,14 @@ void main()
         vec3 norm = normalize(fs_in.Normal);
         vec3 result = vec3(0);
 
-        for(int i = 0; i < NR_POINT_LIGHTS; i++) {
-            result += CalcSpotLight(spotLight[i], norm, fs_in.FragPos, viewDir);
+        for(int i = 0; i < numSpotLights; i++) {
+            result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir);
         }
 
         FragColor = vec4(result + lightColor / 4, 1.0);
     } else {
         // calculate shadow
-        float shadow = ShadowCalculation(fs_in.FragPosLightSpace, shadowMap);
+        float shadow = ShadowCalculation(fs_in.FragPos);
         vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
         FragColor = vec4(lighting, 1.0);
     }
