@@ -203,8 +203,8 @@ void App::Init() {
     spotLight->setOuterCutOff(17.5);
 
     const auto pointLight = make_shared<PointLight>();
-    pointLight->setPosition({0.0f, 0.06f, 0.0f});
-    pointLight->setAmbient(glm::vec3(150.05f));
+    pointLight->setPosition({-0.9f, 1.1f, 0.2f});
+    pointLight->setAmbient(glm::vec3(150.0f));
     // pointLight->setDiffuse({0.198f, 0.459f, 0.94f});
     pointLight->setDiffuse(glm::vec3(1.0f));
     pointLight->setSpecular(glm::vec3(1.0f));
@@ -410,9 +410,9 @@ void App::Init() {
         }
     });
     const auto positionHandler = new PositionHandler(camera);
-    positionHandler->addItem(torch);
-    positionHandler->addItem(eat);
-    positionHandler->addItem(standardBaseItem.get());
+    positionHandler->addItem(pointLight.get());
+    // positionHandler->addItem(eat);
+    // positionHandler->addItem(standardBaseItem.get());
 
     keyboardManager->addEventHandler(snakeMoveHandler);
     keyboardManager->addEventHandler(radarHandler);

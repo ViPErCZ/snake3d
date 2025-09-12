@@ -3,7 +3,6 @@
 
 #include "../ItemsDto/BaseItem.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 using namespace ItemsDto;
 
@@ -23,9 +22,9 @@ namespace Manager {
         [[nodiscard]] glm::mat4 getViewMatrix() const;
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] const glm::vec3 &getFront() const;
-        void setStickyPoint(BaseItem *stickyPoint);
-        BaseItem* getStickyPoint() const;
-        glm::vec3 getStickyPosition() const;
+        void setStickyPoint(Transform *stickyPoint);
+        [[nodiscard]] Transform* getStickyPoint() const;
+        [[nodiscard]] glm::vec3 getStickyPosition() const;
         void updateStickyPoint();
         void processMouseMovement(double x, double y);
         void processKeyboard(GLFWwindow *window, float deltaTime);
@@ -44,7 +43,7 @@ namespace Manager {
         glm::vec3 right{};
         glm::vec3 worldUp{};
         float zoom;
-        BaseItem* stickyPoint{};
+        Transform* stickyPoint{};
         float YAW = -90.0f; // 90
         float PITCH = 56.0f;
         bool rightButtonPressed = true;

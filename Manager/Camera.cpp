@@ -47,7 +47,7 @@ namespace Manager {
         return front;
     }
 
-    void Camera::setStickyPoint(BaseItem *stickyPoint) {
+    void Camera::setStickyPoint(Transform *stickyPoint) {
         this->stickyPoint = stickyPoint;
 
         const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
@@ -64,7 +64,7 @@ namespace Manager {
         updateCameraVectors();
     }
 
-    BaseItem* Camera::getStickyPoint() const {
+    Transform* Camera::getStickyPoint() const {
         return stickyPoint;
     }
 

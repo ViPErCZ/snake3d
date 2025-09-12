@@ -16,14 +16,14 @@ namespace Handler {
         public:
             explicit PositionHandler(Camera* camera);
             void onDefaultHandler() override;
-            void onEventHandler(unsigned key, int scancode, const int action, int mods) override;
-            void addItem(BaseItem* item);
-            BaseItem * findNextItem();
+            void onEventHandler(unsigned key, int scancode, int action, int mods) override;
+            void addItem(Transform* item);
+            Transform * findNextItem();
         protected:
             Camera* camera = nullptr;
-            vector<BaseItem*> items;
-            BaseItem* activeItem = nullptr;
-            BaseItem* cameraOriginalStickyPoint = nullptr;
+            vector<Transform*> items;
+            Transform* activeItem = nullptr;
+            Transform* cameraOriginalStickyPoint = nullptr;
             bool enabled;
     };
 

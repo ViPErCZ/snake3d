@@ -132,7 +132,7 @@ namespace Handler {
         }
     }
 
-    void PositionHandler::addItem(BaseItem *item) {
+    void PositionHandler::addItem(Transform *item) {
         items.push_back(item);
 
         if (activeItem == nullptr) {
@@ -140,7 +140,7 @@ namespace Handler {
         }
     }
 
-    BaseItem *PositionHandler::findNextItem() {
+    Transform *PositionHandler::findNextItem() {
         if (items.empty()) {
             return nullptr;
         }
