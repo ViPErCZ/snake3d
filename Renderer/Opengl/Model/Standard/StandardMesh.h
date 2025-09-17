@@ -14,6 +14,8 @@ using namespace std;
 namespace Model {
     class StandardMesh {
     public:
+        virtual ~StandardMesh() = default;
+
         StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader, float width,
                      float height);
 
@@ -23,8 +25,9 @@ namespace Model {
 
         void setMaterial(const shared_ptr<BaseMaterial> &material);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
-        void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
+        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
+
+        virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
 
         [[nodiscard]] glm::vec3 getMin() const;
 

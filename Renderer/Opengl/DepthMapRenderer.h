@@ -1,12 +1,10 @@
 #ifndef SNAKE3_DEPTHMAPRENDERER_H
 #define SNAKE3_DEPTHMAPRENDERER_H
 
+#include "BaseRenderer.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"
-#include "BaseRenderer.h"
-#include <glm/glm.hpp>
-
 #include "../../Lights/DirectionalLight.h"
 
 using namespace Manager;
@@ -30,10 +28,12 @@ namespace Renderer {
 
         void renderShadowMap() override;
 
-        void computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light, glm::vec3 lightTarget, glm::vec3 sceneMin, glm::vec3 sceneMax);
+        void computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light, glm::vec3 lightTarget, glm::vec3 sceneMin,
+                                     glm::vec3 sceneMax);
 
     protected:
         shared_ptr<Mesh> getMesh() override;
+
         ResourceManager *resourceManager;
         ShaderManager *shader;
         Camera *camera;

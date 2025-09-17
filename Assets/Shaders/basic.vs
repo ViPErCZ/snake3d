@@ -17,6 +17,7 @@ out vec3 TangentViewPos;
 out vec3 Normal;
 out mat3 TBN;
 out vec3 camPos;
+out vec3 meshColor;
 
 uniform vec3 viewPos;
 uniform mat4 model;
@@ -41,7 +42,7 @@ void main()
 
     vec2 uv = aTexCoords * uvScale + uvOffset;
     TexCoords = uv;
-    fragPos = vec3(model * vec4(aPos, 1.0));
+    fragPos = vec3(model * (useBones ? boneTransform(boneIds, weights) : vec4(aPos, 1.0)));
 
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vec3 T = normalize(normalMatrix * aTangent);
@@ -54,7 +55,8 @@ void main()
     TangentFragPos  = TBN * fragPos;
     TangentViewPos  = TBN * viewPos;
 
-    //Normal = normalize(mat3(transpose(inverse(view * model))) * aNormal);;
-    Normal = mat3(model) * aNormal;
+    Normal = mat3(transpose(inverse(view * model))) * aNormal;
+    //Normal = mat3(model) * aNormal;
     camPos = viewPos;
+    meshColor = aColor;
 }

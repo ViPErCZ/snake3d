@@ -29,7 +29,13 @@ namespace Model {
                     projection,
                     getBaseItem()->getModelMatrix()
                 );
+            } else {
+                baseShader->setMat4("view", camera->getViewMatrix());
+                baseShader->setMat4("projection", projection);
+                baseShader->setVec3("viewPos", camera->getPosition());
+                baseShader->setBool("useMaterial", true);
             }
+
             mesh->bind();
             glLoadIdentity();
             glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,

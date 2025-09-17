@@ -39,6 +39,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setBool("useBones", false);
     shader->setBool("shadowsEnable", false);
     shader->setBool("iblEnabled", false);
+    shader->setBool("pbrEnabled", false);
     shader->setFloat("ambientLightColorIntensity", 0.05);
     shader->setVec3("ambientLightColor", color);
     shader->setBool("fogEnable", false);

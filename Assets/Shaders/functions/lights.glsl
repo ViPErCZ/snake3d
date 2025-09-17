@@ -68,7 +68,7 @@ uniform bool iblEnabled = false;
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor);
-vec3 CalcDirLightPBR(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
+vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float roughness, float metalness, vec3 F0);
@@ -84,6 +84,9 @@ vec3 CalcIBLDiffuse(vec3 N);
 // calculates the color when using a directional light.
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
+    normal = normalize(normal);
+    viewDir = normalize(viewDir);
+
     vec3 lightDir = normalize(-light.direction);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -110,6 +113,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor)
 vec3 CalcDirLightPBR(
     DirLight light,
     vec3 normal,
+    vec3 fragPos,
     vec3 viewDir,
     vec3 ambientColor,
     float roughness,
@@ -119,7 +123,7 @@ vec3 CalcDirLightPBR(
     // normalizace
     vec3 N = normalize(normal);
     vec3 V = normalize(viewDir);
-    vec3 L = normalize(-light.direction);
+    vec3 L = normalize(light.position - fragPos);
     vec3 H = normalize(V + L);
 
     float NdotL = max(dot(N, L), 0.0);
@@ -140,6 +144,8 @@ vec3 CalcDirLightPBR(
     // ambientní složka + fallback spekulár pro kov
     vec3 ambient = ambientColor * albedo;
     ambient += F0 * metalness * 0.5; // fallback: kov vždy trochu odráží, i bez IBL
+    float ao = texture(material.aoMap, TexCoords).r;
+    ambient *= ao;
 
     // přímé světlo
     vec3 color = ambient + (diffuse + specular) * light.diffuse * NdotL;
@@ -173,18 +179,19 @@ vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec
 // calculates the color when using a point light.
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
+    vec3 N = normalize(normal);
     vec3 lightDir = normalize(light.position - fragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(N, lightDir), 0.0);
 
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, N);
     float spec = pow(max(dot(normalize(viewDir), reflectDir), 0.0), material.shininess);
 
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 
-    vec3 ambient = light.ambient * vec3(texture(material.ambient, TexCoords)) * 0.1;
+    vec3 ambient = useMaterial ? light.ambient * 0.1 : light.ambient * vec3(texture(material.ambient, TexCoords)) * 0.1;
     vec3 diffuse = light.diffuse * diff; // * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 specular = useMaterial ? light.specular * spec : light.specular * spec * vec3(texture(material.specular, TexCoords));
 
     return (ambient + diffuse + specular) * attenuation;
 }

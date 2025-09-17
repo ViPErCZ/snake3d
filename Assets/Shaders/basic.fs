@@ -7,6 +7,7 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 in vec3 fragPos;
+in vec3 meshColor;
 in vec3 TangentLightPos;
 in vec3 TangentFragPos;
 in vec3 TangentViewPos;
@@ -32,67 +33,65 @@ uniform sampler2D roughness;
 void main()
 {
     vec3 ambientColor = ambientLightColor * ambientLightColorIntensity;
+    vec4 albedoTexture = useMaterial ? vec4(meshColor, 1.0) : texture(material.ambient, TexCoords);
+    float metalness = pbrEnabled ? texture(metalness, TexCoords).r : 0.0;
+    float roughness = pbrEnabled ? texture(roughness, TexCoords).r : 0.5;
 
-    if (useMaterial) {
-        FragColor = vec4(ambientColor, 0);
-    } else {
-        vec4 albedoTexture = texture(material.ambient, TexCoords);
-        float metalness = pbrEnabled ? texture(metalness, TexCoords).r : 0.0;
-        float roughness = pbrEnabled ? texture(roughness, TexCoords).r : 0.5;
+    vec3 F0 = vec3(0.04);
+    F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
 
-        vec3 F0 = vec3(0.04);
-        F0 = mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
+    vec3 normal = Normal;
+    if (normalMapEnabled) {
+       vec3 tangentNormal = texture(material.diffuse, TexCoords).xyz;
+       tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
+       normal = tangentNormal;
+    }
 
-        vec3 normal = Normal;
-        if (normalMapEnabled) {
-           vec3 tangentNormal = texture(material.diffuse, TexCoords).xyz;
-           tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
-           normal = tangentNormal;
-        }
+    vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
+    vec3 ambient = useMaterial ? color : ambientColor * color;
+    vec3 viewDir = normalize(camPos - fragPos);
+//         vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
+    vec3 final = ambient;
 
-        vec3 color = albedoTexture.rgb;
-        vec3 ambient = ambientColor * color;
-        vec3 viewDir = normalize(camPos - fragPos);
-//         vec3 viewDir = normalize(camPos - fragPos);
-        vec3 final = ambient;
-
-        if (directionLightEnable) {
-            if (pbrEnabled) {
-                final += CalcDirLightPBR(dirLight, normal, viewDir, ambientColor, roughness, metalness, F0);
-            } else {
-                final = CalcDirLight(dirLight, normal, viewDir, ambientColor);
-            }
-        }
-
-        for(int i = 0; i < numPointLights; i++)
-        {
-            if (pbrEnabled) {
-                final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir, roughness, metalness, F0);
-            } else {
-                final += CalcPointLight(pointLight[i], normal, fragPos, viewDir);
-            }
-        }
-
-        for(int i = 0; i < numSpotLights; i++)
-        {
-           final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir);
-        }
-
-        if (shadowsEnable) {
-           float shadow = ShadowCalculation(fragPos);
-           final = final * (1.0 - shadow);
-        }
-
-        if (fogEnable) {
-           float d = distance(viewPos, fragPos);
-           float alpha = getFogFactor(d);
-           FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
+    if (directionLightEnable) {
+        if (pbrEnabled) {
+            final += CalcDirLightPBR(dirLight, fragPos, normal, viewDir, ambientColor, roughness, metalness, F0);
         } else {
-           FragColor = alphaBlending(final);
-//            FragColor = vec4(pow(final, vec3(1.0/2.2)), 1.0);
+            final += CalcDirLight(dirLight, normal, viewDir, ambientColor);
         }
     }
 
+    for(int i = 0; i < numPointLights; i++)
+    {
+        if (pbrEnabled) {
+            final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir, roughness, metalness, F0);
+        } else {
+            final += CalcPointLight(pointLight[i], normal, fragPos, viewDir);
+        }
+    }
+
+    for(int i = 0; i < numSpotLights; i++)
+    {
+       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir);
+    }
+
+    if (shadowsEnable) {
+       float shadow = ShadowCalculation2(fragPos, normalize(normal), normalize(-dirLight.direction));
+       final = final * (1.0 - shadow);
+    }
+
+    if (pbrEnabled == false) {
+        final /= 1;
+    }
+
+    if (fogEnable) {
+       float d = distance(viewPos, fragPos);
+       float alpha = getFogFactor(d);
+       FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
+    } else {
+       FragColor = alphaBlending(pow(final, vec3(1.0/2.2)));
+    }
+
     gColor = FragColor;
-    BrightColor = vec4(0.0);
+    BrightColor = FragColor;
 }

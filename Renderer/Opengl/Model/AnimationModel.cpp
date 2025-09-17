@@ -10,7 +10,7 @@ namespace Model {
                                    decltype(bones_map)&& bones_map,
                                    const glm::mat4& _global_matrix) :
             baseItem(item), meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
-            skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(true) {
+            skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(false) {
 
         this->acceleration = 1.0;
         std::erase_if(
@@ -109,11 +109,18 @@ namespace Model {
             const auto delta_time = current_time - meta->last_time;
             meta->animation_duration += delta_time * this->acceleration;
             meta->last_time = current_time;
-            const auto animation_time = glm::mod(meta->animation_duration.count() * anim.tps, anim.duration);
+
+            // TOTO ZAJISTUJE, ze se animace prehrava cyklicky
+            // pokud by animace mela byt jen jednou, tak se to muze odstranit
+            // const auto animation_time = glm::mod(meta->animation_duration.count() * anim.tps, anim.duration);
+            const auto animation_time = meta->animation_duration.count() * anim.tps;
+            if (animation_time >= anim.duration) {
+                return;
+            }
 
             std::function<void(const Tree<uint32_t> &, const glm::mat4 &)> node_traversal;
             node_traversal = [&](const Tree<uint32_t> &node, const glm::mat4 &parent_mat) {
-                const auto anim_node = Model::AnimationModel::findAnimationNode(animation, getBones()[*node]);
+                const auto anim_node = findAnimationNode(animation, getBones()[*node]);
                 auto local_transform = !getBones()[*node].isFake() ? getBones()[*node].node_transform
                                                                           : glm::mat4(1.f);
 
@@ -165,7 +172,7 @@ namespace Model {
         AnimationModel::baseItem = baseItem;
     }
 
-    void AnimationModel::setGlobalPause(bool globalPause) {
+    void AnimationModel::setGlobalPause(const bool globalPause) {
         AnimationModel::globalPause = globalPause;
         for (const auto &[key, meta]: metadata) {
             meta->pause = globalPause;

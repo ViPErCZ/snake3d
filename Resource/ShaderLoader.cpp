@@ -18,7 +18,7 @@ namespace Resource {
         int logLength;
 
         // Compile vertex shader
-        cout << "Compiling vertex shader." << endl;
+        cout << "Compiling vertex shader: " << vertexPath << endl;
         glShaderSource(vertShader, 1, &vertShaderSrc, nullptr);
         glCompileShader(vertShader);
         checkCompileErrors(vertShader, "VERTEX");
@@ -28,7 +28,7 @@ namespace Resource {
         glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &logLength);
 
         // Compile fragment shader
-        cout << "Compiling fragment shader." << endl;
+        cout << "Compiling fragment shader: " << fragmentPath << endl;
         glShaderSource(fragShader, 1, &fragShaderSrc, nullptr);
         glCompileShader(fragShader);
         checkCompileErrors(fragShader, "FRAGMENT");
