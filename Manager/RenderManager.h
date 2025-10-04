@@ -16,10 +16,16 @@ using namespace Renderer;
 
 namespace Manager {
 
-    class RenderManager {
+    enum class RenderPassType {
+        Shadow,
+        Scene,
+        PostProcess
+    };
+
+    class RenderManager final {
     public:
         RenderManager(int width, int height);
-        virtual ~RenderManager();
+        ~RenderManager();
         void render(float dt);
         void addRenderer(BaseRenderer* renderer);
         void setDepthMapRenderer(DepthMapRenderer *depthMapRenderer);

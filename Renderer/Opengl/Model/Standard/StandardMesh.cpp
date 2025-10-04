@@ -32,8 +32,19 @@ namespace Model {
             } else {
                 baseShader->setMat4("view", camera->getViewMatrix());
                 baseShader->setMat4("projection", projection);
+                baseShader->setMat4("model", getBaseItem()->getModelMatrix());
                 baseShader->setVec3("viewPos", camera->getPosition());
                 baseShader->setBool("useMaterial", true);
+                baseShader->setBool("useBones", false);
+                baseShader->setBool("shadowsEnable", false);
+                baseShader->setBool("iblEnabled", false);
+                baseShader->setBool("pbrEnabled", false);
+                baseShader->setBool("overrideColorMesh", false);
+                baseShader->setFloat("ambientLightColorIntensity", 0.05);
+                baseShader->setBool("fogEnable", false);
+                baseShader->setInt("numPointLights", 0);
+                baseShader->setInt("numSpotLights", 0);
+                baseShader->setBool("directionLightEnable", false);
             }
 
             mesh->bind();

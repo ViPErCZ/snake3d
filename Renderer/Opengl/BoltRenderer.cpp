@@ -95,6 +95,17 @@ namespace Renderer {
         }
     }
 
+    void BoltRenderer::beforeRender() {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    }
+
+    void BoltRenderer::afterRender() {
+        glEnable(GL_DEPTH_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
     void BoltRenderer::render(float dt) {
         if (!isActive) return;
 
@@ -104,10 +115,6 @@ namespace Renderer {
         shader->setMat4("projection", projection);
         shader->setMat4("view", camera->getViewMatrix());
         shader->setFloat("time", static_cast<float>(glfwGetTime()));
-
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
         glLineWidth(3.0f);
 
@@ -121,8 +128,6 @@ namespace Renderer {
         }
 
         glLineWidth(1.0f);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_DEPTH_TEST);
 
         if (timeSinceLastBolt > 0.15f) {
             isActive = false;
@@ -164,15 +169,6 @@ namespace Renderer {
         timeSinceLastBolt = 0.0f;
 
         lightning->triggerSequence({1.0f, 0.6f, 0.8f}, 0.05f);
-    }
-
-    void BoltRenderer::beforeRender() {
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-    }
-
-    void BoltRenderer::afterRender() {
-        glDisable(GL_DEPTH_TEST);
     }
 
     void BoltRenderer::renderShadowMap() {

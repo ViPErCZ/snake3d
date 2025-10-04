@@ -73,6 +73,12 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h
         Renderer/Opengl/Scene/Scene.cpp
         Renderer/Opengl/Scene/Scene.h
+        Renderer/Opengl/Material/IUniform.cpp
+        Renderer/Opengl/Material/IUniform.h
+        Renderer/Opengl/Material/Uniform/TextureUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureUniform.h
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
 
@@ -197,6 +203,12 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h
         Renderer/Opengl/Scene/Scene.cpp
         Renderer/Opengl/Scene/Scene.h
+        Renderer/Opengl/Material/IUniform.cpp
+        Renderer/Opengl/Material/IUniform.h
+        Renderer/Opengl/Material/Uniform/TextureUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureUniform.h
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -240,7 +252,13 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.cpp
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h
         Renderer/Opengl/Scene/Scene.cpp
-        Renderer/Opengl/Scene/Scene.h)
+        Renderer/Opengl/Scene/Scene.h
+        Renderer/Opengl/Material/IUniform.cpp
+        Renderer/Opengl/Material/IUniform.h
+        Renderer/Opengl/Material/Uniform/TextureUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureUniform.h
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.h)
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
 # PUBLIC znamená, že kdokoliv, kdo se nalinkuje na snake3d_lib, také dostane tyto cesty

@@ -45,12 +45,20 @@ namespace Manager {
         }
     }
 
+    void TextureManager::bindArr(const int index, const int item) {
+        glActiveTexture(GL_TEXTURE0 + index);
+        const auto id = textures.begin() + item;
+        if (id < textures.end()) {
+            glBindTexture(GL_TEXTURE_2D_ARRAY, (*id));
+        }
+    }
+
     void TextureManager::unbind(const int index) const {
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void TextureManager::cubeBind(int index) const {
+    void TextureManager::cubeBind(const int index) const {
         glActiveTexture(GL_TEXTURE0 + index);
         const auto id = textures.begin();
         glBindTexture(GL_TEXTURE_CUBE_MAP, (*id));

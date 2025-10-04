@@ -15,9 +15,12 @@ out vec3 TangentLightPos;
 out vec3 TangentFragPos;
 out vec3 TangentViewPos;
 out vec3 Normal;
+out vec3 worldNormal;
+out vec3 modelNormal;
 out mat3 TBN;
 out vec3 camPos;
 out vec3 meshColor;
+out mat4 viewMatrix;
 
 uniform vec3 viewPos;
 uniform mat4 model;
@@ -33,11 +36,12 @@ uniform vec3 cameraPos;
 
 void main()
 {
+    mat4 viewModel = view * model;
+
     if (useBones) {
-        mat4 viewModel = view * model;
         gl_Position = projection * viewModel * boneTransform(boneIds, weights);
     } else {
-        gl_Position = projection * view * model * vec4(aPos, 1.0);
+        gl_Position = projection * viewModel * vec4(aPos, 1.0);
     }
 
     vec2 uv = aTexCoords * uvScale + uvOffset;
@@ -55,8 +59,12 @@ void main()
     TangentFragPos  = TBN * fragPos;
     TangentViewPos  = TBN * viewPos;
 
-    Normal = mat3(transpose(inverse(view * model))) * aNormal;
+    Normal = mat3(transpose(inverse(viewModel))) * aNormal;
+    worldNormal = mat3(model) * aNormal;
+    //worldNormal = normalize(normalMatrix * aNormal);
+    modelNormal = normalize(transpose(inverse(mat3(model))) * aNormal);
     //Normal = mat3(model) * aNormal;
     camPos = viewPos;
     meshColor = aColor;
+    viewMatrix = viewModel;
 }

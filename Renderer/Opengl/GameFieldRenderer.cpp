@@ -28,6 +28,9 @@ void Renderer::GameFieldRenderer::render(float dt) {
     baseShader->setVec3("viewPos", camera->getPosition());
     baseShader->setBool("shadowsEnable", shadow);
     baseShader->setBool("fogEnable", fog);
+    baseShader->setInt("shadowMap", 4);
+    baseShader->setInt("normalMap", 2);
+    baseShader->setInt("specularMap", 3);
 
     if (!shadow) {
         glm::vec3 pointLightPositions[] = {
@@ -100,7 +103,7 @@ void Renderer::GameFieldRenderer::render(float dt) {
         texture4->bind(1);
     } else {
         texture1->bind(0);
-        texture2->bind(1);
+        texture2->bindArr(4, 0);
         texture3->bind(2);
         texture4->bind(3);
     }
@@ -110,7 +113,7 @@ void Renderer::GameFieldRenderer::render(float dt) {
 
 void Renderer::GameFieldRenderer::renderShadowMap() {
     shadowShader->use();
-    texture1->bind(0);
+    // texture1->bind(0);
     renderScene(shadowShader);
 }
 

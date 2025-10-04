@@ -34,7 +34,7 @@ namespace Renderer {
     }
 
     void EatRenderer::renderShadowMap() {
-        depthTexture->bind(0);
+        depthTexture->bindArr(0, 0);
         renderScene(shadowShader);
     }
 

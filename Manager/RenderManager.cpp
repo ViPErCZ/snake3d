@@ -1,8 +1,8 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(int width, int height) :
-        width(width), height(height), bloom(false), shadows(false), fog(false) {
+    RenderManager::RenderManager(const int width, const int height) :
+        width(width), height(height), shadows(false), bloom(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
@@ -38,42 +38,45 @@ namespace Manager {
 
         glViewport(0, 0, width, height);
 
-        if (shadows) {
+        if (shadows && depthMapRenderer) {
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(3.0f, 3.0f);
-            if (depthMapRenderer) {
-                glm::vec3 sceneMin(FLT_MAX);
-                glm::vec3 sceneMax(-FLT_MAX);
+
+            glm::vec3 sceneMin(FLT_MAX);
+            glm::vec3 sceneMax(-FLT_MAX);
+
+            for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
+                sceneMin = (*Iter)->compareSceneMin(sceneMin);
+                sceneMax = (*Iter)->compareSceneMax(sceneMax);
+            }
+
+            // přidej padding
+            constexpr float padding = 2.0f;
+            sceneMin -= glm::vec3(padding);
+            sceneMax += glm::vec3(padding);
+
+            constexpr glm::vec3 centerScene = {0, 0, 0}; //(sceneMin + sceneMax) / 2.0f;
+
+            // TODO: dirLight dodelat object a dosadit do render manageru
+            auto light = make_shared<DirectionalLight>(DirectionalLight());
+            light->setPosition({0.0f, 7.0f, 11.0f});
+            light->setDirection({1, 1.0, -3});
+            const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, centerScene, sceneMin, sceneMax);
+            int index = 0;
+
+            for (auto & matrix : lightSpacesMatrix) {
+                depthMapRenderer->beforeRender(index);
+                depthMapRenderer->bind(index, matrix);
+
+                glCullFace(GL_FRONT);
 
                 for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-                    sceneMin = (*Iter)->compareSceneMin(sceneMin);
-                    sceneMax = (*Iter)->compareSceneMax(sceneMax);
+                    if ((*Iter)->isShadow()) {
+                        (*Iter)->renderShadowMap();
+                    }
                 }
+                glCullFace(GL_BACK);
 
-                // přidej padding
-                constexpr float padding = 2.0f;
-                sceneMin -= glm::vec3(padding);
-                sceneMax += glm::vec3(padding);
-
-                const glm::vec3 centerScene = {0, 0, 0}; //(sceneMin + sceneMax) / 2.0f;
-
-                // TODO: dirLight dodelat object a dosadit do render manageru
-                auto light = make_shared<DirectionalLight>(DirectionalLight());
-                light->setPosition({0.0f, 7.0f, 11.0f});
-                depthMapRenderer->computeLightSpaceMatrix(light, centerScene, sceneMin, sceneMax);
-
-                depthMapRenderer->beforeRender();
-            }
-
-            glCullFace(GL_FRONT);
-            for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-                if ((*Iter)->isShadow()) {
-                    (*Iter)->renderShadowMap();
-                }
-            }
-            glCullFace(GL_BACK);
-
-            if (depthMapRenderer) {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                 // reset viewport
@@ -81,9 +84,16 @@ namespace Manager {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 depthMapRenderer->render(dt);
                 depthMapRenderer->afterRender();
+
+                index++;
             }
+
             glDisable(GL_POLYGON_OFFSET_FILL);
         }
+
+        constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, attachments);
+        glEnable(GL_DEPTH_TEST);
 
         if (bloom) {
             bloomRenderer->beforeRender();
@@ -123,7 +133,7 @@ namespace Manager {
     }
 
     void RenderManager::updateShadows() {
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             (*Iter)->setShadow(shadows);
         }
     }

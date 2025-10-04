@@ -115,7 +115,7 @@ void FireParticleSystem::addParticle(const glm::vec3 offset) {
             // Rodí se v menší oblasti (poloměr 0.15f místo 0.3f)
             glm::vec2 spawnDisk = glm::diskRand(0.015f);
             //p.position = glm::vec3(0.038 + spawnDisk.x, -0.012f, -0.76f);
-            p.position = glm::vec3(spawnDisk.x, 0.012f, spawnDisk.y) + offset;
+            p.position = glm::vec3(spawnDisk.x, 0.046f, spawnDisk.y) + offset;
 
             // Rychlost je menší, aby oheň nebyl tak vysoký
             p.velocity.x = glm::linearRand(-0.005f, 0.005f); // Menší rozptyl do stran

@@ -65,9 +65,11 @@ uniform bool normalMapEnabled = false;
 uniform bool specularMapEnabled = false;
 uniform samplerCube environmentMap;
 uniform bool iblEnabled = false;
+uniform float uShadowAmbientDarken = 0.85; // how much to darken ambient in shadow (0..1)
+uniform float uShadowDesaturateStrength = 1.0; // how strong the gray shift is in shadow (0..1)
 
 // function prototypes
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor);
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float shadow);
 vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -82,7 +84,7 @@ vec3 CalcIBLSpecular(vec3 R, float roughness, vec3 F0);
 vec3 CalcIBLDiffuse(vec3 N);
 
 // calculates the color when using a directional light.
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor)
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float shadow)
 {
     normal = normalize(normal);
     viewDir = normalize(viewDir);
@@ -96,8 +98,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor)
     // combine results
     vec3 ambient = ambientColor;
     if (useMaterial == false) {
-        ambient *= vec3(texture(material.ambient, TexCoords));
+        ambient = vec3(texture(material.ambient, TexCoords));
     }
+
     vec3 diffuse = light.diffuse * diff;
 //    if (normalMapEnabled) {
 //        diffuse *= vec3(texture(material.diffuse, TexCoords));
@@ -107,7 +110,21 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor)
         specular *= vec3(texture(material.specular, TexCoords));
     }
 
-    return (ambient + diffuse + specular);
+    // Darken and desaturate ambient in shadow so cores are darker and edges go through gray
+    vec3 ambientLit = ambient * light.ambient;
+    float shadowAmount = clamp(shadow, 0.0, 1.0);
+
+    // 1) darken toward black based on shadow
+    vec3 ambientDark = mix(ambientLit, vec3(0.0), shadowAmount * clamp(uShadowAmbientDarken, 0.0, 1.0));
+
+    // 2) desaturate toward gray based on shadow
+    float luminance = dot(ambientDark, vec3(0.299, 0.587, 0.114));
+    vec3 ambientGray = vec3(luminance);
+    vec3 ambientAdjusted = mix(ambientDark, ambientGray, shadowAmount * clamp(uShadowDesaturateStrength, 0.0, 1.0));
+
+    //(ambientAdjusted + (1.0 - shadow) * (diffuse + specular) * ambient);
+
+    return ambientAdjusted + (diffuse + specular) * (1.0 - shadow);
 }
 
 vec3 CalcDirLightPBR(

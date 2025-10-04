@@ -1,18 +1,14 @@
 #include "BaseRenderer.h"
 
-namespace Manager {
-} // Manager
 Renderer::BaseRenderer::BaseRenderer() : item(nullptr), shadow(false), fog(false) {
 }
 
 Renderer::BaseRenderer::BaseRenderer(BaseItem *item) : item(item), shadow(false), fog(false) {
 }
 
-Renderer::BaseRenderer::~BaseRenderer() {
-    //delete item;
-}
+Renderer::BaseRenderer::~BaseRenderer() = default;
 
-void Renderer::BaseRenderer::setShadow(bool shadow) {
+void Renderer::BaseRenderer::setShadow(const bool shadow) {
     BaseRenderer::shadow = shadow;
 }
 

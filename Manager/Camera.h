@@ -19,9 +19,11 @@ namespace Manager {
     public:
         explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
         [[nodiscard]] float getZoom() const;
-        [[nodiscard]] glm::mat4 getViewMatrix() const;
+        [[nodiscard]] glm::mat4 getViewMatrix();
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] const glm::vec3 &getFront() const;
+        [[nodiscard]] glm::vec3 getUp() const;
+        [[nodiscard]] glm::vec3 getRight() const;
         void setStickyPoint(Transform *stickyPoint);
         [[nodiscard]] Transform* getStickyPoint() const;
         [[nodiscard]] glm::vec3 getStickyPosition() const;

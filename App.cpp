@@ -6,8 +6,11 @@
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/StandardMeshRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
+#include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
+#include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
+#include "Renderer/Opengl/Material/Uniform/TextureUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/BoxMesh.h"
@@ -100,7 +103,6 @@ void App::Init() {
                                        "Assets/Shaders/explosion/explosion.geom",
                                        "Assets/Shaders/explosion/explosion.fs"
                                    )));
-
 
     InitSnake();
     animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
@@ -198,12 +200,13 @@ void App::Init() {
     const std::shared_ptr<TextureManager> environmentMap(
         resourceManager->getTexture("skybox"), [](TextureManager*) {
         });
+
     const auto directionalLight = make_shared<DirectionalLight>();
     directionalLight->setPosition({0.0f, 7.0f, 11.0f});
     directionalLight->setDirection({1, 1.0, -3});
-    directionalLight->setAmbient({0.5f, 0.5f, 0.5f});
-    directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
-    directionalLight->setSpecular({.051f, .051f, .051f});
+    directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+    directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+    directionalLight->setSpecular({.091f, .091f, .091f});
 
     const auto spotLight = make_shared<SpotLight>();
     spotLight->setPosition({0.0f, 0.5f, 0.2f});
@@ -223,7 +226,7 @@ void App::Init() {
     pointLight->setConstant(0.0005f);
     pointLight->setLinear(0.8f);
 
-    // planeMaterial->setColor({1, 0, 0.5});
+    planeMaterial->setColor({200.88, 0.05, 0.05});
     // planeMaterial->setColor({1, 1, 1});
     //planeMaterial->setAlbedo(rustedAlbedo);
     //planeMaterial->setNormal(rustedNormal);
@@ -258,8 +261,9 @@ void App::Init() {
     coinMaterial->setDirectionalLight(directionalLight);
     boxMaterial->setDirectionalLight(directionalLight);
     // planeMaterial->addSpotLight(spotLight);
-    //planeMaterial->addPointLight(pointLight);
+    // planeMaterial->addPointLight(pointLight);
     // coinMaterial->addPointLight(pointLight);
+    // boxMaterial->addPointLight(pointLight);
     // boxMaterial->addPointLight(pointLight);
     planeMaterial->setShadow(true);
     coinMaterial->setShadow(true);
@@ -304,13 +308,14 @@ void App::Init() {
     sphereMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     coinMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     pacmanMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
+    standardBoxMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     skeletonMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     const std::shared_ptr<Camera> sharedCamera(camera, [](Camera*) {});
     const auto standardRenderer = new StandardMeshRenderer(sharedCamera, projection, sphereMesh);
     const auto standardRenderer2 = new StandardMeshRenderer(sharedCamera, projection, coinMesh);
     const auto standardRenderer3 = new StandardMeshRenderer(sharedCamera, projection, standardBoxMesh);
-    const auto standardRenderer4 = new StandardMeshRenderer(sharedCamera, projection, capsuleMesh);
+    const auto standardRenderer4 = new StandardMeshRenderer(sharedCamera, projection, sphereMesh);
 
     snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
     objWallRenderer = new ObjWallRenderer(snake, objWall, camera, projection, resourceManager);
@@ -335,13 +340,16 @@ void App::Init() {
 
     eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection, resourceManager);
 
+    shared_ptr<PlaneMesh> planeMesh = initPlane();
+
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
-    // rendererManager->addRenderer(skyboxRenderer);
+    rendererManager->addRenderer(skyboxRenderer);
+    rendererManager->addRenderer(new StandardMeshRenderer(sharedCamera, projection, planeMesh));
     rendererManager->addRenderer(standardRenderer4);
     //rendererManager->addRenderer(standardRenderer2);
     //rendererManager->addRenderer(standardRenderer3);
-    rendererManager->addRenderer(gameFieldRenderer);
+    // rendererManager->addRenderer(gameFieldRenderer);
     rendererManager->addRenderer(eatRenderer);
     rendererManager->addRenderer(eatRemoveAnimateRenderer);
     rendererManager->addRenderer(animRenderer);
@@ -352,8 +360,8 @@ void App::Init() {
     rendererManager->addRenderer(radarRenderer);
     // rendererManager->addRenderer(rainRenderer);
     //rendererManager->addRenderer(torchRenderer);
-    // rendererManager->addRenderer(fireRenderer);
-    // rendererManager->addRenderer(boltRenderer);
+    rendererManager->addRenderer(fireRenderer);
+    rendererManager->addRenderer(boltRenderer);
     // rendererManager->addRenderer(textRenderer);
     rendererManager->setDepthMapRenderer(depthMapRenderer);
     rendererManager->setBloomRenderer(bloomRenderer);
@@ -471,9 +479,11 @@ void App::Init() {
     // positionHandler->addItem(directionalLight.get());
     // positionHandler->addItem(standardBaseItem2.get());
     // positionHandler->addItem(standardBaseItem.get());
-    positionHandler->addItem(standardBoxMesh->getBaseItem().get());
-    positionHandler->addItem(pacmanMesh->getBaseItem().get());
-    positionHandler->addItem(skeletonMesh->getBaseItem().get());
+    // positionHandler->addItem(standardBoxMesh->getBaseItem().get());
+    // positionHandler->addItem(pacmanMesh->getBaseItem().get());
+    // positionHandler->addItem(skeletonMesh->getBaseItem().get());
+    positionHandler->addItem(planeMesh->getBaseItem().get());
+    positionHandler->addItem(sphereMesh->getBaseItem().get());
 
     keyboardManager->addEventHandler(snakeMoveHandler);
     keyboardManager->addEventHandler(radarHandler);
@@ -720,4 +730,66 @@ void App::initTexts() const {
     }
 }
 
-#pragma clang diagnostic pop
+shared_ptr<PlaneMesh> App::initPlane() const {
+    const std::shared_ptr<ShaderManager> basicShader(
+        resourceManager->getShader("basicShader"), [](ShaderManager *) {
+        });
+    const std::shared_ptr<ShaderManager> planeShader(
+        resourceManager->getShader("shadowShader"), [](ShaderManager *) {
+        });
+    const std::shared_ptr<ShaderManager> shadowDepthShader(
+        resourceManager->getShader("shadowDepthShader"), [](ShaderManager *) {
+        });
+    const std::shared_ptr<TextureManager> shadowMap(
+        resourceManager->getTexture("depth"), [](TextureManager*) {
+        });
+    const std::shared_ptr<TextureManager> gamefieldAlbedo(
+        resourceManager->getTexture("tile.png"), [](TextureManager*) {
+        });
+    const std::shared_ptr<TextureManager> gamefieldNormal(
+        resourceManager->getTexture("gamefield_normal.jpg"), [](TextureManager*) {
+        });
+    const std::shared_ptr<TextureManager> gamefieldSpecular(
+        resourceManager->getTexture("gamefield_specular.jpg"), [](TextureManager*) {
+        });
+    const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
+    const auto shaderMaterial = make_shared<ShaderMaterial>(planeShader, shadowDepthShader);
+
+    const auto albedo = make_shared<Uniform::TextureUniform>(0, gamefieldAlbedo);
+    const auto normalMap = make_shared<Uniform::TextureUniform>(2, gamefieldNormal);
+    const auto specularMap = make_shared<Uniform::TextureUniform>(3, gamefieldSpecular);
+    const auto shadow = make_shared<Uniform::TextureArrayUniform>(4, shadowMap);
+    shaderMaterial->addUniform("diffuseMap", albedo);
+    shaderMaterial->addUniform("normalMap", normalMap);
+    shaderMaterial->addUniform("specularMap", specularMap);
+    shaderMaterial->addUniform("shadowMap", shadow);
+    shaderMaterial->addUniform("material.diffuse", 0);
+    shaderMaterial->addUniform("shadowsEnable", true);
+    // planeShader.get()->printActiveUniforms();
+
+    const auto directionalLight = make_shared<DirectionalLight>();
+    directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+    directionalLight->setDirection({1, 1.0, -3});
+    directionalLight->setAmbient({0.07f, 0.07f, 0.07f});
+    directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
+    directionalLight->setSpecular({.091f, .091f, .091f});
+
+    planeMaterial->setDirectionalLight(directionalLight);
+    planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
+    planeMaterial->setShadow(shadowMap);
+    planeMaterial->setShadow(true);
+    planeMaterial->setNormalEnabled(true);
+    planeMaterial->setAlbedo(gamefieldAlbedo);
+    planeMaterial->setNormal(gamefieldNormal);
+    planeMaterial->setSpecular(gamefieldSpecular);
+    planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
+
+    const std::shared_ptr<Camera> sharedCamera(camera, [](Camera*) {});
+    const auto standardBaseItem = make_shared<BaseItem>();
+    standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+    standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
+    const auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
+    planeMesh->setMaterial(planeMaterial);
+
+    return planeMesh;
+}

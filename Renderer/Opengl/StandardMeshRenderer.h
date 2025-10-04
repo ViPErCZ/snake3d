@@ -31,7 +31,7 @@ namespace Renderer {
 
     protected:
         void renderScene(const shared_ptr<ShaderManager> &shader) const;
-        shared_ptr<Mesh> getMesh();
+        shared_ptr<Mesh> getMesh() override;
         shared_ptr<Camera> camera;
         shared_ptr<StandardMesh> mesh;
         glm::mat4 projection;

@@ -18,6 +18,8 @@ namespace Manager {
 
         void bind(int index, int item = 0);
 
+        void bindArr(int index, int item);
+
         void unbind(int index) const;
 
         void unbind() const;

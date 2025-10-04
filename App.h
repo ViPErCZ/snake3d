@@ -29,13 +29,13 @@
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Renderer/Opengl/AnimRenderer.h"
-#include <AL/al.h>
-
 #include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/FireRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
+#include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
+#include <AL/al.h>
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -71,6 +71,7 @@ protected:
     void InitRadar();
     [[nodiscard]] Eat *InitEat() const;
     void initTexts() const;
+    [[nodiscard]] shared_ptr<PlaneMesh> initPlane() const;
 private:
     LevelManager* levelManager{};
     ResourceManager* resourceManager{};

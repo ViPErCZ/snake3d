@@ -5,8 +5,16 @@
 namespace Resource {
     shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-                                                       aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        // Increase smoothing angle to better smooth low-poly assets (e.g., pacman) and join duplicate vertices
+        importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
+        const unsigned int pp_flags = aiProcess_Triangulate |
+                                      aiProcess_GenSmoothNormals |
+                                      aiProcess_FlipUVs |
+                                      aiProcess_CalcTangentSpace |
+                                      aiProcess_JoinIdenticalVertices |
+                                      aiProcess_ImproveCacheLocality |
+                                      aiProcess_OptimizeMeshes;
+        const aiScene *scene = importer.ReadFile(path, pp_flags);
         // check for errors
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -234,6 +242,39 @@ namespace Resource {
             // retrieve all indices of the face and store them in the indices vector
             for (unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
+        }
+
+        // Fallback: if mesh has no normals (or Assimp failed to generate), compute smooth normals
+        if (!mesh->HasNormals()) {
+            // Initialize normals to zero
+            for (auto &v : vertices) {
+                v.normal = glm::vec3(0.0f);
+            }
+            // Accumulate face normals (area-weighted by triangle area)
+            for (size_t i = 0; i + 2 < indices.size(); i += 3) {
+                const auto ia = indices[i];
+                const auto ib = indices[i + 1];
+                const auto ic = indices[i + 2];
+                const glm::vec3 &a = vertices[ia].position;
+                const glm::vec3 &b = vertices[ib].position;
+                const glm::vec3 &c = vertices[ic].position;
+                glm::vec3 n = glm::normalize(glm::cross(b - a, c - a));
+                // Use triangle area (length of cross) as weight
+                float area = glm::length(glm::cross(b - a, c - a));
+                if (area > 0.0f) {
+                    vertices[ia].normal += n * area;
+                    vertices[ib].normal += n * area;
+                    vertices[ic].normal += n * area;
+                }
+            }
+            // Normalize accumulated normals
+            for (auto &v : vertices) {
+                if (glm::length2(v.normal) > 0.0f) {
+                    v.normal = glm::normalize(v.normal);
+                } else {
+                    v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+                }
+            }
         }
 
         // TODO: implementovat ???

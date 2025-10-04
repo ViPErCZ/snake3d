@@ -35,13 +35,13 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setMat4("projection", projection);
     shader->setMat4("model", model);
     shader->setVec3("viewPos", posView);
-    shader->setBool("useMaterial", false);
+    shader->setBool("useMaterial", true);
     shader->setBool("useBones", false);
     shader->setBool("shadowsEnable", false);
     shader->setBool("iblEnabled", false);
     shader->setBool("pbrEnabled", false);
+    shader->setBool("overrideColorMesh", false);
     shader->setFloat("ambientLightColorIntensity", 0.05);
-    shader->setVec3("ambientLightColor", color);
     shader->setBool("fogEnable", false);
     shader->setVec2("uvScale", UVScale);
     shader->setVec2("uvOffset", UVOffset);
@@ -57,7 +57,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     if (shadowEnabled) {
         shader->setBool("shadowsEnable", true);
         if (shadow.get() && shadow.get()->hasTexture()) {
-            shadow.get()->bind(3);
+            shadow.get()->bindArr(3, 0);
         }
     }
 
@@ -66,9 +66,13 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
             shader->setVec3("ambientLightColor", worldEnvironment->getEnvironment()->getAmbientLight().color);
             shader->setFloat("ambientLightColorIntensity",
                              worldEnvironment->getEnvironment()->getAmbientLight().intensity);
-        } else {
-            shader->setVec3("ambientLightColor", color);
+        } else if (color) {
+            shader->setVec3("ambientLightColor", *color.get());
+            shader->setBool("overrideColorMesh", true);
         }
+    } else if (color) {
+        shader->setVec3("ambientLightColor", *color.get());
+        shader->setBool("overrideColorMesh", true);
     }
 
     shader->setFloat("material.shininess", shininess);
@@ -79,14 +83,14 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
         shader->setBool("directionLightEnable", true);
     } else {
         shader->setBool("directionLightEnable", false);
-        shader->setVec3("lightPos", {0, 0,0});
+        shader->setVec3("lightPos", {0, 0, 0});
     }
 
     // POINT LIGHT
     // --------------------------------
     shader->setInt("numPointLights", static_cast<int>(pointLights.size()));
     int index = 0;
-    for (const auto & pointLight : pointLights) {
+    for (const auto &pointLight: pointLights) {
         pointLight->bind(shader.get(), index);
         index++;
     }
@@ -97,7 +101,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     // --------------------------------
     shader->setInt("numSpotLights", static_cast<int>(spotLights.size()));
     index = 0;
-    for (const auto & spotLight : spotLights) {
+    for (const auto &spotLight: spotLights) {
         spotLight->bind(shader.get(), index);
         index++;
     }
@@ -179,11 +183,11 @@ void Material::StandardMaterial::unbind() const {
 }
 
 glm::vec3 Material::StandardMaterial::getColor() const {
-    return color;
+    return *color.get();
 }
 
 void Material::StandardMaterial::setColor(const glm::vec3 &color) {
-    this->color = color;
+    this->color = make_shared<glm::vec3>(color);
 }
 
 bool Material::StandardMaterial::isShadowEnabled() const {
@@ -232,6 +236,14 @@ void Material::StandardMaterial::setEnvironmentMap(const shared_ptr<TextureManag
 
 void Material::StandardMaterial::setAoMap(const shared_ptr<TextureManager> &ao_map) {
     aoMap = ao_map;
+}
+
+void Material::StandardMaterial::set_uv_scale(const glm::vec2 &uv_scale) {
+    UVScale = uv_scale;
+}
+
+void Material::StandardMaterial::set_uv_offset(const glm::vec2 &uv_offset) {
+    UVOffset = uv_offset;
 }
 
 void Material::StandardMaterial::setNormal(const std::shared_ptr<TextureManager> &normal) {

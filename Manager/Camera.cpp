@@ -24,19 +24,19 @@ namespace Manager {
         return zoom;
     }
 
-    glm::mat4 Camera::getViewMatrix() const {
+    glm::mat4 Camera::getViewMatrix() {
         if (!rightButtonPressed) {
             // --- STANDARDNÍ MÓD ---
             // Kamera je fixována na 'stickyPoint' s daným offsetem
-            const glm::vec3 targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
-            const glm::vec3 cameraPos = targetPos + offsetFromTarget;
-            return glm::lookAt(cameraPos, targetPos, worldUp);
-        } else {
-            // --- SPECTATOR MÓD ---
-            // Kamera se volně pohybuje a dívá se, kam míří její 'front' vektor
-            // Používáme 'position' jako volnou pozici kamery
-            return glm::lookAt(position, position + front, up);
+            const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+            this->setPosition(targetPos + offsetFromTarget);
+            return glm::lookAt(position, targetPos, worldUp);
         }
+
+        // --- SPECTATOR MÓD ---
+        // Kamera se volně pohybuje a dívá se, kam míří její 'front' vektor
+        // Používáme 'position' jako volnou pozici kamery
+        return glm::lookAt(position, position + front, up);
     }
 
     const glm::vec3 &Camera::getPosition() const {
@@ -45,6 +45,14 @@ namespace Manager {
 
     const glm::vec3 & Camera::getFront() const {
         return front;
+    }
+
+    glm::vec3 Camera::getUp() const {
+        return up;
+    }
+
+    glm::vec3 Camera::getRight() const {
+        return right;
     }
 
     void Camera::setStickyPoint(Transform *stickyPoint) {

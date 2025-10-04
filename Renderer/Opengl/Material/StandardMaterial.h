@@ -17,7 +17,7 @@ using namespace Tools;
 using namespace std;
 
 namespace Material {
-    class StandardMaterial final : public BaseMaterial, public IAlbedoMaterial {
+    class StandardMaterial : public BaseMaterial, public IAlbedoMaterial {
     public:
         explicit StandardMaterial(shared_ptr<ShaderManager> baseShader,
                                   shared_ptr<ShaderManager> shadowDepthShader,
@@ -43,8 +43,8 @@ namespace Material {
 
         void setNormalEnabled(bool normal_enabled);
 
-        void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                  const glm::mat4 &model) const;
+        virtual void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
+                          const glm::mat4 &model) const;
 
         void bindShadow(const glm::mat4 &model) const;
 
@@ -78,6 +78,10 @@ namespace Material {
 
         void setAoMap(const shared_ptr<TextureManager> &ao_map);
 
+        void set_uv_scale(const glm::vec2 &uv_scale);
+
+        void set_uv_offset(const glm::vec2 &uv_offset);
+
     protected:
         shared_ptr<TextureManager> albedo;
         shared_ptr<TextureManager> normal;
@@ -93,7 +97,7 @@ namespace Material {
         shared_ptr<DirectionalLight> directionalLight;
         vector<shared_ptr<SpotLight> > spotLights;
         vector<shared_ptr<PointLight> > pointLights;
-        glm::vec3 color = {1, 1, 1};
+        shared_ptr<glm::vec3> color = nullptr;
         glm::vec2 UVScale = {1, 1};
         glm::vec2 UVOffset = {0, 0};
         bool normal_enabled = false;
