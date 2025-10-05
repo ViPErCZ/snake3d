@@ -20,7 +20,7 @@ namespace Manager {
 
     class RenderManager final {
     public:
-        RenderManager(int width, int height, const shared_ptr<Camera> &camera);
+        RenderManager(int width, int height);
         ~RenderManager();
         void render(float dt);
         void addRenderer(BaseRenderer* renderer);
@@ -40,7 +40,6 @@ namespace Manager {
         vector<BaseRenderer*> renderers;
         DepthMapRenderer* depthMapRenderer{};
         BloomRenderer* bloomRenderer{};
-        shared_ptr<Camera> camera;
         int width;
         int height;
         bool shadows;

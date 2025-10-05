@@ -21,10 +21,7 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "NullDereference"
 App::App(Camera* camera, const int width, const int height) : camera(camera), width(width), height(height) {
-    const std::shared_ptr<Camera> sharedCamera(
-        camera, [](Camera *) {
-        });
-    rendererManager = new RenderManager(width, height, sharedCamera);
+    rendererManager = new RenderManager(width, height);
     keyboardManager = new KeyboardManager();
     startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");

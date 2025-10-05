@@ -1,8 +1,8 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(const int width, const int height, const shared_ptr<Camera> &camera) :
-        width(width), height(height), shadows(false), bloom(false), fog(false), camera(camera) {
+    RenderManager::RenderManager(const int width, const int height) :
+        width(width), height(height), shadows(false), bloom(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
