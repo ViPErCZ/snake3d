@@ -5,7 +5,7 @@ namespace Renderer {
         resourceManager = resManager;
         this->camera = camera;
         this->projection = proj;
-        shader = resourceManager->getShader("shadowShader");
+        shader = resourceManager->getShader("shadowShader").get();
         shader->use();
         shader->setMat4("projection", projection);
         shader->setInt("diffuseMap", 0);
@@ -74,22 +74,23 @@ namespace Renderer {
         // shader->setVec3("viewPos", camera->getPosition());
         // shader->setVec3("lightPos", lightPos);
         int index = 0;
-        // for(const auto & lightSpaceMatrice : lightSpaceMatrices) {
-        //     shader->setMat4("lightSpaceMatrix" + std::to_string(index), lightSpaceMatrice);
-        //     index++;
-        // }
+        constexpr int NUM_CASCADES = 3;
+        float cascadeEnds[NUM_CASCADES];
 
-        float lambda = 0.5f;
-        float cameraNear = 0.1f;
-        float cameraFar = 1000.0f;
+        float lambda = 0.95f;
+        float nearClip = 0.1f;
+        float farClip = 1000.0f;
 
-        for(int i=0; i<NUM_CASCADES; ++i)
-        {
-            float si = float(i+1)/NUM_CASCADES;
-            float logSplit = cameraNear * pow(cameraFar/cameraNear, si);
-            float linSplit = cameraNear + si * (cameraFar - cameraNear);
-            shader->setFloat("cascadeEnds" + std::to_string(i), lambda * logSplit + (1-lambda) * linSplit);
+        for (int i = 0; i < NUM_CASCADES; i++) {
+            float p = static_cast<float>(i + 1) / static_cast<float>(NUM_CASCADES);
+            float logSplit = nearClip * std::pow(farClip / nearClip, p);
+            float linSplit = nearClip + (farClip - nearClip) * p;
+            cascadeEnds[i] = lambda * logSplit + (1.0f - lambda) * linSplit;
         }
+
+        shader->setFloat("cascadeEnds" + std::to_string(0), cascadeEnds[0]);
+        shader->setFloat("cascadeEnds" + std::to_string(1), cascadeEnds[1]);
+        shader->setFloat("cascadeEnds" + std::to_string(2), cascadeEnds[2]);
 
         const auto basicShader = resourceManager->getShader("basicShader");
         basicShader->use();
@@ -99,18 +100,9 @@ namespace Renderer {
             index++;
         }
 
-
-        lambda = 0.5f;
-        cameraNear = 0.1f;
-        cameraFar = 1000.0f;
-
-        for(int i=0; i<NUM_CASCADES; ++i)
-        {
-            const float si = static_cast<float>(i + 1)/NUM_CASCADES;
-            const float logSplit = cameraNear * pow(cameraFar/cameraNear, si);
-            const float linSplit = cameraNear + si * (cameraFar - cameraNear);
-            basicShader->setFloat("cascadeEnds" + std::to_string(i), lambda * logSplit + (1-lambda) * linSplit);
-        }
+        basicShader->setFloat("cascadeEnds" + std::to_string(0), cascadeEnds[0]);
+        basicShader->setFloat("cascadeEnds" + std::to_string(1), cascadeEnds[1]);
+        basicShader->setFloat("cascadeEnds" + std::to_string(2), cascadeEnds[2]);
     }
 
     void DepthMapRenderer::bind(const int index, const glm::mat4 &lightSpaceMatrix) const {

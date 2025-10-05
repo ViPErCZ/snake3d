@@ -8,12 +8,12 @@ Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, Camera *camera, 
     this->camera = camera;
     this->projection = proj;
     model = new GameFieldModel((*gameField->getTiles().begin()));
-    baseShader = resourceManager->getShader("shadowShader");
-    shadowShader = resourceManager->getShader("shadowDepthShader");
-    texture1 = resourceManager->getTexture("gamefield.bmp");
-    texture2 = resourceManager->getTexture("depth");
-    texture3 = resourceManager->getTexture("gamefield_normal.jpg");
-    texture4 = resourceManager->getTexture("gamefield_specular.jpg");
+    baseShader = resourceManager->getShader("shadowShader").get();
+    shadowShader = resourceManager->getShader("shadowDepthShader").get();
+    texture1 = resourceManager->getTexture("gamefield.bmp").get();
+    texture2 = resourceManager->getTexture("depth").get();
+    texture3 = resourceManager->getTexture("gamefield_normal.jpg").get();
+    texture4 = resourceManager->getTexture("gamefield_specular.jpg").get();
 }
 
 Renderer::GameFieldRenderer::~GameFieldRenderer() {

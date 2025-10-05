@@ -4,11 +4,11 @@ namespace Renderer {
     ObjWallRenderer::ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
         : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false) {
         mesh = resourceManager->getModel("cube")->getMesh();
-        shader = resourceManager->getShader("normalShader");
-        texture1 = resourceManager->getTexture("brickwork-texture.jpg");
-        texture2 = resourceManager->getTexture("brickwork_normal-map.jpg");
-        texture3 = resourceManager->getTexture("brickwork-bump-map.jpg");
-        texture4 = resourceManager->getTexture("bricks2_disp.jpg");
+        shader = resourceManager->getShader("normalShader").get();
+        texture1 = resourceManager->getTexture("brickwork-texture.jpg").get();
+        texture2 = resourceManager->getTexture("brickwork_normal-map.jpg").get();
+        texture3 = resourceManager->getTexture("brickwork-bump-map.jpg").get();
+        texture4 = resourceManager->getTexture("bricks2_disp.jpg").get();
     }
 
     ObjWallRenderer::~ObjWallRenderer() {
@@ -130,13 +130,13 @@ namespace Renderer {
         parallax = !parallax;
 
         if (parallax) {
-            texture1 = resourceManager->getTexture("bricks2.jpg");
-            texture2 = resourceManager->getTexture("bricks2_normal.jpg");
-            texture4 = resourceManager->getTexture("bricks2_disp.jpg");
+            texture1 = resourceManager->getTexture("bricks2.jpg").get();
+            texture2 = resourceManager->getTexture("bricks2_normal.jpg").get();
+            texture4 = resourceManager->getTexture("bricks2_disp.jpg").get();
         } else {
-            texture1 = resourceManager->getTexture("brickwork-texture.jpg");
-            texture2 = resourceManager->getTexture("brickwork_normal-map.jpg");
-            texture3 = resourceManager->getTexture("brickwork-bump-map.jpg");
+            texture1 = resourceManager->getTexture("brickwork-texture.jpg").get();
+            texture2 = resourceManager->getTexture("brickwork_normal-map.jpg").get();
+            texture3 = resourceManager->getTexture("brickwork-bump-map.jpg").get();
         }
     }
 

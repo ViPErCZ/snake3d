@@ -30,7 +30,7 @@ uniform bool useBones = true;
 uniform vec2 uvScale = vec2(1.0, 1.0);
 uniform vec2 uvOffset = vec2(0.0, 0.0);
 uniform vec3 lightPos;
-uniform vec3 cameraPos;
+//uniform vec3 cameraPos;
 
 #include "functions/bonesTransform.glsl"
 
@@ -66,5 +66,5 @@ void main()
     //Normal = mat3(model) * aNormal;
     camPos = viewPos;
     meshColor = aColor;
-    viewMatrix = viewModel;
+    viewMatrix = view;
 }

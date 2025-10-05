@@ -19,8 +19,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window);
 
-auto camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-auto app = new App(camera, W_WIDTH, W_HEIGHT);
+auto camera = make_shared<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
+auto app = make_shared<App>(camera, W_WIDTH, W_HEIGHT);
 
 int main(int argc, char *argv[]) {
     if (!glfwInit()) { return 1; }
@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    delete app;
     alutExit();
 
     return 0;

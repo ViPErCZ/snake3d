@@ -18,28 +18,19 @@
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "NullDereference"
-App::App(Camera* camera, const int width, const int height) : camera(camera), width(width), height(height) {
-    rendererManager = new RenderManager(width, height);
-    keyboardManager = new KeyboardManager();
+//#pragma clang diagnostic push
+//#pragma ide diagnostic ignored "NullDereference"
+App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
+    rendererManager = make_unique<RenderManager>(width, height);
+    keyboardManager = make_unique<KeyboardManager>();
     startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
     eat = new Eat;
-    skybox = new Cube();
-    eatManager = nullptr;
+    skybox = make_shared<Cube>();
 }
 
 App::~App() {
-    delete rendererManager;
-    delete resourceManager;
-    delete keyboardManager;
-    delete eatManager;
-    delete collisionDetector;
     delete eat;
-    delete skybox;
-    delete levelManager;
-    delete camera;
     alDeleteSources(1, &musicSource);
     alDeleteSources(1, &coinSource);
     alDeleteBuffers(1, &musicBuffer);
@@ -105,101 +96,60 @@ void App::Init() {
                                    )));
 
     InitSnake();
-    animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera, projection, resourceManager);
+    animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera.get(), projection, resourceManager.get());
     animRenderer->addPlay("KostraAction");
     animRenderer->setAcceleration(2.2f);
     snake->getHeadTile()->setVisible(false);
     //    animRenderer->addPlay("Armature|Take 001|BaseLayer");
     //    animRenderer->addPlay("Kostra2Action.002");
     //    animRenderer->addPlay("Kostra3Action");
-    bloomRenderer = new BloomRenderer(resourceManager, width, height);
-    depthMapRenderer = new DepthMapRenderer(camera, projection, resourceManager);
-    gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera, projection, resourceManager);
+    bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
+    depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
+    gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera.get(), projection, resourceManager.get());
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
     barriers = new Barriers();
     radar = CreateRadar();
     InitRadar();
     const auto torch = new Cube();
-    torch->setPosition(glm::vec3(0.33, 0, -8.2));
+    torch->setPosition(glm::vec3(0.33, 0.3, -8.2));
     torch->setRotate(
         glm::vec4(1.0, 0.0, 0.0, 90.0f),
         glm::vec4(0.0, 1.0, 0.0, 0.0f),
         glm::vec4(0.0, 0.0, 1.0, 0.0f));
     torch->setZoom({0.12, 0.12, 0.12});
 
-    levelManager = new LevelManager(1, MAX_LIVES, barriers);
+    levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
     levelManager->createLevel(START_LEVEL);
 
     auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
-    eatManager = new EatManager(eatLocationHandler);
+    eatManager = make_unique<EatManager>(eatLocationHandler);
 
-    const std::shared_ptr<ShaderManager> basicShader(
-        resourceManager->getShader("basicShader"), [](ShaderManager *) {
-        });
-    const std::shared_ptr<ShaderManager> shadowDepthShader(
-        resourceManager->getShader("shadowDepthShader"), [](ShaderManager *) {
-        });
+    auto basicShader = resourceManager->getShader("basicShader");
+    auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
     const auto planeMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
     const auto coinMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
     const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
-    const std::shared_ptr<TextureManager> gamefieldAlbedo(
-        resourceManager->getTexture("gamefield.bmp"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> gamefieldNormal(
-        resourceManager->getTexture("gamefield_normal.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> gamefieldSpecular(
-        resourceManager->getTexture("gamefield_specular.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> skeletonAlbedo(
-        resourceManager->getTexture("Skeleton_Body.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> skeletonORM(
-        resourceManager->getTexture("Skeleton_Body_ORM.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> shadowMap(
-        resourceManager->getTexture("depth"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> coinAlbedo(
-        resourceManager->getTexture("Coin_Gold_albedo.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> coinNormal(
-        resourceManager->getTexture("Coin_Gold_nm.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> coinMetalness(
-        resourceManager->getTexture("Coin_Gold_metalness.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> coinRoughness(
-        resourceManager->getTexture("Coin_Gold_rough.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> rustedAlbedo(
-        resourceManager->getTexture("rusted_albedo.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> rustedNormal(
-        resourceManager->getTexture("rusted_normal.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> rustedRoughness(
-        resourceManager->getTexture("rusted_roughness.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> aoMap(
-        resourceManager->getTexture("ao.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> rustedMetallic(
-        resourceManager->getTexture("rusted_metallic.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> brickWall(
-        resourceManager->getTexture("brickwork-texture.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> brickWallNormal(
-        resourceManager->getTexture("brickwork_normal-map.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> brickWallSpecular(
-        resourceManager->getTexture("brickwork-bump-map.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> environmentMap(
-        resourceManager->getTexture("skybox"), [](TextureManager*) {
-        });
+
+    auto gamefieldAlbedo = resourceManager->getTexture("gamefield.bmp");
+    auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
+    auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
+    auto skeletonAlbedo = resourceManager->getTexture("Skeleton_Body.png");
+    auto skeletonORM = resourceManager->getTexture("Skeleton_Body_ORM.png");
+    auto shadowMap = resourceManager->getTexture("depth");
+    auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
+    auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
+    auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
+    auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
+    auto rustedAlbedo = resourceManager->getTexture("rusted_albedo.png");
+    auto rustedNormal = resourceManager->getTexture("rusted_normal.png");
+    auto rustedRoughness = resourceManager->getTexture("rusted_roughness.png");
+    auto aoMap = resourceManager->getTexture("ao.png");
+    auto rustedMetallic = resourceManager->getTexture("rusted_metallic.png");
+    auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
+    auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
+    auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
+    auto environmentMap = resourceManager->getTexture("skybox");
 
     const auto directionalLight = make_shared<DirectionalLight>();
     directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -311,24 +261,23 @@ void App::Init() {
     standardBoxMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     skeletonMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-    const std::shared_ptr<Camera> sharedCamera(camera, [](Camera*) {});
-    const auto standardRenderer = new StandardMeshRenderer(sharedCamera, projection, sphereMesh);
-    const auto standardRenderer2 = new StandardMeshRenderer(sharedCamera, projection, coinMesh);
-    const auto standardRenderer3 = new StandardMeshRenderer(sharedCamera, projection, standardBoxMesh);
-    const auto standardRenderer4 = new StandardMeshRenderer(sharedCamera, projection, sphereMesh);
+    const auto standardRenderer = new StandardMeshRenderer(camera, projection, sphereMesh);
+    const auto standardRenderer2 = new StandardMeshRenderer(camera, projection, coinMesh);
+    const auto standardRenderer3 = new StandardMeshRenderer(camera, projection, standardBoxMesh);
+    const auto standardRenderer4 = new StandardMeshRenderer(camera, projection, sphereMesh);
 
-    snakeRenderer = new SnakeRenderer(snake, camera, projection, resourceManager);
-    objWallRenderer = new ObjWallRenderer(snake, objWall, camera, projection, resourceManager);
-    barrierRenderer = new BarrierRenderer(snake, barriers, camera, projection, resourceManager);
-    eatRenderer = new EatRenderer(eat, camera, projection, resourceManager);
-    radarRenderer = new RadarRenderer(radar, camera, ortho, resourceManager);
+    snakeRenderer = new SnakeRenderer(snake, camera.get(), projection, resourceManager.get());
+    objWallRenderer = new ObjWallRenderer(snake, objWall, camera.get(), projection, resourceManager.get());
+    barrierRenderer = new BarrierRenderer(snake, barriers, camera.get(), projection, resourceManager.get());
+    eatRenderer = new EatRenderer(eat, camera.get(), projection, resourceManager.get());
+    radarRenderer = new RadarRenderer(radar, camera.get(), ortho, resourceManager.get());
     textRenderer = new TextRenderer(width, height);
-    skyboxRenderer = new SkyboxRenderer(skybox, camera, projection, resourceManager);
-    rainRenderer = new RainRenderer(new BaseItem(), camera, projection, resourceManager);
-    rainDropRenderer = new RainDropRenderer(new BaseItem(), camera, projection, resourceManager);
-    fireRenderer = new FireRenderer(camera, projection, resourceManager);
-    torchRenderer = new TorchRenderer(torch, camera, projection, resourceManager);
-    boltRenderer = new BoltRenderer(camera, projection, resourceManager);
+    skyboxRenderer = new SkyboxRenderer(skybox.get(), camera.get(), projection, resourceManager.get());
+    rainRenderer = new RainRenderer(new BaseItem(), camera.get(), projection, resourceManager.get());
+    rainDropRenderer = new RainDropRenderer(new BaseItem(), camera.get(), projection, resourceManager.get());
+    fireRenderer = new FireRenderer(camera.get(), projection, resourceManager.get());
+    torchRenderer = new TorchRenderer(torch, camera.get(), projection, resourceManager.get());
+    boltRenderer = new BoltRenderer(camera.get(), projection, resourceManager.get());
     const auto storm = new BaseItem();
     storm->setVisible(false);
 
@@ -338,14 +287,14 @@ void App::Init() {
     animateEat->setVisible(false);
     animateEat->setPosition(eat->getPosition());
 
-    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera, projection, resourceManager);
+    eatRemoveAnimateRenderer = new EatRemoveAnimateRenderer(animateEat, camera.get(), projection, resourceManager.get());
 
     shared_ptr<PlaneMesh> planeMesh = initPlane();
 
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     rendererManager->addRenderer(skyboxRenderer);
-    rendererManager->addRenderer(new StandardMeshRenderer(sharedCamera, projection, planeMesh));
+    rendererManager->addRenderer(new StandardMeshRenderer(camera, projection, planeMesh));
     rendererManager->addRenderer(standardRenderer4);
     //rendererManager->addRenderer(standardRenderer2);
     //rendererManager->addRenderer(standardRenderer3);
@@ -368,19 +317,16 @@ void App::Init() {
     //rendererManager->enableShadows();
     camera->setStickyPoint(snake->getHeadTile());
 
-    // pruhlednost se objevuje nepresne
-    // idealni aby nebyla kosticka cela pruhledna, spodek kostky by mohl byt nepruhledny, ted to kvuli tomu divne mrka
-
     auto animHead = resourceManager->getAnimationModel("pacman");
     animHead->setBaseItem(snake->getHeadTile());
     auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
     auto *radarHandler = new RadarHandler(radar);
 
-    collisionDetector = new CollisionDetector();
+    collisionDetector = make_shared<CollisionDetector>();
     collisionDetector->setPerimeter(objWall);
     collisionDetector->setBarriers(barriers);
     collisionDetector->addStaticItem(eat);
-    snakeMoveHandler->setCollisionDetector(collisionDetector);
+    snakeMoveHandler->setCollisionDetector(collisionDetector.get());
     snakeMoveHandler->setStartMoveCallback([this, animHead]() {
         if (this->levelManager) {
             animHead->setGlobalPause(false);
@@ -473,7 +419,7 @@ void App::Init() {
 
         }
     });
-    const auto positionHandler = new PositionHandler(camera);
+    const auto positionHandler = new PositionHandler(camera.get());
     //positionHandler->addItem(pointLight.get());
     // positionHandler->addItem(eat);
     // positionHandler->addItem(directionalLight.get());
@@ -484,6 +430,7 @@ void App::Init() {
     // positionHandler->addItem(skeletonMesh->getBaseItem().get());
     positionHandler->addItem(planeMesh->getBaseItem().get());
     positionHandler->addItem(sphereMesh->getBaseItem().get());
+    // positionHandler->addItem(torch);
 
     keyboardManager->addEventHandler(snakeMoveHandler);
     keyboardManager->addEventHandler(radarHandler);
@@ -609,7 +556,7 @@ void App::cameraProcessKeyboard(GLFWwindow *window) const {
 }
 
 void App::InitResourceManager() {
-    resourceManager = new ResourceManager();
+    resourceManager = make_unique<ResourceManager>();
 
     std::string path = "Assets/Textures/Albedo/";
     for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
@@ -647,8 +594,8 @@ void App::InitResourceManager() {
     faces.emplace_back("Assets/Skybox/cloud/bottom.jpg");
     faces.emplace_back("Assets/Skybox/cloud/front.jpg");
     faces.emplace_back("Assets/Skybox/cloud/back.jpg");
-    unsigned int cubeMapTexture = TextureLoader::loadSkyboxTexture(faces);
-    auto texture = std::make_shared<TextureManager>();
+    const unsigned int cubeMapTexture = TextureLoader::loadSkyboxTexture(faces);
+    const auto texture = std::make_shared<TextureManager>();
     texture->addTexture(cubeMapTexture);
     resourceManager->addTexture("skybox", texture);
 }
@@ -700,9 +647,9 @@ void App::InitRadar() {
 }
 
 Eat *App::InitEat() const {
-    eat->setVirtualX((((int) (23 - (-23)) / 2) * 32) + 16);
-    eat->setVirtualY((((int) (-3 - (-23)) / 2) * 32) + 16);
-    eat->setPosition({-69.0, -69, -70.0f}); // velikost mince je cca 6x6
+    eat->setVirtualX((23 - -23) / 2 * 32 + 16);
+    eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
+    eat->setPosition({-69.0, -69, -70.0f});
     eat->setZoom({0.013888889, 0.013888889, 0.013888889});
     eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
     eat->setVisible(false);
@@ -718,7 +665,7 @@ void App::initTexts() const {
         startText->setFontSize(22);
         startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
         startText->setZoom({1.0f, 0, 0});
-        textRenderer->addText(startText, resourceManager->getShader("textShader"));
+        textRenderer->addText(startText, resourceManager->getShader("textShader").get());
 
         tilesCounterText->setVisible(true);
         tilesCounterText->setColor({0.8, 0.8, 0.8});
@@ -726,32 +673,18 @@ void App::initTexts() const {
         tilesCounterText->setFontSize(22);
         tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
         tilesCounterText->setZoom({1.0f, 0, 0});
-        textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader"));
+        textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader").get());
     }
 }
 
 shared_ptr<PlaneMesh> App::initPlane() const {
-    const std::shared_ptr<ShaderManager> basicShader(
-        resourceManager->getShader("basicShader"), [](ShaderManager *) {
-        });
-    const std::shared_ptr<ShaderManager> planeShader(
-        resourceManager->getShader("shadowShader"), [](ShaderManager *) {
-        });
-    const std::shared_ptr<ShaderManager> shadowDepthShader(
-        resourceManager->getShader("shadowDepthShader"), [](ShaderManager *) {
-        });
-    const std::shared_ptr<TextureManager> shadowMap(
-        resourceManager->getTexture("depth"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> gamefieldAlbedo(
-        resourceManager->getTexture("tile.png"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> gamefieldNormal(
-        resourceManager->getTexture("gamefield_normal.jpg"), [](TextureManager*) {
-        });
-    const std::shared_ptr<TextureManager> gamefieldSpecular(
-        resourceManager->getTexture("gamefield_specular.jpg"), [](TextureManager*) {
-        });
+    auto basicShader = resourceManager->getShader("basicShader");
+    auto planeShader = resourceManager->getShader("shadowShader");
+    auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
+    auto shadowMap = resourceManager->getTexture("depth");
+    auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
+    auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
+    auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
     const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
     const auto shaderMaterial = make_shared<ShaderMaterial>(planeShader, shadowDepthShader);
 
@@ -784,7 +717,6 @@ shared_ptr<PlaneMesh> App::initPlane() const {
     planeMaterial->setSpecular(gamefieldSpecular);
     planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
 
-    const std::shared_ptr<Camera> sharedCamera(camera, [](Camera*) {});
     const auto standardBaseItem = make_shared<BaseItem>();
     standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));

@@ -6,8 +6,8 @@ namespace Renderer {
         resourceManager = resManager;
         projection = proj;
         model = new RadarModel(radar);
-        shader = resourceManager->getShader("radarShader");
-        frameTexture = resourceManager->getTexture("red_screen.bmp");
+        shader = resourceManager->getShader("radarShader").get();
+        frameTexture = resourceManager->getTexture("red_screen.bmp").get();
     }
 
     RadarRenderer::~RadarRenderer() {

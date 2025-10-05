@@ -2,11 +2,11 @@
 #include <GLFW/glfw3.h>
 
 namespace Effects {
-    LightningFlashEffect::LightningFlashEffect(Camera* camera, glm::mat4 proj, ResourceManager* resManager) {
+    LightningFlashEffect::LightningFlashEffect(Camera* camera, const glm::mat4 &proj, ResourceManager* resManager) {
         this->camera = camera;
         this->projection = proj;
         this->resourceManager = resManager;
-        this->flashShader = resourceManager->getShader("flash");
+        this->flashShader = resourceManager->getShader("flash").get();
     }
 
     void LightningFlashEffect::init() {

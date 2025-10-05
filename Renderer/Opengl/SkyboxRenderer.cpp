@@ -6,8 +6,8 @@ namespace Renderer {
                                                                        projection(projection),
                                                                        resourceManager(resourceManager) {
         mesh = resourceManager->getModel("cube")->getMesh();
-        shader = resourceManager->getShader("skyboxShader");
-        texture = resourceManager->getTexture("skybox");
+        shader = resourceManager->getShader("skyboxShader").get();
+        texture = resourceManager->getTexture("skybox").get();
     }
 
     void SkyboxRenderer::render(float dt) {

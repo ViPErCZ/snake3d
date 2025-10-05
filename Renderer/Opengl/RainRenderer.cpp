@@ -2,8 +2,8 @@
 
 Renderer::RainRenderer::RainRenderer(BaseItem *item, Camera *camera, glm::mat4 proj, ResourceManager *resourceManager)
         : BaseRenderer(item), resourceManager(resourceManager), camera(camera), projection(proj), enable(false) {
-    baseShader = resourceManager->getShader("rain");
-    texture = resourceManager->getTexture("rain.jpg");
+    baseShader = resourceManager->getShader("rain").get();
+    texture = resourceManager->getTexture("rain.jpg").get();
     model = new RainModel(item, 500);
 }
 

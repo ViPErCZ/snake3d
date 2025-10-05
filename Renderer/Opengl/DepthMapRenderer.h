@@ -55,7 +55,7 @@ namespace Renderer {
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
         glm::vec3 lightPos{};
-        float cascadeSplits[NUM_CASCADES] = {0.05f, 0.2f, 1.0f};
+        float cascadeSplits[NUM_CASCADES] = {0.1f, 0.3f, 1.0f};
 
         [[nodiscard]] std::vector<glm::vec3> getFrustumCornersWorldSpace(
             const glm::mat4 &proj, const glm::mat4 &view,

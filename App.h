@@ -53,7 +53,7 @@ using namespace Material;
 
 class App {
 public:
-    App(Camera* camera, int width, int height);
+    App(const shared_ptr<Camera> &camera, int width, int height);
     ~App();
     void Init();
     void run() const;
@@ -73,9 +73,9 @@ protected:
     void initTexts() const;
     [[nodiscard]] shared_ptr<PlaneMesh> initPlane() const;
 private:
-    LevelManager* levelManager{};
-    ResourceManager* resourceManager{};
-    RenderManager* rendererManager;
+    unique_ptr<LevelManager> levelManager;
+    unique_ptr<ResourceManager> resourceManager;
+    unique_ptr<RenderManager> rendererManager;
     GameField* gameField{};
     GameFieldRenderer* gameFieldRenderer{};
     SkyboxRenderer* skyboxRenderer{};
@@ -85,7 +85,7 @@ private:
     Radar* radar{};
     ObjWall* objWall{};
     Barriers* barriers = nullptr;
-    Cube* skybox{};
+    shared_ptr<Cube> skybox;
     SnakeRenderer* snakeRenderer{};
     ObjWallRenderer* objWallRenderer{};
     BarrierRenderer* barrierRenderer{};
@@ -101,12 +101,12 @@ private:
     FireRenderer* fireRenderer{};
     TorchRenderer* torchRenderer{};
     BoltRenderer* boltRenderer{};
-    KeyboardManager* keyboardManager;
-    CollisionDetector* collisionDetector{};
-    EatManager* eatManager;
+    unique_ptr<KeyboardManager> keyboardManager;
+    shared_ptr<CollisionDetector> collisionDetector;
+    unique_ptr<EatManager> eatManager;
     Text* startText;
     Text* tilesCounterText;
-    Camera* camera;
+    shared_ptr<Camera> camera;
     int width;
     int height;
     ALuint musicSource{}, coinSource{};

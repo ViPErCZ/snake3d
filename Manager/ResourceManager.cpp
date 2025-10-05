@@ -20,10 +20,10 @@ namespace Manager {
         }
     }
 
-    TextureManager* ResourceManager::getTexture(const string &name) const {
+    std::shared_ptr<TextureManager> ResourceManager::getTexture(const string &name) const {
         std::unique_lock lock(mutex);
         try {
-            return texture.at(name).get();
+            return texture.at(name);
         } catch (...) {
             throw invalid_argument("No such resource called " + name);
         }
@@ -68,10 +68,10 @@ namespace Manager {
         }
     }
 
-    ShaderManager *ResourceManager::getShader(const string &name) const {
+    std::shared_ptr<ShaderManager>ResourceManager::getShader(const string &name) const {
         std::unique_lock lock(mutex);
         try {
-            return shader.at(name).get();
+            return shader.at(name);
         } catch (...) {
             throw invalid_argument("No such resource called " + name);
         }

@@ -3,6 +3,8 @@
 
 namespace Scene {
     class Scene {
+    public:
+        Scene();
     };
 } // Scene
 

@@ -6,9 +6,9 @@
 using namespace std;
 
 namespace Manager {
-    class TextureManager {
+    class TextureManager final {
     public:
-        virtual ~TextureManager();
+        ~TextureManager();
 
         void addTexture(unsigned int id);
 

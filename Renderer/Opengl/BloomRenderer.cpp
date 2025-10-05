@@ -11,9 +11,9 @@ Renderer::BloomRenderer::BloomRenderer(ResourceManager* resManager, int width, i
     resourceManager->addShader("bloomFinal", std::make_shared<ShaderManager>(
             ShaderLoader::loadShader("Assets/Shaders/bloom/bloom_final.vs", "Assets/Shaders/bloom/bloom_final.fs")));
 
-    shader = resourceManager->getShader("bloom");
-    shaderBlur = resourceManager->getShader("blur");
-    shaderBloomFinal = resourceManager->getShader("bloomFinal");
+    shader = resourceManager->getShader("bloom").get();
+    shaderBlur = resourceManager->getShader("blur").get();
+    shaderBloomFinal = resourceManager->getShader("bloomFinal").get();
 
     glGenFramebuffers(1, &hdrFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);

@@ -9,8 +9,8 @@ namespace Renderer {
         this->camera = camera;
         this->projection = projection;
         this->tile = tile;
-        shader = resourceManager->getShader("normalShader");
-        shadowShader = resourceManager->getShader("shadowDepthShader");
+        shader = resourceManager->getShader("normalShader").get();
+        shadowShader = resourceManager->getShader("shadowDepthShader").get();
     }
 
     AnimRenderer::~AnimRenderer() {

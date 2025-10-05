@@ -12,7 +12,7 @@ namespace Effects {
 
 class LightningFlashEffect {
 public:
-    LightningFlashEffect(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+    LightningFlashEffect(Camera* camera, const glm::mat4 &proj, ResourceManager* resManager);
     void init();
     void triggerSequence(const std::vector<float>& pulses, float pulseDuration);
     void update(float deltaTime);

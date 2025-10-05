@@ -23,8 +23,7 @@ namespace Manager {
     void TextureManager::unbind() const {
         int index = 0;
         for (auto texture: textures) {
-            glActiveTexture(GL_TEXTURE0 + index);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            unbind(index);
             index++;
         }
     }
@@ -33,11 +32,11 @@ namespace Manager {
         return !textures.empty();
     }
 
-    void TextureManager::addTexture(unsigned int id) {
+    void TextureManager::addTexture(const unsigned int id) {
         textures.push_back(id);
     }
 
-    void TextureManager::bind(int index, int item) {
+    void TextureManager::bind(const int index, const int item) {
         glActiveTexture(GL_TEXTURE0 + index);
         const auto id = textures.begin() + item;
         if (id < textures.end()) {

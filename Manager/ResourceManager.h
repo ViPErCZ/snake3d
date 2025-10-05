@@ -1,9 +1,6 @@
 #ifndef SNAKE3_RESOURCEMANAGER_H
 #define SNAKE3_RESOURCEMANAGER_H
 
-#include "../stdafx.h"
-#include <vector>
-#include <iostream>
 #include <mutex>
 #include <unordered_map>
 #include <memory>
@@ -19,27 +16,35 @@ using namespace Resource;
 using namespace Model;
 
 namespace Manager {
-
-    class ResourceManager {
+    class ResourceManager final {
     public:
-        virtual ~ResourceManager();
-        void addTexture(const string& name, const shared_ptr<TextureManager>& res);
-        void addShader(const string& name, const shared_ptr<ShaderManager>& res);
-        void addModel(const string& name, shared_ptr<ObjItem> res);
-        void addModel(const string& name, shared_ptr<AnimationModel> res);
-        TextureManager* getTexture(const string &name) const;
-        ShaderManager* getShader(const string &name) const;
-        ObjItem* getModel(const string &name) const;
-        AnimationModel* getAnimationModel(const string &name) const;
-        bool Release();
-    protected:
-        mutable std::mutex mutex {};
-        std::unordered_map<std::string, std::shared_ptr<TextureManager>> texture;
-        std::unordered_map<std::string, std::shared_ptr<ShaderManager>> shader;
-        std::unordered_map<std::string, std::shared_ptr<ObjItem>> model;
-        std::unordered_map<std::string, std::shared_ptr<AnimationModel>> animationModel;
-    };
+        ~ResourceManager();
 
+        void addTexture(const string &name, const shared_ptr<TextureManager> &res);
+
+        void addShader(const string &name, const shared_ptr<ShaderManager> &res);
+
+        void addModel(const string &name, shared_ptr<ObjItem> res);
+
+        void addModel(const string &name, shared_ptr<AnimationModel> res);
+
+        std::shared_ptr<TextureManager> getTexture(const string &name) const;
+
+        std::shared_ptr<ShaderManager> getShader(const string &name) const;
+
+        ObjItem *getModel(const string &name) const;
+
+        AnimationModel *getAnimationModel(const string &name) const;
+
+        bool Release();
+
+    protected:
+        mutable std::mutex mutex{};
+        std::unordered_map<std::string, std::shared_ptr<TextureManager> > texture;
+        std::unordered_map<std::string, std::shared_ptr<ShaderManager> > shader;
+        std::unordered_map<std::string, std::shared_ptr<ObjItem> > model;
+        std::unordered_map<std::string, std::shared_ptr<AnimationModel> > animationModel;
+    };
 } // Manager
 
 #endif //SNAKE3_RESOURCEMANAGER_H

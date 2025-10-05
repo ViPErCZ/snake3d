@@ -9,9 +9,9 @@ namespace Renderer {
                                                                projection(projection),
                                                                resourceManager(resManager) {
         mesh = resourceManager->getModel("torch")->getMesh();
-        baseShader = resourceManager->getShader("normalShader");
-        texture = resourceManager->getTexture("torch.png");
-        texture2 = resourceManager->getTexture("torch_normal.png");
+        baseShader = resourceManager->getShader("normalShader").get();
+        texture = resourceManager->getTexture("torch.png").get();
+        texture2 = resourceManager->getTexture("torch_normal.png").get();
 
         constexpr float quad[] = {
             -1.0f, -1.0f,

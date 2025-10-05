@@ -58,7 +58,6 @@ void main()
     vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
     vec3 ambient = useMaterial ? color : ambientColor * color;
     vec3 viewDir = normalize(camPos - fragPos);
-//         vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
     vec3 final = ambient;
 
     if (directionLightEnable) {

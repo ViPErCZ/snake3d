@@ -7,12 +7,12 @@ namespace Renderer {
                                                                  projection(projection),
                                                                  resourceManager(resourceManager) {
         mesh = resourceManager->getModel("coin")->getMesh();
-        baseShader = resourceManager->getShader("normalShader");
-        shadowShader = resourceManager->getShader("shadowDepthShader");
-        texture1 = resourceManager->getTexture("Coin_Gold_albedo.png");
-        texture2 = resourceManager->getTexture("Coin_Gold_nm.png");
-        texture3 = resourceManager->getTexture("Coin_Gold_metalness.png");
-        depthTexture = resourceManager->getTexture("depth");
+        baseShader = resourceManager->getShader("normalShader").get();
+        shadowShader = resourceManager->getShader("shadowDepthShader").get();
+        texture1 = resourceManager->getTexture("Coin_Gold_albedo.png").get();
+        texture2 = resourceManager->getTexture("Coin_Gold_nm.png").get();
+        texture3 = resourceManager->getTexture("Coin_Gold_metalness.png").get();
+        depthTexture = resourceManager->getTexture("depth").get();
     }
 
     void EatRenderer::render(float dt) {

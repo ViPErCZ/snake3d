@@ -6,7 +6,7 @@ namespace Renderer {
         this->camera = camera;
         this->projection = proj;
         this->resourceManager = resManager;
-        this->shader = resourceManager->getShader("boltShader");
+        this->shader = resourceManager->getShader("boltShader").get();
         this->timeSinceLastBolt = 0.0f;
         this->nextBoltTime = 3.0f + static_cast<float>(rand()) / RAND_MAX * 10.0f; // 5-15 sekund
         this->isActive = false;

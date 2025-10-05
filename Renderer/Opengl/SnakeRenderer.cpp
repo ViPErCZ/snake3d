@@ -5,13 +5,13 @@ namespace Renderer {
     SnakeRenderer::SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager *resManager)
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
         mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
-        baseShader = resourceManager->getShader("basicShader");
-        respawn = resourceManager->getShader("explosion");
-        shadowShader = resourceManager->getShader("shadowDepthShader");
-        shaderLight = resourceManager->getShader("bloomLight");
-        snakeTileTexture = resourceManager->getTexture("snake.bmp");
-        snakeHeadTexture = resourceManager->getTexture("head.bmp");
-        noise = resourceManager->getTexture("fast_noise.bmp");
+        baseShader = resourceManager->getShader("basicShader").get();
+        respawn = resourceManager->getShader("explosion").get();
+        shadowShader = resourceManager->getShader("shadowDepthShader").get();
+        shaderLight = resourceManager->getShader("bloomLight").get();
+        snakeTileTexture = resourceManager->getTexture("snake.bmp").get();
+        snakeHeadTexture = resourceManager->getTexture("head.bmp").get();
+        noise = resourceManager->getTexture("fast_noise.bmp").get();
         startTime = glfwGetTime();
         this->item = snake->getHeadTile();
     }

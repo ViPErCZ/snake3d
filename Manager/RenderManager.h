@@ -5,7 +5,6 @@
 #include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../Renderer/Opengl/BloomRenderer.h"
 #include <vector>
-#include <memory>
 
 using namespace std;
 using namespace Renderer;
