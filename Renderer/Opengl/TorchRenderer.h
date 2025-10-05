@@ -100,6 +100,9 @@ protected:
     glm::vec3 startObjectPos;
     glm::vec3 startGrabPoint; // projekce kurzorového raye na osu při mouse down
     glm::vec3 axisDir;        // směr aktuální osy (unit)
+    float gizmoBaseScale = 1.0f; // Derived from object size (world AABB)
+    glm::vec3 currentWorldMin;
+    glm::vec3 currentWorldMax;
 };
 
 } // Renderer

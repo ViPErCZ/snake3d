@@ -1,8 +1,8 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(const int width, const int height) :
-        width(width), height(height), shadows(false), bloom(false), fog(false) {
+    RenderManager::RenderManager(const int width, const int height, const shared_ptr<Camera> &camera) :
+        width(width), height(height), shadows(false), bloom(false), fog(false), camera(camera) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
@@ -61,6 +61,7 @@ namespace Manager {
             auto light = make_shared<DirectionalLight>(DirectionalLight());
             light->setPosition({0.0f, 7.0f, 11.0f});
             light->setDirection({1, 1.0, -3});
+            //const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrixForPlane(light, centerScene, 14, 14);
             const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, centerScene, sceneMin, sceneMax);
             int index = 0;
 

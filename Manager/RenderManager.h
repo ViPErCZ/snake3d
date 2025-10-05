@@ -3,13 +3,9 @@
 
 #include "../Renderer/Opengl/BaseRenderer.h"
 #include "../Renderer/Opengl/DepthMapRenderer.h"
-#include "../stdafx.h"
 #include "../Renderer/Opengl/BloomRenderer.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <vector>
-#include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace Renderer;
@@ -24,7 +20,7 @@ namespace Manager {
 
     class RenderManager final {
     public:
-        RenderManager(int width, int height);
+        RenderManager(int width, int height, const shared_ptr<Camera> &camera);
         ~RenderManager();
         void render(float dt);
         void addRenderer(BaseRenderer* renderer);
@@ -44,6 +40,7 @@ namespace Manager {
         vector<BaseRenderer*> renderers;
         DepthMapRenderer* depthMapRenderer{};
         BloomRenderer* bloomRenderer{};
+        shared_ptr<Camera> camera;
         int width;
         int height;
         bool shadows;

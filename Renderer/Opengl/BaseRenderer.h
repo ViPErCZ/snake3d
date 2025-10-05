@@ -34,6 +34,8 @@ namespace Renderer {
 
         [[nodiscard]] bool isFog() const;
 
+        [[nodiscard]] virtual bool isPlane();
+
         glm::vec3 compareSceneMin(glm::vec3 sceneMin);
 
         glm::vec3 compareSceneMax(glm::vec3 sceneMax);

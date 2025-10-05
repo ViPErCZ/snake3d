@@ -3,19 +3,6 @@
 using namespace ItemsDto;
 using namespace Manager;
 
-// Pomocná funkce pro výpis vektorů
-std::string vec3_to_string(const glm::vec3 &v) {
-    std::stringstream ss;
-    ss << "(" << v.x << ", " << v.y << ", " << v.z << ")";
-    return ss.str();
-}
-
-std::string vec2_to_string(const glm::vec2 &v) {
-    std::stringstream ss;
-    ss << "(" << v.x << ", " << v.y << ")";
-    return ss.str();
-}
-
 namespace Renderer {
     TorchRenderer::TorchRenderer(Cube *cube, Camera *camera, const glm::mat4 &projection,
                                  ResourceManager *resManager): cube(cube), camera(camera),
@@ -149,35 +136,37 @@ namespace Renderer {
 
         // 3. Center objektu ve světě
         currentWorldCenter = (worldMin + worldMax) * 0.5f;
+        currentWorldMin = worldMin;
+        currentWorldMax = worldMax;
 
         // 4. Ring center: pod objektem (Z-up) — malý offset dolů, aby nebyl v konfliktu
         glm::vec3 ringCenter = currentWorldCenter;
         ringCenter.z = worldMin.z - 0.01f;
 
-        float scaleX = glm::length(glm::vec3(model[0])); // první sloupec
-        float scaleY = glm::length(glm::vec3(model[1]));
-        float scaleZ = glm::length(glm::vec3(model[2]));
-        auto extractScale = glm::vec3(scaleX, scaleY, scaleZ);
+        // float scaleX = glm::length(glm::vec3(model[0])); // první sloupec
+        // float scaleY = glm::length(glm::vec3(model[1]));
+        // float scaleZ = glm::length(glm::vec3(model[2]));
+        // auto extractScale = glm::vec3(scaleX, scaleY, scaleZ);
 
         // 5. Radius: vezmeme extenty v X/Y z world AABB
-        float extentX = (worldMax.x - worldMin.x) * 0.5f;
-        float extentY = (worldMax.y - worldMin.y) * 0.5f;
-        float radius = glm::max(extentX, extentY) * 1.1f;
+        float extentX = (worldMax.x - worldMin.x) * 0.7f;
+        float extentY = (worldMax.y - worldMin.y) * 0.7f;
+        float radius = glm::max(extentX, extentY) * 1.18f;
 
-        glm::vec4 centerClip = projection * camera->getViewMatrix() * glm::vec4(ringCenter, 1.0f);
-        glm::vec3 centerNDC = glm::vec3(centerClip) / centerClip.w;
-
-        glm::vec3 offsetWorld = ringCenter + glm::vec3(radius, 0.0f, 0.0f);
-        glm::vec4 offsetClip = projection * camera->getViewMatrix() * glm::vec4(offsetWorld, 1.0f);
-        glm::vec3 offsetNDC = glm::vec3(offsetClip) / offsetClip.w;
-
-        float ndcDiff = fabs(offsetNDC.x - centerNDC.x); // polovina průměru v NDC
-        float desiredNDC = 0.08f; // chtěný minimální poloměr v NDC (nastav podle toho, jak velké chces)
-        if (ndcDiff < desiredNDC) {
-            // zvětšíme radius tak, aby v NDC bylo aspoň desiredNDC
-            float scaleFactor = desiredNDC / ndcDiff;
-            radius *= scaleFactor;
-        }
+        // glm::vec4 centerClip = projection * camera->getViewMatrix() * glm::vec4(ringCenter, 1.0f);
+        // glm::vec3 centerNDC = glm::vec3(centerClip) / centerClip.w;
+        //
+        // glm::vec3 offsetWorld = ringCenter + glm::vec3(radius, 0.0f, 0.0f);
+        // glm::vec4 offsetClip = projection * camera->getViewMatrix() * glm::vec4(offsetWorld, 1.0f);
+        // glm::vec3 offsetNDC = glm::vec3(offsetClip) / offsetClip.w;
+        //
+        // float ndcDiff = fabs(offsetNDC.x - centerNDC.x); // polovina průměru v NDC
+        // float desiredNDC = 0.08f; // chtěný minimální poloměr v NDC (nastav podle toho, jak velké chces)
+        // if (ndcDiff < desiredNDC) {
+        //     // zvětšíme radius tak, aby v NDC bylo aspoň desiredNDC
+        //     float scaleFactor = desiredNDC / ndcDiff;
+        //     radius *= scaleFactor;
+        // }
 
         const auto time = static_cast<float>(glfwGetTime());
         const float pulse = 0.5f + 0.5f * sin(time * 4.0f); // osciluje 0..1
@@ -248,12 +237,11 @@ namespace Renderer {
     // viewportHeight je výška okna v pixelech
     float TorchRenderer::computeGizmoScale(const glm::vec3 &worldCenter, const glm::vec3 &cameraPos,
                                            float viewportHeight,
-                                           float desiredPixelSize = 80.0f) {
-        float distance = glm::length(cameraPos - worldCenter);
-        float ndcPerPixel = 2.0f / viewportHeight;
-        float sizeNDC = desiredPixelSize * ndcPerPixel;
-        // Zvětšíme scale pro lepší interakci
-        return sizeNDC * distance * 0.5f; // Zvětšeno z 0.5f na 2.0f
+                                           float desiredPixelSize /*unused*/ ) {
+        glm::vec3 objectSize = (currentWorldMax - currentWorldMin);
+        float maxExtent = glm::compMax(objectSize);
+
+        return maxExtent * 1.1f;
     }
 
     void TorchRenderer::drawGizmoAxes(const glm::vec3 &worldCenter,
@@ -264,7 +252,7 @@ namespace Renderer {
         const auto gizmoShader = resourceManager->getShader("gizmoShader");
         if (!gizmoShader) return;
 
-        const float axisLength = computeGizmoScale(worldCenter, cameraPos, viewportHeight);
+        const float axisLength = computeGizmoScale(worldCenter, cameraPos, viewportHeight, 80.0f);
 
         gizmoShader->use();
         gizmoShader->setMat4("view", view);
@@ -339,7 +327,7 @@ namespace Renderer {
                                           const glm::mat4 &proj,
                                           float viewportHeight,
                                           int circleVertexCount) {
-        float baseScale = computeGizmoScale(worldCenter, cameraPos, viewportHeight);
+        float baseScale = computeGizmoScale(worldCenter, cameraPos, viewportHeight, 80.0f);
         float circleScale = baseScale * 0.8f;
 
         const auto gizmoShader = resourceManager->getShader("gizmoShader");
@@ -463,7 +451,7 @@ namespace Renderer {
         auto rayDir = screenToWorldRay(cursor, view, projection, width, height);
         auto rayOrigin = camera->getPosition();
 
-        float gizmoScale = computeGizmoScale(currentWorldCenter, camera->getPosition(), height);
+        float gizmoScale = computeGizmoScale(currentWorldCenter, camera->getPosition(), height, 80.0f);
 
         // Nejdřív zkusíme translační osy
         Axis translationAxis = pickTranslateAxis(currentWorldCenter, rayOrigin, rayDir,
@@ -576,7 +564,7 @@ namespace Renderer {
         glm::vec3 rayDir = screenToWorldRay(cursor, camera->getViewMatrix(), projection, width, height);
         glm::vec3 rayOrigin = camera->getPosition();
 
-        float gizmoScale = computeGizmoScale(currentWorldCenter, camera->getPosition(), height);
+        float gizmoScale = computeGizmoScale(currentWorldCenter, camera->getPosition(), height, 80.0f);
 
         Axis picked = pickTranslateAxis(currentWorldCenter, rayOrigin, rayDir, gizmoScale, cursor, width, height,
                                         16.0f);
@@ -753,7 +741,7 @@ namespace Renderer {
                                                         int viewportHeight,
                                                         float pixelThreshold) {
         glm::mat4 view = camera->getViewMatrix();
-        float gizmoScale = computeGizmoScale(worldCenter, camera->getPosition(), viewportHeight);
+        float gizmoScale = computeGizmoScale(worldCenter, camera->getPosition(), viewportHeight, 80.0f);
 
         // Vytvořit projekce kružnic pro každou osu
         std::vector<glm::vec2> screenPointsX;

@@ -21,7 +21,10 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "NullDereference"
 App::App(Camera* camera, const int width, const int height) : camera(camera), width(width), height(height) {
-    rendererManager = new RenderManager(width, height);
+    const std::shared_ptr<Camera> sharedCamera(
+        camera, [](Camera *) {
+        });
+    rendererManager = new RenderManager(width, height, sharedCamera);
     keyboardManager = new KeyboardManager();
     startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
@@ -53,7 +56,7 @@ void App::Init() {
         glm::radians(camera->getZoom()),
         static_cast<float>(width) / static_cast<float>(height),
         0.1f,
-        2600.0f
+        1000.0f
     );
     const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
 
@@ -226,7 +229,7 @@ void App::Init() {
     pointLight->setConstant(0.0005f);
     pointLight->setLinear(0.8f);
 
-    planeMaterial->setColor({200.88, 0.05, 0.05});
+    planeMaterial->setColor({0.88, 0.05, 0.05});
     // planeMaterial->setColor({1, 1, 1});
     //planeMaterial->setAlbedo(rustedAlbedo);
     //planeMaterial->setNormal(rustedNormal);
@@ -359,7 +362,7 @@ void App::Init() {
     rendererManager->addRenderer(barrierRenderer);
     rendererManager->addRenderer(radarRenderer);
     // rendererManager->addRenderer(rainRenderer);
-    //rendererManager->addRenderer(torchRenderer);
+    rendererManager->addRenderer(torchRenderer);
     rendererManager->addRenderer(fireRenderer);
     rendererManager->addRenderer(boltRenderer);
     // rendererManager->addRenderer(textRenderer);

@@ -81,7 +81,7 @@ namespace Renderer {
 
         float lambda = 0.5f;
         float cameraNear = 0.1f;
-        float cameraFar = 2600.0f;
+        float cameraFar = 1000.0f;
 
         for(int i=0; i<NUM_CASCADES; ++i)
         {
@@ -102,7 +102,7 @@ namespace Renderer {
 
         lambda = 0.5f;
         cameraNear = 0.1f;
-        cameraFar = 2600.0f;
+        cameraFar = 1000.0f;
 
         for(int i=0; i<NUM_CASCADES; ++i)
         {
@@ -163,7 +163,7 @@ namespace Renderer {
         lightSpaceMatrices.resize(NUM_CASCADES);
 
         float cameraNear = 0.1;
-        float cameraFar  = 2600.0f;
+        float cameraFar  = 1000.0f;
         const glm::mat4 lightView = glm::lookAt(light->getPosition(), lightTarget, glm::vec3(0,1,0));
 
         for(int i=0; i<NUM_CASCADES; ++i)
@@ -201,7 +201,7 @@ namespace Renderer {
             float near_plane_light = -maxZ;
             float far_plane_light  = -minZ;
 
-            lightSpaceMatrices[i] = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, near_plane_light, far_plane_light) * lightView;
+            lightSpaceMatrices[i] = glm::ortho(-1.0f, 3.5f, -1.0f, 3.5f, near_plane_light, far_plane_light) * lightView;
         }
 
         return lightSpaceMatrices;

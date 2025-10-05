@@ -1,5 +1,7 @@
 #include "BaseRenderer.h"
 
+#include "Model/Standard/PlaneMesh.h"
+
 Renderer::BaseRenderer::BaseRenderer() : item(nullptr), shadow(false), fog(false) {
 }
 
@@ -22,6 +24,10 @@ void Renderer::BaseRenderer::setFog(bool fog) {
 
 bool Renderer::BaseRenderer::isFog() const {
     return fog;
+}
+
+bool Renderer::BaseRenderer::isPlane() {
+    return false;
 }
 
 glm::vec3 Renderer::BaseRenderer::compareSceneMin(const glm::vec3 sceneMin) {
