@@ -3,6 +3,7 @@
 
 namespace Model {
     MeshModel::MeshModel(BaseItem *baseItem) : item(baseItem) {
+        using namespace Manager;
         vector<glm::vec3> vbo_vertices;
         vector<glm::vec3> vbo_normals;
         vector<glm::vec2> vbo_uvs;

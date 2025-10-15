@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     // ZAMKNE A SKRYJE KURZOR
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -92,10 +92,6 @@ int main(int argc, char *argv[]) {
 // ----------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-
     app->cameraProcessKeyboard(window);
 
     // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -143,7 +139,7 @@ void mouse_callback(GLFWwindow* window, double x, double y)
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    app->mouseButtonCallback(window, button, action, mods);
+    // app->mouseButtonCallback(window, button, action, mods);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

@@ -5,7 +5,6 @@
 #include "../../../ItemsDto/Text.h"
 #include "Character.h"
 #include <map>
-#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Manager;
 using namespace ItemsDto;

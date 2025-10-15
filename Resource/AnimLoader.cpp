@@ -33,7 +33,6 @@ namespace Resource {
         auto animation_tree = loadAnimationTree(scene, bones, bone_map, animations);
         auto global_matrix = convert(scene->mRootNode->mTransformation);
 
-        cout << "Loading OBJ file " << path << " success" << endl;
         importer.FreeScene();
 
         return std::make_shared<AnimationModel>(new BaseItem(), meshes, std::move(animations), std::move(bones),

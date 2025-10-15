@@ -7,6 +7,8 @@
 #include "../../Manager/ShaderManager.h"
 #include <glm/glm.hpp>
 
+#include "../../Manager/Camera.h"
+
 using namespace ItemsDto;
 using namespace Manager;
 

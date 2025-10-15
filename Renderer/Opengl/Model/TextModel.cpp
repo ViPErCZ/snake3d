@@ -1,5 +1,7 @@
 #include "TextModel.h"
 #include <freetype2/ft2build.h>
+#include <glm/ext/matrix_clip_space.hpp>
+
 #include FT_FREETYPE_H
 
 namespace Model {

@@ -6,6 +6,7 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "Model/MeshModel.h"
+#include "../../Manager/Camera.h"
 
 using namespace ItemsDto;
 using namespace Model;

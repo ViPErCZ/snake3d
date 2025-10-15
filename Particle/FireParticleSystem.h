@@ -1,13 +1,10 @@
 #ifndef FIREPARTICLESYSTEM_H
 #define FIREPARTICLESYSTEM_H
 
-#include <glm/glm.hpp>
 #include <vector>
-#include <memory>
-
-#include "../Manager/TextureManager.h"
 #include "../Manager/ResourceManager.h"
 
+using namespace Manager;
 
 // FireParticle struct (zůstává stejná)
 struct FireParticle {

@@ -3,7 +3,6 @@
 
 #include "Utils/Mesh.h"
 
-using namespace Manager;
 using namespace ModelUtils;
 
 namespace Model {

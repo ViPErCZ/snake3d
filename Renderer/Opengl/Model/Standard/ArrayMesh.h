@@ -10,7 +10,7 @@ namespace Model {
     class ArrayMesh : public StandardMesh {
     public:
         ArrayMesh(const shared_ptr<BaseItem> &baseItem, const shared_ptr<ShaderManager> &baseShader)
-            : StandardMesh(baseItem, baseShader, 0, 0) {
+            : StandardMesh(baseItem, baseShader) {
         }
 
         void fromObj(const shared_ptr<ObjItem> &item);

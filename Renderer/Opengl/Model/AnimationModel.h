@@ -7,7 +7,6 @@
 #include "Utils/Mesh.h"
 #include "Utils/Tree.h"
 
-using namespace Manager;
 using namespace ItemsDto;
 using namespace ModelUtils;
 

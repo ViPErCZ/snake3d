@@ -12,7 +12,8 @@ namespace Renderer {
 
     StandardMeshRenderer::~StandardMeshRenderer() = default;
 
-    void StandardMeshRenderer::render(float dt) {
+    void StandardMeshRenderer::render(const float dt) {
+        mesh->update(dt);
         renderScene(nullptr);
     }
 

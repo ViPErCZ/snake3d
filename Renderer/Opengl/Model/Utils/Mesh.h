@@ -4,12 +4,9 @@
 #include "Vao.h"
 #include "Ebo.h"
 #include "../../../../ItemsDto/BaseItem.h"
-#include "../../../../Manager/Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
-#include <cstddef>
 
 using namespace ItemsDto;
 using namespace std;
@@ -30,7 +27,9 @@ namespace ModelUtils {
         [[nodiscard]] const string &getName() const;
         void setGlobalTransformation(const glm::mat4 &globalTransformation);
 
-        void bind() const;
+        void initialize();
+
+        void bind();
 
         [[nodiscard]] glm::vec3 getMin(const glm::mat4 &modelMatrix) const;
 

@@ -1,6 +1,8 @@
 #ifndef FIRERENDERER_H
 #define FIRERENDERER_H
+
 #include "BaseRenderer.h"
+#include "../../Manager/Camera.h"
 #include "../../Particle/SmokeParticleSystem.h"
 
 using namespace Particle;

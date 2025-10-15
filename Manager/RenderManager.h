@@ -32,6 +32,7 @@ namespace Manager {
         void toggleShadows();
         void toggleBloom();
         void toggleFog();
+        void reset();
 
     protected:
         void updateShadows();

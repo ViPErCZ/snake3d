@@ -16,6 +16,7 @@ namespace Resource {
     class ObjModelLoader {
     public:
         static shared_ptr<ObjItem> loadObj(const fs::path& path);
+        static shared_ptr<ObjItem> loadObjFromStr(const fs::path& path, const string& str);
     };
 
 } // Resource

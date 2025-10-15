@@ -1,10 +1,8 @@
 #include "StandardMesh.h"
 
 namespace Model {
-    StandardMesh::StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader,
-                               const float width,
-                               const float height) : item(std::move(baseItem)), baseShader(std::move(baseShader)),
-                                                     width(width), height(height), localMin(+FLT_MAX),
+    StandardMesh::StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader)
+        : item(std::move(baseItem)), baseShader(std::move(baseShader)), localMin(+FLT_MAX),
                                                      localMax(-FLT_MIN) {
     }
 

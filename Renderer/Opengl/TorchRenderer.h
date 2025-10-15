@@ -5,6 +5,7 @@
 #include "../../ItemsDto/Cube.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
+#include "../../Manager/Camera.h"
 
 using namespace ItemsDto;
 using namespace Manager;

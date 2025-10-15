@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include "../../../Manager/ResourceManager.h"
 #include "../../../Manager/ShaderManager.h"
+#include "../../../Manager/Camera.h"
 
 using namespace Manager;
 

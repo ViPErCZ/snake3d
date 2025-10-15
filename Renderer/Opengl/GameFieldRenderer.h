@@ -6,9 +6,7 @@
 #include "../../Manager/ShaderManager.h"
 #include "Model/GameFieldModel.h"
 #include "BaseRenderer.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "../../Manager/Camera.h"
 
 using namespace ItemsDto;
 using namespace Model;

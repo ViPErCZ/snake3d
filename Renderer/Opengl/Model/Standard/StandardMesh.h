@@ -6,6 +6,7 @@
 #include "../Utils/Mesh.h"
 #include "../../Material/StandardMaterial.h"
 #include "../../../../Manager/ShaderManager.h"
+#include "../../../../Manager/Camera.h"
 
 using namespace ModelUtils;
 using namespace Material;
@@ -16,8 +17,7 @@ namespace Model {
     public:
         virtual ~StandardMesh() = default;
 
-        StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader, float width,
-                     float height);
+        StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader);
 
         [[nodiscard]] shared_ptr<Mesh> getMesh() const;
 
@@ -26,6 +26,9 @@ namespace Model {
         void setMaterial(const shared_ptr<BaseMaterial> &material);
 
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
+
+        virtual void update(float dt) {
+        }
 
         virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
 
@@ -38,7 +41,6 @@ namespace Model {
         shared_ptr<BaseItem> item;
         shared_ptr<BaseMaterial> material;
         shared_ptr<ShaderManager> baseShader;
-        float width, height;
         glm::vec3 localMin;
         glm::vec3 localMax;
     };

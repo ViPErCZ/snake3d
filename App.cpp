@@ -1,7 +1,6 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 #include "App.h"
-
 #include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/StandardMeshRenderer.h"
@@ -11,22 +10,34 @@
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Material/Uniform/TextureUniform.h"
+#include "Renderer/Opengl/Model/SpinnerModel.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "Renderer/Opengl/Model/Standard/CapsuleMesh.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
+#include "Resource/TextureLoader.h"
 
-//#pragma clang diagnostic push
-//#pragma ide diagnostic ignored "NullDereference"
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
+    resourceManager = make_unique<ResourceManager>();
     rendererManager = make_unique<RenderManager>(width, height);
     keyboardManager = make_unique<KeyboardManager>();
     startText = new Text("Press start I, K or L...");
     tilesCounterText = new Text("");
     eat = new Eat;
     skybox = make_shared<Cube>();
+    torchRenderer = nullptr;
+
+    projection = glm::perspective(
+        glm::radians(camera->getZoom()),
+        static_cast<float>(width) / static_cast<float>(height),
+        0.1f,
+        1000.0f
+    );
+
+    rendererManager->setWidth(width);
+    rendererManager->setHeight(height);
 }
 
 App::~App() {
@@ -37,63 +48,8 @@ App::~App() {
     alDeleteBuffers(1, &coinBuffer);
 }
 
-void App::Init() {
-    InitResourceManager();
-
-    const glm::mat4 projection = glm::perspective(
-        glm::radians(camera->getZoom()),
-        static_cast<float>(width) / static_cast<float>(height),
-        0.1f,
-        1000.0f
-    );
+void App::initScene() {
     const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
-
-    resourceManager->addShader("textShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/text.vs", "Assets/Shaders/text.fs")));
-    resourceManager->addShader("basicShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs")));
-    resourceManager->addShader("colorShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/color.vs", "Assets/Shaders/color.fs")));
-    resourceManager->addShader("respawnShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/respawn/respawn.fs")));
-    resourceManager->addShader("normalShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/normal_map.vs", "Assets/Shaders/normal_map.fs")));
-    resourceManager->addShader("radarShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/radar.vs", "Assets/Shaders/radar.fs")));
-    resourceManager->addShader("skyboxShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/skybox.vs", "Assets/Shaders/skybox.fs")));
-    resourceManager->addShader("shadowShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/shadow_map.vs", "Assets/Shaders/shadow_map.fs")));
-    resourceManager->addShader("shadowDepthShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs")));
-    resourceManager->addShader("debugQuadShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/debug_quad.vs", "Assets/Shaders/debug_quad.fs")));
-    resourceManager->addShader("bloomLight", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/bloom.fs")));
-    resourceManager->addShader("rain", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/rain/rain.vs", "Assets/Shaders/rain/rain.fs")));
-    resourceManager->addShader("rainDrop", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/basic.vs", "Assets/Shaders/rain/raindrop.fs")));
-    resourceManager->addShader("fire", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/fire/fire.vs", "Assets/Shaders/fire/fire.fs")));
-    resourceManager->addShader("smoke", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/fire/smoke.vs", "Assets/Shaders/fire/smoke.fs")));
-    resourceManager->addShader("boltShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/bolt/bolt.vs", "Assets/Shaders/bolt/bolt.fs")));
-    resourceManager->addShader("flash", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader("Assets/Shaders/bolt/flash.vs", "Assets/Shaders/bolt/flash.fs")));
-    resourceManager->addShader("gizmoShader", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader(
-                                       "Assets/Shaders/gizmo/gizmo.vs",
-                                       "Assets/Shaders/gizmo/gizmo.geom",
-                                       "Assets/Shaders/gizmo/gizmo.fs"
-                                   )));
-    resourceManager->addShader("explosion", std::make_shared<ShaderManager>(
-                                   ShaderLoader::loadShader(
-                                       "Assets/Shaders/explosion/explosion.vs",
-                                       "Assets/Shaders/explosion/explosion.geom",
-                                       "Assets/Shaders/explosion/explosion.fs"
-                                   )));
 
     InitSnake();
     animRenderer = new AnimRenderer((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera.get(), projection, resourceManager.get());
@@ -103,8 +59,8 @@ void App::Init() {
     //    animRenderer->addPlay("Armature|Take 001|BaseLayer");
     //    animRenderer->addPlay("Kostra2Action.002");
     //    animRenderer->addPlay("Kostra3Action");
-    bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
-    depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
+    // bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
+    // depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
     gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera.get(), projection, resourceManager.get());
     eat = InitEat();
     ObjWall *objWall = InitObjWall();
@@ -291,168 +247,248 @@ void App::Init() {
 
     shared_ptr<PlaneMesh> planeMesh = initPlane();
 
-    rendererManager->setWidth(width);
-    rendererManager->setHeight(height);
+    // rendererManager->setWidth(width);
+    // rendererManager->setHeight(height);
     rendererManager->addRenderer(skyboxRenderer);
-    rendererManager->addRenderer(new StandardMeshRenderer(camera, projection, planeMesh));
-    rendererManager->addRenderer(standardRenderer4);
-    //rendererManager->addRenderer(standardRenderer2);
-    //rendererManager->addRenderer(standardRenderer3);
-    // rendererManager->addRenderer(gameFieldRenderer);
-    rendererManager->addRenderer(eatRenderer);
-    rendererManager->addRenderer(eatRemoveAnimateRenderer);
-    rendererManager->addRenderer(animRenderer);
-    rendererManager->addRenderer(snakeRenderer);
-    // rendererManager->addRenderer(rainDropRenderer);
-    rendererManager->addRenderer(objWallRenderer);
-    rendererManager->addRenderer(barrierRenderer);
-    rendererManager->addRenderer(radarRenderer);
-    // rendererManager->addRenderer(rainRenderer);
-    rendererManager->addRenderer(torchRenderer);
-    rendererManager->addRenderer(fireRenderer);
-    rendererManager->addRenderer(boltRenderer);
-    // rendererManager->addRenderer(textRenderer);
-    rendererManager->setDepthMapRenderer(depthMapRenderer);
-    rendererManager->setBloomRenderer(bloomRenderer);
-    //rendererManager->enableShadows();
-    camera->setStickyPoint(snake->getHeadTile());
+     rendererManager->addRenderer(new StandardMeshRenderer(camera, projection, planeMesh));
+     rendererManager->addRenderer(standardRenderer4);
+     //rendererManager->addRenderer(standardRenderer2);
+     //rendererManager->addRenderer(standardRenderer3);
+     // rendererManager->addRenderer(gameFieldRenderer);
+     rendererManager->addRenderer(eatRenderer);
+     rendererManager->addRenderer(eatRemoveAnimateRenderer);
+     rendererManager->addRenderer(animRenderer);
+     rendererManager->addRenderer(snakeRenderer);
+     // rendererManager->addRenderer(rainDropRenderer);
+     rendererManager->addRenderer(objWallRenderer);
+     rendererManager->addRenderer(barrierRenderer);
+     // rendererManager->addRenderer(radarRenderer);
+     // rendererManager->addRenderer(rainRenderer);
+     rendererManager->addRenderer(torchRenderer);
+     rendererManager->addRenderer(fireRenderer);
+     rendererManager->addRenderer(boltRenderer);
+     // rendererManager->addRenderer(textRenderer);
+     // rendererManager->setDepthMapRenderer(depthMapRenderer);
+     // rendererManager->setBloomRenderer(bloomRenderer);
+    // rendererManager->enableShadows();
+     camera->setStickyPoint(snake->getHeadTile());
 
-    auto animHead = resourceManager->getAnimationModel("pacman");
-    animHead->setBaseItem(snake->getHeadTile());
-    auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
-    auto *radarHandler = new RadarHandler(radar);
+     auto animHead = resourceManager->getAnimationModel("pacman");
+     animHead->setBaseItem(snake->getHeadTile());
+     auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
+     auto *radarHandler = new RadarHandler(radar);
 
-    collisionDetector = make_shared<CollisionDetector>();
-    collisionDetector->setPerimeter(objWall);
-    collisionDetector->setBarriers(barriers);
-    collisionDetector->addStaticItem(eat);
-    snakeMoveHandler->setCollisionDetector(collisionDetector.get());
-    snakeMoveHandler->setStartMoveCallback([this, animHead]() {
-        if (this->levelManager) {
-            animHead->setGlobalPause(false);
-            this->eatManager->run(Manager::EatManager::firstPlace);
-            this->startText->fadeOut();
-            char buff[100];
-            snprintf(buff, sizeof(buff),
-                     "%s %d, %s %d, %s %d",
-                     "Level:",
-                     this->levelManager->getLevel(),
-                     "Lives:",
-                     this->levelManager->getLive(),
-                     "Points left:",
-                     MAX_POINT - this->levelManager->getEatCounter()
-            );
-            const std::string buffAsStdStr = buff;
-            this->tilesCounterText->setText(buffAsStdStr);
-            if (this->tilesCounterText->getAlpha() == 1.0f) {
-                this->tilesCounterText->setAlpha(0.0f);
-                this->tilesCounterText->fadeIn();
-            }
-        }
-    });
-    snakeMoveHandler->setCrashCallback([this]() {
-        if (this->levelManager && this->barrierRenderer) {
-            snake->reset();
-            InitRadar();
-            this->levelManager->setLive(this->levelManager->getLive() - 1);
-            this->levelManager->setEatCounter(0);
-            char buff[100];
-            snprintf(buff, sizeof(buff),
-                     "%s %d, %s %d, %s %d",
-                     "Level:",
-                     this->levelManager->getLevel(),
-                     "Lives:",
-                     this->levelManager->getLive(),
-                     "Points left:",
-                     MAX_POINT - this->levelManager->getEatCounter()
-            );
-            std::string buffAsStdStr = buff;
-            this->tilesCounterText->setText(buffAsStdStr);
-            eat->setVisible(false);
-            if (this->levelManager->getLive() == 0) { // Game Over
-                this->levelManager->createLevel(1);
-                this->startText->setVisible(true);
-                this->levelManager->setLive(3);
-                cout << "crash callback call" << endl;
-            }
-        }
-    });
-    snakeMoveHandler->setEatenUpCallback([this]() {
-        if (this->levelManager && this->snake && this->barrierRenderer) {
-            alSourcePlay (coinSource);
+     collisionDetector = make_shared<CollisionDetector>();
+     collisionDetector->setPerimeter(objWall);
+     collisionDetector->setBarriers(barriers);
+     collisionDetector->addStaticItem(eat);
+     snakeMoveHandler->setCollisionDetector(collisionDetector.get());
+     snakeMoveHandler->setStartMoveCallback([this, animHead]() {
+         if (this->levelManager) {
+             animHead->setGlobalPause(false);
+             this->eatManager->run(Manager::EatManager::firstPlace);
+             this->startText->fadeOut();
+             char buff[100];
+             snprintf(buff, sizeof(buff),
+                      "%s %d, %s %d, %s %d",
+                      "Level:",
+                      this->levelManager->getLevel(),
+                      "Lives:",
+                      this->levelManager->getLive(),
+                      "Points left:",
+                      MAX_POINT - this->levelManager->getEatCounter()
+             );
+             const std::string buffAsStdStr = buff;
+             this->tilesCounterText->setText(buffAsStdStr);
+             if (this->tilesCounterText->getAlpha() == 1.0f) {
+                 this->tilesCounterText->setAlpha(0.0f);
+                 this->tilesCounterText->fadeIn();
+             }
+         }
+     });
+     snakeMoveHandler->setCrashCallback([this]() {
+         if (this->levelManager && this->barrierRenderer) {
+             snake->reset();
+             InitRadar();
+             this->levelManager->setLive(this->levelManager->getLive() - 1);
+             this->levelManager->setEatCounter(0);
+             char buff[100];
+             snprintf(buff, sizeof(buff),
+                      "%s %d, %s %d, %s %d",
+                      "Level:",
+                      this->levelManager->getLevel(),
+                      "Lives:",
+                      this->levelManager->getLive(),
+                      "Points left:",
+                      MAX_POINT - this->levelManager->getEatCounter()
+             );
+             std::string buffAsStdStr = buff;
+             this->tilesCounterText->setText(buffAsStdStr);
+             eat->setVisible(false);
+             if (this->levelManager->getLive() == 0) { // Game Over
+                 this->levelManager->createLevel(1);
+                 this->startText->setVisible(true);
+                 this->levelManager->setLive(3);
+                 cout << "crash callback call" << endl;
+             }
+         }
+     });
+     snakeMoveHandler->setEatenUpCallback([this]() {
+         if (this->levelManager && this->snake && this->barrierRenderer) {
+             alSourcePlay (coinSource);
 
-            if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
-                cout << "Sound error" << endl;
-            }
+             if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
+                 cout << "Sound error" << endl;
+             }
 
-            if (this->eatRemoveAnimateRenderer && this->animateEat) {
-                this->animateEat->setPosition(eat->getPosition());
-                this->animateEat->setVisible(true);
-                this->animateEat->fadeOut();
-            }
+             if (this->eatRemoveAnimateRenderer && this->animateEat) {
+                 this->animateEat->setPosition(eat->getPosition());
+                 this->animateEat->setVisible(true);
+                 this->animateEat->fadeOut();
+             }
 
-            this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
+             this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
 
-            if (this->levelManager->getEatCounter() == MAX_POINT) {
-                this->startText->setVisible(true);
-                this->snake->reset();
-                this->eat->setVisible(false);
-                this->levelManager->createLevel(this->levelManager->getLevel() + 1);
-                this->eatManager->run(Manager::EatManager::clean);
-                InitRadar();
-            } else {
-                this->eatManager->run(Manager::EatManager::eatenUp);
-            }
+             if (this->levelManager->getEatCounter() == MAX_POINT) {
+                 this->startText->setVisible(true);
+                 this->snake->reset();
+                 this->eat->setVisible(false);
+                 this->levelManager->createLevel(this->levelManager->getLevel() + 1);
+                 this->eatManager->run(Manager::EatManager::clean);
+                 InitRadar();
+             } else {
+                 this->eatManager->run(Manager::EatManager::eatenUp);
+             }
 
-            char buff[100];
-            snprintf(buff, sizeof(buff),
-                     "%s %d, %s %d, %s %d",
-                     "Level:",
-                     this->levelManager->getLevel(),
-                     "Lives:",
-                     this->levelManager->getLive(),
-                     "Points left:",
-                     MAX_POINT - this->levelManager->getEatCounter()
-            );
-            std::string buffAsStdStr = buff;
-            this->tilesCounterText->setText(buffAsStdStr);
+             char buff[100];
+             snprintf(buff, sizeof(buff),
+                      "%s %d, %s %d, %s %d",
+                      "Level:",
+                      this->levelManager->getLevel(),
+                      "Lives:",
+                      this->levelManager->getLive(),
+                      "Points left:",
+                      MAX_POINT - this->levelManager->getEatCounter()
+             );
+             std::string buffAsStdStr = buff;
+             this->tilesCounterText->setText(buffAsStdStr);
 
-        }
-    });
-    const auto positionHandler = new PositionHandler(camera.get());
-    //positionHandler->addItem(pointLight.get());
-    // positionHandler->addItem(eat);
-    // positionHandler->addItem(directionalLight.get());
-    // positionHandler->addItem(standardBaseItem2.get());
-    // positionHandler->addItem(standardBaseItem.get());
-    // positionHandler->addItem(standardBoxMesh->getBaseItem().get());
-    // positionHandler->addItem(pacmanMesh->getBaseItem().get());
-    // positionHandler->addItem(skeletonMesh->getBaseItem().get());
-    positionHandler->addItem(planeMesh->getBaseItem().get());
-    positionHandler->addItem(sphereMesh->getBaseItem().get());
-    // positionHandler->addItem(torch);
+         }
+     });
+     const auto positionHandler = new PositionHandler(camera.get());
+     //positionHandler->addItem(pointLight.get());
+     // positionHandler->addItem(eat);
+     // positionHandler->addItem(directionalLight.get());
+     // positionHandler->addItem(standardBaseItem2.get());
+     // positionHandler->addItem(standardBaseItem.get());
+     // positionHandler->addItem(standardBoxMesh->getBaseItem().get());
+     // positionHandler->addItem(pacmanMesh->getBaseItem().get());
+     // positionHandler->addItem(skeletonMesh->getBaseItem().get());
+     positionHandler->addItem(planeMesh->getBaseItem().get());
+     positionHandler->addItem(sphereMesh->getBaseItem().get());
+     // positionHandler->addItem(torch);
 
-    keyboardManager->addEventHandler(snakeMoveHandler);
-    keyboardManager->addEventHandler(radarHandler);
-    keyboardManager->addEventHandler(positionHandler);
+     keyboardManager->addEventHandler(snakeMoveHandler);
+     keyboardManager->addEventHandler(radarHandler);
+     keyboardManager->addEventHandler(positionHandler);
 
-    musicBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/snake.wav");
-    coinBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/coin.wav");
-    alGenSources (1, &musicSource);
-    alGenSources (1, &coinSource);
-    alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
-    alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
-    alSourcei (musicSource, AL_LOOPING, true);
-    //alSourcePlay (musicSource);
-    ALCenum error;
+     musicBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/snake.wav");
+     coinBuffer = (ALint)alutCreateBufferFromFile("Assets/Sounds/coin.wav");
+     alGenSources (1, &musicSource);
+     alGenSources (1, &coinSource);
+     alSourcei (musicSource, AL_BUFFER, (ALint)musicBuffer);
+     alSourcei (coinSource, AL_BUFFER, (ALint)coinBuffer);
+     alSourcei (musicSource, AL_LOOPING, true);
+     //alSourcePlay (musicSource);
+     ALCenum error;
 
-    error = alGetError();
-    if (error != AL_NO_ERROR) {
-        cout << "Sound error" << endl;
-    }
+     error = alGetError();
+     if (error != AL_NO_ERROR) {
+         cout << "Sound error" << endl;
+     }
 }
 
-void App::run() const {
+void App::Init() {
+    InitResourceManager();
+
+    resourceManager->addShader(
+        "shadowShader",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/shadow_map.vs",
+                "Assets/Shaders/shadow_map.fs"
+            ))
+    );
+    resourceManager->addShader(
+        "shadowDepthShader",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/shadow_map_depth.vs",
+                "Assets/Shaders/shadow_map_depth.fs"
+            ))
+    );
+    resourceManager->addShader(
+        "basicShader",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/basic.vs",
+                "Assets/Shaders/basic.fs"
+            ))
+    );
+    resourceManager->addShader(
+        "preloadShader",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/preloader/preloader.vs",
+                "Assets/Shaders/preloader/preloader.fs"
+            ))
+    );
+
+    bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
+    depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
+    rendererManager->setDepthMapRenderer(depthMapRenderer);
+    rendererManager->setBloomRenderer(bloomRenderer);
+    const auto preLoader = initPreloader();
+    rendererManager->addRenderer(new StandardMeshRenderer(camera, projection, preLoader));
+    camera->setStickyPoint(preLoader->getBaseItem().get());
+
+    const fs::path assets_dir{"Assets/Objects"};
+    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "pacman.glb", "pacman", []() {
+        std::cout << "Model pacman ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "skeleton.glb", "skeleton", []() {
+        std::cout << "Model skeleton ready!" << std::endl;
+    });
+    // resourceManager->loadAsyncModel<ObjItem>(assets_dir / "backpack.obj", "backpack", []() {
+    //     std::cout << "Model backpack ready!" << std::endl;
+    // });
+    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Cube.obj", "cube", []() {
+        std::cout << "Model cube ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Coin.obj", "coin", []() {
+        std::cout << "Model coin ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "Tile.obj", "tile", []() {
+        std::cout << "Model tile ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "torch.obj", "torch", []() {
+        std::cout << "Model torch ready!" << std::endl;
+    });
+}
+
+void App::run() {
+    if (state == SceneState::LOADING) {
+        resourceManager->processPending();
+
+        if (!scanning && resourceManager->isAllLoaded()) {
+            std::cout << "\rLoading DONE!      " << std::endl;
+            state = SceneState::RUNNING;
+
+            rendererManager->reset();
+            initScene();
+        }
+    }
+
     static float lastFrame = 0.0f;
     const auto currentFrame = static_cast<float>(glfwGetTime());
     float deltaTime = currentFrame - lastFrame;
@@ -460,9 +496,12 @@ void App::run() const {
     deltaTime = std::min(deltaTime, 0.05f);
 
     rendererManager->render(deltaTime);
-    keyboardManager->runDefault();
-    if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
+
+    if (state == SceneState::RUNNING) {
+        keyboardManager->runDefault();
+        if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
         eatManager->run(Manager::EatManager::checkPlace);
+        }
     }
 }
 
@@ -488,8 +527,10 @@ void App::processInput(GLFWwindow *window, const int keyCode, int scancode, cons
             rendererManager->toggleFog();
             break;
         case GLFW_KEY_W:
-            rainRenderer->toggle();
-            rainDropRenderer->setEnable(rainRenderer->isEnable());
+            if (rainRenderer && rainDropRenderer) {
+                rainRenderer->toggle();
+                rainDropRenderer->setEnable(rainRenderer->isEnable());
+            }
             break;
         //        case GLFW_KEY_U:
         //            camera->startUpsideDownRotate();
@@ -514,37 +555,49 @@ void App::processInput(GLFWwindow *window, const int keyCode, int scancode, cons
             animRenderer->setShow(true);
             snakeRenderer->toggleStyle(2);
             break;
-        case GLFW_KEY_T: // nebo jiná klávesa
+        case GLFW_KEY_T:
             if (boltRenderer) {
                 boltRenderer->triggerBolt();
             }
             break;
+        case GLFW_KEY_ESCAPE:
+            if (state == SceneState::RUNNING) {
+                glfwSetWindowShouldClose(window, true);
+            }
         default:
             break;
     }
 }
 
-void App::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void App::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) const {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
-            torchRenderer->onMouseDown(cursor, width, height);
-        } else if (action == GLFW_RELEASE) {
-            torchRenderer->onMouseUp();
+    if (torchRenderer != nullptr) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (action == GLFW_PRESS) {
+                torchRenderer->onMouseDown(cursor, width, height);
+            } else if (action == GLFW_RELEASE) {
+                torchRenderer->onMouseUp();
+            }
         }
     }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        camera->onMouseDown(button, action, mods);
+    if (camera) {
+        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            camera->onMouseDown(button, action, mods);
+        }
     }
 }
 
 void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
     const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
-    torchRenderer->onMouseMove(cursor, width, height);
-    camera->processMouseMovement(x, y);
+    if (torchRenderer != nullptr) {
+        torchRenderer->onMouseMove(cursor, width, height);
+    }
+    if (state == SceneState::RUNNING && camera != nullptr) {
+        camera->processMouseMovement(x, y);
+    }
 }
 
 void App::setKeyState(const int key, const bool pressed) const {
@@ -555,38 +608,15 @@ void App::cameraProcessKeyboard(GLFWwindow *window) const {
     camera->processKeyboard(window, 1);
 }
 
-void App::InitResourceManager() {
-    resourceManager = make_unique<ResourceManager>();
+shared_ptr<SpinnerModel> App::initPreloader() const {
+    auto shader = resourceManager->getShader("preloadShader");
+    auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
+    const auto standardBaseItem = make_shared<BaseItem>();
 
-    std::string path = "Assets/Textures/Albedo/";
-    for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
-        if (!is_directory(i->path())) {
-            std::cout << i->path().filename() << std::endl;
-            auto texture = std::make_shared<TextureManager>();
-            texture->addTexture(TextureLoader::loadTexture(i->path()));
-            resourceManager->addTexture(i->path().filename(), texture);
-        }
-    }
+    return make_shared<SpinnerModel>(standardBaseItem, shader);
+}
 
-    path = "Assets/Textures/Others/";
-    for (fs::recursive_directory_iterator i(path), end; i != end; ++i) {
-        if (!is_directory(i->path())) {
-            std::cout << i->path().filename() << std::endl;
-            auto texture = std::make_shared<TextureManager>();
-            texture->addTexture(TextureLoader::loadTexture(i->path(), false));
-            resourceManager->addTexture(i->path().filename(), texture);
-        }
-    }
-
-    const fs::path assets_dir{"Assets/Objects"};
-
-    resourceManager->addModel("cube", ObjModelLoader::loadObj(assets_dir / "Cube.obj"));
-    resourceManager->addModel("coin", ObjModelLoader::loadObj(assets_dir / "Coin.obj"));
-    resourceManager->addModel("tile", AnimLoader::loadObj(assets_dir / "Tile.obj"));
-    resourceManager->addModel("pacman", AnimLoader::loadObj(assets_dir / "pacman.glb")); //pac-man-ghosts-blue.glb
-    resourceManager->addModel("skeleton", AnimLoader::loadObj(assets_dir / "skeleton.glb")); //pac-man-ghosts-blue.glb
-    resourceManager->addModel("torch", ObjModelLoader::loadObj(assets_dir / "torch.obj"));
-
+void App::InitResourceManager() const {
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
     faces.emplace_back("Assets/Skybox/cloud/left.jpg");
@@ -598,6 +628,103 @@ void App::InitResourceManager() {
     const auto texture = std::make_shared<TextureManager>();
     texture->addTexture(cubeMapTexture);
     resourceManager->addTexture("skybox", texture);
+
+    std::ifstream manifestFile("Assets/texture_manifest.json");
+    if (!manifestFile.is_open()) {
+        throw std::runtime_error("Nemohu otevřít manifest file.");
+    }
+
+    nlohmann::json j;
+    manifestFile >> j;
+
+    std::vector<TextureEntry> textures;
+
+    for (auto &item : j) {
+        textures.push_back(TextureEntry{
+            item["name"].get<std::string>(),
+            item["path"].get<std::string>(),
+            item["category"].get<std::string>()
+        });
+    }
+
+    for (const auto &[name, path, category] : textures) {
+        bool isAlbedo = (category == "Albedo");
+
+        resourceManager->loadAsyncTexture("Assets/Textures/" + path, name, isAlbedo, [name=name]() {
+            std::cout << "Texture ready: " << name << std::endl;
+        });
+    }
+
+    resourceManager->loadAsyncShader("textShader", "Assets/Shaders/text.vs", "", "Assets/Shaders/text.fs", []() {
+        std::cout << "Shader textShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("gizmoShader",
+                                       "Assets/Shaders/gizmo/gizmo.vs",
+                                       "Assets/Shaders/gizmo/gizmo.geom",
+                                       "Assets/Shaders/gizmo/gizmo.fs",
+                                       []() {
+        std::cout << "Shader gizmo ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("colorShader", "Assets/Shaders/color.vs", "", "Assets/Shaders/color.fs", []() {
+        std::cout << "Shader color ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("respawnShader", "Assets/Shaders/basic.vs", "", "Assets/Shaders/respawn/respawn.fs", []() {;
+        std::cout << "Shader respawnShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("normalShader", "Assets/Shaders/normal_map.vs", "", "Assets/Shaders/normal_map.fs", []() {
+        std::cout << "Shader normalShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("radarShader", "Assets/Shaders/radar.vs", "", "Assets/Shaders/radar.fs", []() {;
+        std::cout << "Shader radarShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("skyboxShader", "Assets/Shaders/skybox.vs", "", "Assets/Shaders/skybox.fs", []() {
+        std::cout << "Shader skyboxShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("debugQuadShader", "Assets/Shaders/debug_quad.vs", "", "Assets/Shaders/debug_quad.fs", []() {
+        std::cout << "Shader debugQuadShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("bloomLight", "Assets/Shaders/bloom/bloom.vs", "", "Assets/Shaders/bloom/bloom.fs", []() {
+        std::cout << "Shader bloomLight ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("rain", "Assets/Shaders/rain/rain.vs", "", "Assets/Shaders/rain/rain.fs", []() {
+        std::cout << "Shader rain ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("rainDrop", "Assets/Shaders/basic.vs", "", "Assets/Shaders/rain/raindrop.fs", []() {
+        std::cout << "Shader rainDrop ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("fire", "Assets/Shaders/fire/fire.vs", "", "Assets/Shaders/fire/fire.fs", []() {
+        std::cout << "Shader fire ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("smoke", "Assets/Shaders/fire/smoke.vs", "", "Assets/Shaders/fire/smoke.fs", []() {
+        std::cout << "Shader smoke ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("boltShader", "Assets/Shaders/bolt/bolt.vs", "", "Assets/Shaders/bolt/bolt.fs", []() {
+        std::cout << "Shader boltShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("flash", "Assets/Shaders/bolt/flash.vs", "", "Assets/Shaders/bolt/flash.fs", []() {
+        std::cout << "Shader flash ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("explosion",
+                                       "Assets/Shaders/explosion/explosion.vs",
+                                       "Assets/Shaders/explosion/explosion.geom",
+                                       "Assets/Shaders/explosion/explosion.fs", []() {
+        std::cout << "Shader explosion ready!" << std::endl;
+    });
 }
 
 GameField *App::InitGameField() {

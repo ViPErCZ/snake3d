@@ -5,6 +5,7 @@
 #include "Model/AnimationModel.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../ItemsDto/Snake.h"
+#include "../../Manager/Camera.h"
 #include <chrono>
 #include <functional>
 

@@ -1,9 +1,12 @@
 #include "RainModel.h"
+
+#include <random>
+
 #include "../../../Manager/VboIndexer.h"
 
 Model::RainModel::RainModel(BaseItem *baseItem, unsigned int amount) : item(baseItem), amount(amount),
                                                                        lastUsedParticle(0) {
-
+    using namespace Manager;
     vector<glm::vec3> vbo_vertices;
     vector<glm::vec3> vbo_normals;
     vector<glm::vec2> vbo_uvs;

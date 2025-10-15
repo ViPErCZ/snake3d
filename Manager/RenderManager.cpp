@@ -157,6 +157,10 @@ namespace Manager {
         updateFog();
     }
 
+    void RenderManager::reset() {
+        renderers.clear();
+    }
+
     void RenderManager::updateFog() {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
             (*Iter)->setFog(fog);

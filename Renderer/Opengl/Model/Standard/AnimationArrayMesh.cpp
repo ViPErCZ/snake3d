@@ -3,8 +3,7 @@
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationModel> &model,
                                            const shared_ptr<ShaderManager> &baseShader) : StandardMesh(
-            std::shared_ptr<BaseItem>(model->getBaseItem()), baseShader,
-            0, 0), model(model), baseShader(baseShader) {
+            std::shared_ptr<BaseItem>(model->getBaseItem()), baseShader), model(model), baseShader(baseShader) {
     }
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const {

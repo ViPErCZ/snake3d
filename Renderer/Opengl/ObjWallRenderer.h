@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../../ItemsDto/ObjWall.h"
 #include "../../ItemsDto/Snake.h"
-
+#include "../../Manager/Camera.h"
 
 using namespace ItemsDto;
 using namespace Manager;

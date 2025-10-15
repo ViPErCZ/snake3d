@@ -4,6 +4,7 @@
 #include "../../ItemsDto/BaseItem.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
+#include "../../Manager/Camera.h"
 #include "Model/RainModel.h"
 #include "BaseRenderer.h"
 

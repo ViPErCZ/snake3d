@@ -2,9 +2,7 @@
 #define SNAKE3_RAINMODEL_H
 
 #include "Utils/Mesh.h"
-#include <random>
 
-using namespace Manager;
 using namespace ModelUtils;
 
 namespace Model {

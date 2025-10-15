@@ -4,7 +4,6 @@
 #include "ItemsDto/GameField.h"
 #include "ItemsDto/Snake.h"
 #include "ItemsDto/ObjWall.h"
-#include "Resource/ObjModelLoader.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
@@ -36,6 +35,8 @@
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include <AL/al.h>
+#include <nlohmann/json.hpp>
+#include "Renderer/Opengl/Model/SpinnerModel.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -52,18 +53,24 @@ using namespace Model;
 using namespace Material;
 
 class App {
+    enum class SceneState {
+        LOADING,
+        RUNNING
+    };
 public:
     App(const shared_ptr<Camera> &camera, int width, int height);
     ~App();
     void Init();
-    void run() const;
+    void run();
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
-    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) const;
     void mousePositionCallback(GLFWwindow* window, double x, double y) const;
     void setKeyState(int key, bool pressed) const;
     void cameraProcessKeyboard(GLFWwindow *window) const;
 protected:
-    void InitResourceManager();
+    void initScene();
+    [[nodiscard]] shared_ptr<SpinnerModel> initPreloader() const;
+    void InitResourceManager() const;
     GameField* InitGameField();
     Snake* InitSnake();
     ObjWall* InitObjWall(); // outer wall
@@ -73,6 +80,11 @@ protected:
     void initTexts() const;
     [[nodiscard]] shared_ptr<PlaneMesh> initPlane() const;
 private:
+    struct TextureEntry {
+        std::string name;
+        std::string path;
+        std::string category;
+    };
     unique_ptr<LevelManager> levelManager;
     unique_ptr<ResourceManager> resourceManager;
     unique_ptr<RenderManager> rendererManager;
@@ -107,11 +119,13 @@ private:
     Text* startText;
     Text* tilesCounterText;
     shared_ptr<Camera> camera;
+    glm::mat4 projection{};
     int width;
     int height;
     ALuint musicSource{}, coinSource{};
     ALuint coinBuffer{}, musicBuffer{};
+    SceneState state = SceneState::LOADING;
+    std::atomic<bool> scanning = false;
 };
-
 
 #endif //SNAKE3_APP_H

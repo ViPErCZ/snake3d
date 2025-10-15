@@ -7,6 +7,8 @@ find_package(glfw3 3.1 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(assimp 5.2 REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/AL)
 
@@ -79,8 +81,12 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/Uniform/TextureUniform.h
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
+        Resource/ResourceLoader.cpp
+        Resource/ResourceLoader.h
+        Renderer/Opengl/Model/SpinnerModel.cpp
+        Renderer/Opengl/Model/SpinnerModel.h
 )
-target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp)
+target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
 file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
@@ -209,6 +215,10 @@ set(APP_SOURCES
         Renderer/Opengl/Material/Uniform/TextureUniform.h
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
+        Resource/ResourceLoader.cpp
+        Resource/ResourceLoader.h
+        Renderer/Opengl/Model/SpinnerModel.cpp
+        Renderer/Opengl/Model/SpinnerModel.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -258,7 +268,12 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Material/Uniform/TextureUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureUniform.h
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.cpp
-        Renderer/Opengl/Material/Uniform/TextureArrayUniform.h)
+        Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
+        Resource/ResourceLoader.cpp
+        Resource/ResourceLoader.h
+        Renderer/Opengl/Model/SpinnerModel.cpp
+        Renderer/Opengl/Model/SpinnerModel.h
+)
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
 # PUBLIC znamená, že kdokoliv, kdo se nalinkuje na snake3d_lib, také dostane tyto cesty
