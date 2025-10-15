@@ -32,7 +32,8 @@ jobs:
           libglew-dev \
           libglm-dev \
           libgl1-mesa-dev \
-          libfreetype6-dev
+          libfreetype6-dev \
+          nlohmann-json3-dev
 
       - name: Clear build directory
         run: rm -rf build
