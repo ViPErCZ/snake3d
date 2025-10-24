@@ -2,13 +2,13 @@
 
 namespace Renderer {
 
-    AnimRenderer::AnimRenderer(sSNAKE_TILE* tile, AnimationModel *sharedPtr, Camera *camera, const glm::mat4 &projection,
-                               ResourceManager *resManager): show(true) {
+    AnimRenderer::AnimRenderer(shared_ptr<sSNAKE_TILE> tile, const shared_ptr<AnimationModel> &sharedPtr, Camera *camera,
+        const glm::mat4 &projection, ResourceManager *resManager): show(true) {
         model = sharedPtr;
         resourceManager = resManager;
         this->camera = camera;
         this->projection = projection;
-        this->tile = tile;
+        this->tile = std::move(tile);
         shader = resourceManager->getShader("normalShader").get();
         shadowShader = resourceManager->getShader("shadowDepthShader").get();
     }
@@ -113,11 +113,9 @@ namespace Renderer {
     }
 
     void AnimRenderer::beforeRender() {
-        glEnable(GL_DEPTH_TEST);
     }
 
     void AnimRenderer::afterRender() {
-        glDisable(GL_DEPTH_TEST);
     }
 
     void AnimRenderer::addPlay(const string& name) {

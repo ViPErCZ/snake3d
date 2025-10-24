@@ -1,11 +1,6 @@
 #include "KeyboardManager.h"
 
 namespace Manager {
-    KeyboardManager::~KeyboardManager() {
-        for (auto Iter = handlers.begin(); Iter < handlers.end(); ++Iter) {
-            delete (*Iter);
-        }
-    }
 
     void KeyboardManager::onKeyPress(const int keyCode, const int scancode, const int action, const int mods) {
         for (auto Iter = handlers.begin(); Iter < handlers.end(); ++Iter) {
@@ -13,8 +8,8 @@ namespace Manager {
         }
     }
 
-    void KeyboardManager::addEventHandler(BaseKeydownHandle *handler) {
-        handlers.push_back(handler);
+    void KeyboardManager::addEventHandler(shared_ptr<BaseKeydownHandle> handler) {
+        handlers.push_back(std::move(handler));
     }
 
     void KeyboardManager::runDefault() {

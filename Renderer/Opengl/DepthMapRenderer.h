@@ -19,6 +19,8 @@ namespace Renderer {
     public:
         DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager);
 
+        ~DepthMapRenderer();
+
         void render(float dt) const;
 
         void beforeRender(int index) const;

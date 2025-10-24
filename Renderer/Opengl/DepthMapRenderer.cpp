@@ -35,7 +35,7 @@ namespace Renderer {
             const auto texture = std::make_shared<TextureManager>();
 
             texture->addTexture(depthMap);
-            resourceManager->addTexture("depth", texture);
+            resourceManager->replaceTexture("depth", texture);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -52,11 +52,13 @@ namespace Renderer {
         // simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
+    DepthMapRenderer::~DepthMapRenderer() {
+    }
+
     void DepthMapRenderer::beforeRender(const int index) const {
         glDisable(GL_BLEND);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        // Ensure depth-only framebuffer is configured properly without affecting default FBO
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,

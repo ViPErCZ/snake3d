@@ -2,7 +2,7 @@
 
 namespace Renderer {
 
-    SnakeRenderer::SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager *resManager)
+    SnakeRenderer::SnakeRenderer(const shared_ptr<Snake> &snake, Camera *camera, const glm::mat4 &projection, ResourceManager *resManager)
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
         mesh = (*resourceManager->getAnimationModel("tile")->getMeshes().begin());
         baseShader = resourceManager->getShader("basicShader").get();
@@ -14,10 +14,6 @@ namespace Renderer {
         noise = resourceManager->getTexture("fast_noise.bmp").get();
         startTime = glfwGetTime();
         this->item = snake->getHeadTile();
-    }
-
-    SnakeRenderer::~SnakeRenderer() {
-        delete snake;
     }
 
     void SnakeRenderer::render(float dt) {
@@ -96,15 +92,13 @@ namespace Renderer {
         }
     }
 
-    void SnakeRenderer::beforeRender() {
-        glEnable(GL_DEPTH_TEST);
+    void SnakeRenderer::beforeRender() { // DEPTH TEST je defaultne zapnuty
         glDepthFunc(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void SnakeRenderer::afterRender() {
-        glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
     }
 

@@ -1,22 +1,10 @@
 #include "Snake.h"
 
 namespace ItemsDto {
-    Snake::~Snake() {
-        Snake::release();
-    }
-
-    void Snake::release() {
-        for (auto Iter = tiles.begin(); Iter < tiles.end(); Iter++) {
-            delete (*Iter)->tile;
-            delete (*Iter);
-        }
-
-        tiles.clear();
-    }
 
     void Snake::init() {
-        auto *snakeTile = new sSNAKE_TILE;
-        snakeTile->tile = new Cube();
+        const auto snakeTile = make_shared<sSNAKE_TILE>();
+        snakeTile->tile = make_shared<Cube>();
         snakeTile->tile->setVisible(true);
         snakeTile->alpha = 1.0;
         snakeTile->tile->setZoom({0.041667f, 0.041667f, 0.041667f});
@@ -25,13 +13,13 @@ namespace ItemsDto {
         reset();
     }
 
-    sSNAKE_TILE* Snake::addTile(eDIRECTION aDirection) {
+    shared_ptr<sSNAKE_TILE> Snake::addTile(const eDIRECTION aDirection) {
         if (!tiles.empty()) {
-            auto *snakeTile = new sSNAKE_TILE;
-            snakeTile->tile = new Cube();
+            auto snakeTile = make_shared<sSNAKE_TILE>();
+            snakeTile->tile = make_shared<Cube>();
             glm::vec3 pos = {-19, 67, -23};
 
-            auto PrevIter = tiles.end()-1;
+            const auto PrevIter = tiles.end()-1;
 
             if ((*(tiles.begin()))->direction != STOP) {
                 pos = (*PrevIter)->tile->getPosition();
@@ -42,7 +30,6 @@ namespace ItemsDto {
                             pos.x = (*PrevIter)->tile->getPosition().x - 2;
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
-                            delete snakeTile;
                             return nullptr;
                         }
                         break;
@@ -51,7 +38,6 @@ namespace ItemsDto {
                             pos.x = (*PrevIter)->tile->getPosition().x + 2;
                             pos.y = (*PrevIter)->tile->getPosition().y;
                         } else {
-                            delete snakeTile;
                             return nullptr;
                         }
                         break;
@@ -60,7 +46,6 @@ namespace ItemsDto {
                             pos.x = (*PrevIter)->tile->getPosition().x;
                             pos.y = (*PrevIter)->tile->getPosition().y - 2;
                         } else {
-                            delete snakeTile;
                             return nullptr;
                         }
                         break;
@@ -69,7 +54,6 @@ namespace ItemsDto {
                             pos.x = (*PrevIter)->tile->getPosition().x;
                             pos.y = (*PrevIter)->tile->getPosition().y + 2;
                         } else {
-                            delete snakeTile;
                             return nullptr;
                         }
                         break;
@@ -78,8 +62,8 @@ namespace ItemsDto {
                 }
             }
 
-            snakeTile->tile->setVirtualX((((int)(pos.x - (-23)) / 2) * 32) + 16);
-            snakeTile->tile->setVirtualY((((int)(pos.y - (-23)) / 2) * 32) + 16);
+            snakeTile->tile->setVirtualX(static_cast<int>(pos.x - (-23)) / 2 * 32 + 16);
+            snakeTile->tile->setVirtualY(static_cast<int>(pos.y - (-23)) / 2 * 32 + 16);
             snakeTile->tile->setPosition(pos);
             snakeTile->tile->setZoom({0.041666667f, 0.041666667f, 0.041666667f});
             snakeTile->tile->setVisible(true);
@@ -92,11 +76,11 @@ namespace ItemsDto {
         return nullptr;
     }
 
-    const vector<sSNAKE_TILE *> &Snake::getItems() const {
+    const vector<shared_ptr<sSNAKE_TILE>> &Snake::getItems() const {
         return tiles;
     }
 
-    Cube *Snake::getHeadTile() {
+    shared_ptr<Cube> Snake::getHeadTile() const {
         if (!tiles.empty()) {
             return (*tiles.begin())->tile;
         }
@@ -121,14 +105,11 @@ namespace ItemsDto {
     }
 
     void Snake::reset() {
-        for (auto Iter = tiles.end() - 1; Iter != tiles.begin(); Iter--) {
-            delete (*Iter)->tile;
-            delete (*Iter);
-
+        for (auto Iter = tiles.end() - 1; Iter != tiles.begin(); --Iter) {
             tiles.erase(Iter);
         }
 
-        sSNAKE_TILE* snakeTile = (*tiles.begin());
+        const shared_ptr<sSNAKE_TILE> snakeTile = (*tiles.begin());
 
         snakeTile->tile->setPosition({23, -3, -23}); // start pozice
 //        snakeTile->tile->setPosition({45, -3, -23});

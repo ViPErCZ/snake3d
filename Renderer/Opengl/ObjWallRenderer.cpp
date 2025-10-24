@@ -1,7 +1,7 @@
 #include "ObjWallRenderer.h"
 
 namespace Renderer {
-    ObjWallRenderer::ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
+    ObjWallRenderer::ObjWallRenderer(const shared_ptr<Snake> &snake, const shared_ptr<ObjWall> &item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
         : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false) {
         mesh = resourceManager->getModel("cube")->getMesh();
         shader = resourceManager->getShader("normalShader").get();
@@ -12,7 +12,7 @@ namespace Renderer {
     }
 
     ObjWallRenderer::~ObjWallRenderer() {
-        delete wall;
+        // delete wall;
     }
 
     void ObjWallRenderer::render(float dt) {
@@ -108,13 +108,11 @@ namespace Renderer {
     }
 
     void ObjWallRenderer::beforeRender() {
-        glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void ObjWallRenderer::afterRender() {
-        glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
 
         texture1->unbind(0);

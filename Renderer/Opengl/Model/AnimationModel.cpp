@@ -164,11 +164,11 @@ namespace Model {
         return metadata.at(animation->name);
     }
 
-    BaseItem *AnimationModel::getBaseItem() const {
+    shared_ptr<BaseItem> AnimationModel::getBaseItem() const {
         return baseItem;
     }
 
-    void AnimationModel::setBaseItem(BaseItem *baseItem) {
+    void AnimationModel::setBaseItem(const shared_ptr<BaseItem> &baseItem) {
         AnimationModel::baseItem = baseItem;
     }
 

@@ -57,6 +57,16 @@ namespace Manager {
         }
     }
 
+    void ResourceManager::replaceTexture(const string &name, const shared_ptr<TextureManager> &res) {
+        std::unique_lock lock(mutex);
+        if (const auto [fst, snd] = texture.emplace(name, res); !snd) {
+            texture.erase(texture.find(name));
+            if (const auto [fst, snd] = texture.emplace(name, res); !snd) {
+                throw invalid_argument("Failed to add texture " + name + ", already contains.");
+            }
+        }
+    }
+
     std::shared_ptr<TextureManager> ResourceManager::getTexture(const string &name) const {
         std::unique_lock lock(mutex);
         try {
@@ -89,10 +99,10 @@ namespace Manager {
         }
     }
 
-    AnimationModel *ResourceManager::getAnimationModel(const string &name) const {
+    shared_ptr<AnimationModel> ResourceManager::getAnimationModel(const string &name) const {
         std::unique_lock lock(mutex);
         try {
-            return animationModel.at(name).get();
+            return animationModel.at(name);
         } catch (...) {
             throw invalid_argument("No such resource called " + name);
         }

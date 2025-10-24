@@ -21,8 +21,12 @@ namespace Physic {
 
     bool CollisionDetector::perimeterDetect(BaseItem *snakeHead) {
 
+        if (perimeter == nullptr) {
+            return false;
+        }
+
         for (auto Iter = perimeter->getItems().begin(); Iter < perimeter->getItems().end(); Iter++) {
-            blendBarrierDetect(snakeHead, (*Iter));
+            blendBarrierDetect(snakeHead, Iter->get());
         }
 
         int x = snakeHead->getVirtualX();
@@ -76,8 +80,8 @@ namespace Physic {
 
     bool CollisionDetector::barrierCollision(BaseItem *snakeHead) {
         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); Iter++) {
-            blendBarrierDetect(snakeHead, (*Iter));
-            bool result = detect(snakeHead, (*Iter));
+            blendBarrierDetect(snakeHead, Iter->get());
+            bool result = detect(snakeHead, Iter->get());
             if (result) {
                 return true;
             }
@@ -107,7 +111,7 @@ namespace Physic {
                 continue;
             }
 
-            bool result = detect(snakeHead, (*Iter)->tile);
+            bool result = detect(snakeHead.get(), (*Iter)->tile.get());
             if (result) {
                 return true;
             }

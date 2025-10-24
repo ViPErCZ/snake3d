@@ -17,7 +17,7 @@ namespace Renderer {
 
     class ObjWallRenderer : public BaseRenderer {
     public:
-        explicit ObjWallRenderer(Snake* snake, ObjWall *item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager);
+        explicit ObjWallRenderer(const shared_ptr<Snake> &snake, const shared_ptr<ObjWall> &item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager);
         ~ObjWallRenderer() override;
         void render(float dt) override;
         void beforeRender() override;
@@ -29,8 +29,8 @@ namespace Renderer {
 
     protected:
         static bool rayIntersectsAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& boxMin, const glm::vec3& boxMax, float maxDistance);
-        Snake* snake;
-        ObjWall* wall;
+        shared_ptr<Snake> snake;
+        shared_ptr<ObjWall> wall;
         Mesh* mesh;
         Camera* camera;
         glm::mat4 projection{};

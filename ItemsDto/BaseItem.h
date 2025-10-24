@@ -14,6 +14,10 @@ namespace ItemsDto {
     public:
         BaseItem();
 
+        ~BaseItem() {
+
+        };
+
         [[nodiscard]] bool isVisible() const;
         void setVisible(bool visible);
         void toggleVisible();

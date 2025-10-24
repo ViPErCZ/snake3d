@@ -6,18 +6,16 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../ItemsDto/Snake.h"
 #include "../../Manager/Camera.h"
-#include <chrono>
-#include <functional>
 
 using namespace Model;
 using namespace Manager;
 using namespace ItemsDto;
 
 namespace Renderer {
-    class AnimRenderer : public BaseRenderer {
+    class AnimRenderer final : public BaseRenderer {
     public:
-        explicit AnimRenderer(sSNAKE_TILE* tile,
-                              AnimationModel* sharedPtr, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
+        explicit AnimRenderer(shared_ptr<sSNAKE_TILE> tile, const shared_ptr<AnimationModel> &sharedPtr, Camera *camera,
+            const glm::mat4 &projection, ResourceManager* resManager);
         ~AnimRenderer() override;
         void render(float dt) override;
         void renderShadowMap() override;
@@ -32,14 +30,14 @@ namespace Renderer {
 
         shared_ptr<Mesh> getMesh() override;
 
-        AnimationModel* model;
+        shared_ptr<AnimationModel> model;
         ResourceManager* resourceManager;
         ShaderManager* shader;
         ShaderManager* shadowShader;
         glm::mat4 projection{};
         Camera* camera;
         vector<string> animationPlay;
-        sSNAKE_TILE* tile;
+        shared_ptr<sSNAKE_TILE> tile;
         bool show;
     };
 

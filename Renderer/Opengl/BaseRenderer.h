@@ -2,7 +2,6 @@
 #define SNAKE3_BASERENDERER_H
 
 #include <memory>
-
 #include "../../ItemsDto/BaseItem.h"
 #include "Model/Utils/Mesh.h"
 
@@ -42,7 +41,7 @@ namespace Renderer {
 
     protected:
         virtual shared_ptr<Mesh> getMesh();
-        BaseItem *item{};
+        shared_ptr<BaseItem> item{};
         bool shadow;
         bool fog;
     };

@@ -4,13 +4,6 @@
 Renderer::BloomRenderer::BloomRenderer(ResourceManager* resManager, int width, int height): width(width), height(height) {
     resourceManager = resManager;
 
-    resourceManager->addShader("bloom", std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom.vs", "Assets/Shaders/bloom/bloom.fs")));
-    resourceManager->addShader("blur", std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader("Assets/Shaders/bloom/blur.vs", "Assets/Shaders/bloom/blur.fs")));
-    resourceManager->addShader("bloomFinal", std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader("Assets/Shaders/bloom/bloom_final.vs", "Assets/Shaders/bloom/bloom_final.fs")));
-
     shader = resourceManager->getShader("bloom").get();
     shaderBlur = resourceManager->getShader("blur").get();
     shaderBloomFinal = resourceManager->getShader("bloomFinal").get();

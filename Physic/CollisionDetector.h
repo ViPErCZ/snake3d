@@ -3,7 +3,6 @@
 
 #include "../ItemsDto/BaseItem.h"
 #include "../ItemsDto/Barriers.h"
-#include "../ItemsDto/BaseContainer.h"
 #include "../ItemsDto/Snake.h"
 #include "../ItemsDto/ObjWall.h"
 

@@ -1,5 +1,4 @@
 #include "../App.h"
-#include <iostream>
 #define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp> // Modernější hlavička pro Catch v3
@@ -14,9 +13,9 @@ TEST_CASE( "Checking if field is empty to place food..." ) {
     snake->init();
     snake->reset();
     auto eat = new Eat;
-    auto barriers = new Barriers;
+    auto barriers = make_shared<Barriers>();
     auto radar = new Radar;
-    auto eatLocation = new EatLocationHandler(barriers, snake, eat, radar);
+    auto eatLocation = new EatLocationHandler(barriers.get(), snake, eat, radar);
     auto levelManager = new LevelManager(1, 3, barriers);
     levelManager->createLevel(2);
 

@@ -5,12 +5,11 @@
 #include "../../ItemsDto/Barriers.h"
 
 namespace Renderer {
-
     class BarrierRenderer : public ObjWallRenderer {
     public:
-        explicit BarrierRenderer(Snake* snake, Barriers *item, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit BarrierRenderer(const shared_ptr<Snake> &snake, const shared_ptr<Barriers> &item, Camera *camera,
+                                 const glm::mat4 &proj, ResourceManager *resManager);
     };
-
 } // Renderer
 
 #endif //SNAKE3_BARRIERRENDERER_H

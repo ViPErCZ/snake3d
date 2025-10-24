@@ -1,8 +1,9 @@
 #include "SnakeMoveHandler.h"
 
 namespace Handler {
-    SnakeMoveHandler::SnakeMoveHandler(Snake *snake, AnimationModel* animHead) : snake(snake), animHead(animHead), eatenUpCallbackCalled(false) {
-        snakeHead = (*snake->getItems().begin());
+    SnakeMoveHandler::SnakeMoveHandler(const shared_ptr<Snake> &snake, const shared_ptr<AnimationModel> &animHead)
+        : snake(snake), animHead(animHead), eatenUpCallbackCalled(false) {
+        snakeHead = *snake->getItems().begin();
         stop = false;
     }
 
@@ -44,7 +45,7 @@ namespace Handler {
     }
 
     void SnakeMoveHandler::createChangeCallback(unsigned int direction) {
-        changeCallback = [this, direction](sSNAKE_TILE *head) {
+        changeCallback = [this, direction](const shared_ptr<sSNAKE_TILE> &head) {
             if (isChangeDirectionAllowed(head)) {
 
                 int x = (int) head->tile->getPosition().x - 1;
@@ -106,14 +107,14 @@ namespace Handler {
                 return;
             }
 
-            bool allowed = isChangeDirectionAllowed(snakeHead);
+            const bool allowed = isChangeDirectionAllowed(snakeHead);
 
-            for (auto Iter = snake->getItems().end() - 1; Iter >= snake->getItems().begin(); Iter--) {
+            for (auto Iter = snake->getItems().end() - 1; Iter >= snake->getItems().begin(); --Iter) {
                 eDIRECTION direction = (*Iter)->direction;
 
                 if (snake->getItems().begin() != Iter && allowed) {
                     auto PrevIter = Iter - 1;
-                    direction = findDirection((*PrevIter), (*Iter));
+                    direction = findDirection((*PrevIter), *Iter);
                     (*Iter)->direction = direction;
                 }
 
@@ -147,11 +148,11 @@ namespace Handler {
             next_time = now;
 
             // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
-            if (snakeHead->direction > STOP && snakeHead->direction < CRASH) {
+            if (collisionDetector && snakeHead->direction > STOP && snakeHead->direction < CRASH) {
                 // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
                 // pokud ano, tak checkneme kolizi s jidlem
-                bool allowed = isChangeDirectionAllowed(snakeHead);
-                if (allowed && collisionDetector->detectWithStaticItem(snakeHead->tile)) {
+                const bool l_allowed = isChangeDirectionAllowed(snakeHead);
+                if (l_allowed && collisionDetector->detectWithStaticItem(snakeHead->tile.get())) {
                     cout << "Head position(eaten): " << snakeHead->tile->getPosition().x << ", " << snakeHead->tile->getPosition().y << endl;
                     eatenUpCallback();
                     if (snakeHead->direction == STOP) { // doslo k postupu do dalsiho level
@@ -159,9 +160,9 @@ namespace Handler {
                     }
                 }
 
-                if (collisionDetector->perimeterDetect(snakeHead->tile)
-                    || collisionDetector->barrierCollision(snakeHead->tile)
-                    || Physic::CollisionDetector::intoHimSelf(snake)
+                if (collisionDetector->perimeterDetect(snakeHead->tile.get())
+                    || collisionDetector->barrierCollision(snakeHead->tile.get())
+                    || CollisionDetector::intoHimSelf(snake.get())
                 ) {
                     if (crashCallback) {
                         crashCallback(); // doslo k narazu
@@ -172,14 +173,14 @@ namespace Handler {
         }
     }
 
-    bool SnakeMoveHandler::isChangeDirectionAllowed(sSNAKE_TILE *snake) {
-        int x = (int) snake->tile->getVirtualX() - 16;
-        int y = (int) snake->tile->getVirtualY() - 16;
+    bool SnakeMoveHandler::isChangeDirectionAllowed(const shared_ptr<sSNAKE_TILE> &snake) {
+        const int x = snake->tile->getVirtualX() - 16;
+        const int y = snake->tile->getVirtualY() - 16;
 
         return x % CUBE_SIZE == 0 && y % CUBE_SIZE == 0;
     }
 
-    bool SnakeMoveHandler::isNewDirectionCorrect(sSNAKE_TILE *headTile, unsigned int direction) {
+    bool SnakeMoveHandler::isNewDirectionCorrect(const shared_ptr<sSNAKE_TILE> &headTile, const unsigned int direction) {
 
         if (headTile->direction == PAUSE) {
             return false;
@@ -187,7 +188,7 @@ namespace Handler {
 
         switch (direction) {
             case GLFW_KEY_L:
-                if (headTile->direction == ItemsDto::LEFT || headTile->direction == ItemsDto::RIGHT) {
+                if (headTile->direction == LEFT || headTile->direction == RIGHT) {
                     return false;
                 }
                 return true;
@@ -197,7 +198,7 @@ namespace Handler {
                 }
                 return true;
             case GLFW_KEY_J:
-                if (headTile->direction == ItemsDto::RIGHT || headTile->direction == ItemsDto::LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
+                if (headTile->direction == RIGHT || headTile->direction == LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
                     return false;
                 }
                 return true;
@@ -215,7 +216,7 @@ namespace Handler {
         SnakeMoveHandler::collisionDetector = collisionDetector;
     }
 
-    void SnakeMoveHandler::setStartMoveCallback(const function<void(void)> &startMoveCallback) {
+    void SnakeMoveHandler::setStartMoveCallback(const function<void()> &startMoveCallback) {
         SnakeMoveHandler::startMoveCallback = startMoveCallback;
     }
 
@@ -227,7 +228,7 @@ namespace Handler {
         SnakeMoveHandler::eatenUpCallback = eatenUpCallback;
     }
 
-    eDIRECTION SnakeMoveHandler::findDirection(sSNAKE_TILE* snakeTile, sSNAKE_TILE* mySelf) {
+    eDIRECTION SnakeMoveHandler::findDirection(const shared_ptr<sSNAKE_TILE> &snakeTile, const shared_ptr<sSNAKE_TILE> &mySelf) {
         // najdi kosticku co je hned vedle
         if (snakeTile->tile->getPosition().x > mySelf->tile->getPosition().x) {
             return ItemsDto::RIGHT;

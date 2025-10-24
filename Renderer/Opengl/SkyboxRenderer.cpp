@@ -1,8 +1,8 @@
 #include "SkyboxRenderer.h"
 
 namespace Renderer {
-    SkyboxRenderer::SkyboxRenderer(Cube *cube, Camera *camera, const glm::mat4 &projection,
-                                   ResourceManager *resourceManager) : cube(cube), camera(camera),
+    SkyboxRenderer::SkyboxRenderer(shared_ptr<Cube> cube, Camera *camera, const glm::mat4 &projection,
+                                   ResourceManager *resourceManager) : cube(std::move(cube)), camera(camera),
                                                                        projection(projection),
                                                                        resourceManager(resourceManager) {
         mesh = resourceManager->getModel("cube")->getMesh();

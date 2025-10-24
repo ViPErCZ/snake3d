@@ -3,7 +3,7 @@
 Renderer::GameFieldRenderer::GameFieldRenderer(GameField *item, Camera *camera, glm::mat4 proj,
                                                ResourceManager *resManager) {
     gameField = item;
-    this->item = *gameField->getTiles().begin();
+    // this->item = *gameField->getTiles().begin();
     resourceManager = resManager;
     this->camera = camera;
     this->projection = proj;

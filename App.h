@@ -1,7 +1,6 @@
 #ifndef SNAKE3_APP_H
 #define SNAKE3_APP_H
 
-#include "ItemsDto/GameField.h"
 #include "ItemsDto/Snake.h"
 #include "ItemsDto/ObjWall.h"
 #include "Manager/ResourceManager.h"
@@ -11,7 +10,6 @@
 #include "Renderer/Opengl/SkyboxRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
-#include "Renderer/Opengl/DepthMapRenderer.h"
 #include "Handler/RadarHandler.h"
 #include "Handler/EatLocationHandler.h"
 #include "Renderer/Opengl/EatRenderer.h"
@@ -24,7 +22,6 @@
 #include "Manager/LevelManager.h"
 #include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
-#include "Renderer/Opengl/BloomRenderer.h"
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Renderer/Opengl/AnimRenderer.h"
@@ -33,10 +30,10 @@
 #include "Renderer/Opengl/FireRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
-#include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include <AL/al.h>
 #include <nlohmann/json.hpp>
 #include "Renderer/Opengl/Model/SpinnerModel.h"
+#include "Scenes/MainScene.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -60,7 +57,7 @@ class App {
 public:
     App(const shared_ptr<Camera> &camera, int width, int height);
     ~App();
-    void Init();
+    void Init() const;
     void run();
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) const;
@@ -71,14 +68,12 @@ protected:
     void initScene();
     [[nodiscard]] shared_ptr<SpinnerModel> initPreloader() const;
     void InitResourceManager() const;
-    GameField* InitGameField();
     Snake* InitSnake();
     ObjWall* InitObjWall(); // outer wall
     static Radar* CreateRadar();
     void InitRadar();
     [[nodiscard]] Eat *InitEat() const;
     void initTexts() const;
-    [[nodiscard]] shared_ptr<PlaneMesh> initPlane() const;
 private:
     struct TextureEntry {
         std::string name;
@@ -86,33 +81,28 @@ private:
         std::string category;
     };
     unique_ptr<LevelManager> levelManager;
-    unique_ptr<ResourceManager> resourceManager;
-    unique_ptr<RenderManager> rendererManager;
-    GameField* gameField{};
-    GameFieldRenderer* gameFieldRenderer{};
-    SkyboxRenderer* skyboxRenderer{};
+    shared_ptr<ResourceManager> resourceManager;
+    shared_ptr<RenderManager> rendererManager;
+    shared_ptr<GameFieldRenderer> gameFieldRenderer{};
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
     Radar* radar{};
     ObjWall* objWall{};
     Barriers* barriers = nullptr;
-    shared_ptr<Cube> skybox;
-    SnakeRenderer* snakeRenderer{};
-    ObjWallRenderer* objWallRenderer{};
-    BarrierRenderer* barrierRenderer{};
-    EatRenderer* eatRenderer{};
-    RadarRenderer* radarRenderer{};
-    TextRenderer* textRenderer{};
-    DepthMapRenderer* depthMapRenderer{};
-    BloomRenderer* bloomRenderer{};
-    EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
-    RainRenderer* rainRenderer{};
-    AnimRenderer* animRenderer{};
-    RainDropRenderer* rainDropRenderer{};
-    FireRenderer* fireRenderer{};
-    TorchRenderer* torchRenderer{};
-    BoltRenderer* boltRenderer{};
+    shared_ptr<SnakeRenderer> snakeRenderer;
+    shared_ptr<ObjWallRenderer> objWallRenderer{};
+    shared_ptr<BarrierRenderer> barrierRenderer{};
+    shared_ptr<EatRenderer> eatRenderer{};
+    shared_ptr<RadarRenderer> radarRenderer{};
+    shared_ptr<TextRenderer> textRenderer{};
+    shared_ptr<EatRemoveAnimateRenderer> eatRemoveAnimateRenderer{};
+    shared_ptr<RainRenderer> rainRenderer{};
+    // shared_ptr<AnimRenderer> animRenderer{};
+    shared_ptr<RainDropRenderer> rainDropRenderer{};
+    shared_ptr<FireRenderer> fireRenderer{};
+    shared_ptr<TorchRenderer> torchRenderer{};
+    shared_ptr<BoltRenderer> boltRenderer{};
     unique_ptr<KeyboardManager> keyboardManager;
     shared_ptr<CollisionDetector> collisionDetector;
     unique_ptr<EatManager> eatManager;
@@ -126,6 +116,7 @@ private:
     ALuint coinBuffer{}, musicBuffer{};
     SceneState state = SceneState::LOADING;
     std::atomic<bool> scanning = false;
+    shared_ptr<MainScene> mainScene;
 };
 
 #endif //SNAKE3_APP_H

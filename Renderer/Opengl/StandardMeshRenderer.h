@@ -12,11 +12,14 @@ using namespace Model;
 using namespace std;
 
 namespace Renderer {
-    class StandardMeshRenderer : public BaseRenderer {
+    class StandardMeshRenderer final : public BaseRenderer {
     public:
         explicit StandardMeshRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection,
                                       shared_ptr<StandardMesh> standardMesh);
+
+        StandardMeshRenderer(shared_ptr<Camera> camera,
+                                      const glm::mat4 &projection);
 
         ~StandardMeshRenderer() override;
 
@@ -27,6 +30,8 @@ namespace Renderer {
         void afterRender() override;
 
         void renderShadowMap() override;
+
+        void setMesh(const shared_ptr<StandardMesh> &mesh);
 
     protected:
         void renderScene(const shared_ptr<ShaderManager> &shader) const;

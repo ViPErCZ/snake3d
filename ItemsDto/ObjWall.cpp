@@ -1,21 +1,8 @@
 #include "ObjWall.h"
 
 namespace ItemsDto {
-    ObjWall::~ObjWall() {
-        ObjWall::release();
-    }
 
-    void ObjWall::release() {
-        if (!walls.empty()) {
-            for (auto Iter = walls.begin(); Iter < walls.end(); Iter++) {
-                delete (*Iter);
-            }
-
-            walls.clear();
-        }
-    }
-
-    const vector<Cube *> &ObjWall::getItems() const {
+    const vector<shared_ptr<Cube> > &ObjWall::getItems() const {
         return walls;
     }
 
@@ -23,8 +10,8 @@ namespace ItemsDto {
         glm::vec3 wallPos = {-16, -25, -23.0};
         for (int round = 0; round < 2; round++) {
             for (int x = -25; x <= 73; x += 2) {
-                auto *wall = new Cube();
-                wallPos.x = (float) x;
+                auto wall = make_shared<Cube>();
+                wallPos.x = static_cast<float>(x);
                 wall->setPosition(wallPos);
                 wall->setVisible(true);
 
@@ -44,8 +31,8 @@ namespace ItemsDto {
 
         for (int round = 0; round < 2; round++) {
             for (int y = -25; y <= 73; y += 2) {
-                auto wall = new Cube();
-                wallPos.y = (float) y;
+                auto wall = make_shared<Cube>();
+                wallPos.y = static_cast<float>(y);
                 wall->setPosition(wallPos);
                 wall->setVisible(true);
 

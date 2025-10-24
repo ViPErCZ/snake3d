@@ -6,8 +6,8 @@
 #define CUBE_SIZE 32
 
 #include <functional>
+#include <memory>
 #include "BaseContainer.h"
-#include "ObjItem.h"
 #include "Cube.h"
 
 namespace ItemsDto {
@@ -24,29 +24,27 @@ namespace ItemsDto {
     };
 
     struct sSNAKE_TILE {
-        Cube* tile;
+        shared_ptr<Cube> tile;
         eDIRECTION direction = NONE;
         eDIRECTION prevPauseDirection; // smer pred pauzou (je treba si zapamatovat smer nez doslo ke stisku pause)
         float alpha;
-        vector<std::function<bool(sSNAKE_TILE*)>> moveCallbacks;
+        vector<std::function<bool(shared_ptr<sSNAKE_TILE>)>> moveCallbacks;
     };
 
-    class Snake: public BaseContainer<sSNAKE_TILE>{
+    class Snake final : public BaseContainer<sSNAKE_TILE>{
     public:
-        virtual ~Snake();
         void init() override;
-        sSNAKE_TILE* addTile(eDIRECTION aDirection);
+        shared_ptr<sSNAKE_TILE> addTile(eDIRECTION aDirection);
         void reset();
-        Cube* getHeadTile();
-        [[nodiscard]] const vector<sSNAKE_TILE *> &getItems() const override;
+        [[nodiscard]] shared_ptr<Cube> getHeadTile() const;
+        [[nodiscard]] const vector<shared_ptr<sSNAKE_TILE>> &getItems() const override;
         [[nodiscard]] int getMaxX() const override;
         [[nodiscard]] int getMaxY() const override;
         [[nodiscard]] int getMinX() const override;
         [[nodiscard]] int getMinY() const override;
 
     protected:
-        void release() override;
-        vector<sSNAKE_TILE*> tiles;
+        vector<shared_ptr<sSNAKE_TILE>> tiles;
     };
 
 } // ItemsDto

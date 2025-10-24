@@ -1,33 +1,33 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(const int width, const int height) :
-        width(width), height(height), shadows(false), bloom(false), fog(false) {
+    RenderManager::RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
+                                 const glm::mat4 &projection, const int width, const int height) : camera(camera),
+        resourceManager(resourceManager), width(width), projection(projection), height(height), shadows(false),
+        bloom(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
     }
 
-    RenderManager::~RenderManager() {
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            delete (*Iter);
-        }
-        delete depthMapRenderer;
-        delete bloomRenderer;
+    void RenderManager::init() {
+        bloomRenderer = make_unique<BloomRenderer>(resourceManager.get(), width, height);
+        depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get());
     }
 
-    void RenderManager::addRenderer(BaseRenderer *renderer) {
-        renderers.push_back(renderer);
+    void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer) {
+        renderers.push_back(std::move(renderer));
     }
 
     void RenderManager::render(float dt) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glEnable(GL_DEPTH_TEST);
         glLoadIdentity();
         if (!bloom) {
             glClearColor(.0, .0, .0, 1.0);
         } else {
-            glm::vec3 backgroundColor = glm::vec3(0.0, 0.0, 0.0);
-            float backgroundIntensity = {2.0f};
+            constexpr auto backgroundColor = glm::vec3(0.0, 0.0, 0.0);
+            constexpr float backgroundIntensity = {2.0f};
             glClearColor(
                 backgroundColor.r * backgroundIntensity,
                 backgroundColor.g * backgroundIntensity,
@@ -39,6 +39,7 @@ namespace Manager {
         glViewport(0, 0, width, height);
 
         if (shadows && depthMapRenderer) {
+            glDepthFunc(GL_LESS);
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(3.0f, 3.0f);
 
@@ -50,7 +51,6 @@ namespace Manager {
                 sceneMax = (*Iter)->compareSceneMax(sceneMax);
             }
 
-            // přidej padding
             constexpr float padding = 2.0f;
             sceneMin -= glm::vec3(padding);
             sceneMax += glm::vec3(padding);
@@ -94,6 +94,7 @@ namespace Manager {
 
         constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
+        glDepthFunc(GL_LESS);
         glEnable(GL_DEPTH_TEST);
 
         if (bloom) {
@@ -111,16 +112,16 @@ namespace Manager {
         }
     }
 
-    void RenderManager::setWidth(int width) {
+    void RenderManager::setWidth(const int width) {
         RenderManager::width = width;
     }
 
-    void RenderManager::setHeight(int height) {
+    void RenderManager::setHeight(const int height) {
         RenderManager::height = height;
     }
 
-    void RenderManager::setDepthMapRenderer(DepthMapRenderer *depthMapRenderer) {
-        RenderManager::depthMapRenderer = depthMapRenderer;
+    void RenderManager::setDepthMapRenderer(unique_ptr<DepthMapRenderer> &depthMapRenderer) {
+        RenderManager::depthMapRenderer = std::move(depthMapRenderer);
     }
 
     void RenderManager::enableShadows() {
@@ -144,8 +145,8 @@ namespace Manager {
         updateShadows();
     }
 
-    void RenderManager::setBloomRenderer(BloomRenderer *bloomRenderer) {
-        RenderManager::bloomRenderer = bloomRenderer;
+    void RenderManager::setBloomRenderer(unique_ptr<BloomRenderer> &bloomRenderer) {
+        RenderManager::bloomRenderer = std::move(bloomRenderer);
     }
 
     void RenderManager::toggleBloom() {
@@ -162,7 +163,7 @@ namespace Manager {
     }
 
     void RenderManager::updateFog() {
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); Iter++) {
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             (*Iter)->setFog(fog);
         }
     }

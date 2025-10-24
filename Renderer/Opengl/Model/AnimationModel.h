@@ -21,7 +21,7 @@ namespace Model {
 
     class AnimationModel {
     protected:
-        BaseItem* baseItem{};
+        shared_ptr<BaseItem> baseItem{};
         vector<Mesh*> meshes;
         vector<Mesh*> noBonesMeshes;
         vector<Animation> animations;
@@ -48,8 +48,8 @@ namespace Model {
         [[nodiscard]] static const AnimationNode* findAnimationNode(const Animation * animation, const Bone& bone) noexcept;
         void updateAnimation(const Animation* animation) const;
         AnimationMeta* getMetadata(const Animation* animation) const;
-        BaseItem *getBaseItem() const;
-        void setBaseItem(BaseItem *baseItem);
+        shared_ptr<BaseItem> getBaseItem() const;
+        void setBaseItem(const shared_ptr<BaseItem> &baseItem);
         void setGlobalPause(bool globalPause);
         void setAcceleration(float acceleration);
     };

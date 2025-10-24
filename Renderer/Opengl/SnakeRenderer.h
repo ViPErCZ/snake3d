@@ -11,10 +11,9 @@ using namespace Manager;
 
 namespace Renderer {
 
-    class SnakeRenderer : public BaseRenderer {
+    class SnakeRenderer final : public BaseRenderer {
     public:
-        SnakeRenderer(Snake *snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
-        ~SnakeRenderer() override;
+        SnakeRenderer(const shared_ptr<Snake> &snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
         void render(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
@@ -26,7 +25,7 @@ namespace Renderer {
         shared_ptr<Mesh> getMesh() override;
         void renderScene(const ShaderManager* shader) const;
         double startTime;
-        Snake* snake;
+        shared_ptr<Snake> snake;
         Camera* camera;
         glm::mat4 projection;
         ShaderManager* baseShader;

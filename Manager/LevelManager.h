@@ -2,7 +2,7 @@
 #define SNAKE3_LEVELMANAGER_H
 
 #include "../ItemsDto/Barriers.h"
-#include <fstream>
+#include <memory>
 
 using namespace ItemsDto;
 using namespace std;
@@ -11,7 +11,7 @@ namespace Manager {
 
     class LevelManager {
     public:
-        LevelManager(int level, int live, Barriers *barriers);
+        LevelManager(int level, int live, const shared_ptr<Barriers> &barriers);
         void setLevel(int level);
         void setLive(int live);
         void createLevel(int level);
@@ -24,7 +24,7 @@ namespace Manager {
         int level;
         int live;
         int eatCounter;
-        Barriers* barriers;
+        shared_ptr<Barriers> barriers;
     };
 
 } // Manager

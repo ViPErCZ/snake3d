@@ -1,20 +1,6 @@
 #include "Barriers.h"
 
 namespace ItemsDto {
-    Barriers::~Barriers() {
-        Barriers::release();
-    }
-
-    void Barriers::release() {
-        if (!walls.empty()) {
-            for (auto Iter = walls.begin(); Iter < walls.end(); Iter++) {
-                delete (*Iter);
-            }
-
-            walls.clear();
-        }
-    }
-
     void Barriers::init() {
         walls.push_back(wallFactory({240.0, 336.0, 15.0}));
         walls.push_back(wallFactory({272.0, 336.0, 15.0}));
@@ -43,17 +29,17 @@ namespace ItemsDto {
         walls.push_back(wallFactory({1040.0, 336.0, 15.0}));
     }
 
-    Cube *Barriers::wallFactory(const glm::vec3 &position) {
-        auto wall = new Cube();
+    shared_ptr<Cube> Barriers::wallFactory(const glm::vec3 &position) {
+        auto wall = make_shared<Cube>();
         wall->setPosition(position);
-        wall->setVirtualX((((int)(position.x - (-23)) / 2) * 32));
-        wall->setVirtualY((((int)(position.y - (-23)) / 2) * 32));
+        wall->setVirtualX(static_cast<int>(position.x - (-23)) / 2 * 32);
+        wall->setVirtualY(static_cast<int>(position.y - (-23)) / 2 * 32);
         wall->setVisible(true);
 
         return wall;
     }
 
-    const vector<Cube *> &Barriers::getItems() const {
+    const vector<shared_ptr<Cube> > &Barriers::getItems() const {
         return walls;
     }
 
@@ -73,12 +59,12 @@ namespace ItemsDto {
         return 0;
     }
 
-    void Barriers::createWall(int x, int y) {
-        walls.push_back(wallFactory({(float)x, (float)y, -23.0}));
+    void Barriers::createWall(const int x, const int y) {
+        walls.push_back(wallFactory({static_cast<float>(x), static_cast<float>(y), -23.0}));
     }
 
     void Barriers::reset() {
-        release();
+        walls.clear();
     }
 
 } // ItemsDto

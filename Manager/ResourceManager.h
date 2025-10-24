@@ -29,19 +29,21 @@ namespace Manager {
 
         void addTexture(const string &name, const shared_ptr<TextureManager> &res);
 
+        void replaceTexture(const string &name, const shared_ptr<TextureManager> &res);
+
         void addShader(const string &name, const shared_ptr<ShaderManager> &res);
 
         void addModel(const string &name, shared_ptr<ObjItem> res);
 
         void addModel(const string &name, shared_ptr<AnimationModel> res);
 
-        std::shared_ptr<TextureManager> getTexture(const string &name) const;
+        shared_ptr<TextureManager> getTexture(const string &name) const;
 
-        std::shared_ptr<ShaderManager> getShader(const string &name) const;
+        shared_ptr<ShaderManager> getShader(const string &name) const;
 
         ObjItem *getModel(const string &name) const;
 
-        AnimationModel *getAnimationModel(const string &name) const;
+        shared_ptr<AnimationModel> getAnimationModel(const string &name) const;
 
         void loadAsyncTexture(const string &path, const string &name, bool albedo, const function<void()> &onReady = nullptr);
 

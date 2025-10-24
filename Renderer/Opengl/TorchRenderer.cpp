@@ -118,11 +118,9 @@ namespace Renderer {
 
     void TorchRenderer::renderScene(const ShaderManager *shader) {
         glLoadIdentity();
-        glm::mat4 model = cube->getModelMatrix();
-        shader->setMat4("model", model);
-
-        mesh->bind();
-        glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+        const glm::mat4 model = cube->getModelMatrix();
+        const auto time = static_cast<float>(glfwGetTime());
+        const float pulse = 0.5f + 0.5f * sin(time * 4.0f); // osciluje 0..1
 
         auto meshVertices = mesh->getVertices();
 
@@ -153,24 +151,6 @@ namespace Renderer {
         float extentY = (worldMax.y - worldMin.y) * 0.7f;
         float radius = glm::max(extentX, extentY) * 1.18f;
 
-        // glm::vec4 centerClip = projection * camera->getViewMatrix() * glm::vec4(ringCenter, 1.0f);
-        // glm::vec3 centerNDC = glm::vec3(centerClip) / centerClip.w;
-        //
-        // glm::vec3 offsetWorld = ringCenter + glm::vec3(radius, 0.0f, 0.0f);
-        // glm::vec4 offsetClip = projection * camera->getViewMatrix() * glm::vec4(offsetWorld, 1.0f);
-        // glm::vec3 offsetNDC = glm::vec3(offsetClip) / offsetClip.w;
-        //
-        // float ndcDiff = fabs(offsetNDC.x - centerNDC.x); // polovina průměru v NDC
-        // float desiredNDC = 0.08f; // chtěný minimální poloměr v NDC (nastav podle toho, jak velké chces)
-        // if (ndcDiff < desiredNDC) {
-        //     // zvětšíme radius tak, aby v NDC bylo aspoň desiredNDC
-        //     float scaleFactor = desiredNDC / ndcDiff;
-        //     radius *= scaleFactor;
-        // }
-
-        const auto time = static_cast<float>(glfwGetTime());
-        const float pulse = 0.5f + 0.5f * sin(time * 4.0f); // osciluje 0..1
-
         const auto ringShader = resourceManager->getShader("colorShader");
         // bind shader, nastav uniformy
         ringShader->use();
@@ -189,6 +169,28 @@ namespace Renderer {
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glDisable(GL_BLEND);
         glBindVertexArray(0);
+
+        glLoadIdentity();
+        shader->use();
+        shader->setMat4("model", model);
+
+        mesh->bind();
+        glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+
+        // glm::vec4 centerClip = projection * camera->getViewMatrix() * glm::vec4(ringCenter, 1.0f);
+        // glm::vec3 centerNDC = glm::vec3(centerClip) / centerClip.w;
+        //
+        // glm::vec3 offsetWorld = ringCenter + glm::vec3(radius, 0.0f, 0.0f);
+        // glm::vec4 offsetClip = projection * camera->getViewMatrix() * glm::vec4(offsetWorld, 1.0f);
+        // glm::vec3 offsetNDC = glm::vec3(offsetClip) / offsetClip.w;
+        //
+        // float ndcDiff = fabs(offsetNDC.x - centerNDC.x); // polovina průměru v NDC
+        // float desiredNDC = 0.08f; // chtěný minimální poloměr v NDC (nastav podle toho, jak velké chces)
+        // if (ndcDiff < desiredNDC) {
+        //     // zvětšíme radius tak, aby v NDC bylo aspoň desiredNDC
+        //     float scaleFactor = desiredNDC / ndcDiff;
+        //     radius *= scaleFactor;
+        // }
 
         drawGizmoAxes(currentWorldCenter, camera->getPosition(), camera->getViewMatrix(), projection, 1080);
         drawRotationGizmo(currentWorldCenter, camera->getPosition(), camera->getViewMatrix(), projection, 1080, 64);

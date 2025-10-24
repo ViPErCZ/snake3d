@@ -101,7 +101,7 @@ namespace Handler {
         for(int x = 0; x < counter + 1; x++) {
             const auto tile = snake->addTile((*snake->getItems().begin())->direction);
             if (tile != nullptr) {
-                radar->addItem(tile->tile, {0.278, 1., 0.});
+                radar->addItem(tile->tile.get(), {0.278, 1., 0.});
             }
         }
     }

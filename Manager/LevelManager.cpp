@@ -1,14 +1,16 @@
 #include "LevelManager.h"
+#include <fstream>
 
 namespace Manager {
-    LevelManager::LevelManager(int level, int live, Barriers *barriers) : level(level), live(live),
-                                                                          barriers(barriers), eatCounter(0) {}
+    LevelManager::LevelManager(const int level, const int live, const shared_ptr<Barriers> &barriers)
+        : level(level), live(live), eatCounter(0), barriers(barriers) {
+    }
 
-    void LevelManager::setLevel(int level) {
+    void LevelManager::setLevel(const int level) {
         LevelManager::level = level;
     }
 
-    void LevelManager::setLive(int live) {
+    void LevelManager::setLive(const int live) {
         LevelManager::live = live;
     }
 
@@ -35,9 +37,9 @@ namespace Manager {
             int y = 0;
             while (std::getline(infile, line)) {
                 int x = 0;
-                for (char & c : line)
-                {
-                    if (c == 49) { // "1"
+                for (char &c: line) {
+                    if (c == 49) {
+                        // "1"
                         barriers->createWall(-25 + ((x + 1) * 2), -25 + ((y + 1) * 2));
                     }
 
@@ -54,8 +56,7 @@ namespace Manager {
         return eatCounter;
     }
 
-    void LevelManager::setEatCounter(int eatCounter) {
+    void LevelManager::setEatCounter(const int eatCounter) {
         LevelManager::eatCounter = eatCounter;
     }
-
 } // Manager

@@ -1,0 +1,173 @@
+#include "MainScene.h"
+#include "../Renderer/Opengl/AnimRenderer.h"
+#include "../Renderer/Opengl/BarrierRenderer.h"
+#include "../Renderer/Opengl/SkyboxRenderer.h"
+#include "../Renderer/Opengl/SnakeRenderer.h"
+#include "../Renderer/Opengl/Material/ShaderMaterial.h"
+#include "../Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
+#include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
+
+namespace Scenes {
+    MainScene::MainScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
+        : Scene(rendererManager, camera, projection, rm, width, height) {
+    }
+
+    void MainScene::init() {
+        Scene::init();
+        initSkybox();
+        initPlane();
+        initSnake();
+        initBarriers();
+        initLevelManager();
+        initSnakeMoveHandler();
+    }
+
+    void MainScene::render() {
+        Scene::render();
+    }
+
+    void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
+        Scene::keyboardInput(window, keyCode, scancode, action, mods);
+
+        switch (keyCode) {
+            case GLFW_KEY_V:
+                rendererManager->toggleShadows();
+                break;
+            case GLFW_KEY_B:
+                rendererManager->toggleBloom();
+                // if (snakeRenderer) {
+                //     snakeRenderer->toggleBlur();
+                // }
+                break;
+            case GLFW_KEY_F:
+                rendererManager->toggleFog();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void MainScene::initSkybox() {
+        const auto skybox = make_shared<Cube>();
+        const auto skyboxRenderer = make_shared<SkyboxRenderer>(skybox, camera.get(), projection, resourceManager.get());
+        rendererManager->addRenderer(skyboxRenderer);
+    }
+
+    void MainScene::initPlane() {
+        auto basicShader = resourceManager->getShader("basicShader");
+        auto planeShader = resourceManager->getShader("shadowShader");
+        auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
+        auto shadowMap = resourceManager->getTexture("depth");
+        auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
+        auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
+        auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
+        const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
+        const auto shaderMaterial = make_shared<ShaderMaterial>(planeShader, shadowDepthShader);
+
+        const auto albedo = make_shared<TextureUniform>(0, gamefieldAlbedo);
+        const auto normalMap = make_shared<TextureUniform>(2, gamefieldNormal);
+        const auto specularMap = make_shared<TextureUniform>(3, gamefieldSpecular);
+        const auto shadow = make_shared<TextureArrayUniform>(4, shadowMap);
+        shaderMaterial->addUniform("diffuseMap", albedo);
+        shaderMaterial->addUniform("normalMap", normalMap);
+        shaderMaterial->addUniform("specularMap", specularMap);
+        shaderMaterial->addUniform("shadowMap", shadow);
+        shaderMaterial->addUniform("material.diffuse", 0);
+        shaderMaterial->addUniform("shadowsEnable", true);
+        // planeShader.get()->printActiveUniforms();
+
+        const auto directionalLight = make_shared<DirectionalLight>();
+        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        directionalLight->setDirection({1, 1.0, -3});
+        directionalLight->setAmbient({0.07f, 0.07f, 0.07f});
+        directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
+        directionalLight->setSpecular({.091f, .091f, .091f});
+
+        planeMaterial->setDirectionalLight(directionalLight);
+        planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
+        planeMaterial->setShadow(shadowMap);
+        planeMaterial->setShadow(true);
+        planeMaterial->setNormalEnabled(true);
+        planeMaterial->setAlbedo(gamefieldAlbedo);
+        planeMaterial->setNormal(gamefieldNormal);
+        planeMaterial->setSpecular(gamefieldSpecular);
+        planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
+
+        const auto standardBaseItem = make_shared<BaseItem>();
+        standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+        standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
+        auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
+        planeMesh->setMaterial(planeMaterial);
+
+        meshes.push_back(shared_ptr<StandardMesh>(std::move(planeMesh)));
+    }
+
+    void MainScene::initSnake() {
+        snake = make_shared<Snake>();
+        snake->init();
+        snake->getHeadTile()->setVisible(false);
+        const auto snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
+        rendererManager->addRenderer(snakeRenderer);
+
+        auto headTile = *snake->getItems().begin();
+        const auto animHead = resourceManager->getAnimationModel("pacman");
+        animHead->setBaseItem(snake->getHeadTile());
+
+        const auto animRenderer = make_shared<AnimRenderer>(headTile, animHead, camera.get(), projection, resourceManager.get());
+        animRenderer->addPlay("KostraAction");
+        animRenderer->setAcceleration(2.2f);
+        rendererManager->addRenderer(animRenderer);
+
+        camera->setStickyPoint(snake->getHeadTile().get());
+    }
+
+    void MainScene::initSnakeMoveHandler() {
+        const auto animHead = resourceManager->getAnimationModel("pacman");
+        snakeMoveHandler = make_shared<SnakeMoveHandler>(snake, animHead);
+        // collisionDetector = make_shared<CollisionDetector>();
+        // collisionDetector->setPerimeter(objWall.get());
+        // collisionDetector->setBarriers(barriers.get());
+        // collisionDetector->addStaticItem(eat);
+        // snakeMoveHandler->setCollisionDetector(collisionDetector.get());
+        snakeMoveHandler->setStartMoveCallback([this, animHead]() {
+            animHead->setGlobalPause(false);
+            //this->eatManager->run(Manager::EatManager::firstPlace);
+            //this->startText->fadeOut();
+            char buff[100];
+            // snprintf(buff, sizeof(buff),
+            //          "%s %d, %s %d, %s %d",
+            //          "Level:",
+            //          this->levelManager->getLevel(),
+            //          "Lives:",
+            //          this->levelManager->getLive(),
+            //          "Points left:",
+            //          MAX_POINT - this->levelManager->getEatCounter()
+            // );
+            const std::string buffAsStdStr = buff;
+            //this->tilesCounterText->setText(buffAsStdStr);
+            //if (this->tilesCounterText->getAlpha() == 1.0f) {
+            //    this->tilesCounterText->setAlpha(0.0f);
+            //    this->tilesCounterText->fadeIn();
+            //}
+        });
+
+        keyboardManager->addEventHandler(snakeMoveHandler);
+    }
+
+    void MainScene::initBarriers() {
+        barriers = make_shared<Barriers>();
+        const auto barrierRenderer = make_shared<BarrierRenderer>(snake, barriers, camera.get(), projection, resourceManager.get());
+        rendererManager->addRenderer(barrierRenderer);
+
+        objWall = make_shared<ObjWall>();
+        objWall->init();
+        const auto objWallRenderer = make_shared<ObjWallRenderer>(snake, objWall, camera.get(), projection, resourceManager.get());
+        rendererManager->addRenderer(objWallRenderer);
+    }
+
+    void MainScene::initLevelManager() {
+        levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
+        levelManager->createLevel(START_LEVEL);
+    }
+} // Scenes
