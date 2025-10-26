@@ -10,8 +10,11 @@ namespace Manager {
         glEnable(GL_TEXTURE_2D);
     }
 
-    void RenderManager::init() {
-        bloomRenderer = make_unique<BloomRenderer>(resourceManager.get(), width, height);
+    void RenderManager::initBloom() {
+        bloomRenderer = make_unique<BloomRenderer>(resourceManager, width, height);
+    }
+
+    void RenderManager::initShadowMapping() {
         depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get());
     }
 
@@ -94,8 +97,6 @@ namespace Manager {
 
         constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
-        glDepthFunc(GL_LESS);
-        glEnable(GL_DEPTH_TEST);
 
         if (bloom) {
             bloomRenderer->beforeRender();

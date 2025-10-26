@@ -8,7 +8,7 @@ namespace Renderer {
         baseShader = resourceManager->getShader("basicShader").get();
         respawn = resourceManager->getShader("explosion").get();
         shadowShader = resourceManager->getShader("shadowDepthShader").get();
-        shaderLight = resourceManager->getShader("bloomLight").get();
+        shaderLight = resourceManager->getShader("bloom").get();
         snakeTileTexture = resourceManager->getTexture("snake.bmp").get();
         snakeHeadTexture = resourceManager->getTexture("head.bmp").get();
         noise = resourceManager->getTexture("fast_noise.bmp").get();
@@ -93,7 +93,6 @@ namespace Renderer {
     }
 
     void SnakeRenderer::beforeRender() { // DEPTH TEST je defaultne zapnuty
-        glDepthFunc(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }

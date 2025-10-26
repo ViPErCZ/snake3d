@@ -14,7 +14,7 @@ using namespace Model;
 using namespace Manager;
 
 namespace Scenes {
-    class Scene {
+    class Scene : public enable_shared_from_this<Scene> {
     public:
         virtual ~Scene();
 
@@ -28,6 +28,8 @@ namespace Scenes {
 
         virtual void render();
 
+        void addNode(const std::shared_ptr<Scene>& node);
+
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
     protected:
@@ -38,6 +40,9 @@ namespace Scenes {
         unique_ptr<KeyboardManager> keyboardManager;
         shared_ptr<Camera> camera;
         glm::mat4 projection;
+        vector<shared_ptr<Scene>> nodes;
+        weak_ptr<Scene> parent;
+        int depth = 0;
     };
 } // Scene
 

@@ -4,16 +4,14 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "BaseRenderer.h"
-#include <glm/glm.hpp>
-#include <vector>
 
 using namespace Manager;
 using namespace std;
 
 namespace Renderer {
-    class BloomRenderer : public BaseRenderer {
+    class BloomRenderer final : public BaseRenderer {
     public:
-        explicit BloomRenderer(ResourceManager* resManager, int width, int height);
+        explicit BloomRenderer(const shared_ptr<ResourceManager> &resManager, int width, int height);
         void beforeRender() override;
         void afterRender() override;
         void render(float dt) override;
@@ -21,14 +19,14 @@ namespace Renderer {
     protected:
         shared_ptr<Mesh> getMesh() override;
         void renderQuad();
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        ShaderManager* shaderBlur;
-        ShaderManager* shaderBloomFinal;
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ShaderManager> shader;
+        shared_ptr<ShaderManager> shaderBlur;
+        shared_ptr<ShaderManager> shaderBloomFinal;
         unsigned int hdrFBO{};
         unsigned int pingpongFBO[2]{};
         unsigned int colorBuffers[2]{};
-        unsigned int pingpongColorbuffers[2]{};
+        unsigned int pingpongColorBuffers[2]{};
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
         int width;

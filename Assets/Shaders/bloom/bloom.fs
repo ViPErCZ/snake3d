@@ -14,13 +14,12 @@ struct Light {
     vec3 Color;
 };
 
-uniform vec3 viewPos;
 uniform vec3 lightColor;
 
 void main()
 {
     vec3 color = lightColor; //texture(scene, TexCoords).rgb;
-    float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
 
     if (brightness > 1.0) {
         BrightColor = vec4(color, 1.0);

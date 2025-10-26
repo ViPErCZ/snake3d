@@ -269,7 +269,7 @@ void App::initScene() {
      // rendererManager->setBloomRenderer(bloomRenderer);
     // rendererManager->enableShadows();
 
-     auto animHead = resourceManager->getAnimationModel("pacman");
+     //auto animHead = resourceManager->getAnimationModel("pacman");
      // animHead->setBaseItem(snake->getHeadTile());
      // auto *snakeMoveHandler = new SnakeMoveHandler(snake, animHead);
      // auto *radarHandler = new RadarHandler(radar);
@@ -466,7 +466,8 @@ void App::Init() const {
             ))
     );
 
-    rendererManager->init();
+    rendererManager->initBloom();
+    rendererManager->initShadowMapping();
 
     const auto preLoader = initPreloader();
     rendererManager->addRenderer(make_shared<StandardMeshRenderer>(camera, projection, preLoader));
@@ -568,12 +569,12 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
         case GLFW_KEY_1: // show classic red head
             snake->getHeadTile()->setVisible(true);
             // animRenderer->setShow(false);
-            snakeRenderer->toggleStyle(1);
+            //snakeRenderer->toggleStyle(1);
             break;
         case GLFW_KEY_2: // show animated pacman head
             snake->getHeadTile()->setVisible(false);
             // animRenderer->setShow(true);
-            snakeRenderer->toggleStyle(2);
+            //snakeRenderer->toggleStyle(2);
             break;
         case GLFW_KEY_T:
             if (boltRenderer) {
@@ -709,10 +710,6 @@ void App::InitResourceManager() const {
 
     resourceManager->loadAsyncShader("debugQuadShader", "Assets/Shaders/debug_quad.vs", "", "Assets/Shaders/debug_quad.fs", []() {
         std::cout << "Shader debugQuadShader ready!" << std::endl;
-    });
-
-    resourceManager->loadAsyncShader("bloomLight", "Assets/Shaders/bloom/bloom.vs", "", "Assets/Shaders/bloom/bloom.fs", []() {
-        std::cout << "Shader bloomLight ready!" << std::endl;
     });
 
     resourceManager->loadAsyncShader("rain", "Assets/Shaders/rain/rain.vs", "", "Assets/Shaders/rain/rain.fs", []() {

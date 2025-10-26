@@ -28,14 +28,10 @@ void FireParticleSystem::init() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
 
-    // **ZDE JE TA OPRAVA**
-    // Buffer pro instancovaná data (pozice, barvy, atd.) se vytvoří POUZE JEDNOU ZDE
     glGenBuffers(1, &instanceVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    // Alokujeme paměť pro všechny částice, ale zatím ji neplníme (nullptr)
     glBufferData(GL_ARRAY_BUFFER, sizeof(FireParticle) * maxParticles, nullptr, GL_DYNAMIC_DRAW);
 
-    // A také atributy nastavíme POUZE JEDNOU ZDE
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(FireParticle), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(3);
@@ -55,7 +51,6 @@ void FireParticleSystem::render(const glm::mat4& view, const glm::mat4& projecti
     fireShader->use();
     fireShader->setMat4("view", view);
     fireShader->setMat4("projection", projection);
-
     fireShader->setFloat("particleSize", 0.008f);
 
     this->resourceManager.getTexture("fire.png")->bind();

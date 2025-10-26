@@ -24,7 +24,9 @@ namespace Manager {
 
         ~RenderManager() = default;
 
-        void init();
+        void initBloom();
+
+        void initShadowMapping();
 
         void render(float dt);
 

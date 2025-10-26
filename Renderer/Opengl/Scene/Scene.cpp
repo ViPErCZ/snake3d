@@ -21,6 +21,9 @@ namespace Scenes {
     void Scene::update() {
         keyboardManager->runDefault();
         sceneRenderer->update(meshes);
+        for (const auto& node : nodes) {
+            node->update();
+        }
     }
 
     void Scene::render() {
@@ -31,6 +34,15 @@ namespace Scenes {
         deltaTime = std::min(deltaTime, 0.05f);
 
         rendererManager->render(deltaTime);
+    }
+
+    void Scene::addNode(const std::shared_ptr<Scene> &node) {
+        node->parent = shared_from_this();
+        node->depth = this->depth + 1;
+        if (this->depth > 10) {
+            throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 10");
+        }
+        nodes.push_back(node);
     }
 
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {

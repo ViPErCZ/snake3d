@@ -1,6 +1,7 @@
 #include "MainScene.h"
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
+#include "../Renderer/Opengl/EatRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
@@ -17,6 +18,7 @@ namespace Scenes {
         Scene::init();
         initSkybox();
         initPlane();
+        initEat();
         initSnake();
         initBarriers();
         initLevelManager();
@@ -36,9 +38,9 @@ namespace Scenes {
                 break;
             case GLFW_KEY_B:
                 rendererManager->toggleBloom();
-                // if (snakeRenderer) {
-                //     snakeRenderer->toggleBlur();
-                // }
+                if (snakeRenderer) {
+                     snakeRenderer->toggleBlur();
+                }
                 break;
             case GLFW_KEY_F:
                 rendererManager->toggleFog();
@@ -107,8 +109,7 @@ namespace Scenes {
         snake = make_shared<Snake>();
         snake->init();
         snake->getHeadTile()->setVisible(false);
-        const auto snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
-        rendererManager->addRenderer(snakeRenderer);
+        snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
 
         auto headTile = *snake->getItems().begin();
         const auto animHead = resourceManager->getAnimationModel("pacman");
@@ -117,8 +118,9 @@ namespace Scenes {
         const auto animRenderer = make_shared<AnimRenderer>(headTile, animHead, camera.get(), projection, resourceManager.get());
         animRenderer->addPlay("KostraAction");
         animRenderer->setAcceleration(2.2f);
-        rendererManager->addRenderer(animRenderer);
 
+        rendererManager->addRenderer(animRenderer);
+        rendererManager->addRenderer(snakeRenderer);
         camera->setStickyPoint(snake->getHeadTile().get());
     }
 
@@ -169,5 +171,18 @@ namespace Scenes {
     void MainScene::initLevelManager() {
         levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
         levelManager->createLevel(START_LEVEL);
+    }
+
+    void MainScene::initEat() {
+        const auto eat = make_shared<Eat>();
+        eat->setVirtualX((23 - -23) / 2 * 32 + 16);
+        eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
+        eat->setPosition({-69.0, -69, -70.0f});
+        eat->setZoom({0.013888889, 0.013888889, 0.013888889});
+        eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
+        eat->setVisible(false);
+        auto eatRenderer = make_shared<EatRenderer>(eat.get(), camera.get(), projection, resourceManager.get());
+
+        rendererManager->addRenderer(eatRenderer);
     }
 } // Scenes

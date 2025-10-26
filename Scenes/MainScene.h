@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "../Manager/LevelManager.h"
+#include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 #include "../Renderer/Opengl/Material/Uniform/TextureUniform.h"
 
@@ -41,12 +42,15 @@ namespace Scenes {
 
         void initLevelManager();
 
+        void initEat();
+
         shared_ptr<Snake> snake;
         shared_ptr<Barriers> barriers;
         shared_ptr<ObjWall> objWall;
         unique_ptr<LevelManager> levelManager;
         shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
+        shared_ptr<SnakeRenderer> snakeRenderer; // TODO: jen docasne dokud neprejde pod svoji scenu a standardRenderer
     };
 } // Scenes
 
