@@ -18,11 +18,13 @@ namespace Manager {
         depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get());
     }
 
-    void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer) {
-        renderers.push_back(std::move(renderer));
+    void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
+        renderers.push_back({std::move(renderer), priority});
+        stable_sort(renderers.begin(), renderers.end(),
+                     [](auto &a, auto &b) { return a.priority > b.priority; });
     }
 
-    void RenderManager::render(float dt) {
+    void RenderManager::render(const float dt) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glEnable(GL_DEPTH_TEST);
         glLoadIdentity();
@@ -50,8 +52,8 @@ namespace Manager {
             glm::vec3 sceneMax(-FLT_MAX);
 
             for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-                sceneMin = (*Iter)->compareSceneMin(sceneMin);
-                sceneMax = (*Iter)->compareSceneMax(sceneMax);
+                sceneMin = Iter->renderer->compareSceneMin(sceneMin);
+                sceneMax = Iter->renderer->compareSceneMax(sceneMax);
             }
 
             constexpr float padding = 2.0f;
@@ -75,8 +77,8 @@ namespace Manager {
                 glCullFace(GL_FRONT);
 
                 for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-                    if ((*Iter)->isShadow()) {
-                        (*Iter)->renderShadowMap();
+                    if (Iter->renderer->isShadow()) {
+                        Iter->renderer->renderShadowMap();
                     }
                 }
                 glCullFace(GL_BACK);
@@ -103,9 +105,9 @@ namespace Manager {
         }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            (*Iter)->beforeRender();
-            (*Iter)->render(dt);
-            (*Iter)->afterRender();
+            Iter->renderer->beforeRender();
+            Iter->renderer->render(dt);
+            Iter->renderer->afterRender();
         }
 
         if (bloom) {
@@ -137,7 +139,7 @@ namespace Manager {
 
     void RenderManager::updateShadows() {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            (*Iter)->setShadow(shadows);
+            Iter->renderer->setShadow(shadows);
         }
     }
 
@@ -165,7 +167,7 @@ namespace Manager {
 
     void RenderManager::updateFog() {
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            (*Iter)->setFog(fog);
+            Iter->renderer->setFog(fog);
         }
     }
 

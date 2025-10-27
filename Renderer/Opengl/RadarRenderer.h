@@ -12,10 +12,9 @@ using namespace Model;
 
 namespace Renderer {
 
-    class RadarRenderer : public BaseRenderer {
+    class RadarRenderer final : public BaseRenderer {
     public:
         explicit RadarRenderer(Radar* radar, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
-        ~RadarRenderer() override;
         void render(float dt) override;
         void beforeRender() override;
         void afterRender() override;

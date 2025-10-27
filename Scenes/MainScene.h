@@ -2,6 +2,8 @@
 #define SNAKE3_MAINSCENE_H
 
 #include <memory>
+
+#include "../Manager/EatManager.h"
 #include "../Manager/LevelManager.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
@@ -44,13 +46,29 @@ namespace Scenes {
 
         void initEat();
 
+        void initEatManager();
+
+        void initRadar();
+
+        void resetRadar() const;
+
+        void buildEatenUpCallback() const;
+
+        void buildStartMoveCallback(shared_ptr<AnimationModel> &animHead) const;
+
+        void buildCrashCallback() const;
+
         shared_ptr<Snake> snake;
         shared_ptr<Barriers> barriers;
         shared_ptr<ObjWall> objWall;
         unique_ptr<LevelManager> levelManager;
+        unique_ptr<EatManager> eatManager;
+        shared_ptr<Radar> radar;
+        shared_ptr<Eat> eat;
         shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         shared_ptr<SnakeRenderer> snakeRenderer; // TODO: jen docasne dokud neprejde pod svoji scenu a standardRenderer
+        glm::mat4 ortho{};
     };
 } // Scenes
 

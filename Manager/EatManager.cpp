@@ -1,13 +1,9 @@
 #include "EatManager.h"
 
 namespace Manager {
-    EatManager::EatManager(EatLocationHandler *handler) : handler(handler) {}
+    EatManager::EatManager(const shared_ptr<EatLocationHandler> &handler) : handler(handler) {}
 
-    EatManager::~EatManager() {
-        delete handler;
-    }
-
-    void EatManager::run(EatManager::eat_EVENT event) {
+    void EatManager::run(const eat_EVENT event) const {
         switch (event) {
             case eatenUp:
                 handler->onDefaultHandler();

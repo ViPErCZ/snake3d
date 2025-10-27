@@ -48,9 +48,9 @@ App::~App() {
 
 void App::initScene() {
     mainScene->init();
-    const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
+    //const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
 
-    InitSnake();
+    // InitSnake();
     // animRenderer = make_shared<AnimRenderer>((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera.get(), projection, resourceManager.get());
     // animRenderer->addPlay("KostraAction");
     // animRenderer->setAcceleration(2.2f);
@@ -61,24 +61,27 @@ void App::initScene() {
     // bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
     // depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
     //gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera.get(), projection, resourceManager.get());
-    eat = InitEat();
+    //eat = InitEat();
     // ObjWall *objWall = InitObjWall();
-    barriers = new Barriers();
-    radar = CreateRadar();
-    InitRadar();
-    const auto torch = new Cube();
-    torch->setPosition(glm::vec3(0.33, 0.3, -8.2));
-    torch->setRotate(
-        glm::vec4(1.0, 0.0, 0.0, 90.0f),
-        glm::vec4(0.0, 1.0, 0.0, 0.0f),
-        glm::vec4(0.0, 0.0, 1.0, 0.0f));
-    torch->setZoom({0.12, 0.12, 0.12});
+    //barriers = new Barriers();
+    //radar = CreateRadar();
+    //InitRadar();
+
+    // TORCH
+    // ===============================
+    // const auto torch = new Cube();
+    // torch->setPosition(glm::vec3(0.33, 0.3, -8.2));
+    // torch->setRotate(
+    //     glm::vec4(1.0, 0.0, 0.0, 90.0f),
+    //     glm::vec4(0.0, 1.0, 0.0, 0.0f),
+    //     glm::vec4(0.0, 0.0, 1.0, 0.0f));
+    // torch->setZoom({0.12, 0.12, 0.12});
 
     //levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
     //levelManager->createLevel(START_LEVEL);
 
-    auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
-    eatManager = make_unique<EatManager>(eatLocationHandler);
+    //auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
+    //eatManager = make_unique<EatManager>(eatLocationHandler);
 
     auto basicShader = resourceManager->getShader("basicShader");
     auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
@@ -392,8 +395,8 @@ void App::initScene() {
      coinBuffer = alutCreateBufferFromFile("Assets/Sounds/coin.wav");
      alGenSources (1, &musicSource);
      alGenSources (1, &coinSource);
-     alSourcei (musicSource, AL_BUFFER, musicBuffer);
-     alSourcei (coinSource, AL_BUFFER, coinBuffer);
+     alSourcei (musicSource, AL_BUFFER, static_cast<ALint>(musicBuffer));
+     alSourcei (coinSource, AL_BUFFER, static_cast<ALint>(coinBuffer));
      alSourcei (musicSource, AL_LOOPING, true);
      //alSourcePlay (musicSource);
      ALCenum error;
@@ -751,55 +754,55 @@ void App::InitResourceManager() const {
 //     return gameField;
 // }
 
-Snake *App::InitSnake() {
-    snake = new Snake();
-    snake->init();
+// Snake *App::InitSnake() {
+//     snake = new Snake();
+//     snake->init();
+//
+//     return snake;
+// }
+//
+// ObjWall *App::InitObjWall() {
+//     objWall = new ObjWall();
+//     objWall->init();
+//
+//     return objWall;
+// }
 
-    return snake;
-}
+// Radar *App::CreateRadar() {
+//     auto radar = new Radar();
+//
+//     return radar;
+// }
 
-ObjWall *App::InitObjWall() {
-    objWall = new ObjWall();
-    objWall->init();
+// void App::InitRadar() {
+//     radar->reset();
+//     radar->setVisible(true);
+//     radar->setPosition({125.0, 160.0, 0.0});
+//     radar->setZoom({100, 100, 1});
+//     radar->setWidth(176);
+//     radar->setHeight(176);
+//
+//     if (resourceManager) {
+//         for (auto tile: snake->getItems()) {
+//             // radar->addItem(tile->tile, {0.278,1.,0.});
+//         }
+//         for (auto block: barriers->getItems()) {
+//             // radar->addItem(block, {0.694,0.078,0.016});
+//         }
+//         radar->addItem(eat, {1.,0.953,0.});
+//     }
+// }
 
-    return objWall;
-}
-
-Radar *App::CreateRadar() {
-    auto radar = new Radar();
-
-    return radar;
-}
-
-void App::InitRadar() {
-    radar->reset();
-    radar->setVisible(true);
-    radar->setPosition({125.0, 160.0, 0.0});
-    radar->setZoom({100, 100, 1});
-    radar->setWidth(176);
-    radar->setHeight(176);
-
-    if (resourceManager) {
-        for (auto tile: snake->getItems()) {
-            // radar->addItem(tile->tile, {0.278,1.,0.});
-        }
-        for (auto block: barriers->getItems()) {
-            // radar->addItem(block, {0.694,0.078,0.016});
-        }
-        radar->addItem(eat, {1.,0.953,0.});
-    }
-}
-
-Eat *App::InitEat() const {
-    eat->setVirtualX((23 - -23) / 2 * 32 + 16);
-    eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
-    eat->setPosition({-69.0, -69, -70.0f});
-    eat->setZoom({0.013888889, 0.013888889, 0.013888889});
-    eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
-    eat->setVisible(false);
-
-    return eat;
-}
+// Eat *App::InitEat() const {
+//     eat->setVirtualX((23 - -23) / 2 * 32 + 16);
+//     eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
+//     eat->setPosition({-69.0, -69, -70.0f});
+//     eat->setZoom({0.013888889, 0.013888889, 0.013888889});
+//     eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
+//     eat->setVisible(false);
+//
+//     return eat;
+// }
 
 void App::initTexts() const {
     if (textRenderer && resourceManager) {

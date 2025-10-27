@@ -10,11 +10,6 @@ namespace Renderer {
         frameTexture = resourceManager->getTexture("red_screen.bmp").get();
     }
 
-    RadarRenderer::~RadarRenderer() {
-        delete model;
-        delete radar;
-    }
-
     void RadarRenderer::render(float dt) {
         if (radar->isVisible()) {
             glEnable(GL_BLEND);

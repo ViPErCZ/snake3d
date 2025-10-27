@@ -18,7 +18,7 @@ namespace Handler {
         explicit SnakeMoveHandler(const shared_ptr<Snake> &snake, const shared_ptr<AnimationModel> &animHead);
         void onEventHandler(unsigned int key, int scancode, int action, int mods) override;
         void onDefaultHandler() override;
-        void setCollisionDetector(CollisionDetector *collisionDetector);
+        void setCollisionDetector(shared_ptr<CollisionDetector> collisionDetector);
         void setStartMoveCallback(const function<void()> &startMoveCallback);
         void setCrashCallback(const function<void()> &crashCallback);
         void setEatenUpCallback(const function<void()> &eatenUpCallback);
@@ -33,7 +33,7 @@ namespace Handler {
         shared_ptr<Snake> snake;
         const shared_ptr<AnimationModel> animHead;
         shared_ptr<sSNAKE_TILE> snakeHead;
-        CollisionDetector* collisionDetector{};
+        shared_ptr<CollisionDetector> collisionDetector{};
         double next_time{};
         bool stop;
         bool eatenUpCallbackCalled;

@@ -68,11 +68,11 @@ protected:
     void initScene();
     [[nodiscard]] shared_ptr<SpinnerModel> initPreloader() const;
     void InitResourceManager() const;
-    Snake* InitSnake();
-    ObjWall* InitObjWall(); // outer wall
-    static Radar* CreateRadar();
-    void InitRadar();
-    [[nodiscard]] Eat *InitEat() const;
+    // Snake* InitSnake();
+    // ObjWall* InitObjWall(); // outer wall
+    //static Radar* CreateRadar();
+    //void InitRadar();
+    // [[nodiscard]] Eat *InitEat() const;
     void initTexts() const;
 private:
     struct TextureEntry {
@@ -87,7 +87,7 @@ private:
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;
-    Radar* radar{};
+    // Radar* radar{};
     ObjWall* objWall{};
     Barriers* barriers = nullptr;
     shared_ptr<SnakeRenderer> snakeRenderer;

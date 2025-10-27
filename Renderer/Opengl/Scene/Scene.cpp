@@ -34,6 +34,9 @@ namespace Scenes {
         deltaTime = std::min(deltaTime, 0.05f);
 
         rendererManager->render(deltaTime);
+        for (const auto& node : nodes) {
+            node->render();
+        }
     }
 
     void Scene::addNode(const std::shared_ptr<Scene> &node) {

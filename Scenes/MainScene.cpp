@@ -2,6 +2,7 @@
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/EatRenderer.h"
+#include "../Renderer/Opengl/RadarRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
@@ -12,15 +13,18 @@ namespace Scenes {
     MainScene::MainScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
         : Scene(rendererManager, camera, projection, rm, width, height) {
+        ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     }
 
     void MainScene::init() {
         Scene::init();
         initSkybox();
         initPlane();
-        initEat();
         initSnake();
         initBarriers();
+        initEat();
+        initRadar();
+        initEatManager();
         initLevelManager();
         initSnakeMoveHandler();
     }
@@ -125,34 +129,17 @@ namespace Scenes {
     }
 
     void MainScene::initSnakeMoveHandler() {
-        const auto animHead = resourceManager->getAnimationModel("pacman");
+        auto animHead = resourceManager->getAnimationModel("pacman");
         snakeMoveHandler = make_shared<SnakeMoveHandler>(snake, animHead);
-        // collisionDetector = make_shared<CollisionDetector>();
+        collisionDetector = make_shared<CollisionDetector>();
         // collisionDetector->setPerimeter(objWall.get());
         // collisionDetector->setBarriers(barriers.get());
-        // collisionDetector->addStaticItem(eat);
-        // snakeMoveHandler->setCollisionDetector(collisionDetector.get());
-        snakeMoveHandler->setStartMoveCallback([this, animHead]() {
-            animHead->setGlobalPause(false);
-            //this->eatManager->run(Manager::EatManager::firstPlace);
-            //this->startText->fadeOut();
-            char buff[100];
-            // snprintf(buff, sizeof(buff),
-            //          "%s %d, %s %d, %s %d",
-            //          "Level:",
-            //          this->levelManager->getLevel(),
-            //          "Lives:",
-            //          this->levelManager->getLive(),
-            //          "Points left:",
-            //          MAX_POINT - this->levelManager->getEatCounter()
-            // );
-            const std::string buffAsStdStr = buff;
-            //this->tilesCounterText->setText(buffAsStdStr);
-            //if (this->tilesCounterText->getAlpha() == 1.0f) {
-            //    this->tilesCounterText->setAlpha(0.0f);
-            //    this->tilesCounterText->fadeIn();
-            //}
-        });
+        collisionDetector->addStaticItem(eat);
+        snakeMoveHandler->setCollisionDetector(collisionDetector);
+
+        buildStartMoveCallback(animHead);
+        buildEatenUpCallback();
+        buildCrashCallback();
 
         keyboardManager->addEventHandler(snakeMoveHandler);
     }
@@ -174,15 +161,148 @@ namespace Scenes {
     }
 
     void MainScene::initEat() {
-        const auto eat = make_shared<Eat>();
+        eat = make_shared<Eat>();
         eat->setVirtualX((23 - -23) / 2 * 32 + 16);
         eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
         eat->setPosition({-69.0, -69, -70.0f});
         eat->setZoom({0.013888889, 0.013888889, 0.013888889});
         eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
         eat->setVisible(false);
-        auto eatRenderer = make_shared<EatRenderer>(eat.get(), camera.get(), projection, resourceManager.get());
+        const auto eatRenderer = make_shared<EatRenderer>(eat.get(), camera.get(), projection, resourceManager.get());
 
-        rendererManager->addRenderer(eatRenderer);
+        rendererManager->addRenderer(eatRenderer, 10);
+    }
+
+    void MainScene::initEatManager() {
+        auto eatLocationHandler = make_shared<EatLocationHandler>(barriers, snake, eat, radar);
+        eatManager = make_unique<EatManager>(eatLocationHandler);
+    }
+
+    void MainScene::initRadar() {
+        radar = make_shared<Radar>();
+        resetRadar();
+
+        const auto radarRenderer = make_shared<RadarRenderer>(radar.get(), camera.get(), ortho, resourceManager.get());
+        rendererManager->addRenderer(radarRenderer);
+    }
+
+    void MainScene::resetRadar() const {
+        radar->reset();
+        radar->setVisible(true);
+        radar->setPosition({125.0, 160.0, 0.0});
+        radar->setZoom({100, 100, 1});
+        radar->setWidth(176);
+        radar->setHeight(176);
+
+        if (resourceManager) {
+            for (const auto& tile: snake->getItems()) {
+                radar->addItem(tile->tile, {0.278,1.,0.});
+            }
+            for (const auto& block: barriers->getItems()) {
+                radar->addItem(block, {0.694,0.078,0.016});
+            }
+            radar->addItem(eat, {1.,0.953,0.});
+        }
+    }
+
+    void MainScene::buildEatenUpCallback() const {
+        snakeMoveHandler->setEatenUpCallback([this]() {
+            if (this->levelManager && this->snake) {
+                // alSourcePlay (coinSource);
+                //
+                // if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
+                //     cout << "Sound error" << endl;
+                // }
+                //
+                // if (this->eatRemoveAnimateRenderer && this->animateEat) {
+                //     this->animateEat->setPosition(eat->getPosition());
+                //     this->animateEat->setVisible(true);
+                //     this->animateEat->fadeOut();
+                // }
+
+                this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
+
+                if (this->levelManager->getEatCounter() == MAX_POINT) {
+                    //     this->startText->setVisible(true);
+                    //     this->snake->reset();
+                    //     this->eat->setVisible(false);
+                    //     this->levelManager->createLevel(this->levelManager->getLevel() + 1);
+                    //     this->eatManager->run(Manager::EatManager::clean);
+                    //     initRadar();
+                } else {
+                    this->eatManager->run(EatManager::eatenUp);
+                }
+
+                char buff[100];
+                snprintf(buff, sizeof(buff),
+                         "%s %d, %s %d, %s %d",
+                         "Level:",
+                         this->levelManager->getLevel(),
+                         "Lives:",
+                         this->levelManager->getLive(),
+                         "Points left:",
+                         MAX_POINT - this->levelManager->getEatCounter()
+                );
+                std::string buffAsStdStr = buff;
+                // this->tilesCounterText->setText(buffAsStdStr);
+            }
+        });
+    }
+
+    void MainScene::buildStartMoveCallback(shared_ptr<AnimationModel> &animHead) const {
+        snakeMoveHandler->setStartMoveCallback([this, animHead]() {
+            if (this->levelManager) {
+                animHead->setGlobalPause(false);
+                this->eatManager->run(Manager::EatManager::firstPlace);
+                // this->startText->fadeOut();
+                char buff[100];
+                snprintf(buff, sizeof(buff),
+                         "%s %d, %s %d, %s %d",
+                         "Level:",
+                         this->levelManager->getLevel(),
+                         "Lives:",
+                         this->levelManager->getLive(),
+                         "Points left:",
+                         MAX_POINT - this->levelManager->getEatCounter()
+                );
+                const std::string buffAsStdStr = buff;
+                // this->tilesCounterText->setText(buffAsStdStr);
+                // if (this->tilesCounterText->getAlpha() == 1.0f) {
+                //     this->tilesCounterText->setAlpha(0.0f);
+                //     this->tilesCounterText->fadeIn();
+                // }
+            }
+        });
+    }
+
+    void MainScene::buildCrashCallback() const {
+        snakeMoveHandler->setCrashCallback([this]() {
+            if (this->levelManager) {
+                snake->reset();
+                resetRadar();
+                this->levelManager->setLive(this->levelManager->getLive() - 1);
+                this->levelManager->setEatCounter(0);
+                char buff[100];
+                snprintf(buff, sizeof(buff),
+                         "%s %d, %s %d, %s %d",
+                         "Level:",
+                         this->levelManager->getLevel(),
+                         "Lives:",
+                         this->levelManager->getLive(),
+                         "Points left:",
+                         MAX_POINT - this->levelManager->getEatCounter()
+                );
+                std::string buffAsStdStr = buff;
+                // this->tilesCounterText->setText(buffAsStdStr);
+                eat->setVisible(false);
+                if (this->levelManager->getLive() == 0) {
+                    // Game Over
+                    this->levelManager->createLevel(1);
+                    // this->startText->setVisible(true);
+                    this->levelManager->setLive(3);
+                    cout << "crash callback call" << endl;
+                }
+            }
+        });
     }
 } // Scenes

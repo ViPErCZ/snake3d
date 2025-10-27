@@ -17,6 +17,10 @@ namespace Manager {
     };
 
     class RenderManager final {
+        struct RendererEntry {
+            shared_ptr<BaseRenderer> renderer;
+            int priority;
+        };
     public:
         RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
                       const glm::mat4 &projection,
@@ -30,7 +34,7 @@ namespace Manager {
 
         void render(float dt);
 
-        void addRenderer(shared_ptr<BaseRenderer> renderer);
+        void addRenderer(shared_ptr<BaseRenderer> renderer, int priority = 0);
 
         void setDepthMapRenderer(unique_ptr<DepthMapRenderer> &depthMapRenderer);
 
@@ -57,7 +61,7 @@ namespace Manager {
 
         void updateFog();
 
-        vector<shared_ptr<BaseRenderer> > renderers;
+        vector<RendererEntry> renderers;
         unique_ptr<DepthMapRenderer> depthMapRenderer;
         unique_ptr<BloomRenderer> bloomRenderer;
         shared_ptr<ResourceManager> resourceManager;

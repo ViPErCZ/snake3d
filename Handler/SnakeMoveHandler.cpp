@@ -152,17 +152,19 @@ namespace Handler {
                 // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
                 // pokud ano, tak checkneme kolizi s jidlem
                 const bool l_allowed = isChangeDirectionAllowed(snakeHead);
-                if (l_allowed && collisionDetector->detectWithStaticItem(snakeHead->tile.get())) {
+                if (l_allowed && collisionDetector->detectWithStaticItem(snakeHead->tile)) {
                     cout << "Head position(eaten): " << snakeHead->tile->getPosition().x << ", " << snakeHead->tile->getPosition().y << endl;
-                    eatenUpCallback();
+                    if (eatenUpCallback) {
+                        eatenUpCallback();
+                    }
                     if (snakeHead->direction == STOP) { // doslo k postupu do dalsiho level
                         changeCallback = nullptr;
                     }
                 }
 
-                if (collisionDetector->perimeterDetect(snakeHead->tile.get())
-                    || collisionDetector->barrierCollision(snakeHead->tile.get())
-                    || CollisionDetector::intoHimSelf(snake.get())
+                if (collisionDetector->perimeterDetect(snakeHead->tile)
+                    || collisionDetector->barrierCollision(snakeHead->tile)
+                    || CollisionDetector::intoHimSelf(snake)
                 ) {
                     if (crashCallback) {
                         crashCallback(); // doslo k narazu
@@ -212,8 +214,8 @@ namespace Handler {
         }
     }
 
-    void SnakeMoveHandler::setCollisionDetector(CollisionDetector *collisionDetector) {
-        SnakeMoveHandler::collisionDetector = collisionDetector;
+    void SnakeMoveHandler::setCollisionDetector(shared_ptr<CollisionDetector> collisionDetector) {
+        SnakeMoveHandler::collisionDetector = std::move(collisionDetector);
     }
 
     void SnakeMoveHandler::setStartMoveCallback(const function<void()> &startMoveCallback) {
