@@ -7,6 +7,7 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"
+#include "Model/Standard/MeshNode3D.h"
 
 using namespace Model;
 using namespace std;
@@ -16,7 +17,7 @@ namespace Renderer {
     public:
         explicit StandardMeshRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection,
-                                      shared_ptr<StandardMesh> standardMesh);
+                                      shared_ptr<MeshNode3D> rootNode);
 
         StandardMeshRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection);
@@ -33,13 +34,17 @@ namespace Renderer {
 
         void setMesh(const shared_ptr<StandardMesh> &mesh);
 
+        void setRootNode(const shared_ptr<MeshNode3D> &rootNode);
+
+        shared_ptr<MeshNode3D> getRootNode();
+
     protected:
         void renderScene(const shared_ptr<ShaderManager> &shader) const;
 
         shared_ptr<Mesh> getMesh() override;
 
         shared_ptr<Camera> camera;
-        shared_ptr<StandardMesh> mesh;
+        shared_ptr<MeshNode3D> rootNode;
         glm::mat4 projection;
     };
 } // Renderer

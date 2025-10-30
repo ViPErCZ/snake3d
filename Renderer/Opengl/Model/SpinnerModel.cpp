@@ -32,7 +32,8 @@ namespace Model {
         };
     }
 
-    void SpinnerModel::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const {
+    void SpinnerModel::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        const glm::mat4 &parentTransform) const {
         baseShader->use();
         mesh->bind();
 
@@ -56,7 +57,7 @@ namespace Model {
             float hue = fmod(progress - time * 0.2f, 1.0f);
             if (hue < 0.0f) hue += 1.0f;
 
-            baseShader->setUniform("model", model);
+            baseShader->setUniform("model", parentTransform * model);
             baseShader->setUniform("objectColor", hsvToRgb(hue, 0.9f, 1.0f));
 
             glLoadIdentity();

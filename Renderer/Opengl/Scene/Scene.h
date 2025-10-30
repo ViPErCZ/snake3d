@@ -7,7 +7,6 @@
 #include "../../../Manager/KeyboardManager.h"
 #include "../../../Manager/RenderManager.h"
 #include "../../../Manager/ResourceManager.h"
-#include "../Model/Standard/StandardMesh.h"
 
 using namespace std;
 using namespace Model;
@@ -33,7 +32,8 @@ namespace Scenes {
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
     protected:
-        vector<shared_ptr<StandardMesh> > meshes;
+        vector<shared_ptr<MeshNode3D> > meshes;
+        shared_ptr<DirectionalLight> directionalLight;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<SceneRenderer> sceneRenderer;
         shared_ptr<RenderManager> rendererManager;
@@ -43,6 +43,8 @@ namespace Scenes {
         vector<shared_ptr<Scene>> nodes;
         weak_ptr<Scene> parent;
         int depth = 0;
+        int width;
+        int height;
     };
 } // Scene
 

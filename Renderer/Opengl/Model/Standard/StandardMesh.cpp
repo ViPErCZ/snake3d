@@ -1,4 +1,5 @@
 #include "StandardMesh.h"
+#include <glm/gtx/string_cast.hpp>
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader)
@@ -18,19 +19,24 @@ namespace Model {
         this->material = material;
     }
 
-    void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const {
+    shared_ptr<BaseMaterial> StandardMesh::getMaterial() const {
+        return material;
+    }
+
+    void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                              const glm::mat4 &parentTransform) const {
         if (item->isVisible()) {
             if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
                 standardMaterial.get()->bind(
                     camera->getPosition(),
                     camera->getViewMatrix(),
                     projection,
-                    getBaseItem()->getModelMatrix()
+                    parentTransform * getBaseItem()->getModelMatrix()
                 );
             } else {
                 baseShader->setMat4("view", camera->getViewMatrix());
                 baseShader->setMat4("projection", projection);
-                baseShader->setMat4("model", getBaseItem()->getModelMatrix());
+                baseShader->setMat4("model", parentTransform * getBaseItem()->getModelMatrix());
                 baseShader->setVec3("viewPos", camera->getPosition());
                 baseShader->setBool("useMaterial", true);
                 baseShader->setBool("useBones", false);
@@ -55,11 +61,12 @@ namespace Model {
         }
     }
 
-    void StandardMesh::renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const {
+    void StandardMesh::renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        const glm::mat4 &parentTransform) const {
         if (item->isVisible()) {
             const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
             if (standardMaterial && standardMaterial->isShadowEnabled()) {
-                standardMaterial.get()->bindShadow(getBaseItem()->getModelMatrix());
+                standardMaterial.get()->bindShadow(parentTransform * getBaseItem()->getModelMatrix());
 
                 mesh->bind();
                 glLoadIdentity();
@@ -109,5 +116,22 @@ namespace Model {
             worldMax = glm::max(worldMax, glm::vec3(worldPos));
         }
         return worldMax;
+    }
+
+    bool StandardMesh::isVisible() const {
+        return item->isVisible();
+    }
+
+    shared_ptr<StandardMesh> StandardMesh::deepCopy() const {
+        auto newMesh = std::make_shared<StandardMesh>(
+            std::make_shared<BaseItem>(*item),
+            baseShader
+        );
+
+        if (material) {
+            // newMesh->setMaterial(material->clone()); // TODO: not implemented
+        }
+
+        return newMesh;
     }
 } // Model

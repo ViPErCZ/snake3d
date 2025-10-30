@@ -11,17 +11,15 @@ using namespace std;
 
 namespace Model {
 
-    class RadarModel {
+    class RadarModel final {
     public:
-        explicit RadarModel(Radar *radar);
-        virtual ~RadarModel();
-
-        Mesh *getMesh() const;
+        explicit RadarModel(const shared_ptr<Radar> &radar);
+        [[nodiscard]] shared_ptr<Mesh> getMesh() const;
 
     protected:
         void createVertices();
-        Radar* radar{};
-        Mesh* mesh{};
+        shared_ptr<Radar> radar{};
+        shared_ptr<Mesh> mesh{};
     };
 
 } // Model

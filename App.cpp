@@ -219,10 +219,10 @@ void App::initScene() {
     standardBoxMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // skeletonMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-    const auto standardRenderer = new StandardMeshRenderer(camera, projection, sphereMesh);
-    const auto standardRenderer2 = new StandardMeshRenderer(camera, projection, coinMesh);
-    const auto standardRenderer3 = new StandardMeshRenderer(camera, projection, standardBoxMesh);
-    const auto standardRenderer4 = new StandardMeshRenderer(camera, projection, sphereMesh);
+    // const auto standardRenderer = new StandardMeshRenderer(camera, projection, sphereMesh);
+    // const auto standardRenderer2 = new StandardMeshRenderer(camera, projection, coinMesh);
+    // const auto standardRenderer3 = new StandardMeshRenderer(camera, projection, standardBoxMesh);
+    // const auto standardRenderer4 = new StandardMeshRenderer(camera, projection, sphereMesh);
 
     // snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
     //objWallRenderer = make_shared<ObjWallRenderer>(snake, objWall, camera.get(), projection, resourceManager.get());
@@ -489,7 +489,7 @@ void App::Init() const {
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "Tile.obj", "tile", []() {
+    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Tile.obj", "tile", []() {
         std::cout << "Model tile ready!" << std::endl;
     });
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "torch.obj", "torch", []() {
@@ -516,15 +516,15 @@ void App::run() {
     lastFrame = currentFrame;
     deltaTime = std::min(deltaTime, 0.05f);
 
-    rendererManager->render(deltaTime);
-
     if (state == SceneState::RUNNING) {
         //keyboardManager->runDefault();
         if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
             eatManager->run(Manager::EatManager::checkPlace);
         }
         mainScene->update();
-        // mainScene->render();
+        mainScene->render();
+    } else {
+        rendererManager->render(deltaTime);
     }
 }
 
@@ -632,12 +632,12 @@ void App::cameraProcessKeyboard(GLFWwindow *window) const {
     camera->processKeyboard(window, 1);
 }
 
-shared_ptr<SpinnerModel> App::initPreloader() const {
+shared_ptr<MeshNode3D> App::initPreloader() const {
     auto shader = resourceManager->getShader("preloadShader");
     auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
     const auto standardBaseItem = make_shared<BaseItem>();
 
-    return make_shared<SpinnerModel>(standardBaseItem, shader);
+    return make_shared<MeshNode3D>(make_shared<SpinnerModel>(standardBaseItem, shader), resourceManager);
 }
 
 void App::InitResourceManager() const {

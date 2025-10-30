@@ -21,7 +21,7 @@ namespace Scenes {
 
         ~SceneRenderer() override;
 
-        void update(const vector<shared_ptr<StandardMesh> > &meshes);
+        void update(const vector<shared_ptr<MeshNode3D> > &nodes);
 
         void render(float dt) override;
 
@@ -34,7 +34,7 @@ namespace Scenes {
     private:
         shared_ptr<Camera> camera;
         glm::mat4 projection;
-        vector<shared_ptr<StandardMesh> > meshes;
+        vector<shared_ptr<MeshNode3D> > nodes;
         unique_ptr<StandardMeshRenderer> meshRenderer;
     };
 } // Scene

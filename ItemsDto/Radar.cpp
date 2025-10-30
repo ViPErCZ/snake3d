@@ -9,12 +9,11 @@ namespace ItemsDto {
     void Radar::updatePositions() {
         for(auto Iter = items.end() - 1; Iter >= items.begin(); --Iter) {
             glm::vec3 pos;
-            pos.x = 125-88 + 176;
-            pos.x = 125-88 + ((this->getWidth() / 1520) * static_cast<float>(Iter->item->getVirtualX()));
-            pos.y = 160-88 + 176 - ((this->getHeight() / 1520) * static_cast<float>(Iter->item->getVirtualY()));
+            pos.x = 18 + ((this->getWidth() / 3020) * static_cast<float>(Iter->item->getVirtualX()));
+            pos.y = -61 + 176 - ((this->getHeight() / 3020) * static_cast<float>(Iter->item->getVirtualY()));
             pos.z = 0;
 
-            (*Iter).radarPresent->setPosition(pos);
+            Iter->radarPresent->setPosition(pos);
         }
     }
 

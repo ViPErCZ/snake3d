@@ -2,12 +2,11 @@
 
 namespace Renderer {
     StandardMeshRenderer::StandardMeshRenderer(shared_ptr<Camera> camera,
-                                               const glm::mat4 &projection,
-                                               shared_ptr<StandardMesh> standardMesh)
+                                      const glm::mat4 &projection,
+                                      shared_ptr<MeshNode3D> rootNode)
         : camera(std::move(camera)),
-          mesh(std::move(standardMesh)),
+          rootNode(std::move(rootNode)),
           projection(projection) {
-        item = mesh->getBaseItem();
     }
 
     StandardMeshRenderer::StandardMeshRenderer(shared_ptr<Camera> camera, const glm::mat4 &projection)
@@ -18,7 +17,7 @@ namespace Renderer {
     StandardMeshRenderer::~StandardMeshRenderer() = default;
 
     void StandardMeshRenderer::render(const float dt) {
-        mesh->update(dt);
+        rootNode->update(dt);
         renderScene(nullptr);
     }
 
@@ -29,19 +28,22 @@ namespace Renderer {
     }
 
     void StandardMeshRenderer::renderShadowMap() {
-        mesh->renderShadowMap(camera, projection, 1);
+        rootNode->renderShadows(camera, projection, 1, glm::mat4(1));
     }
 
-    void StandardMeshRenderer::setMesh(const shared_ptr<StandardMesh> &mesh) {
-        this->mesh = mesh;
-        this->item = mesh->getBaseItem();
+    void StandardMeshRenderer::setRootNode(const shared_ptr<MeshNode3D> &rootNode) {
+        this->rootNode = rootNode;
+    }
+
+    shared_ptr<MeshNode3D> StandardMeshRenderer::getRootNode() {
+        return rootNode;
     }
 
     void StandardMeshRenderer::renderScene(const shared_ptr<ShaderManager> &shader) const {
-        mesh->render(camera, projection, 1);
+        rootNode->render(camera, projection, 1, glm::mat4(1));
     }
 
     shared_ptr<Mesh> StandardMeshRenderer::getMesh() {
-        return mesh->getMesh();
+        throw std::runtime_error("StandardMeshRenderer::getMesh() not implemented. Deprecated.");
     }
 } // Renderer

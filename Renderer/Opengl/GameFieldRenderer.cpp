@@ -129,7 +129,6 @@ void Renderer::GameFieldRenderer::renderScene(const ShaderManager *shader) const
             auto model = glm::mat4(1.0f);
             model = glm::scale(model, (*Iter)->getZoom());
             model = glm::translate(model, position);
-            (*Iter)->setWorldMatrix(model);
             shader->setMat4("model", model);
 
             this->model->getMesh()->bind();

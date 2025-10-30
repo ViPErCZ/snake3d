@@ -22,10 +22,6 @@ namespace Node3D {
         Transform::position = position;
     }
 
-    void Transform::setWorldMatrix(const glm::mat4 &matrix) {
-        Transform::worldMatrix = matrix;
-    }
-
     const glm::vec3 &Transform::getZoom() const {
         return zoom;
     }

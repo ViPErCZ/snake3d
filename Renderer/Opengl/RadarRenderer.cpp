@@ -1,13 +1,13 @@
 #include "RadarRenderer.h"
 
 namespace Renderer {
-    RadarRenderer::RadarRenderer(Radar *radar, Camera *camera, glm::mat4 proj,
-                                 ResourceManager *resManager) : radar(radar), camera(camera) {
-        resourceManager = resManager;
-        projection = proj;
-        model = new RadarModel(radar);
-        shader = resourceManager->getShader("radarShader").get();
-        frameTexture = resourceManager->getTexture("red_screen.bmp").get();
+    RadarRenderer::RadarRenderer(shared_ptr<Radar> &radar, const shared_ptr<Camera> &camera,
+                                 const shared_ptr<ResourceManager> &resManager,
+                                 const glm::mat4 &proj) : radar(radar), resourceManager(resManager), camera(camera),
+                                                          projection(proj) {
+        model = make_unique<RadarModel>(radar);
+        shader = resourceManager->getShader("radarShader");
+        frameTexture = resourceManager->getTexture("red_screen.bmp");
     }
 
     void RadarRenderer::render(float dt) {
@@ -22,47 +22,27 @@ namespace Renderer {
             glLoadIdentity();
 
             frameTexture->bind();
-
-            glm::vec3 position = radar->getPosition();
-            glm::vec3 zoom = radar->getZoom();
-
-            // Initialize matrices
-            glm::mat4 model = glm::mat4(1.0f);
-
-            model = glm::translate(model, position);
-            model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
-
-            shader->setMat4("model", model);
+            shader->setMat4("model", radar->getModelMatrix());
             shader->setBool("useMaterial", false);
 
-            auto radarMesh = this->model->getMesh();
+            const auto radarMesh = this->model->getMesh();
 
             radarMesh->bind();
-            glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(radarMesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
             glDisable(GL_BLEND);
 
             int index = 0;
             radar->updatePositions();
 
-            for (const auto& radarItem: radar->getItems()) {
+            for (const auto &radarItem: radar->getItems()) {
                 if (radarItem.item->isVisible()) {
                     glLoadIdentity();
 
                     shader->setBool("useMaterial", true);
                     shader->setVec3("Color", radarItem.color);
+                    shader->setMat4("model", radarItem.radarPresent->getModelMatrix());
 
-                    glm::vec3 position = radarItem.radarPresent->getPosition();
-                    glm::vec3 zoom = radarItem.radarPresent->getZoom();
-
-                    // Initialize matrices
-                    glm::mat4 model = glm::mat4(1.0f);
-
-                    model = glm::translate(model, position);
-                    model = glm::scale(model, glm::vec3(zoom.x, zoom.y, zoom.z));
-
-                    shader->setMat4("model", model);
-
-                    glDrawElements(GL_TRIANGLES, (int) radarMesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+                    glDrawElements(GL_TRIANGLES, static_cast<int>(radarMesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
                     index++;
                 }
             }
@@ -70,15 +50,10 @@ namespace Renderer {
     }
 
     void RadarRenderer::beforeRender() {
-        glDepthMask(GL_TRUE);
         glDepthFunc(GL_LEQUAL);
     }
 
     void RadarRenderer::afterRender() {
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(1);
         glDepthFunc(GL_LESS);
     }
-
 } // Renderer

@@ -66,7 +66,7 @@ public:
     void cameraProcessKeyboard(GLFWwindow *window) const;
 protected:
     void initScene();
-    [[nodiscard]] shared_ptr<SpinnerModel> initPreloader() const;
+    [[nodiscard]] shared_ptr<MeshNode3D> initPreloader() const;
     void InitResourceManager() const;
     // Snake* InitSnake();
     // ObjWall* InitObjWall(); // outer wall

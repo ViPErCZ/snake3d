@@ -89,6 +89,12 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/SpinnerModel.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Renderer/Opengl/Model/Standard/MeshNode3D.cpp
+        Renderer/Opengl/Model/Standard/MeshNode3D.h
+        Scenes/PlayerScene.cpp
+        Scenes/PlayerScene.h
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -226,6 +232,12 @@ set(APP_SOURCES
         Scenes/MainScene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
         Renderer/Opengl/Scene/SceneRenderer.h
+        Renderer/Opengl/Model/Standard/MeshNode3D.cpp
+        Renderer/Opengl/Model/Standard/MeshNode3D.h
+        Scenes/PlayerScene.cpp
+        Scenes/PlayerScene.h
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -282,6 +294,12 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/SpinnerModel.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Renderer/Opengl/Model/Standard/MeshNode3D.cpp
+        Renderer/Opengl/Model/Standard/MeshNode3D.h
+        Scenes/PlayerScene.cpp
+        Scenes/PlayerScene.h
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
+        Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

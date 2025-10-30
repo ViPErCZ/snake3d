@@ -1,11 +1,11 @@
 #include "Scene.h"
 
 namespace Scenes {
-
     Scene::Scene(const shared_ptr<RenderManager> &rendererManager,
-        const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-        const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : resourceManager(rm), rendererManager(rendererManager), camera(camera), projection(projection) {
+                 const shared_ptr<Camera> &camera, const glm::mat4 &projection,
+                 const shared_ptr<ResourceManager> &rm, const int width, const int height)
+        : resourceManager(rm), rendererManager(rendererManager), camera(camera), projection(projection),
+          width(width), height(height) {
         keyboardManager = make_unique<KeyboardManager>();
         sceneRenderer = make_shared<SceneRenderer>(camera, projection);
     }
@@ -21,7 +21,7 @@ namespace Scenes {
     void Scene::update() {
         keyboardManager->runDefault();
         sceneRenderer->update(meshes);
-        for (const auto& node : nodes) {
+        for (const auto &node: nodes) {
             node->update();
         }
     }
@@ -34,9 +34,6 @@ namespace Scenes {
         deltaTime = std::min(deltaTime, 0.05f);
 
         rendererManager->render(deltaTime);
-        for (const auto& node : nodes) {
-            node->render();
-        }
     }
 
     void Scene::addNode(const std::shared_ptr<Scene> &node) {
@@ -48,7 +45,8 @@ namespace Scenes {
         nodes.push_back(node);
     }
 
-    void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
+    void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,
+                              const int mods) const {
         keyboardManager->onKeyPress(keyCode, scancode, action, mods);
     }
 } // Scene

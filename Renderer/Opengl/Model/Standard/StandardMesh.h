@@ -25,16 +25,24 @@ namespace Model {
 
         void setMaterial(const shared_ptr<BaseMaterial> &material);
 
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
+        [[nodiscard]] shared_ptr<BaseMaterial> getMaterial() const;
+
+        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                            const glm::mat4 &parentTransform) const;
 
         virtual void update(float dt) {
-        }
+        };
 
-        virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt) const;
+        virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                                     const glm::mat4 &parentTransform) const;
 
         [[nodiscard]] glm::vec3 getMin() const;
 
         [[nodiscard]] glm::vec3 getMax() const;
+
+        [[nodiscard]] bool isVisible() const;
+
+        [[nodiscard]] shared_ptr<StandardMesh> deepCopy() const;
 
     protected:
         shared_ptr<Mesh> mesh;

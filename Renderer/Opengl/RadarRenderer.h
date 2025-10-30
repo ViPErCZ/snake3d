@@ -11,25 +11,29 @@
 using namespace Model;
 
 namespace Renderer {
-
     class RadarRenderer final : public BaseRenderer {
     public:
-        explicit RadarRenderer(Radar* radar, Camera* camera, glm::mat4 proj, ResourceManager* resManager);
+        explicit RadarRenderer(shared_ptr<Radar> &radar, const shared_ptr<Camera> &camera,
+                               const shared_ptr<ResourceManager> &resManager, const glm::mat4 &proj);
+
         void render(float dt) override;
+
         void beforeRender() override;
+
         void afterRender() override;
-        void renderShadowMap() override {};
+
+        void renderShadowMap() override {
+        };
 
     protected:
-        Radar* radar;
-        RadarModel* model;
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        TextureManager* frameTexture;
-        Camera* camera;
+        shared_ptr<Radar> radar;
+        unique_ptr<RadarModel> model;
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ShaderManager> shader;
+        shared_ptr<TextureManager> frameTexture;
+        shared_ptr<Camera> camera;
         glm::mat4 projection{};
     };
-
 } // Renderer
 
 #endif //SNAKE3_RADARRENDERER_H

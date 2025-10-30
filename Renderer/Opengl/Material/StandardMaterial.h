@@ -82,6 +82,8 @@ namespace Material {
 
         void set_uv_offset(const glm::vec2 &uv_offset);
 
+        [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
+
     protected:
         shared_ptr<TextureManager> albedo;
         shared_ptr<TextureManager> normal;

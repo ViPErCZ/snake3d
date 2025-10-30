@@ -2,14 +2,10 @@
 #include "../../../Manager/VboIndexer.h"
 
 namespace Model {
-    RadarModel::RadarModel(Radar *radar) : radar(radar) {
+    RadarModel::RadarModel(const shared_ptr<Radar> &radar) : radar(radar) {
         vector<Vertex> vertices;
 
         createVertices();
-    }
-
-    RadarModel::~RadarModel() {
-        delete mesh;
     }
 
     void RadarModel::createVertices() {
@@ -105,14 +101,14 @@ namespace Model {
         int index = 0;
         for (auto iter : tangents) {
             auto vertIter = vertices.begin() + index;
-            (*vertIter).tangents = iter;
+            vertIter->tangents = iter;
             index++;
         }
 
-        mesh = new Mesh(vertices, indices);
+        mesh = make_shared<Mesh>(vertices, indices);
     }
 
-    Mesh *RadarModel::getMesh() const {
+    shared_ptr<Mesh> RadarModel::getMesh() const {
         return mesh;
     }
 

@@ -120,11 +120,11 @@ namespace Handler {
 
                 glm::vec3 pos = (*Iter)->tile->getPosition();
                 switch (direction) {
-                    case ItemsDto::LEFT:
+                    case LEFT:
                         pos.x -= UNIT_MOVE;
                         (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() - VIRTUAL_MOVE);
                         break;
-                    case ItemsDto::RIGHT:
+                    case RIGHT:
                         pos.x += UNIT_MOVE;
                         (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() + VIRTUAL_MOVE);
                         break;
@@ -233,12 +233,15 @@ namespace Handler {
     eDIRECTION SnakeMoveHandler::findDirection(const shared_ptr<sSNAKE_TILE> &snakeTile, const shared_ptr<sSNAKE_TILE> &mySelf) {
         // najdi kosticku co je hned vedle
         if (snakeTile->tile->getPosition().x > mySelf->tile->getPosition().x) {
-            return ItemsDto::RIGHT;
-        } else if (snakeTile->tile->getPosition().x < mySelf->tile->getPosition().x) {
-            return ItemsDto::LEFT;
-        } else if (snakeTile->tile->getPosition().y < mySelf->tile->getPosition().y) {
+            return RIGHT;
+        }
+        if (snakeTile->tile->getPosition().x < mySelf->tile->getPosition().x) {
+            return LEFT;
+        }
+        if (snakeTile->tile->getPosition().y < mySelf->tile->getPosition().y) {
             return DOWN;
-        } else if (snakeTile->tile->getPosition().y > mySelf->tile->getPosition().y) {
+        }
+        if (snakeTile->tile->getPosition().y > mySelf->tile->getPosition().y) {
             return UP;
         }
 

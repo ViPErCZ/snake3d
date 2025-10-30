@@ -2,7 +2,6 @@
 #define SNAKE3_SHADERMATERIAL_H
 
 #include <map>
-
 #include "IUniform.h"
 #include "StandardMaterial.h"
 
@@ -21,7 +20,7 @@ namespace Material {
             shared_ptr<IUniform>
         >;
 
-    class ShaderMaterial : public StandardMaterial {
+    class ShaderMaterial final : public StandardMaterial {
     public:
         explicit ShaderMaterial(shared_ptr<ShaderManager> baseShader,
                                 shared_ptr<ShaderManager> shadowDepthShader,
@@ -32,7 +31,9 @@ namespace Material {
         void addUniform(const string &name, const UniformValue &value);
 
         void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                  const glm::mat4 &model) const;
+                  const glm::mat4 &model) const override;
+
+        [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
     protected:
         std::map<std::string, UniformValue> uniforms;

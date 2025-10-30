@@ -27,8 +27,6 @@ namespace Scenes {
 
         void init() override;
 
-        void render() override;
-
         void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const override;
 
     private:

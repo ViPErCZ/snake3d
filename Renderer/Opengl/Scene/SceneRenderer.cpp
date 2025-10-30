@@ -8,20 +8,20 @@ namespace Scenes {
 
     SceneRenderer::~SceneRenderer() = default;
 
-    void SceneRenderer::update(const vector<shared_ptr<StandardMesh> > &meshes) {
-        this->meshes = meshes;
+    void SceneRenderer::update(const vector<shared_ptr<MeshNode3D> > &nodes) {
+        this->nodes = nodes;
     }
 
     void SceneRenderer::render(const float dt) {
-        for (auto &mesh : meshes) {
-            this->meshRenderer->setMesh(mesh);
+        for (auto &node : nodes) {
+            this->meshRenderer->setRootNode(node);
             this->meshRenderer->render(dt);
         }
     }
 
     void SceneRenderer::renderShadowMap() {
-        for (auto &mesh : meshes) {
-            this->meshRenderer->setMesh(mesh);
+        for (auto &node : nodes) {
+            this->meshRenderer->setRootNode(node);
             this->meshRenderer->renderShadowMap();
         }
     }

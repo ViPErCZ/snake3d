@@ -246,6 +246,30 @@ void Material::StandardMaterial::set_uv_offset(const glm::vec2 &uv_offset) {
     UVOffset = uv_offset;
 }
 
+std::shared_ptr<Material::BaseMaterial> Material::StandardMaterial::clone() const {
+    auto copy = std::make_shared<StandardMaterial>(*this);
+
+    if (albedo) copy->albedo = std::make_shared<TextureManager>(*albedo);
+    if (normal) copy->normal = std::make_shared<TextureManager>(*normal);
+    if (specular) copy->specular = std::make_shared<TextureManager>(*specular);
+    if (roughness) copy->roughness = std::make_shared<TextureManager>(*roughness);
+    if (metalness) copy->metalness = std::make_shared<TextureManager>(*metalness);
+    if (shadow) copy->shadow = std::make_shared<TextureManager>(*shadow);
+    if (aoMap) copy->aoMap = std::make_shared<TextureManager>(*aoMap);
+    if (environmentMap) copy->environmentMap = std::make_shared<TextureManager>(*environmentMap);
+
+    copy->directionalLight = directionalLight;
+    copy->spotLights = spotLights;
+    copy->pointLights = pointLights;
+    copy->worldEnvironment = worldEnvironment;
+    copy->shader = shader;
+    copy->shadowDepthShader = shadowDepthShader;
+
+    if (color) copy->color = std::make_shared<glm::vec3>(*color);
+
+    return copy;
+}
+
 void Material::StandardMaterial::setNormal(const std::shared_ptr<TextureManager> &normal) {
     this->normal = normal;
 }
@@ -260,4 +284,5 @@ void Material::StandardMaterial::setSpecular(const std::shared_ptr<TextureManage
 
 void Material::StandardMaterial::setShadow(const std::shared_ptr<TextureManager> &shadow) {
     this->shadow = shadow;
+    this->shadowEnabled = true;
 }

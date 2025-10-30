@@ -34,4 +34,37 @@ namespace Material {
             }, value);
         }
     }
+
+    std::shared_ptr<BaseMaterial> ShaderMaterial::clone() const {
+        auto cloned = std::make_shared<ShaderMaterial>(
+            shader, shadowDepthShader, worldEnvironment
+        );
+
+        cloned->albedo = albedo;
+        cloned->normal = normal;
+        cloned->specular = specular;
+        cloned->roughness = roughness;
+        cloned->metalness = metalness;
+        cloned->shadow = shadow;
+        cloned->aoMap = aoMap;
+        cloned->environmentMap = environmentMap;
+        cloned->directionalLight = directionalLight;
+        cloned->spotLights = spotLights;
+        cloned->pointLights = pointLights;
+        cloned->shader = shader;
+        cloned->shadowDepthShader = shadowDepthShader;
+        cloned->worldEnvironment = worldEnvironment;
+        if (color) {
+            cloned->color = std::make_shared<glm::vec3>(*color);
+        }
+        cloned->UVScale = UVScale;
+        cloned->UVOffset = UVOffset;
+        cloned->normal_enabled = normal_enabled;
+        cloned->shadowEnabled = shadowEnabled;
+        cloned->shininess = shininess;
+
+        cloned->uniforms = uniforms;
+
+        return cloned;
+    }
 } // Material

@@ -9,7 +9,6 @@ namespace Node3D {
     class Transform {
         public:
         void setPosition(const glm::vec3 &position);
-        void setWorldMatrix(const glm::mat4 &matrix);
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] glm::mat4 getModelMatrix() const;
         [[nodiscard]] const glm::vec3 &getZoom() const;

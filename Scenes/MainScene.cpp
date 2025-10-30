@@ -1,4 +1,5 @@
 #include "MainScene.h"
+#include "PlayerScene.h"
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/EatRenderer.h"
@@ -27,10 +28,11 @@ namespace Scenes {
         initEatManager();
         initLevelManager();
         initSnakeMoveHandler();
-    }
 
-    void MainScene::render() {
-        Scene::render();
+        // TODO: doplnit width, height
+        const auto playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, 0, 0);
+        playerScene->init();
+        addNode(playerScene);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -93,7 +95,6 @@ namespace Scenes {
         planeMaterial->setDirectionalLight(directionalLight);
         planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         planeMaterial->setShadow(shadowMap);
-        planeMaterial->setShadow(true);
         planeMaterial->setNormalEnabled(true);
         planeMaterial->setAlbedo(gamefieldAlbedo);
         planeMaterial->setNormal(gamefieldNormal);
@@ -105,14 +106,15 @@ namespace Scenes {
         standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
         auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
+        const auto node3d = make_shared<MeshNode3D>(shared_ptr<StandardMesh>(std::move(planeMesh)), resourceManager);
 
-        meshes.push_back(shared_ptr<StandardMesh>(std::move(planeMesh)));
+        meshes.push_back(node3d);
     }
 
     void MainScene::initSnake() {
         snake = make_shared<Snake>();
         snake->init();
-        snake->getHeadTile()->setVisible(false);
+        //snake->getHeadTile()->setVisible(false);
         snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
 
         auto headTile = *snake->getItems().begin();
@@ -123,8 +125,8 @@ namespace Scenes {
         animRenderer->addPlay("KostraAction");
         animRenderer->setAcceleration(2.2f);
 
-        rendererManager->addRenderer(animRenderer);
-        rendererManager->addRenderer(snakeRenderer);
+        // rendererManager->addRenderer(animRenderer);
+        //rendererManager->addRenderer(snakeRenderer);
         camera->setStickyPoint(snake->getHeadTile().get());
     }
 
@@ -182,14 +184,14 @@ namespace Scenes {
         radar = make_shared<Radar>();
         resetRadar();
 
-        const auto radarRenderer = make_shared<RadarRenderer>(radar.get(), camera.get(), ortho, resourceManager.get());
+        const auto radarRenderer = make_shared<RadarRenderer>(radar, camera, resourceManager, ortho);
         rendererManager->addRenderer(radarRenderer);
     }
 
     void MainScene::resetRadar() const {
         radar->reset();
         radar->setVisible(true);
-        radar->setPosition({125.0, 160.0, 0.0});
+        radar->setPosition({1.25, 1.4, 0.0});
         radar->setZoom({100, 100, 1});
         radar->setWidth(176);
         radar->setHeight(176);
