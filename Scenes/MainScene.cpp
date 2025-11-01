@@ -19,6 +19,7 @@ namespace Scenes {
 
     void MainScene::init() {
         Scene::init();
+        initPlayerScene();
         initSkybox();
         initPlane();
         initSnake();
@@ -27,12 +28,8 @@ namespace Scenes {
         initRadar();
         initEatManager();
         initLevelManager();
-        initSnakeMoveHandler();
 
-        // TODO: doplnit width, height
-        const auto playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, 0, 0);
-        playerScene->init();
-        addNode(playerScene);
+        buildStartMoveCallback();
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -54,6 +51,13 @@ namespace Scenes {
             default:
                 break;
         }
+    }
+
+    void MainScene::initPlayerScene() {
+        const auto playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
+        playerScene->init();
+        snakeMoveHandler = playerScene->getSnakeMoveHandler();
+        addNode(playerScene);
     }
 
     void MainScene::initSkybox() {
@@ -102,48 +106,34 @@ namespace Scenes {
         planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
 
         const auto standardBaseItem = make_shared<BaseItem>();
-        standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-        standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
+        //standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+        //standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
         auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
         const auto node3d = make_shared<MeshNode3D>(shared_ptr<StandardMesh>(std::move(planeMesh)), resourceManager);
+        node3d->setRotationX(90);
+        node3d->setPosition({1.0, 1.0, -1.0});
 
         meshes.push_back(node3d);
     }
 
-    void MainScene::initSnake() {
+    void MainScene::initSnake() { // TODO: jakmile predelam renderery, kde se pracuje se Snake, tak toto smazat + celou tridu Snake
         snake = make_shared<Snake>();
         snake->init();
         //snake->getHeadTile()->setVisible(false);
-        snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
+        // snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
+        //
+        // auto headTile = *snake->getItems().begin();
+        // const auto animHead = resourceManager->getAnimationModel("pacman");
+        // animHead->setBaseItem(snake->getHeadTile());
 
-        auto headTile = *snake->getItems().begin();
-        const auto animHead = resourceManager->getAnimationModel("pacman");
-        animHead->setBaseItem(snake->getHeadTile());
-
-        const auto animRenderer = make_shared<AnimRenderer>(headTile, animHead, camera.get(), projection, resourceManager.get());
-        animRenderer->addPlay("KostraAction");
-        animRenderer->setAcceleration(2.2f);
+        // const auto animRenderer = make_shared<AnimRenderer>(headTile, animHead, camera.get(), projection, resourceManager.get());
+        // animRenderer->addPlay("KostraAction");
+        // animRenderer->setAcceleration(2.2f);
 
         // rendererManager->addRenderer(animRenderer);
         //rendererManager->addRenderer(snakeRenderer);
         camera->setStickyPoint(snake->getHeadTile().get());
-    }
-
-    void MainScene::initSnakeMoveHandler() {
-        auto animHead = resourceManager->getAnimationModel("pacman");
-        snakeMoveHandler = make_shared<SnakeMoveHandler>(snake, animHead);
-        collisionDetector = make_shared<CollisionDetector>();
-        // collisionDetector->setPerimeter(objWall.get());
-        // collisionDetector->setBarriers(barriers.get());
-        collisionDetector->addStaticItem(eat);
-        snakeMoveHandler->setCollisionDetector(collisionDetector);
-
-        buildStartMoveCallback(animHead);
-        buildEatenUpCallback();
-        buildCrashCallback();
-
-        keyboardManager->addEventHandler(snakeMoveHandler);
     }
 
     void MainScene::initBarriers() {
@@ -164,11 +154,11 @@ namespace Scenes {
 
     void MainScene::initEat() {
         eat = make_shared<Eat>();
-        eat->setVirtualX((23 - -23) / 2 * 32 + 16);
-        eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
+        eat->x = (23 - -23) / 2 * 32 + 16;
+        eat->y = (-3 - -23) / 2 * 32 + 16;
         eat->setPosition({-69.0, -69, -70.0f});
         eat->setZoom({0.013888889, 0.013888889, 0.013888889});
-        eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
+        eat->setRotationX(90);
         eat->setVisible(false);
         const auto eatRenderer = make_shared<EatRenderer>(eat.get(), camera.get(), projection, resourceManager.get());
 
@@ -251,10 +241,9 @@ namespace Scenes {
         });
     }
 
-    void MainScene::buildStartMoveCallback(shared_ptr<AnimationModel> &animHead) const {
-        snakeMoveHandler->setStartMoveCallback([this, animHead]() {
+    void MainScene::buildStartMoveCallback() const {
+        snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
-                animHead->setGlobalPause(false);
                 this->eatManager->run(Manager::EatManager::firstPlace);
                 // this->startText->fadeOut();
                 char buff[100];

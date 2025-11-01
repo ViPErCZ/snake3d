@@ -608,11 +608,10 @@ namespace Renderer {
                    hoveredAxis == Axis::RotateZ) {
             mode = InteractionMode::Rotating;
             activeAxis = pickedRotate;
-            const glm::vec4 *currentRotation = cube->getRotate();
-            for (int i = 0; i < 3; i++) {
-                originalRotation[i] = currentRotation[i];
-            }
 
+            originalRotation[0] = cube->getRotationX();
+            originalRotation[1] = cube->getRotationY();
+            originalRotation[2] = cube->getRotationZ();
 
             // Výpočet počátečního úhlu pro rotaci
             glm::vec2 centerScreen = worldToScreen(currentWorldCenter,
@@ -693,29 +692,30 @@ namespace Renderer {
             float deltaAngle = currentAngle - rotationStartAngle;
 
             // Kopírujeme původní rotace
-            glm::vec4 newRotateX = originalRotation[0];
-            glm::vec4 newRotateY = originalRotation[1];
-            glm::vec4 newRotateZ = originalRotation[2];
+            float newRotateX = originalRotation[0];
+            float newRotateY = originalRotation[1];
+            float newRotateZ = originalRotation[2];
 
             // Upravíme příslušnou rotační komponentu
             switch (activeAxis) {
                 case Axis::RotateX:
-                    newRotateX.w += glm::degrees(deltaAngle);
+                    newRotateX += glm::degrees(deltaAngle);
                     break;
                 case Axis::RotateY:
-                    newRotateY.w += glm::degrees(deltaAngle);
+                    newRotateY += glm::degrees(deltaAngle);
                     break;
                 case Axis::RotateZ:
-                    newRotateZ.w += glm::degrees(deltaAngle);
+                    newRotateZ += glm::degrees(deltaAngle);
                     break;
                 default:
                     break;
             }
 
             // Aplikujeme nové rotace
-            cube->setRotate(newRotateX, newRotateY, newRotateZ);
+            cube->setRotationX(newRotateX);
+            cube->setRotationY(newRotateY);
+            cube->setRotationZ(newRotateZ);
         }
-
 
         // debug výpisy
         // std::cout << "closestOnAxis: " << vec3_to_string(closestOnAxis)

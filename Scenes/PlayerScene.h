@@ -16,10 +16,21 @@ namespace Scenes {
 
         void init() override;
 
+        [[nodiscard]] shared_ptr<SnakeMeshNode3D> getSnake() const;
+
+        [[nodiscard]] shared_ptr<SnakeMoveHandler> getSnakeMoveHandler() const;
+
     protected:
         void initSnake();
 
+        void initSnakeMoveHandler();
+
+        void buildStartMoveCallback() const;
+
+        void buildStopMoveCallback() const;
+
         shared_ptr<SnakeMeshNode3D> snake;
+        shared_ptr<SnakeMoveHandler> snakeMoveHandler;
     };
 } // Scenes
 

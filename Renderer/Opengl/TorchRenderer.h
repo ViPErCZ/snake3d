@@ -95,7 +95,7 @@ protected:
     float startAxisParam = 0.0f;
     float currentAxisParam = 0.0f;
     float rotationStartAngle = 0.0f;
-    glm::vec4 originalRotation[3];
+    float originalRotation[3];
     glm::vec3 dragLineOrigin = {};
 
     glm::vec3 startObjectPos;

@@ -9,8 +9,4 @@ namespace Handler {
         }
     }
 
-    void RadarHandler::onDefaultHandler() {
-        BaseKeydownHandle::onDefaultHandler();
-    }
-
 } // Handler

@@ -15,7 +15,9 @@ namespace Handler {
 
         glm::vec3 pos = activeItem->getPosition();
         glm::vec3 zoom = activeItem->getZoom();
-        const glm::vec4 *rotate = activeItem->getRotate();
+        const float rotationX = activeItem->getRotationX();
+        const float rotationY = activeItem->getRotationY();
+        const float rotationZ = activeItem->getRotationZ();
 
         switch (key) {
             case GLFW_KEY_F8:
@@ -123,9 +125,9 @@ namespace Handler {
             case GLFW_KEY_SPACE:
                 cout << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
                 cout << "Zoom: " << zoom.x << ", " << zoom.y << ", " << zoom.z << endl;
-                cout << "Rotation X: " << rotate[0].w << endl;
-                cout << "Rotation Y: " << rotate[1].w << endl;
-                cout << "Rotation Z: " << rotate[2].w << endl;
+                cout << "Rotation X: " << rotationX << endl;
+                cout << "Rotation Y: " << rotationY << endl;
+                cout << "Rotation Z: " << rotationZ << endl;
                 break;
             default:
                 break;

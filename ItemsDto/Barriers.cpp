@@ -32,8 +32,8 @@ namespace ItemsDto {
     shared_ptr<Cube> Barriers::wallFactory(const glm::vec3 &position) {
         auto wall = make_shared<Cube>();
         wall->setPosition(position);
-        wall->setVirtualX(static_cast<int>(position.x - (-23)) / 2 * 32);
-        wall->setVirtualY(static_cast<int>(position.y - (-23)) / 2 * 32);
+        wall->x = static_cast<int>(position.x - (-23)) / 2 * 32;
+        wall->y = static_cast<int>(position.y - (-23)) / 2 * 32;
         wall->setVisible(true);
 
         return wall;

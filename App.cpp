@@ -208,9 +208,9 @@ void App::initScene() {
     coinMesh->setMaterial(coinMaterial);
     // pacmanMesh->setMaterial(planeMaterial);
     // skeletonMesh->setMaterial(planeMaterial);
-    sphereMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-    coinMesh->getBaseItem()->setPosition({5, 0, 0});
-    coinMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+    //sphereMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+    //coinMesh->getBaseItem()->setPosition({5, 0, 0});
+    //coinMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // pacmanMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // skeletonMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     sphereMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
@@ -225,8 +225,8 @@ void App::initScene() {
     // const auto standardRenderer4 = new StandardMeshRenderer(camera, projection, sphereMesh);
 
     // snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
-    //objWallRenderer = make_shared<ObjWallRenderer>(snake, objWall, camera.get(), projection, resourceManager.get());
-    //barrierRenderer = make_shared<BarrierRenderer>(snake, barriers, camera.get(), projection, resourceManager.get());
+    // objWallRenderer = make_shared<ObjWallRenderer>(snake, objWall, camera.get(), projection, resourceManager.get());
+    // barrierRenderer = make_shared<BarrierRenderer>(snake, barriers, camera.get(), projection, resourceManager.get());
     // eatRenderer = make_shared<EatRenderer>(eat, camera.get(), projection, resourceManager.get());
     // radarRenderer = make_shared<RadarRenderer>(radar, camera.get(), ortho, resourceManager.get());
     // textRenderer = make_shared<TextRenderer>(width, height);
@@ -235,8 +235,8 @@ void App::initScene() {
     // fireRenderer = make_shared<FireRenderer>(camera.get(), projection, resourceManager.get());
     // torchRenderer = make_shared<TorchRenderer>(torch, camera.get(), projection, resourceManager.get());
     // boltRenderer = make_shared<BoltRenderer>(camera.get(), projection, resourceManager.get());
-    const auto storm = new BaseItem();
-    storm->setVisible(false);
+    // const auto storm = new BaseItem();
+    // storm->setVisible(false);
 
     initTexts();
 
@@ -489,9 +489,9 @@ void App::Init() const {
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Tile.obj", "tile", []() {
-        std::cout << "Model tile ready!" << std::endl;
-    });
+    // resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Tile.obj", "tile", []() {
+    //     std::cout << "Model tile ready!" << std::endl;
+    // });
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "torch.obj", "torch", []() {
         std::cout << "Model torch ready!" << std::endl;
     });
@@ -533,19 +533,10 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
     //keyboardManager->onKeyPress(keyCode, scancode, action, mods);
 
     switch (keyCode) {
-        case GLFW_KEY_V:
-            //rendererManager->toggleShadows();
-            break;
         case GLFW_KEY_P:
             if (objWallRenderer) {
                 objWallRenderer->toggleParallax();
             }
-            break;
-        case GLFW_KEY_B:
-            // rendererManager->toggleBloom();
-            // if (snakeRenderer) {
-            //     snakeRenderer->toggleBlur();
-            // }
             break;
         case GLFW_KEY_F:
             rendererManager->toggleFog();
@@ -569,16 +560,16 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
                 alSourcePlay(musicSource);
             }
             break;
-        case GLFW_KEY_1: // show classic red head
-            snake->getHeadTile()->setVisible(true);
+        // case GLFW_KEY_1: // show classic red head
+            // snake->getHeadTile()->setVisible(true);
             // animRenderer->setShow(false);
             //snakeRenderer->toggleStyle(1);
-            break;
-        case GLFW_KEY_2: // show animated pacman head
-            snake->getHeadTile()->setVisible(false);
+            // break;
+        // case GLFW_KEY_2: // show animated pacman head
+            // snake->getHeadTile()->setVisible(false);
             // animRenderer->setShow(true);
             //snakeRenderer->toggleStyle(2);
-            break;
+            // break;
         case GLFW_KEY_T:
             if (boltRenderer) {
                 boltRenderer->triggerBolt();

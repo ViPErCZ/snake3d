@@ -8,18 +8,29 @@
 namespace Node3D {
     class Transform {
         public:
+        Transform() = default;
+        virtual ~Transform() = default;
+
         void setPosition(const glm::vec3 &position);
         [[nodiscard]] const glm::vec3 &getPosition() const;
-        [[nodiscard]] glm::mat4 getModelMatrix() const;
+        [[nodiscard]] virtual glm::mat4 getModelMatrix() const;
         [[nodiscard]] const glm::vec3 &getZoom() const;
         void setZoom(const glm::vec3 &zoom);
         [[nodiscard]] const glm::vec4 *getRotate() const;
-        void setRotate(const glm::vec4 &rotateX, const glm::vec4 &rotateY, const glm::vec4 &rotateZ);
-        protected:
+        void setRotationX(float rotation_x);
+        void setRotationY(float rotation_y);
+        void setRotationZ(float rotation_z);
+        [[nodiscard]] float getRotationX() const;
+        [[nodiscard]] float getRotationY() const;
+        [[nodiscard]] float getRotationZ() const;
+
+    protected:
         glm::mat4 worldMatrix{};
         glm::vec3 position{};
         glm::vec3 zoom{1.0f, 1.0f, 1.0f};
-        glm::vec4 rotate[3]{};
+        float rotationX{};
+        float rotationY{};
+        float rotationZ{};
     };
 } // Node3D
 

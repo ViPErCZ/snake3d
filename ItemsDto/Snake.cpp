@@ -62,8 +62,8 @@ namespace ItemsDto {
                 }
             }
 
-            snakeTile->tile->setVirtualX(static_cast<int>(pos.x - (-23)) / 2 * 32 + 16);
-            snakeTile->tile->setVirtualY(static_cast<int>(pos.y - (-23)) / 2 * 32 + 16);
+            // snakeTile->tile->setVirtualX(static_cast<int>(pos.x - (-23)) / 2 * 32 + 16);
+            // snakeTile->tile->setVirtualY(static_cast<int>(pos.y - (-23)) / 2 * 32 + 16);
             snakeTile->tile->setPosition(pos);
             snakeTile->tile->setZoom({0.041666667f, 0.041666667f, 0.041666667f});
             snakeTile->tile->setVisible(true);
@@ -112,9 +112,6 @@ namespace ItemsDto {
         const shared_ptr<sSNAKE_TILE> snakeTile = (*tiles.begin());
 
         snakeTile->tile->setPosition({23, -3, -23}); // start pozice
-//        snakeTile->tile->setPosition({45, -3, -23});
-        snakeTile->tile->setVirtualX((((int)(23 - (-23)) / 2) * 32) + 16);
-        snakeTile->tile->setVirtualY((((int)(-3 - (-23)) / 2) * 32) + 16);
         snakeTile->direction = STOP;
         snakeTile->prevPauseDirection = NONE;
 

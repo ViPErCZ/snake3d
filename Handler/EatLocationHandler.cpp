@@ -21,8 +21,8 @@ namespace Handler {
             const glm::vec2 newPos = getPosition();
             glm::vec3 pos = eat->getPosition();
             //cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
-            eat->setVirtualX(static_cast<int>(newPos.x) * 32 + 16);
-            eat->setVirtualY(static_cast<int>(newPos.y) * 32 + 16);
+            eat->x = static_cast<int>(newPos.x) * 32 + 16;
+            eat->y = static_cast<int>(newPos.y) * 32 + 16;
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
             eat->setVisible(true);
         } catch (const std::invalid_argument &e) {
@@ -35,16 +35,16 @@ namespace Handler {
         const int posY = y * 32;
 
         for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); ++Iter) {
-            if ((*Iter)->tile->getVirtualX() - 16 + 32 >= posX && (*Iter)->tile->getVirtualX() - 16 <= posX
-                && (*Iter)->tile->getVirtualY() - 16 + 32 >= posY && (*Iter)->tile->getVirtualY() - 16 <=
+            if ((*Iter)->tile->x - 16 + 32 >= posX && (*Iter)->tile->x - 16 <= posX
+                && (*Iter)->tile->y - 16 + 32 >= posY && (*Iter)->tile->y - 16 <=
                 posY) {
                 return false;
             }
         }
 
         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
-            if ((*Iter)->getVirtualX() - 16 + 32 > posX && (*Iter)->getVirtualX() - 16 <= posX
-                && (*Iter)->getVirtualY() - 16 + 32 > posY && (*Iter)->getVirtualY() - 16 <= posY) {
+            if ((*Iter)->x - 16 + 32 > posX && (*Iter)->x - 16 <= posX
+                && (*Iter)->y - 16 + 32 > posY && (*Iter)->y - 16 <= posY) {
                 return false;
             }
         }
@@ -57,8 +57,8 @@ namespace Handler {
             try {
                 const glm::vec2 newPos = getPosition();
                 glm::vec3 pos = eat->getPosition();
-                eat->setVirtualX(static_cast<int>(newPos.x) * 32 + 16);
-                eat->setVirtualY(static_cast<int>(newPos.y) * 32 + 16);
+                eat->x = static_cast<int>(newPos.x) * 32 + 16;
+                eat->y = static_cast<int>(newPos.y) * 32 + 16;
                 eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
                 eat->setZoom({0.013888889, 0.013888889, 0.013888889});
                 eat->setVisible(true);

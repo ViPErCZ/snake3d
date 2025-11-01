@@ -30,13 +30,13 @@ namespace Scenes {
         void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const override;
 
     private:
+        void initPlayerScene();
+
         void initSkybox();
 
         void initPlane();
 
         void initSnake();
-
-        void initSnakeMoveHandler();
 
         void initBarriers();
 
@@ -52,7 +52,7 @@ namespace Scenes {
 
         void buildEatenUpCallback() const;
 
-        void buildStartMoveCallback(shared_ptr<AnimationModel> &animHead) const;
+        void buildStartMoveCallback() const;
 
         void buildCrashCallback() const;
 

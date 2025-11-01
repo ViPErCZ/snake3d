@@ -29,8 +29,8 @@ namespace Physic {
         //     blendBarrierDetect(snakeHead, Iter);
         // }
 
-        int x = snakeHead->getVirtualX();
-        int y = snakeHead->getVirtualY();
+        const int x = snakeHead->x;
+        const int y = snakeHead->y;
 
         if (x > perimeter->getMaxX()
             || x < perimeter->getMinX()
@@ -49,10 +49,10 @@ namespace Physic {
                 continue;
             }
 
-            const int x = snakeHead->getVirtualX();
-            const int y = snakeHead->getVirtualY();
-            const int secondX = (*Iter)->getVirtualX();
-            const int secondY = (*Iter)->getVirtualY();
+            const int x = snakeHead->x;
+            const int y = snakeHead->y;
+            const int secondX = (*Iter)->x;
+            const int secondY = (*Iter)->y;
 
             if (x - 16 + 32 >= secondX &&
                 x - 16 <= secondX
@@ -66,10 +66,10 @@ namespace Physic {
     }
 
     bool CollisionDetector::detect(const shared_ptr<BaseItem> &first, const shared_ptr<BaseItem> &second) {
-        const int x = first->getVirtualX();
-        const int y = first->getVirtualY();
-        const int secondX = second->getVirtualX();
-        const int secondY = second->getVirtualY();
+        const int x = first->x;
+        const int y = first->y;
+        const int secondX = second->x;
+        const int secondY = second->y;
 
         if (x - 16 + 32 > secondX && x - 16 <= secondX && y - 16 + 32 > secondY && y - 16 <= secondY) {
             return true;

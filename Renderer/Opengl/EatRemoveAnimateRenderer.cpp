@@ -35,10 +35,10 @@ namespace Renderer {
             texture3->bind(2);
 
             glm::vec3 position = eat->getPosition();
-            const glm::vec4 *rotate = eat->getRotate();
+            const float rotate = eat->getRotationY();
 
-            double now = glfwGetTime();
-            float angle = rotate[1].x;
+            const double now = glfwGetTime();
+            float angle = rotate;
             if (now > lastTime + 0.0001) {
                 angle++;
                 position.z += 0.2;
@@ -62,10 +62,9 @@ namespace Renderer {
             baseShader->setVec3("lightPos", lightPos);
 
             mesh->bind();
-            glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
 
-            eat->setRotate(rotate[0], {angle, 0, 1, 0}, rotate[2]);
-
+            eat->setRotationY(angle);
             glActiveTexture(GL_TEXTURE0);
 
             eat->fadeStep(0.02f);

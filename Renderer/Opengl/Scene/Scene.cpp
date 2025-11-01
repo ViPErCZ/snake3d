@@ -48,5 +48,8 @@ namespace Scenes {
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,
                               const int mods) const {
         keyboardManager->onKeyPress(keyCode, scancode, action, mods);
+        for (const auto &node: nodes) {
+            node->keyboardInput(window, keyCode, scancode, action, mods);
+        }
     }
 } // Scene

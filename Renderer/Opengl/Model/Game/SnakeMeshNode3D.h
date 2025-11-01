@@ -4,7 +4,8 @@
 #include "../Standard/MeshNode3D.h"
 
 namespace Model {
-    class SnakeMeshNode3D : public MeshNode3D {
+    class SnakeMeshNode3D final : public MeshNode3D {
+    public:
         enum eDIRECTION {
             NONE = -1,
             STOP = 0,
@@ -16,7 +17,6 @@ namespace Model {
             PAUSE = 200,
         };
 
-    public:
         using MeshNode3D::MeshNode3D;
 
         explicit SnakeMeshNode3D(const shared_ptr<StandardMesh> &mesh,
@@ -24,7 +24,13 @@ namespace Model {
 
         void respawn();
 
-        void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
+        void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override;
+
+        void setDirection(eDIRECTION direction);
+
+        void stop(bool stop) const;
+
+        [[nodiscard]] eDIRECTION getDirection() const;
 
     private:
         shared_ptr<StandardMaterial> tileMaterial;

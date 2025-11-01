@@ -15,6 +15,7 @@ namespace Model {
         AnimationArrayMesh(const std::shared_ptr<AnimationModel> &model, const shared_ptr<ShaderManager>& baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
         void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
+        void stop(bool stop) const;
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform) const;

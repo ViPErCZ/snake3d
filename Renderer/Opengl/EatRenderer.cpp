@@ -42,11 +42,10 @@ namespace Renderer {
         if (eat->isVisible()) {
             glLoadIdentity();
 
-            glm::vec3 position = eat->getPosition();
-            const glm::vec4 *rotate = eat->getRotate();
+            const float rotate = eat->getRotationY();
 
-            double now = glfwGetTime();
-            float angle = rotate[1].w;
+            const double now = glfwGetTime();
+            float angle = rotate;
             if (now > lastTime + 0.005) {
                 angle++;
                 lastTime = now;
@@ -54,20 +53,13 @@ namespace Renderer {
 
             // Initialize matrices
             const glm::mat4 model = eat->getModelMatrix();
-            // model = glm::rotate(model, glm::radians(90.0f), {1.0, 0.0, 0.0f});
-            // model = glm::rotate(model, glm::radians(angle), {0.0, 1.0, 0.0f});
+            eat->setRotationX(90);
+            eat->setRotationY(angle);
 
             shader->setMat4("model", model);
 
             mesh->bind();
-            glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
-
-            eat->setRotate(
-                {1, 0, 0, 90.0f},
-                {0, 1, 0, angle},
-                rotate[2]
-            );
-
+            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
         }
 
         glActiveTexture(GL_TEXTURE0);

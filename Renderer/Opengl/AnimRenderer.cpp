@@ -46,23 +46,23 @@ namespace Renderer {
     }
 
     void AnimRenderer::renderScene(const ShaderManager *shader) {
-        const glm::vec4 *rotate = model->getBaseItem()->getRotate();
+        //const float rotate = model->getBaseItem()->getRotate();
 
         switch (tile->direction) {
             case ItemsDto::RIGHT:
-                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
+                //model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
                 break;
             case ItemsDto::LEFT:
-                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 180}, rotate[2]);
+                //model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 180}, rotate[2]);
                 break;
             case ItemsDto::UP:
-                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 90}, rotate[2]);
+                //model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 90}, rotate[2]);
                 break;
             case ItemsDto::DOWN:
-                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, -90}, rotate[2]);
+                //model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, -90}, rotate[2]);
                 break;
             default:
-                model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
+                //model->getBaseItem()->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, rotate[2]);
                 break;
         }
 

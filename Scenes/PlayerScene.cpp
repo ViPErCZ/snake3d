@@ -1,7 +1,5 @@
 #include "PlayerScene.h"
-
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
-#include "../Renderer/Opengl/Model/Standard/SphereMesh.h"
 
 namespace Scenes {
 
@@ -13,20 +11,27 @@ namespace Scenes {
     void PlayerScene::init() {
         Scene::init();
         initSnake();
+        initSnakeMoveHandler();
+    }
+
+    shared_ptr<SnakeMeshNode3D> PlayerScene::getSnake() const {
+        return snake;
+    }
+
+    shared_ptr<SnakeMoveHandler> PlayerScene::getSnakeMoveHandler() const {
+        return snakeMoveHandler;
     }
 
     void PlayerScene::initSnake() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        auto geometry = make_shared<BaseItem>();
-        geometry->setZoom({0.041667f, 0.041667f, 0.041667f});
-        geometry->setPosition( {23, -3, -23});
-        const auto sphere = make_shared<SphereMesh>(geometry, shader, 1.5, 0.75);
-
-        const auto pacmanMesh = make_shared<AnimationArrayMesh>(AnimationArrayMesh(resourceManager->getAnimationModel("pacman"), shader));
-        // pacmanMesh->getBaseItem()->setZoom({0.041667f, 0.041667f, 0.041667f});
-        // pacmanMesh->getBaseItem()->setPosition( {23, -3, -23});
-        pacmanMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
+        const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader);
+        // TODO: smazat jakmile ve StandardMesh nebude parentTransform * getBaseItem()->getModelMatrix()
+        // TODO: ale bude tam jen parentTransform (zmenime na transform)
+        // TODO: a to tam bude az vsichni renderers budou pouzivat novy system standard meshu a MeshNode3D
+        pacmanMesh->getBaseItem()->setZoom({0.041667f, 0.041667f, 0.041667f});
+        pacmanMesh->getBaseItem()->setRotationX(90);
+        pacmanMesh->getBaseItem()->setPosition({23, -3, -23});
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -36,7 +41,6 @@ namespace Scenes {
         directionalLight->setSpecular({.091f, .091f, .091f});
 
         const auto material = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        //material->setColor({0.88, 0.05, 0.05});
         material->setShadow(resourceManager->getTexture("depth"));
         material->setNormalEnabled(true);
         material->setDirectionalLight(directionalLight);
@@ -47,5 +51,25 @@ namespace Scenes {
         snake->respawn();
 
         meshes.push_back(snake);
+    }
+
+    void PlayerScene::initSnakeMoveHandler() {
+        snakeMoveHandler = make_shared<SnakeMoveHandler>(snake);
+        keyboardManager->addEventHandler(snakeMoveHandler);
+
+        buildStartMoveCallback();
+        buildStopMoveCallback();
+    }
+
+    void PlayerScene::buildStartMoveCallback() const {
+        snakeMoveHandler->addStartMoveCallback([this]() {
+            this->snake->stop(false);
+        });
+    }
+
+    void PlayerScene::buildStopMoveCallback() const {
+        snakeMoveHandler->setStopMoveCallback([this](const bool stop) {
+            this->snake->stop(stop);
+        });
     }
 } // Scenes

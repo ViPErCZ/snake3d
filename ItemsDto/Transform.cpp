@@ -1,6 +1,7 @@
 #include "Transform.h"
 
 namespace Node3D {
+
     const glm::vec3 &Transform::getPosition() const {
         return position;
     }
@@ -11,9 +12,9 @@ namespace Node3D {
         model = glm::scale(model, zoom);
         model = glm::translate(model, position);
 
-        if (rotate[0].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[0].w), glm::vec3(rotate[0].x, rotate[0].y, rotate[0].z));
-        if (rotate[1].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[1].w), glm::vec3(rotate[1].x, rotate[1].y, rotate[1].z));
-        if (rotate[2].w != 0.0f) model = glm::rotate(model, glm::radians(rotate[2].w), glm::vec3(rotate[2].x, rotate[2].y, rotate[2].z));
+        model = glm::rotate(model, glm::radians(rotationX), {1.0, 0.0, 0.0});
+        model = glm::rotate(model, glm::radians(rotationY), {0.0, 1.0, 0.0});
+        model = glm::rotate(model, glm::radians(rotationZ), {0.0, 0.0, 1.0});
 
         return model;
     }
@@ -30,13 +31,27 @@ namespace Node3D {
         Transform::zoom = zoom;
     }
 
-    const glm::vec4 *Transform::getRotate() const {
-        return rotate;
+    void Transform::setRotationX(const float rotation_x) {
+        rotationX = rotation_x;
     }
 
-    void Transform::setRotate(const glm::vec4 &rotateX, const glm::vec4 &rotateY, const glm::vec4 &rotateZ) {
-        rotate[0] = rotateX;
-        rotate[1] = rotateY;
-        rotate[2] = rotateZ;
+    void Transform::setRotationY(const float rotation_y) {
+        rotationY = rotation_y;
+    }
+
+    void Transform::setRotationZ(const float rotation_z) {
+        rotationZ = rotation_z;
+    }
+
+    float Transform::getRotationX() const {
+        return rotationX;
+    }
+
+    float Transform::getRotationY() const {
+        return rotationY;
+    }
+
+    float Transform::getRotationZ() const {
+        return rotationZ;
     }
 } // Node3D

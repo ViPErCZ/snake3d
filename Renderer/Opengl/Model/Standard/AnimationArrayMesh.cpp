@@ -46,6 +46,10 @@ namespace Model {
         }
     }
 
+    void AnimationArrayMesh::stop(const bool stop) const {
+        model->setGlobalPause(stop);
+    }
+
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
         auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
                                         [&](const auto &anim) {

@@ -3,9 +3,6 @@
 
 namespace ItemsDto {
     BaseItem::BaseItem() : visible(true), width(1), height(1), startFadeOut(false), alpha(1.0f) {
-        rotate[0].w = rotate[0].x = rotate[0].y = rotate[0].z = 0.0f;
-        rotate[1].w = rotate[1].x = rotate[1].y = rotate[1].z = 0.0f;
-        rotate[2].w = rotate[2].x = rotate[2].y = rotate[2].z = 0.0f;
     }
 
     bool BaseItem::isVisible() const {
@@ -37,22 +34,6 @@ namespace ItemsDto {
 
     void BaseItem::toggleVisible() {
         this->visible = !this->visible;
-    }
-
-    int BaseItem::getVirtualX() const {
-        return virtual_X;
-    }
-
-    void BaseItem::setVirtualX(const int virtualX) {
-        virtual_X = virtualX;
-    }
-
-    int BaseItem::getVirtualY() const {
-        return virtual_Y;
-    }
-
-    void BaseItem::setVirtualY(const int virtualY) {
-        virtual_Y = virtualY;
     }
 
     void BaseItem::fadeOut() {
