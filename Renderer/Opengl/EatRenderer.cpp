@@ -30,7 +30,7 @@ namespace Renderer {
         texture2->bind(1);
         texture3->bind(2);
 
-        renderScene(baseShader);
+        //renderScene(baseShader);
     }
 
     void EatRenderer::renderShadowMap() {

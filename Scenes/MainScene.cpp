@@ -2,12 +2,13 @@
 #include "PlayerScene.h"
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
-#include "../Renderer/Opengl/EatRenderer.h"
 #include "../Renderer/Opengl/RadarRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
+#include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 
 namespace Scenes {
@@ -30,6 +31,7 @@ namespace Scenes {
         initLevelManager();
 
         buildStartMoveCallback();
+        buildEatenUpCallback();
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -54,9 +56,11 @@ namespace Scenes {
     }
 
     void MainScene::initPlayerScene() {
-        const auto playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
+        playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
         playerScene->init();
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
+        collisionDetector = make_shared<CollisionDetector>();
+        snakeMoveHandler->setCollisionDetector(collisionDetector);
         addNode(playerScene);
     }
 
@@ -87,7 +91,6 @@ namespace Scenes {
         shaderMaterial->addUniform("shadowMap", shadow);
         shaderMaterial->addUniform("material.diffuse", 0);
         shaderMaterial->addUniform("shadowsEnable", true);
-        // planeShader.get()->printActiveUniforms();
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -106,8 +109,6 @@ namespace Scenes {
         planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
 
         const auto standardBaseItem = make_shared<BaseItem>();
-        //standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-        //standardBaseItem->setPosition(glm::vec3(1.0, 1.0, -1.0));
         auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
         const auto node3d = make_shared<MeshNode3D>(shared_ptr<StandardMesh>(std::move(planeMesh)), resourceManager);
@@ -137,36 +138,114 @@ namespace Scenes {
     }
 
     void MainScene::initBarriers() {
-        barriers = make_shared<Barriers>();
-        const auto barrierRenderer = make_shared<BarrierRenderer>(snake, barriers, camera.get(), projection, resourceManager.get());
-        rendererManager->addRenderer(barrierRenderer);
+        const auto geometry = make_shared<BaseItem>(BaseItem());
+        const auto shader = resourceManager->getShader("basicShader");
+        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
+        const auto boxMesh = make_shared<BoxMesh>(geometry, shader, 2.0, 2.0, 2.0);
 
-        objWall = make_shared<ObjWall>();
-        objWall->init();
-        const auto objWallRenderer = make_shared<ObjWallRenderer>(snake, objWall, camera.get(), projection, resourceManager.get());
-        rendererManager->addRenderer(objWallRenderer);
+        const auto directionalLight = make_shared<DirectionalLight>();
+        directionalLight->setPosition({0.0f, 7.0f, 110.0f});
+        directionalLight->setDirection({0, 1.0, -3});
+        directionalLight->setAmbient({0.6f, 0.6f, 0.6f});
+        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        directionalLight->setSpecular({.001f, .001f, .001f});
+
+        const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
+        const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
+        const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
+        const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+        boxMaterial->setShadow(resourceManager->getTexture("depth"));
+        boxMaterial->setNormalEnabled(true);
+        boxMaterial->setAlbedo(brickWall);
+        boxMaterial->setNormal(brickWallNormal);
+        boxMaterial->setSpecular(brickWallSpecular);
+        boxMaterial->setDirectionalLight(directionalLight);
+
+        boxMesh->setMaterial(boxMaterial);
+        geometry->setScale({0.041666667f, 0.041666667f, 0.041666667f});
+
+        const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
+        boxNode3D->setPosition({-25.0, -25.0, -23.0});
+
+        for (int x = 2; x <= 98; x += 2) {
+            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
+            boxNode3D_2->setPosition({x, 0.0, 0.0});
+            boxNode3D->addNode(boxNode3D_2);
+        }
+
+        for (int x = 0; x <= 98; x += 2) {
+            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
+            boxNode3D_2->setPosition({x, 98.0, 0.0});
+            boxNode3D->addNode(boxNode3D_2);
+        }
+
+        for (int y = 2; y <= 96; y += 2) {
+            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
+            boxNode3D_2->setPosition({0, y, 0.0});
+            boxNode3D->addNode(boxNode3D_2);
+        }
+
+        for (int y = 2; y <= 96; y += 2) {
+            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
+            boxNode3D_2->setPosition({98, y, 0.0});
+            boxNode3D->addNode(boxNode3D_2);
+        }
+
+        meshes.push_back(boxNode3D);
     }
 
     void MainScene::initLevelManager() {
-        levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
+        levelManager = make_unique<LevelManager>(1, MAX_LIVES, resourceManager);
         levelManager->createLevel(START_LEVEL);
+        levelBoxes = levelManager->createLevel(START_LEVEL);
+        meshes.push_back(levelBoxes);
     }
 
     void MainScene::initEat() {
-        eat = make_shared<Eat>();
-        eat->x = (23 - -23) / 2 * 32 + 16;
-        eat->y = (-3 - -23) / 2 * 32 + 16;
-        eat->setPosition({-69.0, -69, -70.0f});
-        eat->setZoom({0.013888889, 0.013888889, 0.013888889});
-        eat->setRotationX(90);
-        eat->setVisible(false);
-        const auto eatRenderer = make_shared<EatRenderer>(eat.get(), camera.get(), projection, resourceManager.get());
+        const auto shader = resourceManager->getShader("basicShader");
+        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
+        const std::shared_ptr<ObjItem> coinModel(
+            resourceManager->getModel("coin"), [](ObjItem *) {
+        });
+        const auto geometry = make_shared<BaseItem>(BaseItem());
+        const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(geometry, shader));
+        coinMesh->fromObj(coinModel);
 
-        rendererManager->addRenderer(eatRenderer, 10);
+        coinMeshNode3D = make_shared<CoinMeshNode3D>(coinMesh, resourceManager);
+        coinMeshNode3D->setPosition({-69.0, -69, -70.0f});
+        coinMeshNode3D->setScale({0.013888889, 0.013888889, 0.013888889});
+        geometry->setRotationX(90);
+        geometry->setVisible(false);
+
+        const auto directionalLight = make_shared<DirectionalLight>();
+        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        directionalLight->setDirection({1, 1.0, -3});
+        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        directionalLight->setSpecular({.091f, .091f, .091f});
+
+        const auto shadowMap = resourceManager->getTexture("depth");
+        const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
+        const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
+        const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
+        auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
+        const auto coinMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+        coinMaterial->setAlbedo(coinAlbedo);
+        coinMaterial->setNormal(coinNormal);
+        coinMaterial->setSpecular(coinMetalness);
+        coinMaterial->setShadow(shadowMap);
+        coinMaterial->setNormalEnabled(true);
+        coinMaterial->setDirectionalLight(directionalLight);
+
+        coinMesh->setMaterial(coinMaterial);
+
+        collisionDetector->addStaticItem(coinMeshNode3D);
+
+        meshes.push_back(coinMeshNode3D);
     }
 
     void MainScene::initEatManager() {
-        auto eatLocationHandler = make_shared<EatLocationHandler>(barriers, snake, eat, radar);
+        auto eatLocationHandler = make_shared<EatLocationHandler>(nullptr, playerScene->getSnake(), coinMeshNode3D, radar);
         eatManager = make_unique<EatManager>(eatLocationHandler);
     }
 
@@ -182,7 +261,7 @@ namespace Scenes {
         radar->reset();
         radar->setVisible(true);
         radar->setPosition({1.25, 1.4, 0.0});
-        radar->setZoom({100, 100, 1});
+        radar->setScale({100, 100, 1});
         radar->setWidth(176);
         radar->setHeight(176);
 
@@ -190,16 +269,16 @@ namespace Scenes {
             for (const auto& tile: snake->getItems()) {
                 radar->addItem(tile->tile, {0.278,1.,0.});
             }
-            for (const auto& block: barriers->getItems()) {
-                radar->addItem(block, {0.694,0.078,0.016});
-            }
-            radar->addItem(eat, {1.,0.953,0.});
+            // for (const auto& block: barriers->getItems()) {
+            //     radar->addItem(block, {0.694,0.078,0.016});
+            // }
+            // radar->addItem(eat, {1.,0.953,0.});
         }
     }
 
     void MainScene::buildEatenUpCallback() const {
         snakeMoveHandler->setEatenUpCallback([this]() {
-            if (this->levelManager && this->snake) {
+            if (this->levelManager) {
                 // alSourcePlay (coinSource);
                 //
                 // if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
@@ -285,7 +364,7 @@ namespace Scenes {
                 );
                 std::string buffAsStdStr = buff;
                 // this->tilesCounterText->setText(buffAsStdStr);
-                eat->setVisible(false);
+                coinMeshNode3D->getBaseItem()->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
                     this->levelManager->createLevel(1);

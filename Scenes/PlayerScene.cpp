@@ -29,7 +29,7 @@ namespace Scenes {
         // TODO: smazat jakmile ve StandardMesh nebude parentTransform * getBaseItem()->getModelMatrix()
         // TODO: ale bude tam jen parentTransform (zmenime na transform)
         // TODO: a to tam bude az vsichni renderers budou pouzivat novy system standard meshu a MeshNode3D
-        pacmanMesh->getBaseItem()->setZoom({0.041667f, 0.041667f, 0.041667f});
+        pacmanMesh->getBaseItem()->setScale({0.041667f, 0.041667f, 0.041667f});
         pacmanMesh->getBaseItem()->setRotationX(90);
         pacmanMesh->getBaseItem()->setPosition({23, -3, -23});
 

@@ -22,7 +22,7 @@ namespace ItemsDto {
         radarItem.item = item;
         radarItem.radarPresent = make_shared<BaseItem>();
         radarItem.radarPresent->setVisible(true);
-        radarItem.radarPresent->setZoom({2,2,1});
+        // radarItem.radarPresent->setZoom({2,2,1});
         radarItem.color = color;
 
         items.push_back(radarItem);

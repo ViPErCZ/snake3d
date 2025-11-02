@@ -9,7 +9,7 @@ namespace Node3D {
     glm::mat4 Transform::getModelMatrix() const {
         auto model = glm::mat4(1.0f);
 
-        model = glm::scale(model, zoom);
+        model = glm::scale(model, scale);
         model = glm::translate(model, position);
 
         model = glm::rotate(model, glm::radians(rotationX), {1.0, 0.0, 0.0});
@@ -23,12 +23,12 @@ namespace Node3D {
         Transform::position = position;
     }
 
-    const glm::vec3 &Transform::getZoom() const {
-        return zoom;
+    const glm::vec3 &Transform::getScale() const {
+        return scale;
     }
 
-    void Transform::setZoom(const glm::vec3 &zoom) {
-        Transform::zoom = zoom;
+    void Transform::setScale(const glm::vec3 &scale) {
+        Transform::scale = scale;
     }
 
     void Transform::setRotationX(const float rotation_x) {

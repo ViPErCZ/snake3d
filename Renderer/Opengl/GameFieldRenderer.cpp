@@ -127,7 +127,7 @@ void Renderer::GameFieldRenderer::renderScene(const ShaderManager *shader) const
 
             glm::vec3 position = (*Iter)->getPosition();
             auto model = glm::mat4(1.0f);
-            model = glm::scale(model, (*Iter)->getZoom());
+            // model = glm::scale(model, (*Iter)->getZoom());
             model = glm::translate(model, position);
             shader->setMat4("model", model);
 

@@ -22,11 +22,7 @@ namespace Model {
         this->x = (23 - -23) / 2 * 32 + 16;
         this->y = (-3 - -23) / 2 * 32 + 16;
 
-        auto geometry = make_shared<BaseItem>();
-        geometry->setZoom({0.041667f, 0.041667f, 0.041667f});
-        geometry->setPosition({23, -3, -23});
-        const auto sphere = make_shared<SphereMesh>(geometry, nullptr, 1.5, 0.75);
-        sphere->setMaterial(tileMaterial);
+        const auto sphere = createTileNode();
 
         const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
         tile->setPosition({-2, 0, 0});
@@ -62,6 +58,63 @@ namespace Model {
         } catch (exception &e) {
             cout << "Mesh is not AnimationArrayMesh instance." << endl;
         }
+    }
+
+    shared_ptr<SphereMesh> SnakeMeshNode3D::createTileNode() const {
+        auto geometry = make_shared<BaseItem>();
+        geometry->setScale({0.041667f, 0.041667f, 0.041667f});
+        geometry->setPosition({23, -3, -23});
+        const auto sphere = make_shared<SphereMesh>(geometry, nullptr, 1.5, 0.75);
+        sphere->setMaterial(tileMaterial);
+
+        return sphere;
+    }
+
+    void SnakeMeshNode3D::addTile(const eDIRECTION direction) {
+        glm::vec3 pos = {-19, 67, -23};
+        const auto sphere = createTileNode();
+
+        const auto PrevIter = children.end() - 1;
+
+        if (getDirection() != STOP) {
+            pos = (*PrevIter)->getPosition();
+        } else {
+            switch (direction) {
+                case LEFT:
+                    if ((*PrevIter)->getPosition().x - 2 >= -25) {
+                        pos.x = (*PrevIter)->getPosition().x - 2;
+                        pos.y = (*PrevIter)->getPosition().y;
+                    }
+                    break;
+                case RIGHT:
+                    if ((*PrevIter)->getPosition().x + 2 <= 752) {
+                        pos.x = (*PrevIter)->getPosition().x + 2;
+                        pos.y = (*PrevIter)->getPosition().y;
+                    }
+                    break;
+                case UP:
+                    if ((*PrevIter)->getPosition().y - 2 >= -25) {
+                        pos.x = (*PrevIter)->getPosition().x;
+                        pos.y = (*PrevIter)->getPosition().y - 2;
+                    }
+                    break;
+                case DOWN:
+                    if ((*PrevIter)->getPosition().y + 2 <= 752) {
+                        pos.x = (*PrevIter)->getPosition().x;
+                        pos.y = (*PrevIter)->getPosition().y + 2;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
+        tile->setPosition(pos);
+        tile->x = x - 2;
+        tile->y = y;
+
+        addNode(tile);
     }
 
     SnakeMeshNode3D::eDIRECTION SnakeMeshNode3D::getDirection() const {

@@ -14,7 +14,7 @@ namespace Handler {
         }
 
         glm::vec3 pos = activeItem->getPosition();
-        glm::vec3 zoom = activeItem->getZoom();
+        glm::vec3 zoom = activeItem->getScale();
         const float rotationX = activeItem->getRotationX();
         const float rotationY = activeItem->getRotationY();
         const float rotationZ = activeItem->getRotationZ();
@@ -99,7 +99,7 @@ namespace Handler {
                         zoom.y += 0.01f;
                         zoom.z += 0.01f;
                     }
-                    activeItem->setZoom(zoom);
+                    activeItem->setScale(zoom);
                 }
                 break;
             case GLFW_KEY_KP_SUBTRACT:
@@ -113,7 +113,7 @@ namespace Handler {
                         zoom.y -= 0.01f;
                         zoom.z -= 0.01f;
                     }
-                    activeItem->setZoom(zoom);
+                    activeItem->setScale(zoom);
                 }
                 break;
             case GLFW_KEY_TAB:

@@ -158,20 +158,20 @@ namespace Handler {
             next_time = now;
 
             //
-            // // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
-            // if (collisionDetector && snakeHead->direction > STOP && snakeHead->direction < CRASH) {
-            //     // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
-            //     // pokud ano, tak checkneme kolizi s jidlem
-            //     const bool l_allowed = isChangeDirectionAllowed(snakeHead);
-            //     if (l_allowed && collisionDetector->detectWithStaticItem(snakeHead->tile)) {
-            //         cout << "Head position(eaten): " << snakeHead->tile->getPosition().x << ", " << snakeHead->tile->getPosition().y << endl;
-            //         if (eatenUpCallback) {
-            //             eatenUpCallback();
-            //         }
-            //         if (snakeHead->direction == STOP) { // doslo k postupu do dalsiho level
-            //             changeCallback = nullptr;
-            //         }
-            //     }
+            // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
+            if (collisionDetector && snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
+                 // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
+                 // pokud ano, tak checkneme kolizi s jidlem
+                 const bool l_allowed = isChangeDirectionAllowed();
+                 if (l_allowed && collisionDetector->detectWithStaticItem(snakeMeshNode)) {
+                     cout << "Head position(eaten): " << snakeMeshNode->getPosition().x << ", " << snakeMeshNode->getPosition().y << endl;
+                     if (eatenUpCallback) {
+                         eatenUpCallback();
+                     }
+                     if (snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP) { // doslo k postupu do dalsiho level
+                         changeCallback = nullptr;
+                     }
+                 }
             //
             //     if (collisionDetector->perimeterDetect(snakeHead->tile)
             //         || collisionDetector->barrierCollision(snakeHead->tile)
@@ -182,7 +182,7 @@ namespace Handler {
             //         }
             //         changeCallback = nullptr;
             //     }
-            // }
+            }
         }
     }
 

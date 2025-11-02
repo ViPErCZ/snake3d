@@ -103,7 +103,7 @@ namespace Model {
 
         float x = text->getPosition().x;
         float y = text->getPosition().y;
-        float scale = text->getZoom().x;
+        float scale = text->getScale().x;
         for (char c : text->getText())
         {
             Character* ch = characters[c];

@@ -7,7 +7,7 @@ namespace ItemsDto {
         snakeTile->tile = make_shared<Cube>();
         snakeTile->tile->setVisible(true);
         snakeTile->alpha = 1.0;
-        snakeTile->tile->setZoom({0.041667f, 0.041667f, 0.041667f});
+        snakeTile->tile->setScale({0.041667f, 0.041667f, 0.041667f});
 
         tiles.push_back(snakeTile);
         reset();
@@ -65,7 +65,7 @@ namespace ItemsDto {
             // snakeTile->tile->setVirtualX(static_cast<int>(pos.x - (-23)) / 2 * 32 + 16);
             // snakeTile->tile->setVirtualY(static_cast<int>(pos.y - (-23)) / 2 * 32 + 16);
             snakeTile->tile->setPosition(pos);
-            snakeTile->tile->setZoom({0.041666667f, 0.041666667f, 0.041666667f});
+            snakeTile->tile->setScale({0.041666667f, 0.041666667f, 0.041666667f});
             snakeTile->tile->setVisible(true);
             snakeTile->prevPauseDirection = NONE;
             tiles.push_back(snakeTile);

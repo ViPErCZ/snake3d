@@ -173,9 +173,9 @@ void App::initScene() {
     // coinMaterial->addPointLight(pointLight);
     // boxMaterial->addPointLight(pointLight);
     // boxMaterial->addPointLight(pointLight);
-    planeMaterial->setShadow(true);
-    coinMaterial->setShadow(true);
-    boxMaterial->setShadow(true);
+    // planeMaterial->setShadow(true);
+    // coinMaterial->setShadow(true);
+    // boxMaterial->setShadow(true);
     // planeMaterial->setEnvironmentMap(environmentMap);
     // coinMaterial->setEnvironmentMap(environmentMap);
 
@@ -213,10 +213,10 @@ void App::initScene() {
     //coinMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // pacmanMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // skeletonMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-    sphereMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
-    coinMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
+    sphereMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
+    coinMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
     // pacmanMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
-    standardBoxMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
+    standardBoxMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
     // skeletonMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // const auto standardRenderer = new StandardMeshRenderer(camera, projection, sphereMesh);
@@ -534,9 +534,9 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
 
     switch (keyCode) {
         case GLFW_KEY_P:
-            if (objWallRenderer) {
-                objWallRenderer->toggleParallax();
-            }
+            // if (objWallRenderer) {
+            //     objWallRenderer->toggleParallax();
+            // }
             break;
         case GLFW_KEY_F:
             rendererManager->toggleFog();
@@ -802,7 +802,7 @@ void App::initTexts() const {
         startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
         startText->setFontSize(22);
         startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
-        startText->setZoom({1.0f, 0, 0});
+        startText->setScale({1.0f, 0, 0});
         textRenderer->addText(startText, resourceManager->getShader("textShader").get());
 
         tilesCounterText->setVisible(true);
@@ -810,7 +810,7 @@ void App::initTexts() const {
         tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
         tilesCounterText->setFontSize(22);
         tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
-        tilesCounterText->setZoom({1.0f, 0, 0});
+        tilesCounterText->setScale({1.0f, 0, 0});
         textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader").get());
     }
 }

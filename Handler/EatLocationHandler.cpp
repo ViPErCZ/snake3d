@@ -2,10 +2,10 @@
 #include <random>
 
 namespace Handler {
-    EatLocationHandler::EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<Snake> &snake,
-                                           const shared_ptr<Eat> &eat,
+    EatLocationHandler::EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                           const shared_ptr<CoinMeshNode3D> &eat,
                                            const shared_ptr<Radar> &radar)
-        : radar(radar), snake(snake), barriers(barriers), eat(eat), counter(0) {
+        : radar(radar), barriers(barriers), snake(snake), eat(eat), counter(0) {
     }
 
     EatLocationHandler::~EatLocationHandler() = default;
@@ -24,9 +24,9 @@ namespace Handler {
             eat->x = static_cast<int>(newPos.x) * 32 + 16;
             eat->y = static_cast<int>(newPos.y) * 32 + 16;
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
-            eat->setVisible(true);
+            eat->getBaseItem()->setVisible(true);
         } catch (const std::invalid_argument &e) {
-            eat->setVisible(false);
+            eat->getBaseItem()->setVisible(false);
         }
     }
 
@@ -34,20 +34,24 @@ namespace Handler {
         const int posX = x * 32;
         const int posY = y * 32;
 
-        for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); ++Iter) {
-            if ((*Iter)->tile->x - 16 + 32 >= posX && (*Iter)->tile->x - 16 <= posX
-                && (*Iter)->tile->y - 16 + 32 >= posY && (*Iter)->tile->y - 16 <=
-                posY) {
+        if (snake->x - 16 + 32 >= posX && snake->x - 16 <= posX
+            && snake->y - 16 + 32 >= posY && snake->y - 16 <= posY) {
+            return false;
+        }
+
+        for (auto Iter = snake->getChildren().begin(); Iter < snake->getChildren().end(); ++Iter) {
+            if ((*Iter)->x - 16 + 32 >= posX && (*Iter)->x - 16 <= posX
+                && (*Iter)->y - 16 + 32 >= posY && (*Iter)->y - 16 <= posY) {
                 return false;
             }
         }
 
-        for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
-            if ((*Iter)->x - 16 + 32 > posX && (*Iter)->x - 16 <= posX
-                && (*Iter)->y - 16 + 32 > posY && (*Iter)->y - 16 <= posY) {
-                return false;
-            }
-        }
+        // for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
+        //     if ((*Iter)->x - 16 + 32 > posX && (*Iter)->x - 16 <= posX
+        //         && (*Iter)->y - 16 + 32 > posY && (*Iter)->y - 16 <= posY) {
+        //         return false;
+        //     }
+        // } // TODO: Nahradit za MeshNode3D s barierama
 
         return true;
     }
@@ -60,8 +64,8 @@ namespace Handler {
                 eat->x = static_cast<int>(newPos.x) * 32 + 16;
                 eat->y = static_cast<int>(newPos.y) * 32 + 16;
                 eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
-                eat->setZoom({0.013888889, 0.013888889, 0.013888889});
-                eat->setVisible(true);
+                eat->setScale({0.013888889, 0.013888889, 0.013888889});
+                eat->getBaseItem()->setVisible(true);
                 break;
             } catch (const std::invalid_argument &e) {
             }
@@ -85,8 +89,8 @@ namespace Handler {
     }
 
     void EatLocationHandler::onCheckPlaceHandler() const {
-        if (!eat->isVisible() && (*snake->getItems().begin())->direction > STOP && (*snake->getItems().begin())->
-            direction < CRASH) {
+        if (!eat->getBaseItem()->isVisible() &&
+            snake->getDirection() > SnakeMeshNode3D::STOP && snake->getDirection() < SnakeMeshNode3D::CRASH) {
             rePosition();
         }
     }
@@ -95,10 +99,10 @@ namespace Handler {
         counter++;
 
         for (int x = 0; x < counter + 1; x++) {
-            const auto tile = snake->addTile((*snake->getItems().begin())->direction);
-            if (tile != nullptr) {
-                radar->addItem(tile->tile, {0.278, 1., 0.});
-            }
+            snake->addTile(snake->getDirection());
+            // if (tile != nullptr) { // TODO: toto by nemelo byt treba, radar bude mit celej SnakeMeshNode
+            //     radar->addItem(tile->tile, {0.278, 1., 0.});
+            // }
         }
     }
 

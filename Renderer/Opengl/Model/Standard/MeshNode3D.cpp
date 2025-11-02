@@ -17,19 +17,21 @@ namespace Model {
 
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
                             const glm::mat4 &parentTransform) const {
-        if (!mesh->getBaseItem()->isVisible()) {
-            return;
-        }
+        if (visible) {
+            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            mesh->render(camera, projection, 1, finalTransform);
 
-        const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
-
-        mesh->render(camera, projection, 1, finalTransform);
-        for (auto &node: children) {
-            node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+            for (auto &node: children) {
+                node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+            }
+        } else if (transformDetached) {
+            for (auto &node: children) {
+                node->render(camera, projection, dt, glm::mat4(1.0f));
+            }
         }
     }
 
-    void MeshNode3D::update(const float dt) const {
+    void MeshNode3D::update(const float dt) {
         mesh->update(dt);
         for (const auto &node: children) {
             node->update(dt);
@@ -38,14 +40,16 @@ namespace Model {
 
     void MeshNode3D::renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
                                    const glm::mat4 &parentTransform) const {
-        if (!mesh->getBaseItem()->isVisible()) {
-            return;
-        }
-
-        const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
-        mesh->renderShadowMap(camera, projection, dt, finalTransform);
-        for (const auto &node: children) {
-            node->renderShadows(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+        if (visible) {
+            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            mesh->renderShadowMap(camera, projection, dt, finalTransform);
+            for (const auto &node: children) {
+                node->renderShadows(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+            }
+        } else if (transformDetached) {
+            for (auto &node: children) {
+                node->renderShadows(camera, projection, dt, glm::mat4(1.0f));
+            }
         }
     }
 
@@ -56,10 +60,10 @@ namespace Model {
     glm::mat4 MeshNode3D::getModelMatrix() const {
         auto model = glm::mat4(1.0f);
 
-        model = glm::scale(model, zoom);
+        model = glm::scale(model, scale);
 
         glm::vec3 origin = position;
-        origin *= mesh->getBaseItem()->getZoom();
+        origin *= mesh->getBaseItem()->getScale();
         model = glm::translate(model, origin);
 
         model = glm::rotate(model, glm::radians(rotationX),
@@ -80,12 +84,22 @@ namespace Model {
         directionalLight = directional_light;
     }
 
+    void MeshNode3D::setTransformDetached(const bool transform_detached, bool recursive) {
+        transformDetached = transform_detached;
+
+        if (recursive) {
+            for (const auto &child: children) {
+                child->setTransformDetached(transform_detached, recursive);
+            }
+        }
+    }
+
     std::shared_ptr<MeshNode3D> MeshNode3D::deepCopy() const {
         auto copyMesh = std::make_shared<StandardMesh>(*mesh);
         auto copyNode = std::make_shared<MeshNode3D>(copyMesh, resourceManager);
 
         copyNode->setPosition(this->getPosition());
-        copyNode->setZoom(this->getZoom());
+        copyNode->setScale(this->getScale());
         copyNode->setRotationX(this->rotationX);
         copyNode->setRotationY(this->rotationY);
         copyNode->setRotationZ(this->rotationZ);
@@ -102,4 +116,5 @@ namespace Model {
         const auto copy = this->deepCopy();
         *this = *copy;
     }
+
 } // Model

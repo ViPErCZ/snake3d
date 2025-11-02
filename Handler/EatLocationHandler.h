@@ -4,8 +4,9 @@
 #include "../ItemsDto/Snake.h"
 #include "BaseHandler.h"
 #include "../Physic/CollisionDetector.h"
-#include "../ItemsDto/Eat.h"
 #include "../ItemsDto/Radar.h"
+#include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
 using namespace ItemsDto;
 using namespace Physic;
@@ -16,8 +17,8 @@ namespace Handler {
     public:
         ~EatLocationHandler() override;
 
-        explicit EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<Snake> &snake, const shared_ptr<Eat> &eat,
-                                    const shared_ptr<Radar> &radar);
+        explicit EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                    const shared_ptr<CoinMeshNode3D> &eat, const shared_ptr<Radar> &radar);
 
         void onDefaultHandler() override;
 
@@ -33,9 +34,9 @@ namespace Handler {
 
     protected:
         shared_ptr<Radar> radar;
-        shared_ptr<Snake> snake;
         shared_ptr<Barriers> barriers;
-        shared_ptr<Eat> eat;
+        shared_ptr<SnakeMeshNode3D> snake;
+        shared_ptr<CoinMeshNode3D> eat;
         int counter;
 
         void addTile();

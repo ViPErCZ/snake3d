@@ -2,6 +2,7 @@
 #define SNAKE3_SNAKEMESHNODE3D_H
 
 #include "../Standard/MeshNode3D.h"
+#include "../Standard/SphereMesh.h"
 
 namespace Model {
     class SnakeMeshNode3D final : public MeshNode3D {
@@ -30,9 +31,12 @@ namespace Model {
 
         void stop(bool stop) const;
 
+        void addTile(eDIRECTION direction);
+
         [[nodiscard]] eDIRECTION getDirection() const;
 
     private:
+        shared_ptr<SphereMesh> createTileNode() const;
         shared_ptr<StandardMaterial> tileMaterial;
         eDIRECTION direction = NONE;
     };

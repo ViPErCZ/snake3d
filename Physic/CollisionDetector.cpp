@@ -1,5 +1,7 @@
 #include "CollisionDetector.h"
 
+#include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
+
 namespace Physic {
 
     CollisionDetector::~CollisionDetector() {
@@ -7,7 +9,7 @@ namespace Physic {
         staticItems.clear();
     }
 
-    void CollisionDetector::addStaticItem(const shared_ptr<BaseItem> &item) {
+    void CollisionDetector::addStaticItem(const shared_ptr<MeshNode3D> &item) {
         staticItems.push_back(item);
     }
 
@@ -43,14 +45,14 @@ namespace Physic {
         return false;
     }
 
-    bool CollisionDetector::detectWithStaticItem(const shared_ptr<BaseItem> &snakeHead) {
+    bool CollisionDetector::detectWithStaticItem(const shared_ptr<MeshNode3D> &node) {
         for (auto Iter = staticItems.begin(); Iter < staticItems.end(); ++Iter) {
-            if (!(*Iter)->isVisible()) {
+            if (!(*Iter)->getBaseItem()->isVisible()) {
                 continue;
             }
 
-            const int x = snakeHead->x;
-            const int y = snakeHead->y;
+            const int x = node->x;
+            const int y = node->y;
             const int secondX = (*Iter)->x;
             const int secondY = (*Iter)->y;
 

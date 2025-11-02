@@ -13,7 +13,9 @@ using namespace ItemsDto;
 using namespace Manager;
 
 namespace Renderer {
-
+    /**
+     * Deprecated
+     */
     class EatRenderer : public BaseRenderer {
     public:
         EatRenderer(Eat *eat, Camera *camera, const glm::mat4 &projection,

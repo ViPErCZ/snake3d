@@ -3,10 +3,11 @@
 
 #include <memory>
 #include "StandardMesh.h"
+#include "../../../../ItemsDto/Visibility.h"
 #include "../../../../Manager/ResourceManager.h"
 
 namespace Model {
-    class MeshNode3D : public enable_shared_from_this<MeshNode3D>, public Transform, public Vector3i {
+    class MeshNode3D : public enable_shared_from_this<MeshNode3D>, public Transform, public Visibility, public Vector3i {
     public:
         explicit MeshNode3D(const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
@@ -17,7 +18,7 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform) const;
 
-        void update(float dt) const;
+        virtual void update(float dt);
 
         void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const;
@@ -29,6 +30,8 @@ namespace Model {
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
 
         virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
+
+        void setTransformDetached(bool transform_detached, bool recursive = true);
 
         void make_unique();
 
