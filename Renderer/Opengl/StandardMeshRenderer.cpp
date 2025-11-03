@@ -28,7 +28,9 @@ namespace Renderer {
     }
 
     void StandardMeshRenderer::renderShadowMap() {
-        rootNode->renderShadows(camera, projection, 1, glm::mat4(1));
+        if (shadows) {
+            rootNode->renderShadows(camera, projection, 1, glm::mat4(1));
+        }
     }
 
     void StandardMeshRenderer::setRootNode(const shared_ptr<MeshNode3D> &rootNode) {
@@ -40,7 +42,7 @@ namespace Renderer {
     }
 
     void StandardMeshRenderer::renderScene(const shared_ptr<ShaderManager> &shader) const {
-        rootNode->render(camera, projection, 1, glm::mat4(1));
+        rootNode->render(camera, projection, 1, glm::mat4(1), shadows);
     }
 
     shared_ptr<Mesh> StandardMeshRenderer::getMesh() {

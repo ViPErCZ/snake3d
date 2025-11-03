@@ -3,10 +3,12 @@
 
 namespace Node3D {
     class Visibility {
-        public:
-        bool isVisible() const;
+    public:
+        [[nodiscard]] bool isVisible() const;
+
         void setVisible(bool visible);
-        protected:
+
+    protected:
         bool visible = true;
     };
 } // Node3D

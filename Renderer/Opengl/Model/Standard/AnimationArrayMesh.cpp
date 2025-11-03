@@ -7,14 +7,15 @@ namespace Model {
     }
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-        const glm::mat4 &parentTransform) const {
+        const glm::mat4 &parentTransform, const bool shadows) const {
         if (item->isVisible()) {
             if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
                 standardMaterial.get()->bind(
                     camera->getPosition(),
                     camera->getViewMatrix(),
                     projection,
-                    parentTransform * getBaseItem()->getModelMatrix()
+                    parentTransform * getBaseItem()->getModelMatrix(),
+                    shadows
                 );
             } else {
                 baseShader->setMat4("view", camera->getViewMatrix());

@@ -2,20 +2,20 @@
 
 #include "Model/Standard/PlaneMesh.h"
 
-Renderer::BaseRenderer::BaseRenderer() : item(nullptr), shadow(false), fog(false) {
+Renderer::BaseRenderer::BaseRenderer() : item(nullptr), shadows(false), fog(false) {
 }
 
-Renderer::BaseRenderer::BaseRenderer(BaseItem *item) : item(item), shadow(false), fog(false) {
+Renderer::BaseRenderer::BaseRenderer(BaseItem *item) : item(item), shadows(false), fog(false) {
 }
 
 Renderer::BaseRenderer::~BaseRenderer() = default;
 
 void Renderer::BaseRenderer::setShadow(const bool shadow) {
-    BaseRenderer::shadow = shadow;
+    BaseRenderer::shadows = shadow;
 }
 
 bool Renderer::BaseRenderer::isShadow() const {
-    return shadow;
+    return shadows;
 }
 
 void Renderer::BaseRenderer::setFog(bool fog) {

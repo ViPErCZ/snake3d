@@ -132,9 +132,8 @@ void main()
     }
 
     gColor = FragColor;
-
-    // Pro lepší kontrolu můžeme říct, že zářit mají jen opravdu jasné části
     float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+
     if (brightness > 1.0) { // Práh jasu pro bloom
        BrightColor = FragColor;
     } else {

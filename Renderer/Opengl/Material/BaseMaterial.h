@@ -3,12 +3,14 @@
 
 #include <memory>
 
+using namespace std;
+
 namespace Material {
     class BaseMaterial {
     public:
         virtual ~BaseMaterial() = default;
 
-        [[nodiscard]] virtual std::shared_ptr<BaseMaterial> clone() const = 0;
+        [[nodiscard]] virtual shared_ptr<BaseMaterial> clone() const = 0;
     };
 } // Material
 

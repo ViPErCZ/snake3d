@@ -26,13 +26,13 @@ void Renderer::GameFieldRenderer::render(float dt) {
     baseShader->setMat4("view", camera->getViewMatrix());
     baseShader->setMat4("projection", projection);
     baseShader->setVec3("viewPos", camera->getPosition());
-    baseShader->setBool("shadowsEnable", shadow);
+    baseShader->setBool("shadowsEnable", shadows);
     baseShader->setBool("fogEnable", fog);
     baseShader->setInt("shadowMap", 4);
     baseShader->setInt("normalMap", 2);
     baseShader->setInt("specularMap", 3);
 
-    if (!shadow) {
+    if (!shadows) {
         glm::vec3 pointLightPositions[] = {
             glm::vec3( 0.05f,  0.56f,  1.70f),
             glm::vec3( 1.19f,  0.56f,  1.70f),

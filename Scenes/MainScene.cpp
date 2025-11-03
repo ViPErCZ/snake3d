@@ -146,19 +146,20 @@ namespace Scenes {
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 110.0f});
         directionalLight->setDirection({0, 1.0, -3});
-        directionalLight->setAmbient({0.6f, 0.6f, 0.6f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.001f, .001f, .001f});
+        directionalLight->setAmbient({0.1f, 0.1f, 0.1f});
+        directionalLight->setDiffuse({0.005f, 0.005f, 0.005f});
+        directionalLight->setSpecular({.01f, .01f, .01f});
 
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
         const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
         const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        boxMaterial->setShadow(resourceManager->getTexture("depth"));
         boxMaterial->setNormalEnabled(true);
         boxMaterial->setAlbedo(brickWall);
         boxMaterial->setNormal(brickWallNormal);
         boxMaterial->setSpecular(brickWallSpecular);
+        boxMaterial->setColor({1.0, 1.0, 1.0});
+        boxMaterial->setAmbientLightColorIntensity(0.1);
         boxMaterial->setDirectionalLight(directionalLight);
 
         boxMesh->setMaterial(boxMaterial);
@@ -224,7 +225,6 @@ namespace Scenes {
         directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
         directionalLight->setSpecular({.091f, .091f, .091f});
 
-        const auto shadowMap = resourceManager->getTexture("depth");
         const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
         const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
@@ -233,7 +233,6 @@ namespace Scenes {
         coinMaterial->setAlbedo(coinAlbedo);
         coinMaterial->setNormal(coinNormal);
         coinMaterial->setSpecular(coinMetalness);
-        coinMaterial->setShadow(shadowMap);
         coinMaterial->setNormalEnabled(true);
         coinMaterial->setDirectionalLight(directionalLight);
 

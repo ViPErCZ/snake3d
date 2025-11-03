@@ -31,4 +31,9 @@ namespace Scenes {
 
     void SceneRenderer::afterRender() {
     }
+
+    void SceneRenderer::setShadow(const bool shadow) {
+        BaseRenderer::setShadow(shadow);
+        this->meshRenderer->setShadow(shadow);
+    }
 } // Scene

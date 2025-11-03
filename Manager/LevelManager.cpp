@@ -30,23 +30,15 @@ namespace Manager {
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto boxMesh = make_shared<BoxMesh>(geometry, shader, 2.0, 2.0, 2.0);
 
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 110.0f});
-        directionalLight->setDirection({0, 1.0, -3});
-        directionalLight->setAmbient({0.6f, 0.6f, 0.6f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.001f, .001f, .001f});
-
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
         const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
         const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        boxMaterial->setShadow(resourceManager->getTexture("depth"));
+        boxMaterial->setColor({1.0, 1.0, 1.0});
         boxMaterial->setNormalEnabled(true);
         boxMaterial->setAlbedo(brickWall);
         boxMaterial->setNormal(brickWallNormal);
         boxMaterial->setSpecular(brickWallSpecular);
-        boxMaterial->setDirectionalLight(directionalLight);
 
         boxMesh->setMaterial(boxMaterial);
         geometry->setScale({0.041666667f, 0.041666667f, 0.041666667f});

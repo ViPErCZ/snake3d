@@ -44,7 +44,7 @@ namespace Material {
         void setNormalEnabled(bool normal_enabled);
 
         virtual void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                          const glm::mat4 &model) const;
+                          const glm::mat4 &model, bool shadows) const;
 
         void bindShadow(const glm::mat4 &model) const;
 
@@ -82,6 +82,8 @@ namespace Material {
 
         void set_uv_offset(const glm::vec2 &uv_offset);
 
+        void setAmbientLightColorIntensity(float intensity);
+
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
     protected:
@@ -103,8 +105,10 @@ namespace Material {
         glm::vec2 UVScale = {1, 1};
         glm::vec2 UVOffset = {0, 0};
         bool normal_enabled = false;
-        bool shadowEnabled = false;
+        bool shadowsEnabled = false;
+        bool unShaded = false;
         float shininess = 32.0f;
+        float ambientLightColorIntensity = 0.05;
     };
 }
 

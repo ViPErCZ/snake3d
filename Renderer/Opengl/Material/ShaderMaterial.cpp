@@ -16,12 +16,13 @@ namespace Material {
     }
 
     void ShaderMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-        const glm::mat4 &model) const {
+        const glm::mat4 &model, const bool shadows) const {
         shader->use();
         shader->setMat4("view", view);
         shader->setMat4("projection", projection);
         shader->setMat4("model", model);
         shader->setVec3("viewPos", posView);
+        shader->setBool("shadows", shadows);
 
         for (auto& [name, value] : uniforms) {
             std::visit([&]<typename T0>(T0&& arg) {
@@ -60,7 +61,7 @@ namespace Material {
         cloned->UVScale = UVScale;
         cloned->UVOffset = UVOffset;
         cloned->normal_enabled = normal_enabled;
-        cloned->shadowEnabled = shadowEnabled;
+        cloned->shadowsEnabled = shadowsEnabled;
         cloned->shininess = shininess;
 
         cloned->uniforms = uniforms;

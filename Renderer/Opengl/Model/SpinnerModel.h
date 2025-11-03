@@ -12,7 +12,7 @@ namespace Model {
     public:
         explicit SpinnerModel(const shared_ptr<BaseItem> &baseItem, shared_ptr<ShaderManager> &baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-            const glm::mat4 &parentTransform) const override;
+            const glm::mat4 &parentTransform, bool shadows) const override;
         void update(float dt) override;
     protected:
         static glm::vec3 hsvToRgb(float h, float s, float v);

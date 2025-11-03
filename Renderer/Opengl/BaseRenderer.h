@@ -25,7 +25,7 @@ namespace Renderer {
 
         virtual void afterRender() = 0;
 
-        void setShadow(bool shadow);
+        virtual void setShadow(bool shadow);
 
         [[nodiscard]] bool isShadow() const;
 
@@ -42,7 +42,7 @@ namespace Renderer {
     protected:
         virtual shared_ptr<Mesh> getMesh();
         shared_ptr<BaseItem> item{};
-        bool shadow;
+        bool shadows;
         bool fog;
     };
 } // Manager

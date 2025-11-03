@@ -33,7 +33,7 @@ namespace Model {
     }
 
     void SpinnerModel::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-        const glm::mat4 &parentTransform) const {
+        const glm::mat4 &parentTransform, bool shadows) const {
         baseShader->use();
         mesh->bind();
 

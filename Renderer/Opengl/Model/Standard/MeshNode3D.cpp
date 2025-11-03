@@ -16,17 +16,17 @@ namespace Model {
     }
 
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
-                            const glm::mat4 &parentTransform) const {
+                            const glm::mat4 &parentTransform, const bool shadows) const {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
-            mesh->render(camera, projection, 1, finalTransform);
+            mesh->render(camera, projection, 1, finalTransform, shadows);
 
             for (auto &node: children) {
-                node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+                node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform, shadows);
             }
         } else if (transformDetached) {
             for (auto &node: children) {
-                node->render(camera, projection, dt, glm::mat4(1.0f));
+                node->render(camera, projection, dt, glm::mat4(1.0f), shadows);
             }
         }
     }

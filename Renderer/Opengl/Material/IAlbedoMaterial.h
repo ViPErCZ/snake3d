@@ -3,11 +3,14 @@
 
 #include "../../../Manager/TextureManager.h"
 
+using namespace std;
+using namespace Manager;
+
 class IAlbedoMaterial {
 public:
     virtual ~IAlbedoMaterial() = default;
 
-    [[nodiscard]] virtual std::shared_ptr<Manager::TextureManager> getAlbedo() const = 0;
+    [[nodiscard]] virtual shared_ptr<TextureManager> getAlbedo() const = 0;
 };
 
 #endif //SNAKE3_IALBEDOMATERIAL_H

@@ -29,7 +29,7 @@ void Material::StandardMaterial::setNormalEnabled(const bool normal_enabled) {
 }
 
 void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                                      const glm::mat4 &model) const {
+                                      const glm::mat4 &model, const bool shadows) const {
     shader->use();
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);
@@ -41,7 +41,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setBool("iblEnabled", false);
     shader->setBool("pbrEnabled", false);
     shader->setBool("overrideColorMesh", false);
-    shader->setFloat("ambientLightColorIntensity", 0.05);
+    shader->setFloat("ambientLightColorIntensity", ambientLightColorIntensity);
     shader->setBool("fogEnable", false);
     shader->setVec2("uvScale", UVScale);
     shader->setVec2("uvOffset", UVOffset);
@@ -54,7 +54,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setInt("environmentMap", 6);
     shader->setInt("aoMap", 7);
 
-    if (shadowEnabled) {
+    if (shadowsEnabled && shadows) {
         shader->setBool("shadowsEnable", true);
         if (shadow.get() && shadow.get()->hasTexture()) {
             shadow.get()->bindArr(3, 0);
@@ -77,7 +77,8 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
 
     shader->setFloat("material.shininess", shininess);
 
-    // directional light
+    // DIRECTIONAL LIGHT
+    // --------------------------------
     if (directionalLight) {
         directionalLight->bind(shader.get());
         shader->setBool("directionLightEnable", true);
@@ -191,11 +192,11 @@ void Material::StandardMaterial::setColor(const glm::vec3 &color) {
 }
 
 bool Material::StandardMaterial::isShadowEnabled() const {
-    return shadowEnabled;
+    return shadowsEnabled;
 }
 
 void Material::StandardMaterial::setShadow(const bool shadow_enabled) {
-    shadowEnabled = shadow_enabled;
+    shadowsEnabled = shadow_enabled;
 }
 
 void Material::StandardMaterial::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
@@ -246,6 +247,10 @@ void Material::StandardMaterial::set_uv_offset(const glm::vec2 &uv_offset) {
     UVOffset = uv_offset;
 }
 
+void Material::StandardMaterial::setAmbientLightColorIntensity(float intensity) {
+    ambientLightColorIntensity = intensity;
+}
+
 std::shared_ptr<Material::BaseMaterial> Material::StandardMaterial::clone() const {
     auto copy = std::make_shared<StandardMaterial>(*this);
 
@@ -284,5 +289,5 @@ void Material::StandardMaterial::setSpecular(const std::shared_ptr<TextureManage
 
 void Material::StandardMaterial::setShadow(const std::shared_ptr<TextureManager> &shadow) {
     this->shadow = shadow;
-    this->shadowEnabled = true;
+    this->shadowsEnabled = true;
 }
