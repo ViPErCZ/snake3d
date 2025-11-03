@@ -7,13 +7,15 @@ namespace ItemsDto {
     }
 
     void Radar::updatePositions() {
-        for(auto Iter = items.end() - 1; Iter >= items.begin(); --Iter) {
-            glm::vec3 pos;
-            pos.x = 18 + this->getWidth() / 3020 * static_cast<float>(Iter->item->x);
-            pos.y = -61 + 176 - this->getHeight() / 3020 * static_cast<float>(Iter->item->y);
-            pos.z = 0;
+        if (!items.empty()) {
+            for(auto Iter = items.end() - 1; Iter >= items.begin(); --Iter) {
+                glm::vec3 pos;
+                pos.x = 18 + this->getWidth() / 3020 * static_cast<float>(Iter->item->x);
+                pos.y = -61 + 176 - this->getHeight() / 3020 * static_cast<float>(Iter->item->y);
+                pos.z = 0;
 
-            Iter->radarPresent->setPosition(pos);
+                Iter->radarPresent->setPosition(pos);
+            }
         }
     }
 

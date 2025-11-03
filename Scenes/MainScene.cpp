@@ -23,7 +23,6 @@ namespace Scenes {
         initPlayerScene();
         initSkybox();
         initPlane();
-        initSnake();
         initBarriers();
         initEat();
         initRadar();
@@ -116,25 +115,6 @@ namespace Scenes {
         node3d->setPosition({1.0, 1.0, -1.0});
 
         meshes.push_back(node3d);
-    }
-
-    void MainScene::initSnake() { // TODO: jakmile predelam renderery, kde se pracuje se Snake, tak toto smazat + celou tridu Snake
-        snake = make_shared<Snake>();
-        snake->init();
-        //snake->getHeadTile()->setVisible(false);
-        // snakeRenderer = make_shared<SnakeRenderer>(snake, camera.get(), projection, resourceManager.get());
-        //
-        // auto headTile = *snake->getItems().begin();
-        // const auto animHead = resourceManager->getAnimationModel("pacman");
-        // animHead->setBaseItem(snake->getHeadTile());
-
-        // const auto animRenderer = make_shared<AnimRenderer>(headTile, animHead, camera.get(), projection, resourceManager.get());
-        // animRenderer->addPlay("KostraAction");
-        // animRenderer->setAcceleration(2.2f);
-
-        // rendererManager->addRenderer(animRenderer);
-        //rendererManager->addRenderer(snakeRenderer);
-        camera->setStickyPoint(snake->getHeadTile().get());
     }
 
     void MainScene::initBarriers() {
@@ -265,9 +245,9 @@ namespace Scenes {
         radar->setHeight(176);
 
         if (resourceManager) {
-            for (const auto& tile: snake->getItems()) {
-                radar->addItem(tile->tile, {0.278,1.,0.});
-            }
+            // for (const auto& tile: snake->getItems()) {
+            //     radar->addItem(tile->tile, {0.278,1.,0.});
+            // }
             // for (const auto& block: barriers->getItems()) {
             //     radar->addItem(block, {0.694,0.078,0.016});
             // }
@@ -347,7 +327,7 @@ namespace Scenes {
     void MainScene::buildCrashCallback() const {
         snakeMoveHandler->setCrashCallback([this]() {
             if (this->levelManager) {
-                snake->reset();
+                //snake->reset();
                 resetRadar();
                 this->levelManager->setLive(this->levelManager->getLive() - 1);
                 this->levelManager->setEatCounter(0);

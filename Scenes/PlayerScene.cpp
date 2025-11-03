@@ -50,6 +50,8 @@ namespace Scenes {
         snake->setDirectionalLight(directionalLight);
         snake->respawn();
 
+        camera->setStickyPoint(snake);
+
         meshes.push_back(snake);
     }
 

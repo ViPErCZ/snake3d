@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <memory>
+
 namespace Manager {
     Camera::Camera(glm::vec3 position, glm::vec3 up) : front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         this->position = position;
@@ -55,7 +57,7 @@ namespace Manager {
         return right;
     }
 
-    void Camera::setStickyPoint(Transform *stickyPoint) {
+    void Camera::setStickyPoint(const shared_ptr<Transform> &stickyPoint) {
         this->stickyPoint = stickyPoint;
 
         const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
@@ -72,7 +74,7 @@ namespace Manager {
         updateCameraVectors();
     }
 
-    Transform* Camera::getStickyPoint() const {
+    shared_ptr<Transform> Camera::getStickyPoint() const {
         return stickyPoint;
     }
 
@@ -92,14 +94,14 @@ namespace Manager {
         this->up = up;
     }
 
-    void Camera::onMouseDown(int button, int action, int mods) {
+    void Camera::onMouseDown(const int button, const int action, int mods) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             if (action == GLFW_PRESS && stickyPoint) {
                 rightButtonPressed = true;
                 firstMouse = true;
 
                 // Uložíme si aktuální pozici kamery jako startovní bod pro spectator mód
-                const glm::vec3 targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+                const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
                 position = targetPos + offsetFromTarget; // Nastavíme 'position' na aktuální vizuální pozici
 
                 // Vypočítáme YAW a PITCH, aby přechod byl plynulý
@@ -115,23 +117,23 @@ namespace Manager {
         }
     }
 
-    void Camera::processMouseMovement(double x, double y) {
+    void Camera::processMouseMovement(const double x, const double y) {
         if (!rightButtonPressed) return;
 
         if (firstMouse) {
-            lastX = x;
-            lastY = y;
+            lastX = static_cast<float>(x);
+            lastY = static_cast<float>(y);
             firstMouse = false;
             return;
         }
 
-        float xoffset = static_cast<float>(x - lastX);
-        float yoffset = static_cast<float>(lastY - y);
+        auto xoffset = static_cast<float>(x - lastX);
+        auto yoffset = static_cast<float>(lastY - y);
 
-        lastX = x;
-        lastY = y;
+        lastX = static_cast<float>(x);
+        lastY = static_cast<float>(y);
 
-        const float sensitivity = 0.1f;
+        constexpr float sensitivity = 0.1f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
@@ -141,7 +143,6 @@ namespace Manager {
         if (PITCH > 89.0f) PITCH = 89.0f;
         if (PITCH < -89.0f) PITCH = -89.0f;
 
-        // KLÍČOVÉ: Po změně úhlů musíme aktualizovat vektory kamery
         updateCameraVectors();
     }
 
@@ -153,7 +154,6 @@ namespace Manager {
 
     void Camera::processKeyboard(GLFWwindow *window, const float deltaTime)
     {
-        // Opustíme funkci, pokud nejsme ve spectator módu
         if (!rightButtonPressed) return;
 
         const float velocity = 0.04f * deltaTime;
@@ -161,7 +161,6 @@ namespace Manager {
         // Vytvoříme nulový vektor pohybu
         glm::vec3 moveDirection(0.0f);
 
-        // Zkontrolujeme každou klávesu nezávisle a přičteme její vliv
         if (keys[GLFW_KEY_W]) {
             moveDirection += front; // Dopředu
         }
@@ -175,7 +174,6 @@ namespace Manager {
             moveDirection += right; // Doprava
         }
 
-        // Normalizujeme výsledný směr, pokud se pohybuje (aby pohyb diagonálně nebyl rychlejší)
         if (glm::length(moveDirection) > 0.0f) {
             position += glm::normalize(moveDirection) * velocity;
         }

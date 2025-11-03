@@ -38,8 +38,6 @@ namespace Scenes {
 
         void initPlane();
 
-        void initSnake();
-
         void initBarriers();
 
         void initLevelManager();
@@ -59,7 +57,6 @@ namespace Scenes {
         void buildCrashCallback() const;
 
         shared_ptr<PlayerScene> playerScene;
-        shared_ptr<Snake> snake;
         unique_ptr<LevelManager> levelManager;
         unique_ptr<EatManager> eatManager;
         shared_ptr<Radar> radar;

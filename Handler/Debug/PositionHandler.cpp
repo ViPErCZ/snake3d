@@ -1,7 +1,7 @@
 #include "PositionHandler.h"
 
 namespace Handler {
-    PositionHandler::PositionHandler(Camera *camera): camera(camera), enabled(false) {
+    PositionHandler::PositionHandler(const shared_ptr<Camera> &camera): camera(camera), enabled(false) {
         cameraOriginalStickyPoint = camera->getStickyPoint();
     }
 
@@ -22,11 +22,7 @@ namespace Handler {
         switch (key) {
             case GLFW_KEY_F8:
                 enabled = !enabled;
-                if (enabled) {
-                    camera->setStickyPoint(activeItem);
-                } else {
-                    camera->setStickyPoint(cameraOriginalStickyPoint);
-                }
+                camera->setStickyPoint(enabled ? activeItem : cameraOriginalStickyPoint);
                 break;
             case GLFW_KEY_RIGHT:
                 if (enabled) {
@@ -134,7 +130,7 @@ namespace Handler {
         }
     }
 
-    void PositionHandler::addItem(Transform *item) {
+    void PositionHandler::addItem(const shared_ptr<Transform> &item) {
         items.push_back(item);
 
         if (activeItem == nullptr) {
@@ -142,7 +138,7 @@ namespace Handler {
         }
     }
 
-    Transform *PositionHandler::findNextItem() {
+    shared_ptr<Transform> PositionHandler::findNextItem() {
         if (items.empty()) {
             return nullptr;
         }

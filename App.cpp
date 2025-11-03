@@ -374,8 +374,8 @@ void App::initScene() {
      //
      //     }
      // });
-     const auto positionHandler = new PositionHandler(camera.get());
-     //positionHandler->addItem(pointLight.get());
+     // const auto positionHandler = new PositionHandler(camera);
+     // positionHandler->addItem(pointLight.get());
      // positionHandler->addItem(eat);
      // positionHandler->addItem(directionalLight.get());
      // positionHandler->addItem(standardBaseItem2.get());
@@ -384,7 +384,7 @@ void App::initScene() {
      // positionHandler->addItem(pacmanMesh->getBaseItem().get());
      // positionHandler->addItem(skeletonMesh->getBaseItem().get());
      // positionHandler->addItem(planeMesh->getBaseItem().get());
-     positionHandler->addItem(sphereMesh->getBaseItem().get());
+     // positionHandler->addItem(sphereMesh->getBaseItem().get());
      // positionHandler->addItem(torch);
 
      // keyboardManager->addEventHandler(snakeMoveHandler);
@@ -474,7 +474,7 @@ void App::Init() const {
 
     const auto preLoader = initPreloader();
     rendererManager->addRenderer(make_shared<StandardMeshRenderer>(camera, projection, preLoader));
-    camera->setStickyPoint(preLoader->getBaseItem().get());
+    camera->setStickyPoint(preLoader);
 
     const fs::path assets_dir{"Assets/Objects"};
     resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "pacman.glb", "pacman", []() {
