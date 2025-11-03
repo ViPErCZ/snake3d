@@ -4,9 +4,8 @@
 #include <utility>
 
 namespace Model {
-    SphereMesh::SphereMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader, float height,
-                           float radius, int rings, int segments) : StandardMesh(
-        std::move(baseItem), std::move(baseShader)  ) {
+    SphereMesh::SphereMesh(shared_ptr<ShaderManager> baseShader, float height,
+                           float radius, int rings, int segments) : StandardMesh(std::move(baseShader)) {
         float halfHeight = height * 0.5f;
         std::vector<Vertex> vertices;
         std::vector<GLuint> indices;

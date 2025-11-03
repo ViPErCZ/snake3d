@@ -2,8 +2,8 @@
 #include <vector>
 
 namespace Model {
-    SpinnerModel::SpinnerModel(const shared_ptr<BaseItem> &baseItem, shared_ptr<ShaderManager> &baseShader)
-        : StandardMesh(baseItem, baseShader), time(0) {
+    SpinnerModel::SpinnerModel(shared_ptr<ShaderManager> &baseShader)
+        : StandardMesh(baseShader), time(0) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices = {0, 1, 2};
 
@@ -45,7 +45,7 @@ namespace Model {
             const float angle = progress * glm::two_pi<float>() * spiralTurns - time;
             const float radius = 0.1f + progress * 0.04f;
             glm::vec3 position(radius * cos(angle), radius * sin(angle), 0.0f);
-            item->setPosition(position);
+            //item->setPosition(position);
 
             const float scale = 0.5f + progress * 0.05f;
 

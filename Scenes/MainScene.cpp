@@ -107,10 +107,9 @@ namespace Scenes {
         planeMaterial->setSpecular(gamefieldSpecular);
         planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
 
-        const auto standardBaseItem = make_shared<BaseItem>();
-        auto planeMesh = make_shared<PlaneMesh>(standardBaseItem, basicShader, 4, 4);
+        auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
-        const auto node3d = make_shared<MeshNode3D>(shared_ptr<StandardMesh>(std::move(planeMesh)), resourceManager);
+        const auto node3d = make_shared<MeshNode3D>(planeMesh, resourceManager);
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
 
@@ -118,10 +117,9 @@ namespace Scenes {
     }
 
     void MainScene::initBarriers() {
-        const auto geometry = make_shared<BaseItem>(BaseItem());
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto boxMesh = make_shared<BoxMesh>(geometry, shader, 2.0, 2.0, 2.0);
+        const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 110.0f});
@@ -143,10 +141,10 @@ namespace Scenes {
         boxMaterial->setDirectionalLight(directionalLight);
 
         boxMesh->setMaterial(boxMaterial);
-        geometry->setScale({0.041666667f, 0.041666667f, 0.041666667f});
 
         const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
         boxNode3D->setPosition({-25.0, -25.0, -23.0});
+        boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
 
         for (int x = 2; x <= 98; x += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
@@ -188,15 +186,14 @@ namespace Scenes {
         const std::shared_ptr<ObjItem> coinModel(
             resourceManager->getModel("coin"), [](ObjItem *) {
         });
-        const auto geometry = make_shared<BaseItem>(BaseItem());
-        const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(geometry, shader));
+        const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(shader));
         coinMesh->fromObj(coinModel);
 
         coinMeshNode3D = make_shared<CoinMeshNode3D>(coinMesh, resourceManager);
         coinMeshNode3D->setPosition({-69.0, -69, -70.0f});
         coinMeshNode3D->setScale({0.013888889, 0.013888889, 0.013888889});
-        geometry->setRotationX(90);
-        geometry->setVisible(false);
+        coinMeshNode3D->setRotationX(90);
+        coinMeshNode3D->setVisible(false);
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -209,7 +206,7 @@ namespace Scenes {
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
         const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
         auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
-        const auto coinMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+        const auto coinMaterial = make_shared<StandardMaterial>(shader, shadowsShader);
         coinMaterial->setAlbedo(coinAlbedo);
         coinMaterial->setNormal(coinNormal);
         coinMaterial->setSpecular(coinMetalness);
@@ -343,7 +340,7 @@ namespace Scenes {
                 );
                 std::string buffAsStdStr = buff;
                 // this->tilesCounterText->setText(buffAsStdStr);
-                coinMeshNode3D->getBaseItem()->setVisible(false);
+                coinMeshNode3D->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
                     this->levelManager->createLevel(1);

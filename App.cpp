@@ -186,26 +186,26 @@ void App::initScene() {
     //     resourceManager->getAnimationModel("skeleton"), [](AnimationModel *) {
     //     });
 
-    const auto standardBaseItem = make_shared<BaseItem>(BaseItem());
-    const auto standardBaseItem2 = make_shared<BaseItem>(BaseItem());
-    const auto standardBaseItem3 = make_shared<BaseItem>(BaseItem());
-    const auto standardPlaneMesh = make_shared<PlaneMesh>(PlaneMesh(standardBaseItem, basicShader, 1, 1));
-    const auto standardBoxMesh = make_shared<BoxMesh>(BoxMesh(standardBaseItem3, basicShader, 1, 1, 1));
-    const auto sphereMesh = make_shared<SphereMesh>(SphereMesh(standardBaseItem, basicShader));
-    const auto capsuleMesh = make_shared<CapsuleMesh>(CapsuleMesh(standardBaseItem, basicShader));
-    const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(standardBaseItem2, basicShader));
+    // const auto standardBaseItem = make_shared<BaseItem>(BaseItem());
+    // const auto standardBaseItem2 = make_shared<BaseItem>(BaseItem());
+    // const auto standardBaseItem3 = make_shared<BaseItem>(BaseItem());
+    // const auto standardPlaneMesh = make_shared<PlaneMesh>(PlaneMesh(standardBaseItem, basicShader, 1, 1));
+    // const auto standardBoxMesh = make_shared<BoxMesh>(BoxMesh(standardBaseItem3, basicShader, 1, 1, 1));
+    // const auto sphereMesh = make_shared<SphereMesh>(SphereMesh(standardBaseItem, basicShader));
+    // const auto capsuleMesh = make_shared<CapsuleMesh>(CapsuleMesh(standardBaseItem, basicShader));
+    // const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(standardBaseItem2, basicShader));
     // const auto pacmanMesh = make_shared<AnimationArrayMesh>(AnimationArrayMesh(pacmanModel, basicShader));
     // const auto skeletonMesh = make_shared<AnimationArrayMesh>(AnimationArrayMesh(skeletonModel, basicShader));
 
-    const std::shared_ptr<ObjItem> coinObjItem(
-        resourceManager->getModel("coin"), [](ObjItem *) {
-        });
-    coinMesh->fromObj(coinObjItem);
-    standardPlaneMesh->setMaterial(planeMaterial);
-    standardBoxMesh->setMaterial(boxMaterial);
-    sphereMesh->setMaterial(planeMaterial);
-    capsuleMesh->setMaterial(planeMaterial);
-    coinMesh->setMaterial(coinMaterial);
+    // const std::shared_ptr<ObjItem> coinObjItem(
+    //     resourceManager->getModel("coin"), [](ObjItem *) {
+    //     });
+    // coinMesh->fromObj(coinObjItem);
+    // standardPlaneMesh->setMaterial(planeMaterial);
+    // standardBoxMesh->setMaterial(boxMaterial);
+    // sphereMesh->setMaterial(planeMaterial);
+    // capsuleMesh->setMaterial(planeMaterial);
+    // coinMesh->setMaterial(coinMaterial);
     // pacmanMesh->setMaterial(planeMaterial);
     // skeletonMesh->setMaterial(planeMaterial);
     //sphereMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
@@ -213,10 +213,10 @@ void App::initScene() {
     //coinMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // pacmanMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // skeletonMesh->getBaseItem()->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
-    sphereMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
-    coinMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
+    // sphereMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
+    // coinMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
     // pacmanMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
-    standardBoxMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
+    // standardBoxMesh->getBaseItem()->setScale({0.2, 0.2, 0.2});
     // skeletonMesh->getBaseItem()->setZoom({0.2, 0.2, 0.2});
     // standardBaseItem->setRotate(glm::vec4(1, 0, 0, 90), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0));
     // const auto standardRenderer = new StandardMeshRenderer(camera, projection, sphereMesh);
@@ -626,9 +626,8 @@ void App::cameraProcessKeyboard(GLFWwindow *window) const {
 shared_ptr<MeshNode3D> App::initPreloader() const {
     auto shader = resourceManager->getShader("preloadShader");
     auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
-    const auto standardBaseItem = make_shared<BaseItem>();
 
-    return make_shared<MeshNode3D>(make_shared<SpinnerModel>(standardBaseItem, shader), resourceManager);
+    return make_shared<MeshNode3D>(make_shared<SpinnerModel>(shader), resourceManager);
 }
 
 void App::InitResourceManager() const {

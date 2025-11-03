@@ -23,10 +23,6 @@ namespace Model {
         void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const;
 
-        shared_ptr<BaseItem> getBaseItem() const;
-
-        [[nodiscard]] glm::mat4 getModelMatrix() const override;
-
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
 
         virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);

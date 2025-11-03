@@ -1,12 +1,15 @@
 #ifndef CYLINDERMESH_H
 #define CYLINDERMESH_H
 
+#include "StandardMesh.h"
+
 namespace Model {
-
-class CylinderMesh {
-
-};
-
+    class CylinderMesh final : public StandardMesh {
+    public:
+        CylinderMesh(std::shared_ptr<ShaderManager> baseShader,
+                     float topRadius, float bottomRadius,
+                     float height, int rings, int segments);
+    };
 } // Model
 
 #endif //CYLINDERMESH_H

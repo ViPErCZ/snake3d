@@ -25,10 +25,10 @@ namespace Manager {
     }
 
     shared_ptr<MeshNode3D> LevelManager::createLevel(int level) {
-        const auto geometry = make_shared<BaseItem>(BaseItem());
+        // const auto geometry = make_shared<BaseItem>(BaseItem());
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto boxMesh = make_shared<BoxMesh>(geometry, shader, 2.0, 2.0, 2.0);
+        const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
 
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
@@ -41,10 +41,10 @@ namespace Manager {
         boxMaterial->setSpecular(brickWallSpecular);
 
         boxMesh->setMaterial(boxMaterial);
-        geometry->setScale({0.041666667f, 0.041666667f, 0.041666667f});
 
         const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
         boxNode3D->setPosition({0.0, 0.0, -23.0});
+        boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
         boxNode3D->setTransformDetached(true);
 
         this->level = level;
@@ -70,6 +70,7 @@ namespace Manager {
                         } else {
                             const auto childBoxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
                             childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
+                            childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
                             boxNode3D->addNode(childBoxNode3D);
                         }
                     }

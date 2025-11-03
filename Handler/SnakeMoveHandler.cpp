@@ -83,23 +83,23 @@ namespace Handler {
                 switch (direction) {
                     case GLFW_KEY_J: // left
                         snakeMeshNode->setDirection(SnakeMeshNode3D::LEFT);
-                        snakeMeshNode->getBaseItem()->setRotationX(90);
-                        snakeMeshNode->getBaseItem()->setRotationY(180);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(180);
                         break;
                     case GLFW_KEY_L: // right
                         snakeMeshNode->setDirection(SnakeMeshNode3D::RIGHT);
-                        snakeMeshNode->getBaseItem()->setRotationX(90);
-                        snakeMeshNode->getBaseItem()->setRotationY(0);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(0);
                         break;
                     case GLFW_KEY_I:
                         snakeMeshNode->setDirection(SnakeMeshNode3D::UP);
-                        snakeMeshNode->getBaseItem()->setRotationX(90);
-                        snakeMeshNode->getBaseItem()->setRotationY(90);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(90);
                         break;
                     case GLFW_KEY_K:
                         snakeMeshNode->setDirection(SnakeMeshNode3D::DOWN);
-                        snakeMeshNode->getBaseItem()->setRotationX(90);
-                        snakeMeshNode->getBaseItem()->setRotationY(-90);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(-90);
                         break;
                     default:
                         break;

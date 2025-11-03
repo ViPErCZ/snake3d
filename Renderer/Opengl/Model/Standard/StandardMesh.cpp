@@ -2,17 +2,12 @@
 #include <glm/gtx/string_cast.hpp>
 
 namespace Model {
-    StandardMesh::StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader)
-        : item(std::move(baseItem)), baseShader(std::move(baseShader)), localMin(+FLT_MAX),
-                                                     localMax(-FLT_MIN) {
+    StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
+        : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN) {
     }
 
     shared_ptr<Mesh> StandardMesh::getMesh() const {
         return mesh;
-    }
-
-    shared_ptr<BaseItem> StandardMesh::getBaseItem() const {
-        return item;
     }
 
     void StandardMesh::setMaterial(const shared_ptr<BaseMaterial> &material) {
@@ -25,61 +20,57 @@ namespace Model {
 
     void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                               const glm::mat4 &parentTransform, const bool shadows) const {
-        if (item->isVisible()) {
-            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial.get()->bind(
-                    camera->getPosition(),
-                    camera->getViewMatrix(),
-                    projection,
-                    parentTransform * getBaseItem()->getModelMatrix(),
-                    shadows
-                );
-            } else {
-                baseShader->setMat4("view", camera->getViewMatrix());
-                baseShader->setMat4("projection", projection);
-                baseShader->setMat4("model", parentTransform * getBaseItem()->getModelMatrix());
-                baseShader->setVec3("viewPos", camera->getPosition());
-                baseShader->setBool("useMaterial", true);
-                baseShader->setBool("useBones", false);
-                baseShader->setBool("shadowsEnable", false);
-                baseShader->setBool("iblEnabled", false);
-                baseShader->setBool("pbrEnabled", false);
-                baseShader->setBool("overrideColorMesh", false);
-                baseShader->setFloat("ambientLightColorIntensity", 0.05);
-                baseShader->setBool("fogEnable", false);
-                baseShader->setInt("numPointLights", 0);
-                baseShader->setInt("numSpotLights", 0);
-                baseShader->setBool("directionLightEnable", false);
-            }
+        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial.get()->bind(
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                projection,
+                parentTransform,
+                shadows
+            );
+        } else {
+            baseShader->setMat4("view", camera->getViewMatrix());
+            baseShader->setMat4("projection", projection);
+            baseShader->setMat4("model", parentTransform);
+            baseShader->setVec3("viewPos", camera->getPosition());
+            baseShader->setBool("useMaterial", true);
+            baseShader->setBool("useBones", false);
+            baseShader->setBool("shadowsEnable", false);
+            baseShader->setBool("iblEnabled", false);
+            baseShader->setBool("pbrEnabled", false);
+            baseShader->setBool("overrideColorMesh", false);
+            baseShader->setFloat("ambientLightColorIntensity", 0.05);
+            baseShader->setBool("fogEnable", false);
+            baseShader->setInt("numPointLights", 0);
+            baseShader->setInt("numSpotLights", 0);
+            baseShader->setBool("directionLightEnable", false);
+        }
 
-            mesh->bind();
-            glLoadIdentity();
-            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
-                           nullptr);
-            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial.get()->unbind();
-            }
+        mesh->bind();
+        glLoadIdentity();
+        glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
+                       nullptr);
+        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial.get()->unbind();
         }
     }
 
     void StandardMesh::renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
         const glm::mat4 &parentTransform) const {
-        if (item->isVisible()) {
-            const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
-            if (standardMaterial) {
-                standardMaterial.get()->bindShadow(parentTransform * getBaseItem()->getModelMatrix());
+        const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
+        if (standardMaterial) {
+            standardMaterial.get()->bindShadow(parentTransform);
 
-                mesh->bind();
-                glLoadIdentity();
-                glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
-                               nullptr);
+            mesh->bind();
+            glLoadIdentity();
+            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
+                           nullptr);
 
-                standardMaterial.get()->unbind();
-            }
+            standardMaterial.get()->unbind();
         }
     }
 
-    glm::vec3 StandardMesh::getMin() const {
+    glm::vec3 StandardMesh::getMin(const glm::mat4 &worldMatrix) const {
         const glm::vec3 corners[8] = {
             {localMin.x, localMin.y, localMin.z},
             {localMin.x, localMin.y, localMax.z},
@@ -93,13 +84,13 @@ namespace Model {
 
         glm::vec3 worldMin(+FLT_MAX);
         for (auto corner: corners) {
-            glm::vec4 worldPos = item->getModelMatrix() * glm::vec4(corner, 1.0f);
+            glm::vec4 worldPos = worldMatrix * glm::vec4(corner, 1.0f);
             worldMin = glm::min(worldMin, glm::vec3(worldPos));
         }
         return worldMin;
     }
 
-    glm::vec3 StandardMesh::getMax() const {
+    glm::vec3 StandardMesh::getMax(const glm::mat4 &worldMatrix) const {
         glm::vec3 corners[8] = {
             {localMin.x, localMin.y, localMin.z},
             {localMin.x, localMin.y, localMax.z},
@@ -113,21 +104,14 @@ namespace Model {
 
         glm::vec3 worldMax(-FLT_MAX);
         for (auto corner: corners) {
-            glm::vec4 worldPos = item->getModelMatrix() * glm::vec4(corner, 1.0f);
+            glm::vec4 worldPos = worldMatrix * glm::vec4(corner, 1.0f);
             worldMax = glm::max(worldMax, glm::vec3(worldPos));
         }
         return worldMax;
     }
 
-    bool StandardMesh::isVisible() const {
-        return item->isVisible();
-    }
-
     shared_ptr<StandardMesh> StandardMesh::deepCopy() const {
-        auto newMesh = std::make_shared<StandardMesh>(
-            std::make_shared<BaseItem>(*item),
-            baseShader
-        );
+        auto newMesh = std::make_shared<StandardMesh>(baseShader);
 
         if (material) {
             // newMesh->setMaterial(material->clone()); // TODO: not implemented

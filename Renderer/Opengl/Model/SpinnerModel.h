@@ -10,7 +10,7 @@ using namespace ModelUtils;
 namespace Model {
     class SpinnerModel final : public StandardMesh {
     public:
-        explicit SpinnerModel(const shared_ptr<BaseItem> &baseItem, shared_ptr<ShaderManager> &baseShader);
+        explicit SpinnerModel(shared_ptr<ShaderManager> &baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
             const glm::mat4 &parentTransform, bool shadows) const override;
         void update(float dt) override;

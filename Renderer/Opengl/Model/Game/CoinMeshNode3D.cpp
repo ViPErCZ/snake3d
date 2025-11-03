@@ -4,7 +4,7 @@ namespace Model {
     void CoinMeshNode3D::update(const float dt) {
         MeshNode3D::update(dt);
 
-        const float rotate = mesh->getBaseItem()->getRotationY();
+        const float rotate = getRotationY();
 
         const double now = glfwGetTime();
         float angle = rotate;
@@ -13,7 +13,7 @@ namespace Model {
             lastTime = now;
         }
 
-        mesh->getBaseItem()->setRotationX(90);
-        mesh->getBaseItem()->setRotationY(angle);
+        setRotationX(90);
+        setRotationY(angle);
     }
 } // Model

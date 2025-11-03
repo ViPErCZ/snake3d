@@ -24,9 +24,9 @@ namespace Handler {
             eat->x = static_cast<int>(newPos.x) * 32 + 16;
             eat->y = static_cast<int>(newPos.y) * 32 + 16;
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
-            eat->getBaseItem()->setVisible(true);
+            eat->setVisible(true);
         } catch (const std::invalid_argument &e) {
-            eat->getBaseItem()->setVisible(false);
+            eat->setVisible(false);
         }
     }
 
@@ -65,7 +65,7 @@ namespace Handler {
                 eat->y = static_cast<int>(newPos.y) * 32 + 16;
                 eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
                 eat->setScale({0.013888889, 0.013888889, 0.013888889});
-                eat->getBaseItem()->setVisible(true);
+                eat->setVisible(true);
                 break;
             } catch (const std::invalid_argument &e) {
             }
@@ -89,7 +89,7 @@ namespace Handler {
     }
 
     void EatLocationHandler::onCheckPlaceHandler() const {
-        if (!eat->getBaseItem()->isVisible() &&
+        if (!eat->isVisible() &&
             snake->getDirection() > SnakeMeshNode3D::STOP && snake->getDirection() < SnakeMeshNode3D::CRASH) {
             rePosition();
         }

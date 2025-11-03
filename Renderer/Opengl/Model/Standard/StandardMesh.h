@@ -2,7 +2,6 @@
 #define SNAKE3_STANDARDMESH_H
 
 #include <memory>
-#include "../../../../ItemsDto/BaseItem.h"
 #include "../Utils/Mesh.h"
 #include "../../Material/StandardMaterial.h"
 #include "../../../../Manager/ShaderManager.h"
@@ -17,11 +16,9 @@ namespace Model {
     public:
         virtual ~StandardMesh() = default;
 
-        StandardMesh(shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader);
+        explicit StandardMesh(shared_ptr<ShaderManager> baseShader);
 
         [[nodiscard]] shared_ptr<Mesh> getMesh() const;
-
-        [[nodiscard]] shared_ptr<BaseItem> getBaseItem() const;
 
         void setMaterial(const shared_ptr<BaseMaterial> &material);
 
@@ -36,17 +33,14 @@ namespace Model {
         virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                                      const glm::mat4 &parentTransform) const;
 
-        [[nodiscard]] glm::vec3 getMin() const;
+        [[nodiscard]] glm::vec3 getMin(const glm::mat4 &worldMatrix) const;
 
-        [[nodiscard]] glm::vec3 getMax() const;
-
-        [[nodiscard]] bool isVisible() const;
+        [[nodiscard]] glm::vec3 getMax(const glm::mat4 &worldMatrix) const;
 
         [[nodiscard]] shared_ptr<StandardMesh> deepCopy() const;
 
     protected:
         shared_ptr<Mesh> mesh;
-        shared_ptr<BaseItem> item;
         shared_ptr<BaseMaterial> material;
         shared_ptr<ShaderManager> baseShader;
         glm::vec3 localMin;

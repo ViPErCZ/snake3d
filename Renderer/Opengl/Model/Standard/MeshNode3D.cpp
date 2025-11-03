@@ -53,29 +53,6 @@ namespace Model {
         }
     }
 
-    shared_ptr<BaseItem> MeshNode3D::getBaseItem() const {
-        return mesh->getBaseItem();
-    }
-
-    glm::mat4 MeshNode3D::getModelMatrix() const {
-        auto model = glm::mat4(1.0f);
-
-        model = glm::scale(model, scale);
-
-        glm::vec3 origin = position;
-        origin *= mesh->getBaseItem()->getScale();
-        model = glm::translate(model, origin);
-
-        model = glm::rotate(model, glm::radians(rotationX),
-                            glm::vec3(1.0, 0.0, 0.0));
-        model = glm::rotate(model, glm::radians(rotationY),
-                            glm::vec3(0.0, 1.0, 0.0));
-        model = glm::rotate(model, glm::radians(rotationZ),
-                            glm::vec3(0.0, 0.0, 1.0));
-
-        return model;
-    }
-
     const vector<shared_ptr<MeshNode3D>> &MeshNode3D::getChildren() const {
         return children;
     }

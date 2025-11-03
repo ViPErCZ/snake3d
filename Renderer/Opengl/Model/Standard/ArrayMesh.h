@@ -7,11 +7,9 @@
 using namespace std;
 
 namespace Model {
-    class ArrayMesh : public StandardMesh {
+    class ArrayMesh final : public StandardMesh {
     public:
-        ArrayMesh(const shared_ptr<BaseItem> &baseItem, const shared_ptr<ShaderManager> &baseShader)
-            : StandardMesh(baseItem, baseShader) {
-        }
+        explicit ArrayMesh(const shared_ptr<ShaderManager> &baseShader) : StandardMesh(baseShader) {}
 
         void fromObj(const shared_ptr<ObjItem> &item);
 

@@ -4,9 +4,9 @@
 #include <utility>
 
 namespace Model {
-    BoxMesh::BoxMesh(std::shared_ptr<BaseItem> baseItem, shared_ptr<ShaderManager> baseShader,
-                     const float width, const float height, const float depth) : StandardMesh(
-            std::move(baseItem), std::move(baseShader)), depth(depth) {
+    BoxMesh::BoxMesh(shared_ptr<ShaderManager> baseShader,
+                     const float width, const float height, const float depth)
+        : StandardMesh(std::move(baseShader)), depth(depth) {
         float hw = width * 0.5f;
         float hh = height * 0.5f;
         float hd = depth * 0.5f;

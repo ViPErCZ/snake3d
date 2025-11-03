@@ -26,12 +26,6 @@ namespace Scenes {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader);
-        // TODO: smazat jakmile ve StandardMesh nebude parentTransform * getBaseItem()->getModelMatrix()
-        // TODO: ale bude tam jen parentTransform (zmenime na transform)
-        // TODO: a to tam bude az vsichni renderers budou pouzivat novy system standard meshu a MeshNode3D
-        pacmanMesh->getBaseItem()->setScale({0.041667f, 0.041667f, 0.041667f});
-        pacmanMesh->getBaseItem()->setRotationX(90);
-        pacmanMesh->getBaseItem()->setPosition({23, -3, -23});
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -40,7 +34,7 @@ namespace Scenes {
         directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
         directionalLight->setSpecular({.091f, .091f, .091f});
 
-        const auto material = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+        const auto material = make_shared<StandardMaterial>(shader, shadowsShader);
         material->setShadow(resourceManager->getTexture("depth"));
         material->setNormalEnabled(true);
         material->setDirectionalLight(directionalLight);
@@ -48,6 +42,9 @@ namespace Scenes {
 
         snake = make_shared<SnakeMeshNode3D>(pacmanMesh, resourceManager);
         snake->setDirectionalLight(directionalLight);
+        snake->setScale({0.041667f, 0.041667f, 0.041667f});
+        snake->setRotationX(90);
+        snake->setPosition({23, -3, -23});
         snake->respawn();
 
         camera->setStickyPoint(snake);

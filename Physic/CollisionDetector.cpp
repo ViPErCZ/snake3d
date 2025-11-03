@@ -47,7 +47,7 @@ namespace Physic {
 
     bool CollisionDetector::detectWithStaticItem(const shared_ptr<MeshNode3D> &node) {
         for (auto Iter = staticItems.begin(); Iter < staticItems.end(); ++Iter) {
-            if (!(*Iter)->getBaseItem()->isVisible()) {
+            if (!(*Iter)->isVisible()) {
                 continue;
             }
 

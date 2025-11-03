@@ -25,21 +25,24 @@ namespace Model {
         const auto sphere = createTileNode();
 
         const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile->setPosition({-2, 0, 0});
+        tile->setPosition({21, -3, -23});
+        tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 2;
         tile->y = y;
         addNode(tile);
 
         const auto tile2 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile2->setPosition({-4, 0, 0});
-        tile->x = x - 4;
-        tile->y = y;
+        tile2->setScale({0.041667f, 0.041667f, 0.041667f});
+        tile2->setPosition({19, -3, -23});
+        tile2->x = x - 4;
+        tile2->y = y;
         addNode(tile2);
 
         const auto tile3 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile3->setPosition({-6, 0, 0});
-        tile->x = x - 6;
-        tile->y = y;
+        tile3->setScale({0.041667f, 0.041667f, 0.041667f});
+        tile3->setPosition({17, -3, -23});
+        tile3->x = x - 6;
+        tile3->y = y;
         addNode(tile3);
     }
 
@@ -61,17 +64,14 @@ namespace Model {
     }
 
     shared_ptr<SphereMesh> SnakeMeshNode3D::createTileNode() const {
-        auto geometry = make_shared<BaseItem>();
-        geometry->setScale({0.041667f, 0.041667f, 0.041667f});
-        geometry->setPosition({23, -3, -23});
-        const auto sphere = make_shared<SphereMesh>(geometry, nullptr, 1.5, 0.75);
+        const auto sphere = make_shared<SphereMesh>(nullptr, 1.5, 0.75);
         sphere->setMaterial(tileMaterial);
 
         return sphere;
     }
 
     void SnakeMeshNode3D::addTile(const eDIRECTION direction) {
-        glm::vec3 pos = {-19, 67, -23};
+        glm::vec3 pos = {};
         const auto sphere = createTileNode();
 
         const auto PrevIter = children.end() - 1;
@@ -111,6 +111,7 @@ namespace Model {
 
         const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
         tile->setPosition(pos);
+        tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 2;
         tile->y = y;
 

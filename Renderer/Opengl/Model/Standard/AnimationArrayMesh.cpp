@@ -2,48 +2,44 @@
 
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationModel> &model,
-                                           const shared_ptr<ShaderManager> &baseShader) : StandardMesh(
-            std::shared_ptr(model->getBaseItem()), baseShader), model(model), baseShader(baseShader) {
+                                           const shared_ptr<ShaderManager> &baseShader)
+        : StandardMesh(baseShader), model(model), baseShader(baseShader) {
     }
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
         const glm::mat4 &parentTransform, const bool shadows) const {
-        if (item->isVisible()) {
-            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial.get()->bind(
-                    camera->getPosition(),
-                    camera->getViewMatrix(),
-                    projection,
-                    parentTransform * getBaseItem()->getModelMatrix(),
-                    shadows
-                );
-            } else {
-                baseShader->setMat4("view", camera->getViewMatrix());
-                baseShader->setMat4("projection", projection);
-                baseShader->setVec3("viewPos", camera->getPosition());
-                baseShader->setBool("useMaterial", true);
-                baseShader->setMat4("model", parentTransform * item->getModelMatrix());
-            }
+        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial.get()->bind(
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                projection,
+                parentTransform,
+                shadows
+            );
+        } else {
+            baseShader->setMat4("view", camera->getViewMatrix());
+            baseShader->setMat4("projection", projection);
+            baseShader->setVec3("viewPos", camera->getPosition());
+            baseShader->setBool("useMaterial", true);
+            baseShader->setMat4("model", parentTransform);
+        }
 
-            renderMesh(parentTransform);
+        renderMesh(parentTransform);
 
-            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial.get()->unbind();
-            }
+        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial.get()->unbind();
         }
     }
 
     void AnimationArrayMesh::renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection,
                                              float dt, const glm::mat4 &parentTransform) const {
-        if (item->isVisible()) {
-            const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
-            if (standardMaterial && standardMaterial->isShadowEnabled()) {
-                standardMaterial.get()->bindShadow(parentTransform * getBaseItem()->getModelMatrix());
+        const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
+        if (standardMaterial && standardMaterial->isShadowEnabled()) {
+            standardMaterial.get()->bindShadow(parentTransform);
 
-                renderMesh(parentTransform * glm::mat4(1.0f));
+            renderMesh(parentTransform * glm::mat4(1.0f));
 
-                standardMaterial.get()->unbind();
-            }
+            standardMaterial.get()->unbind();
         }
     }
 
@@ -77,10 +73,10 @@ namespace Model {
                     if (!animMesh->isHasBones()) {
                         baseShader->setBool("useBones", false);
                         baseShader->setMat4(
-                            "model", parentTransform * this->item->getModelMatrix() * animMesh->getGlobalTransformation());
+                            "model", parentTransform * animMesh->getGlobalTransformation());
                     } else {
                         baseShader->setBool("useBones", true);
-                        baseShader->setMat4("model", parentTransform * this->item->getModelMatrix());
+                        baseShader->setMat4("model", parentTransform);
                     }
                     animMesh->bind();
                     glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
@@ -92,7 +88,7 @@ namespace Model {
 
         for (const auto animMesh: model->getNoBonesMeshes()) {
             baseShader->setBool("useBones", false);
-            baseShader->setMat4("model", parentTransform * this->item->getModelMatrix() * animMesh->getGlobalTransformation());
+            baseShader->setMat4("model", parentTransform * animMesh->getGlobalTransformation());
             animMesh->bind();
             glLoadIdentity();
             glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()), GL_UNSIGNED_INT,
