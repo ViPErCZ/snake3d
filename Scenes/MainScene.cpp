@@ -10,6 +10,7 @@
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
+#include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 
 namespace Scenes {
     MainScene::MainScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
@@ -28,6 +29,7 @@ namespace Scenes {
         initRadar();
         initEatManager();
         initLevelManager();
+        initLabels();
 
         buildStartMoveCallback();
         buildEatenUpCallback();
@@ -113,7 +115,7 @@ namespace Scenes {
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
 
-        meshes.push_back(node3d);
+        meshNode3d.push_back(node3d);
     }
 
     void MainScene::initBarriers() {
@@ -170,14 +172,14 @@ namespace Scenes {
             boxNode3D->addNode(boxNode3D_2);
         }
 
-        meshes.push_back(boxNode3D);
+        meshNode3d.push_back(boxNode3D);
     }
 
     void MainScene::initLevelManager() {
         levelManager = make_unique<LevelManager>(1, MAX_LIVES, resourceManager);
         levelManager->createLevel(START_LEVEL);
         levelBoxes = levelManager->createLevel(START_LEVEL);
-        meshes.push_back(levelBoxes);
+        meshNode3d.push_back(levelBoxes);
     }
 
     void MainScene::initEat() {
@@ -217,7 +219,7 @@ namespace Scenes {
 
         collisionDetector->addStaticItem(coinMeshNode3D);
 
-        meshes.push_back(coinMeshNode3D);
+        meshNode3d.push_back(coinMeshNode3D);
     }
 
     void MainScene::initEatManager() {
@@ -231,6 +233,16 @@ namespace Scenes {
 
         const auto radarRenderer = make_shared<RadarRenderer>(radar, camera, resourceManager, ortho);
         rendererManager->addRenderer(radarRenderer);
+    }
+
+    void MainScene::initLabels() {
+        const auto shader = resourceManager->getShader("basicShader");
+        const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 16);
+        const auto settings = make_shared<LabelSettings>(font);
+        const auto label = make_shared<LabelNode2D>("Test", shader, settings);
+        const auto meshNode2D = make_shared<MeshNode2D>();
+
+        meshNode2d.push_back(meshNode2D);
     }
 
     void MainScene::resetRadar() const {

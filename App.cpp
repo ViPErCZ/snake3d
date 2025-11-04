@@ -3,7 +3,7 @@
 #include "App.h"
 #include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
-#include "Renderer/Opengl/StandardMeshRenderer.h"
+#include "Renderer/Opengl/Node3DRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
@@ -238,13 +238,13 @@ void App::initScene() {
     // const auto storm = new BaseItem();
     // storm->setVisible(false);
 
-    initTexts();
+    // initTexts();
+    //
+    // animateEat = new Eat;
+    // animateEat->setVisible(false);
+    // animateEat->setPosition(eat->getPosition());
 
-    animateEat = new Eat;
-    animateEat->setVisible(false);
-    animateEat->setPosition(eat->getPosition());
-
-    eatRemoveAnimateRenderer = make_shared<EatRemoveAnimateRenderer>(animateEat, camera.get(), projection, resourceManager.get());
+    // eatRemoveAnimateRenderer = make_shared<EatRemoveAnimateRenderer>(animateEat, camera.get(), projection, resourceManager.get());
 
     // shared_ptr<PlaneMesh> planeMesh = initPlane();
 
@@ -473,7 +473,7 @@ void App::Init() const {
     rendererManager->initShadowMapping();
 
     const auto preLoader = initPreloader();
-    rendererManager->addRenderer(make_shared<StandardMeshRenderer>(camera, projection, preLoader));
+    rendererManager->addRenderer(make_shared<Node3DRenderer>(camera, projection, preLoader));
     camera->setStickyPoint(preLoader);
 
     const fs::path assets_dir{"Assets/Objects"};

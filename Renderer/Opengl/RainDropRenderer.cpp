@@ -4,7 +4,7 @@
 namespace Renderer {
     RainDropRenderer::RainDropRenderer(BaseItem *item, Camera *camera, glm::mat4 proj,
                                        ResourceManager *resourceManager)
-            : BaseRenderer(item), resourceManager(resourceManager), camera(camera), projection(proj), enable(false) {
+            : resourceManager(resourceManager), camera(camera), projection(proj), enable(false) {
         baseShader = resourceManager->getShader("rainDrop").get();
         texture = resourceManager->getTexture("raindrops_nor.png").get();
         model = new MeshModel(item);

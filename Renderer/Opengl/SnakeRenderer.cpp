@@ -13,7 +13,7 @@ namespace Renderer {
         snakeHeadTexture = resourceManager->getTexture("head.bmp").get();
         noise = resourceManager->getTexture("fast_noise.bmp").get();
         startTime = glfwGetTime();
-        this->item = snake->getHeadTile();
+        //this->item = snake->getHeadTile();
     }
 
     void SnakeRenderer::render(float dt) {

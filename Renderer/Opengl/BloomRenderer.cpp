@@ -119,7 +119,3 @@ void Renderer::BloomRenderer::beforeRender() {
 }
 
 void Renderer::BloomRenderer::renderShadowMap() {}
-
-shared_ptr<Mesh> Renderer::BloomRenderer::getMesh() {
-    return nullptr;
-}

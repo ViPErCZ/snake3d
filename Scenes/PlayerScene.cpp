@@ -49,7 +49,7 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
-        meshes.push_back(snake);
+        meshNode3d.push_back(snake);
     }
 
     void PlayerScene::initSnakeMoveHandler() {

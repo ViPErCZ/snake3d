@@ -13,8 +13,8 @@ namespace Renderer {
     }
 
     void TextRenderer::render(float dt) {
-        for (auto Iter = texts.begin(); Iter < texts.end(); Iter++) {
-            auto text = (*Iter)->getText();
+        for (auto Iter = texts.begin(); Iter < texts.end(); ++Iter) {
+            const auto text = (*Iter)->getText();
             if (text->isVisible()) {
                 (*Iter)->render();
                 if (text->isStartFade()) {
@@ -33,14 +33,14 @@ namespace Renderer {
         glDisable(GL_BLEND);
     }
 
-    void TextRenderer::addText(ItemsDto::Text *text, ShaderManager* shader) {
-        auto textModel = new Model::TextModel(width, height, shader);
+    void TextRenderer::addText(Text *text, ShaderManager* shader) {
+        const auto textModel = new Model::TextModel(width, height, shader);
         textModel->load(text);
         texts.push_back(textModel);
     }
 
     void TextRenderer::release() {
-        for (auto Iter = texts.begin(); Iter < texts.end(); Iter++) {
+        for (auto Iter = texts.begin(); Iter < texts.end(); ++Iter) {
             delete (*Iter);
         }
 

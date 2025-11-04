@@ -103,10 +103,6 @@ namespace Renderer {
         }
     }
 
-    shared_ptr<Mesh> AnimRenderer::getMesh() {
-        return nullptr;
-    }
-
     void AnimRenderer::renderShadowMap() {
         shadowShader->use();
         renderScene(shadowShader);

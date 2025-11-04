@@ -5,7 +5,6 @@
 #include "BaseRenderer.h"
 #include "Model/Standard/StandardMesh.h"
 #include "../../Manager/ResourceManager.h"
-#include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"
 #include "Model/Standard/MeshNode3D.h"
 
@@ -13,16 +12,16 @@ using namespace Model;
 using namespace std;
 
 namespace Renderer {
-    class StandardMeshRenderer final : public BaseRenderer {
+    class Node3DRenderer final : public BaseRenderer {
     public:
-        explicit StandardMeshRenderer(shared_ptr<Camera> camera,
+        explicit Node3DRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection,
                                       shared_ptr<MeshNode3D> rootNode);
 
-        StandardMeshRenderer(shared_ptr<Camera> camera,
+        Node3DRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection);
 
-        ~StandardMeshRenderer() override;
+        ~Node3DRenderer() override;
 
         void render(float dt) override;
 
@@ -39,9 +38,7 @@ namespace Renderer {
         shared_ptr<MeshNode3D> getRootNode();
 
     protected:
-        void renderScene(const shared_ptr<ShaderManager> &shader) const;
-
-        shared_ptr<Mesh> getMesh() override;
+        void renderScene() const;
 
         shared_ptr<Camera> camera;
         shared_ptr<MeshNode3D> rootNode;

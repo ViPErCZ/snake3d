@@ -7,7 +7,7 @@ namespace Scenes {
         : resourceManager(rm), rendererManager(rendererManager), camera(camera), projection(projection),
           width(width), height(height) {
         keyboardManager = make_unique<KeyboardManager>();
-        sceneRenderer = make_shared<SceneRenderer>(camera, projection);
+        sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
     }
 
     void Scene::init() {
@@ -15,12 +15,12 @@ namespace Scenes {
     }
 
     Scene::~Scene() {
-        meshes.clear();
+        meshNode3d.clear();
     }
 
     void Scene::update() {
         keyboardManager->runDefault();
-        sceneRenderer->update(meshes);
+        sceneRenderer->update(meshNode3d, meshNode2d);
         for (const auto &node: nodes) {
             node->update();
         }

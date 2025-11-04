@@ -1,7 +1,6 @@
 #ifndef SNAKE3_TEXT_H
 #define SNAKE3_TEXT_H
 
-#include "../stdafx.h"
 #include "BaseItem.h"
 #include <string>
 

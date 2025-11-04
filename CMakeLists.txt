@@ -39,8 +39,10 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Standard/PlaneMesh.h
         Renderer/Opengl/Model/Standard/BoxMesh.cpp
         Renderer/Opengl/Model/Standard/BoxMesh.h
-        Renderer/Opengl/StandardMeshRenderer.cpp
-        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Model/Standard/CylinderMesh.cpp
+        Renderer/Opengl/Model/Standard/CylinderMesh.h
+        Renderer/Opengl/Node3DRenderer.cpp
+        Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.cpp
@@ -101,6 +103,18 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
         ItemsDto/Visibility.cpp
         ItemsDto/Visibility.h
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.h
+        Renderer/Opengl/Material/2D/LabelSettings.cpp
+        Renderer/Opengl/Material/2D/LabelSettings.h
+        Renderer/Opengl/Material/2D/Font.cpp
+        Renderer/Opengl/Material/2D/Font.h
+        Renderer/Opengl/Node2DRenderer.cpp
+        Renderer/Opengl/Node2DRenderer.h
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -189,8 +203,8 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/PlaneMesh.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp
         Renderer/Opengl/Model/Standard/StandardMesh.h
-        Renderer/Opengl/StandardMeshRenderer.cpp
-        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Node3DRenderer.cpp
+        Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.cpp
@@ -249,6 +263,18 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
         ItemsDto/Visibility.cpp
         ItemsDto/Visibility.h
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.h
+        Renderer/Opengl/Material/2D/LabelSettings.cpp
+        Renderer/Opengl/Material/2D/LabelSettings.h
+        Renderer/Opengl/Material/2D/Font.cpp
+        Renderer/Opengl/Material/2D/Font.h
+        Renderer/Opengl/Node2DRenderer.cpp
+        Renderer/Opengl/Node2DRenderer.h
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -257,8 +283,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/BoxMesh.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp
         Renderer/Opengl/Model/Standard/StandardMesh.h
-        Renderer/Opengl/StandardMeshRenderer.cpp
-        Renderer/Opengl/StandardMeshRenderer.h
+        Renderer/Opengl/Node3DRenderer.cpp
+        Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.cpp
@@ -291,6 +317,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/AnimationArrayMesh.h
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.cpp
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h
+        Renderer/Opengl/Model/Standard/CylinderMesh.cpp
+        Renderer/Opengl/Model/Standard/CylinderMesh.h
         Renderer/Opengl/Scene/Scene.cpp
         Renderer/Opengl/Scene/Scene.h
         Renderer/Opengl/Material/IUniform.cpp
@@ -317,6 +345,18 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
         ItemsDto/Visibility.cpp
         ItemsDto/Visibility.h
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/BaseNode2D.h
+        Renderer/Opengl/Material/2D/LabelSettings.cpp
+        Renderer/Opengl/Material/2D/LabelSettings.h
+        Renderer/Opengl/Material/2D/Font.cpp
+        Renderer/Opengl/Material/2D/Font.h
+        Renderer/Opengl/Node2DRenderer.cpp
+        Renderer/Opengl/Node2DRenderer.h
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
