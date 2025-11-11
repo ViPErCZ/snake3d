@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Skeleton_Body.png",
+    "path": "Albedo/Skeleton_Body.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "brickwall.jpg",
+    "path": "Albedo/box/brickwall.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "bricks2.jpg",
+    "path": "Albedo/bricks2.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "bricks2_disp.jpg",
+    "path": "Albedo/bricks2_disp.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "brickwork-cavity.jpg",
+    "path": "Albedo/brickwork-cavity.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "brickwork-texture.jpg",
+    "path": "Albedo/brickwork-texture.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "Coin_Gold_albedo.png",
+    "path": "Albedo/coin/Coin_Gold_albedo.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "fast_noise.bmp",
+    "path": "Albedo/fast_noise.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "fire.png",
+    "path": "Albedo/fire/fire.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "smoke.png",
+    "path": "Albedo/fire/smoke.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "gamefield.bmp",
+    "path": "Albedo/gamefield/gamefield.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "gamefield_specular.jpg",
+    "path": "Albedo/gamefield/gamefield_specular.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "tile.png",
+    "path": "Albedo/gamefield/tile.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "head.bmp",
+    "path": "Albedo/head.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "red_screen.bmp",
+    "path": "Albedo/radar/red_screen.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "raindrops.png",
+    "path": "Albedo/rain/raindrops.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "raindrops_nor.png",
+    "path": "Albedo/rain/raindrops_nor.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "rain.jpg",
+    "path": "Albedo/rain.jpg",
+    "category": "Albedo"
+  },
+  {
+    "name": "rusted_albedo.png",
+    "path": "Albedo/rusted/rusted_albedo.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "snake.bmp",
+    "path": "Albedo/snake.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "tile.bmp",
+    "path": "Albedo/tile.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "torch.png",
+    "path": "Albedo/torch.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "Coin_Gold_metalness.png",
+    "path": "Others/Coin_Gold_metalness.png",
+    "category": "Others"
+  },
+  {
+    "name": "Coin_Gold_nm.png",
+    "path": "Others/Coin_Gold_nm.png",
+    "category": "Others"
+  },
+  {
+    "name": "Coin_Gold_rough.png",
+    "path": "Others/Coin_Gold_rough.png",
+    "category": "Others"
+  },
+  {
+    "name": "Skeleton_Body_ORM.png",
+    "path": "Others/Skeleton_Body_ORM.png",
+    "category": "Others"
+  },
+  {
+    "name": "ao.png",
+    "path": "Others/ao.png",
+    "category": "Others"
+  },
+  {
+    "name": "bricks2_normal.jpg",
+    "path": "Others/bricks2_normal.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "brickwall_normal.jpg",
+    "path": "Others/brickwall_normal.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "brickwork-bump-map.jpg",
+    "path": "Others/brickwork-bump-map.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "brickwork_normal-map.jpg",
+    "path": "Others/brickwork_normal-map.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "gamefield_normal.jpg",
+    "path": "Others/gamefield_normal.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "rusted_metallic.png",
+    "path": "Others/rusted_metallic.png",
+    "category": "Others"
+  },
+  {
+    "name": "rusted_normal.png",
+    "path": "Others/rusted_normal.png",
+    "category": "Others"
+  },
+  {
+    "name": "rusted_roughness.png",
+    "path": "Others/rusted_roughness.png",
+    "category": "Others"
+  },
+  {
+    "name": "torch_normal.png",
+    "path": "Others/torch_normal.png",
+    "category": "Others"
+  }
+]
