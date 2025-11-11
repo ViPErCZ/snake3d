@@ -27,12 +27,15 @@ namespace Material {
 
         int getSize() const { return fontSize; }
 
+        [[nodiscard]] float getAscenderPixels() const;
+
     private:
         void buildAtlas();
 
         std::unordered_map<char, Character> characters;
         unsigned int atlasTexture = 0;
         int fontSize;
+        float ascender_pixels;
         std::string fontPath;
         std::vector<unsigned char> atlasBuffer;
     };

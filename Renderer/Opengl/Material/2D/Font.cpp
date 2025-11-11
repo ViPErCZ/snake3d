@@ -8,13 +8,17 @@
 
 namespace Material {
     Font::Font(std::string path, const int pixelSize)
-        : fontSize(pixelSize), fontPath(std::move(path)) {
+        : fontSize(pixelSize), fontPath(std::move(path)), ascender_pixels(0) {
         buildAtlas();
     }
 
     Font::~Font() {
         if (atlasTexture)
             glDeleteTextures(1, &atlasTexture);
+    }
+
+    float Font::getAscenderPixels() const {
+        return ascender_pixels;
     }
 
     void Font::buildAtlas() {
@@ -59,6 +63,8 @@ namespace Material {
             x += static_cast<int>(bmp.width);
             if (bmp.rows > rowH) rowH = static_cast<int>(bmp.rows);
         }
+
+        ascender_pixels = static_cast<float>(face->size->metrics.ascender >> 6);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);

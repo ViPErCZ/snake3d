@@ -22,14 +22,12 @@ namespace ModelUtils {
 
         vertices.clear();
         float x = 0.0f;
-        float y = 0.0f;
+        const float y = font->getAscenderPixels();
 
         for (const char c: text) {
             const auto ch = font->getCharacter(c);
 
             float xpos = x + static_cast<float>(ch->bearing.x);
-            //float ypos = y;
-            // float ypos = y - static_cast<float>(ch->bearing.y);
             const auto w = static_cast<float>(ch->size.x);
             const auto h = static_cast<float>(ch->size.y);
 
@@ -40,6 +38,7 @@ namespace ModelUtils {
             const float sizeY = h;
             const float air_below = (bearingY > sizeY) ? (bearingY - sizeY) : 0.0f;
             float ypos = (y - bearingY) + air_below;
+
             if (maxSizeY < sizeY) {
                 maxSizeY = sizeY;
             }
@@ -61,7 +60,7 @@ namespace ModelUtils {
         vbo->bind();
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4,GL_FLOAT,GL_FALSE, 4 * sizeof(float), static_cast<void *>(nullptr));
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(),
+        glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(float)), vertices.data(),
                      GL_DYNAMIC_DRAW);
     }
 
