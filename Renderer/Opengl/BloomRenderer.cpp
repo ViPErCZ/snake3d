@@ -57,7 +57,7 @@ Renderer::BloomRenderer::BloomRenderer(const shared_ptr<ResourceManager> &resMan
     shaderBloomFinal->setInt("bloomBlur", 1);
 }
 
-void Renderer::BloomRenderer::render(float dt) {
+void Renderer::BloomRenderer::render3D(float dt) {
 }
 
 void Renderer::BloomRenderer::afterRender() {

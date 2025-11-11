@@ -16,7 +16,7 @@ namespace Renderer {
         //this->item = snake->getHeadTile();
     }
 
-    void SnakeRenderer::render(float dt) {
+    void SnakeRenderer::render3D(float dt) {
         if (blur) {
             shaderLight->use();
             shaderLight->setMat4("projection", projection);

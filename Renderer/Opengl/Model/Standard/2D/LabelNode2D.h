@@ -10,16 +10,23 @@ using namespace Material;
 namespace Model {
     class LabelNode2D final : public BaseNode2D {
     public:
-        explicit LabelNode2D(const std::string& text, const shared_ptr<ShaderManager> &baseShader,
-                       const shared_ptr<LabelSettings> &settings);
+        explicit LabelNode2D(std::string text, const shared_ptr<ShaderManager> &baseShader,
+                             const shared_ptr<LabelSettings> &settings);
 
         ~LabelNode2D() override = default;
 
         [[nodiscard]] unsigned int getTextureId() const { return textureId; }
 
-    private:
-        unsigned int textureId = 0;
+        void set_texture_id(unsigned int texture_id) {
+            textureId = texture_id;
+        }
 
+        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+            const glm::mat4 &parentTransform) const override;
+
+    protected:
+        const shared_ptr<LabelSettings> settings;
+        string text;
     };
 } // Model
 

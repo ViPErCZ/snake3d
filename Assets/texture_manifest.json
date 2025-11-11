@@ -155,6 +155,11 @@
     "category": "Others"
   },
   {
+    "name": "font_atlas.png",
+    "path": "Others/font_atlas.png",
+    "category": "Others"
+  },
+  {
     "name": "gamefield_normal.jpg",
     "path": "Others/gamefield_normal.jpg",
     "category": "Others"

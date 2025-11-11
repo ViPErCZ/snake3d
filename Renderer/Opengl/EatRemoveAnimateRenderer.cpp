@@ -13,7 +13,7 @@ namespace Renderer {
         delete eat;
     }
 
-    void EatRemoveAnimateRenderer::render(float dt) {
+    void EatRemoveAnimateRenderer::render3D(float dt) {
         if (eat && eat->isVisible()) {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());

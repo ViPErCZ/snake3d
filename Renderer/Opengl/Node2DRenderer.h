@@ -12,11 +12,12 @@ using namespace Model;
 using namespace std;
 
 namespace Renderer {
-    class Node2DRenderer final : public BaseRenderer {
+    class Node2DRenderer final : public BaseRenderer { // BaseRenderer2D
     public:
         Node2DRenderer(const std::shared_ptr<Camera> &camera, int width, int height);
         ~Node2DRenderer() override = default;
-        void render(float dt) override;
+        void render3D(float dt) override;
+        void render2D(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override {};
@@ -24,6 +25,8 @@ namespace Renderer {
         shared_ptr<MeshNode2D> getRootNode();
 
     protected:
+        void renderScene() const;
+
         std::shared_ptr<Camera> camera;
         shared_ptr<MeshNode2D> rootNode;
         glm::mat4 ortho{};

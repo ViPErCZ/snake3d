@@ -14,14 +14,19 @@ namespace Scenes {
         this->nodes3d = nodes;
     }
 
-    void SceneRenderer::render(const float dt) {
+    void SceneRenderer::render3D(const float dt) {
         for (auto &node : nodes3d) {
             this->meshNode3DRenderer->setRootNode(node);
-            this->meshNode3DRenderer->render(dt);
+            this->meshNode3DRenderer->render3D(dt);
         }
+    }
+
+    void SceneRenderer::render2D(const float dt) {
+        BaseRenderer::render2D(dt);
+
         for (auto &node : nodes2d) {
             this->meshNode2DRenderer->setRootNode(node);
-            this->meshNode2DRenderer->render(dt);
+            this->meshNode2DRenderer->render2D(dt);
         }
     }
 

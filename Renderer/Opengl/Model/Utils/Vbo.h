@@ -2,7 +2,6 @@
 #define SNAKE3_VBO_H
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -26,7 +25,8 @@ namespace ModelUtils {
     class Vbo {
     public:
         // Constructor that generates a Vertex Buffer Object and links it to vertices
-        explicit Vbo(vector<Vertex>& vertices);
+        explicit Vbo(const vector<Vertex>& vertices);
+        explicit Vbo();
         // Reference ID of the Vertex Buffer Object
         GLuint ID{};
         // Binds the VBO

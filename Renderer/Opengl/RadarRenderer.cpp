@@ -10,7 +10,7 @@ namespace Renderer {
         frameTexture = resourceManager->getTexture("red_screen.bmp");
     }
 
-    void RadarRenderer::render(float dt) {
+    void RadarRenderer::render3D(float dt) {
         if (radar->isVisible()) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
@@ -18,8 +18,6 @@ namespace Renderer {
             shader->setMat4("projection", projection);
             shader->setInt("albedo", 0);
             shader->setFloat("alpha", 1.0);
-
-            glLoadIdentity();
 
             frameTexture->bind();
             shader->setMat4("model", radar->getModelMatrix());
@@ -36,7 +34,6 @@ namespace Renderer {
 
             for (const auto &radarItem: radar->getItems()) {
                 if (radarItem.item->isVisible()) {
-                    glLoadIdentity();
 
                     shader->setBool("useMaterial", true);
                     shader->setVec3("Color", radarItem.color);
@@ -46,6 +43,8 @@ namespace Renderer {
                     index++;
                 }
             }
+
+            frameTexture->unbind();
         }
     }
 

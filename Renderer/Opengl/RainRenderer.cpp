@@ -11,7 +11,7 @@ Renderer::RainRenderer::~RainRenderer() {
     delete model;
 }
 
-void Renderer::RainRenderer::render(const float dt) {
+void Renderer::RainRenderer::render3D(const float dt) {
     deltaTime = dt;
     if (enable) {
         baseShader->use();

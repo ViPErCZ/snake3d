@@ -52,14 +52,14 @@ namespace ModelUtils {
         // Generates Element Buffer Object and links it to indices
         Ebo ebo(this->indices);
         // Links VBO attributes such as coordinates and colors to VAO
-        vao->linkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *) nullptr);
-        vao->linkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(3 * sizeof(float)));
-        vao->linkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(6 * sizeof(float)));
-        vao->linkAttrib(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(9 * sizeof(float)));
-        vao->linkAttrib(vbo, 4, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(11 * sizeof(float)));
-        vao->linkAttrib(vbo, 5, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(14 * sizeof(float)));
-        vao->linkAttribI(vbo, 6, 4, GL_INT, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, BoneIDs)));
-        vao->linkAttrib(vbo, 7, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, Weights)));
+        vao->linkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
+        vao->linkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
+        vao->linkAttrib(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, color)));
+        vao->linkAttrib(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, texUV)));
+        vao->linkAttrib(vbo, 4, 3, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, tangents)));
+        vao->linkAttrib(vbo, 5, 2, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, biTangents))); // vec2!
+        vao->linkAttribI(vbo, 6, 4, GL_INT,   sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, BoneIDs)));
+        vao->linkAttrib (vbo, 7, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Weights)));
         // Unbind all to prevent accidentally modifying them
         vao->unBind();
         vbo.unBind();

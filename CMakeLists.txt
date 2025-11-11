@@ -115,6 +115,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Node2DRenderer.h
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
+        Renderer/Opengl/Model/Utils/TextMesh.cpp
+        Renderer/Opengl/Model/Utils/TextMesh.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -275,6 +277,8 @@ set(APP_SOURCES
         Renderer/Opengl/Node2DRenderer.h
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
+        Renderer/Opengl/Model/Utils/TextMesh.cpp
+        Renderer/Opengl/Model/Utils/TextMesh.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -357,6 +361,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Node2DRenderer.h
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/MeshNode2D.h
+        Renderer/Opengl/Model/Utils/TextMesh.cpp
+        Renderer/Opengl/Model/Utils/TextMesh.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

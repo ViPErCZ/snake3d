@@ -4,7 +4,7 @@
 
 namespace Model {
 
-    class Character {
+    class oCharacter {
     public:
         [[nodiscard]] unsigned int getTextureId() const;
         void setTextureId(unsigned int textureId);

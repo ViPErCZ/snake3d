@@ -5,16 +5,29 @@
 namespace Renderer {
     Node2DRenderer::Node2DRenderer(const std::shared_ptr<Camera> &camera, const int width, const int height)
         : camera(camera) {
-        ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+        ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     }
 
-    void Node2DRenderer::render(float dt) {
+    void Node2DRenderer::render3D(float dt) {
+        throw std::runtime_error("Not implemented. Use render2D() instead.");
+    }
+
+    void Node2DRenderer::render2D(const float dt) {
+        rootNode->update(dt);
+        this->beforeRender();
+        renderScene();
+        this->afterRender();
     }
 
     void Node2DRenderer::beforeRender() {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
     }
 
     void Node2DRenderer::afterRender() {
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
     }
 
     void Node2DRenderer::setRootNode(const shared_ptr<MeshNode2D> &rootNode) {
@@ -23,5 +36,9 @@ namespace Renderer {
 
     shared_ptr<MeshNode2D> Node2DRenderer::getRootNode() {
         return rootNode;
+    }
+
+    void Node2DRenderer::renderScene() const {
+        rootNode->render(camera, ortho, 1, glm::mat4(1));
     }
 } // Renderer

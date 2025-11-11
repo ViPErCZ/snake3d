@@ -23,7 +23,7 @@ namespace Model {
     protected:
         Text* text{};
         ShaderManager* shader;
-        map<char, Character*> characters;
+        map<char, oCharacter*> characters;
         unsigned int VAO{}, VBO{};
     };
 

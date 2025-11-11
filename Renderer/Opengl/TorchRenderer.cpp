@@ -82,7 +82,7 @@ namespace Renderer {
 
     TorchRenderer::~TorchRenderer() = default;
 
-    void TorchRenderer::render(float dt) {
+    void TorchRenderer::render3D(float dt) {
         baseShader->use();
         baseShader->setMat4("view", camera->getViewMatrix());
         baseShader->setMat4("projection", projection);

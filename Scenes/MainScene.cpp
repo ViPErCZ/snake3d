@@ -232,15 +232,16 @@ namespace Scenes {
         resetRadar();
 
         const auto radarRenderer = make_shared<RadarRenderer>(radar, camera, resourceManager, ortho);
-        rendererManager->addRenderer(radarRenderer);
+        // rendererManager->addRenderer(radarRenderer);
     }
 
     void MainScene::initLabels() {
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 16);
+        const auto shader = resourceManager->getShader("textShader");
+        const auto fontAtlas = resourceManager->getTexture("font_atlas.png");
+        const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 26);
         const auto settings = make_shared<LabelSettings>(font);
-        const auto label = make_shared<LabelNode2D>("Test", shader, settings);
-        const auto meshNode2D = make_shared<MeshNode2D>();
+        const auto label = make_shared<LabelNode2D>("Press start I, K or L...", shader, settings);
+        const auto meshNode2D = make_shared<MeshNode2D>(label, resourceManager);
 
         meshNode2d.push_back(meshNode2D);
     }

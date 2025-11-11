@@ -795,21 +795,21 @@ void App::InitResourceManager() const {
 // }
 
 void App::initTexts() const {
-    if (textRenderer && resourceManager) {
-        startText->setVisible(true);
-        startText->setColor({0.8, 0.8, 0.8});
-        startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-        startText->setFontSize(22);
-        startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
-        startText->setScale({1.0f, 0, 0});
-        textRenderer->addText(startText, resourceManager->getShader("textShader").get());
-
-        tilesCounterText->setVisible(true);
-        tilesCounterText->setColor({0.8, 0.8, 0.8});
-        tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-        tilesCounterText->setFontSize(22);
-        tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
-        tilesCounterText->setScale({1.0f, 0, 0});
-        textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader").get());
-    }
+    // if (textRenderer && resourceManager) {
+    //     startText->setVisible(true);
+    //     startText->setColor({0.8, 0.8, 0.8});
+    //     startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+    //     startText->setFontSize(22);
+    //     startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
+    //     startText->setScale({1.0f, 0, 0});
+    //     textRenderer->addText(startText, resourceManager->getShader("textShader").get());
+    //
+    //     tilesCounterText->setVisible(true);
+    //     tilesCounterText->setColor({0.8, 0.8, 0.8});
+    //     tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
+    //     tilesCounterText->setFontSize(22);
+    //     tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
+    //     tilesCounterText->setScale({1.0f, 0, 0});
+    //     textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader").get());
+    // }
 }

@@ -95,7 +95,7 @@ private:
     shared_ptr<BarrierRenderer> barrierRenderer{};
     shared_ptr<EatRenderer> eatRenderer{};
     shared_ptr<RadarRenderer> radarRenderer{};
-    shared_ptr<TextRenderer> textRenderer{};
+    //shared_ptr<TextRenderer> textRenderer{};
     shared_ptr<EatRemoveAnimateRenderer> eatRemoveAnimateRenderer{};
     shared_ptr<RainRenderer> rainRenderer{};
     // shared_ptr<AnimRenderer> animRenderer{};

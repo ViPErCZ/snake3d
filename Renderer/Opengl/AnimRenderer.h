@@ -17,7 +17,7 @@ namespace Renderer {
         explicit AnimRenderer(shared_ptr<sSNAKE_TILE> tile, const shared_ptr<AnimationModel> &sharedPtr, Camera *camera,
             const glm::mat4 &projection, ResourceManager* resManager);
         ~AnimRenderer() override;
-        void render(float dt) override;
+        void render3D(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

@@ -18,7 +18,7 @@ namespace Renderer {
     public:
         TextRenderer(int width, int height);
         ~TextRenderer() override;
-        void render(float dt) override;
+        void render3D(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void addText(ItemsDto::Text* text, ShaderManager* shader);

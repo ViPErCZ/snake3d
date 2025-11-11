@@ -1,6 +1,4 @@
 #include "TextRenderer.h"
-#include <freetype2/ft2build.h>
-#include FT_FREETYPE_H
 
 namespace Renderer {
     TextRenderer::TextRenderer(int width, int height) {
@@ -12,7 +10,7 @@ namespace Renderer {
         release();
     }
 
-    void TextRenderer::render(float dt) {
+    void TextRenderer::render3D(float dt) {
         for (auto Iter = texts.begin(); Iter < texts.end(); ++Iter) {
             const auto text = (*Iter)->getText();
             if (text->isVisible()) {

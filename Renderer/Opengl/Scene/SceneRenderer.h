@@ -25,7 +25,9 @@ namespace Scenes {
 
         void update(const vector<shared_ptr<MeshNode3D> > &nodes, const vector<shared_ptr<MeshNode2D> > &nodes2d);
 
-        void render(float dt) override;
+        void render3D(float dt) override;
+
+        void render2D(float dt) override;
 
         void renderShadowMap() override;
 

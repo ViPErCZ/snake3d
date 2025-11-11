@@ -20,7 +20,7 @@ namespace Renderer {
         SkyboxRenderer(shared_ptr<Cube> cube, Camera *camera, const glm::mat4 &projection,
                        ResourceManager *resourceManager);
 
-        void render(float dt) override;
+        void render3D(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override {};

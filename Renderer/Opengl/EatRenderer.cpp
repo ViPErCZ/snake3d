@@ -15,7 +15,7 @@ namespace Renderer {
         depthTexture = resourceManager->getTexture("depth").get();
     }
 
-    void EatRenderer::render(float dt) {
+    void EatRenderer::render3D(float dt) {
         baseShader->use();
         baseShader->setMat4("view", camera->getViewMatrix());
         baseShader->setMat4("projection", projection);

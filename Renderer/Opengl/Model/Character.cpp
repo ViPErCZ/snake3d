@@ -1,35 +1,35 @@
 #include "Character.h"
 
 namespace Model {
-    unsigned int Character::getTextureId() const {
+    unsigned int oCharacter::getTextureId() const {
         return textureId;
     }
 
-    void Character::setTextureId(unsigned int textureId) {
-        Character::textureId = textureId;
+    void oCharacter::setTextureId(unsigned int textureId) {
+        oCharacter::textureId = textureId;
     }
 
-    const glm::ivec2 &Character::getSize() const {
+    const glm::ivec2 &oCharacter::getSize() const {
         return size;
     }
 
-    void Character::setSize(const glm::ivec2 &size) {
-        Character::size = size;
+    void oCharacter::setSize(const glm::ivec2 &size) {
+        oCharacter::size = size;
     }
 
-    const glm::ivec2 &Character::getBearing() const {
+    const glm::ivec2 &oCharacter::getBearing() const {
         return bearing;
     }
 
-    void Character::setBearing(const glm::ivec2 &bearing) {
-        Character::bearing = bearing;
+    void oCharacter::setBearing(const glm::ivec2 &bearing) {
+        oCharacter::bearing = bearing;
     }
 
-    unsigned int Character::getAdvance() const {
+    unsigned int oCharacter::getAdvance() const {
         return advance;
     }
 
-    void Character::setAdvance(unsigned int advance) {
-        Character::advance = advance;
+    void oCharacter::setAdvance(unsigned int advance) {
+        oCharacter::advance = advance;
     }
 } // Model

@@ -106,7 +106,13 @@ namespace Manager {
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             Iter->renderer->beforeRender();
-            Iter->renderer->render(dt);
+            Iter->renderer->render3D(dt);
+            Iter->renderer->afterRender();
+        }
+
+        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
+            Iter->renderer->beforeRender();
+            Iter->renderer->render2D(dt);
             Iter->renderer->afterRender();
         }
 

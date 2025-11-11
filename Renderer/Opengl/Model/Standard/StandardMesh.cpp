@@ -47,7 +47,6 @@ namespace Model {
         }
 
         mesh->bind();
-        glLoadIdentity();
         glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
         if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {

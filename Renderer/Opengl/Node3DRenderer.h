@@ -23,7 +23,7 @@ namespace Renderer {
 
         ~Node3DRenderer() override;
 
-        void render(float dt) override;
+        void render3D(float dt) override;
 
         void beforeRender() override;
 

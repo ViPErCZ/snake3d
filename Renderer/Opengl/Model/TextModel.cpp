@@ -9,7 +9,7 @@ namespace Model {
         this->shader = shader;
         this->shader->use();
         this->shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f));
-        this->shader->setInt("text", 0);
+        this->shader->setInt("textTexture", 0);
         // configure VAO/VBO for texture quads
         glGenVertexArrays(1, &this->VAO);
         glGenBuffers(1, &this->VBO);
@@ -79,12 +79,12 @@ namespace Model {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             // now store character for later use
-            auto* character = new Character();
+            auto* character = new oCharacter();
             character->setTextureId(texture);
             character->setSize(glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows));
             character->setBearing(glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top));
             character->setAdvance(static_cast<unsigned int>(face->glyph->advance.x));
-            characters.insert(std::pair<char, Character*>(c, character));
+            characters.insert(std::pair<char, oCharacter*>(c, character));
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         // destroy FreeType once we're finished
@@ -93,10 +93,13 @@ namespace Model {
     }
 
     void TextModel::render() {
+        const glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(3, 1, 0.0f));
+
         // activate corresponding render state
         shader->use();
         shader->setVec3("textColor", text->getColor());
         shader->setFloat("alpha", text->getAlpha());
+        // shader->setUniform("model", model);
 
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(this->VAO);
@@ -106,7 +109,7 @@ namespace Model {
         float scale = text->getScale().x;
         for (char c : text->getText())
         {
-            Character* ch = characters[c];
+            oCharacter* ch = characters[c];
 
             float xpos = x + (float)ch->getBearing().x * scale;
             float ypos = y + (float)(characters['H']->getBearing().y - ch->getBearing().y) * scale;

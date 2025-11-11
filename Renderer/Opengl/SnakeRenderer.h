@@ -14,7 +14,7 @@ namespace Renderer {
     class SnakeRenderer final : public BaseRenderer {
     public:
         SnakeRenderer(const shared_ptr<Snake> &snake, Camera *camera, const glm::mat4 &projection, ResourceManager* resManager);
-        void render(float dt) override;
+        void render3D(float dt) override;
         void renderShadowMap() override;
         void beforeRender() override;
         void afterRender() override;

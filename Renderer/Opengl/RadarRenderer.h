@@ -16,7 +16,7 @@ namespace Renderer {
         explicit RadarRenderer(shared_ptr<Radar> &radar, const shared_ptr<Camera> &camera,
                                const shared_ptr<ResourceManager> &resManager, const glm::mat4 &proj);
 
-        void render(float dt) override;
+        void render3D(float dt) override;
 
         void beforeRender() override;
 

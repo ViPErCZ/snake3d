@@ -2,6 +2,7 @@
 #define SNAKE3_FONT_H
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <glm/glm.hpp>
 
@@ -29,12 +30,11 @@ namespace Material {
     private:
         void buildAtlas();
 
-        void uploadAtlasToGPU(const unsigned char *buffer, int width, int height);
-
         std::unordered_map<char, Character> characters;
         unsigned int atlasTexture = 0;
         int fontSize;
         std::string fontPath;
+        std::vector<unsigned char> atlasBuffer;
     };
 } // Material
 

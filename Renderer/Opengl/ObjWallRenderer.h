@@ -19,7 +19,7 @@ namespace Renderer {
     public:
         explicit ObjWallRenderer(const shared_ptr<Snake> &snake, const shared_ptr<ObjWall> &item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager);
         ~ObjWallRenderer() override;
-        void render(float dt) override;
+        void render3D(float dt) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override;

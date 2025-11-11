@@ -11,7 +11,9 @@ namespace Renderer {
 
         virtual ~BaseRenderer();
 
-        virtual void render(float dt) = 0;
+        virtual void render3D(float dt) = 0;
+
+        virtual void render2D(float dt) {};
 
         virtual void renderShadowMap() = 0;
 

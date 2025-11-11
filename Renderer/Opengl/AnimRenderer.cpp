@@ -17,7 +17,7 @@ namespace Renderer {
         animationPlay.clear();
     }
 
-    void AnimRenderer::render(float dt) {
+    void AnimRenderer::render3D(float dt) {
         if (show) {
             shader->use();
             shader->setMat4("view", camera->getViewMatrix());

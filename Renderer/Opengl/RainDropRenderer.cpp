@@ -14,7 +14,7 @@ namespace Renderer {
         delete model;
     }
 
-    void RainDropRenderer::render(float dt) {
+    void RainDropRenderer::render3D(float dt) {
         if (enable) {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
