@@ -8,7 +8,7 @@
 
 namespace Material {
     Font::Font(std::string path, const int pixelSize)
-        : fontSize(pixelSize), fontPath(std::move(path)), ascender_pixels(0) {
+        : fontSize(pixelSize), ascender_pixels(0), fontPath(std::move(path)) {
         buildAtlas();
     }
 

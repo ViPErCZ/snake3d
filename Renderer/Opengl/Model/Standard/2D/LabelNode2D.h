@@ -3,6 +3,7 @@
 
 #include "BaseNode2D.h"
 #include "../../../Material/2D/LabelSettings.h"
+#include "../../Utils/TextMesh.h"
 
 using namespace std;
 using namespace Material;
@@ -17,16 +18,18 @@ namespace Model {
 
         [[nodiscard]] unsigned int getTextureId() const { return textureId; }
 
-        void set_texture_id(unsigned int texture_id) {
-            textureId = texture_id;
-        }
+        void setText(const string &text);
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
             const glm::mat4 &parentTransform) const override;
 
+        void alignVerticalCenter(float viewportWidth, float viewportHeight);
+
     protected:
+        shared_ptr<TextMesh> mesh;
         const shared_ptr<LabelSettings> settings;
         string text;
+        glm::vec2 align{};
     };
 } // Model
 

@@ -7,6 +7,6 @@ namespace Uniform {
 
     void TextureUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
         texture->bind(index, 0);
-        shader.get()->setUniform(name, index);
+        shader->setUniform(name, index);
     }
 } // Uniform

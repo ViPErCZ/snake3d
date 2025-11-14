@@ -23,7 +23,7 @@ namespace Material {
     class ShaderMaterial final : public StandardMaterial {
     public:
         explicit ShaderMaterial(shared_ptr<ShaderManager> baseShader,
-                                shared_ptr<ShaderManager> shadowDepthShader,
+                                shared_ptr<ShaderManager> shadowDepthShader = nullptr,
                                 const shared_ptr<WorldEnvironment> &worldEnv = nullptr);
 
         ~ShaderMaterial() override;

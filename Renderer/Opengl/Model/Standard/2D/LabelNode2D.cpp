@@ -2,6 +2,7 @@
 
 #include <utility>
 #include "../../../../../Manager/VboIndexer.h"
+#include "../../../Material/StandardMaterial.h"
 #include "../../Utils/TextMesh.h"
 
 namespace Model {
@@ -15,29 +16,61 @@ namespace Model {
         }
 
         mesh = std::make_shared<TextMesh>();
+        mesh->update(this->text, settings->getFont());
         textureId = settings->getFont()->getAtlasTextureId();
+
+    }
+
+    void LabelNode2D::setText(const string &text) {
+        this->text = text;
+        mesh->update(text, settings->getFont());
+        align = glm::vec2(0.0f, mesh->getSizeY());
     }
 
     void LabelNode2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
-        const glm::mat4 &parentTransform) const {
+                             const glm::mat4 &parentTransform) const {
 
-        const glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(3, mesh->getSizeY(), 0.0f));
+        const glm::mat4 model = translate(parentTransform, glm::vec3(align.x, align.y, 0.0f));
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        baseShader->use();
-        baseShader->setMat4("projection", ortho);
-        baseShader->setMat4("model", model);
-        baseShader->setVec3("textColor", glm::vec3(1.0f));
-        baseShader->setInt("textTexture", 0);
-        baseShader->setFloat("alpha", 1.0);
+
+        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial.get()->bind(
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                ortho,
+                model,
+                false
+            );
+        } else {
+            baseShader->use();
+            baseShader->setMat4("projection", ortho);
+            baseShader->setMat4("model", model);
+            baseShader->setVec3("textColor", settings->getColor());
+            baseShader->setInt("textTexture", 0);
+            baseShader->setFloat("alpha", 1.0);
+        }
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureId);
 
-        mesh->bind(text, settings->getFont());
+        mesh->bind();
         glDrawArrays(GL_TRIANGLES,0,static_cast<GLsizei>(mesh->getVertices().size())/4);
+
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D,0);
+    }
+
+    void LabelNode2D::alignVerticalCenter(const float viewportWidth, const float viewportHeight) {
+        constexpr float left   = 0.0f;
+        const float right  = viewportWidth;
+        constexpr float bottom = 0.0f;
+        const float top    = viewportHeight;
+
+        const float xCenter = (left + right) / 2.0f - mesh->getWidth() * 0.5f;
+        const float yCenter = (bottom + top) / 2.0f - mesh->getSizeY() * 0.5f;
+
+        align = glm::vec2(xCenter, yCenter);
     }
 } // namespace Model

@@ -4,7 +4,8 @@
 #include <variant>
 
 namespace Material {
-    ShaderMaterial::ShaderMaterial(shared_ptr<ShaderManager> baseShader, shared_ptr<ShaderManager> shadowDepthShader,
+    ShaderMaterial::ShaderMaterial(shared_ptr<ShaderManager> baseShader,
+                                   shared_ptr<ShaderManager> shadowDepthShader,
                                    const shared_ptr<WorldEnvironment> &worldEnv) : StandardMaterial(
         std::move(baseShader), std::move(shadowDepthShader), worldEnv) {
     }
@@ -18,11 +19,17 @@ namespace Material {
     void ShaderMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
         const glm::mat4 &model, const bool shadows) const {
         shader->use();
-        shader->setMat4("view", view);
+        if (shader->hasUniform("viewPos")) {
+            shader->setMat4("view", view);
+        }
         shader->setMat4("projection", projection);
         shader->setMat4("model", model);
-        shader->setVec3("viewPos", posView);
-        shader->setBool("shadows", shadows);
+        if (shader->hasUniform("viewPos")) {
+            shader->setVec3("viewPos", posView);
+        }
+        if (shader->hasUniform("viewPos")) {
+            shader->setBool("shadows", shadows);
+        }
 
         for (auto& [name, value] : uniforms) {
             std::visit([&]<typename T0>(T0&& arg) {

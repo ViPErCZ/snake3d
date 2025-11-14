@@ -7,9 +7,11 @@
 #include "../Manager/EatManager.h"
 #include "../Manager/LevelManager.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
+#include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
+#include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
-#include "../Renderer/Opengl/Material/Uniform/TextureUniform.h"
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 
 using namespace Uniform;
 using namespace Physic;
@@ -28,6 +30,8 @@ namespace Scenes {
             const shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init() override;
+
+        void update() override;
 
         void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const override;
 
@@ -67,6 +71,11 @@ namespace Scenes {
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         shared_ptr<SnakeRenderer> snakeRenderer; // TODO: jen docasne dokud neprejde pod svoji scenu a standardRenderer
         shared_ptr<MeshNode3D> levelBoxes;
+        shared_ptr<FadeOutUniform> fadeOutUniform;
+        shared_ptr<FadeInUniform> fadeInUniform;
+        shared_ptr<LabelNode2D> tilesCounterText;
+        shared_ptr<MeshNode2D> helpText;
+        shared_ptr<MeshNode2D> tilesCounterNode;
         glm::mat4 ortho{};
     };
 } // Scenes

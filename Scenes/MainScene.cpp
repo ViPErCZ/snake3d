@@ -6,7 +6,7 @@
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
-#include "../Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
+#include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
@@ -75,23 +75,23 @@ namespace Scenes {
         auto basicShader = resourceManager->getShader("basicShader");
         auto planeShader = resourceManager->getShader("shadowShader");
         auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
-        auto shadowMap = resourceManager->getTexture("depth");
-        auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
-        auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
-        auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
+        const auto shadowMap = resourceManager->getTexture("depth");
+        const auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
+        const auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
+        const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
         const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
         const auto shaderMaterial = make_shared<ShaderMaterial>(planeShader, shadowDepthShader);
 
-        const auto albedo = make_shared<TextureUniform>(0, gamefieldAlbedo);
-        const auto normalMap = make_shared<TextureUniform>(2, gamefieldNormal);
-        const auto specularMap = make_shared<TextureUniform>(3, gamefieldSpecular);
-        const auto shadow = make_shared<TextureArrayUniform>(4, shadowMap);
-        shaderMaterial->addUniform("diffuseMap", albedo);
-        shaderMaterial->addUniform("normalMap", normalMap);
-        shaderMaterial->addUniform("specularMap", specularMap);
-        shaderMaterial->addUniform("shadowMap", shadow);
-        shaderMaterial->addUniform("material.diffuse", 0);
-        shaderMaterial->addUniform("shadowsEnable", true);
+        // const auto albedo = make_shared<TextureUniform>(0, gamefieldAlbedo);
+        // const auto normalMap = make_shared<TextureUniform>(2, gamefieldNormal);
+        // const auto specularMap = make_shared<TextureUniform>(3, gamefieldSpecular);
+        // const auto shadow = make_shared<TextureArrayUniform>(4, shadowMap);
+        // shaderMaterial->addUniform("diffuseMap", albedo);
+        // shaderMaterial->addUniform("normalMap", normalMap);
+        // shaderMaterial->addUniform("specularMap", specularMap);
+        // shaderMaterial->addUniform("shadowMap", shadow);
+        // shaderMaterial->addUniform("material.diffuse", 0);
+        // shaderMaterial->addUniform("shadowsEnable", true);
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -240,9 +240,30 @@ namespace Scenes {
         const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 26);
         const auto settings = make_shared<LabelSettings>(font);
         const auto label = make_shared<LabelNode2D>("Press start I, K or L...", shader, settings);
-        const auto meshNode2D = make_shared<MeshNode2D>(label, resourceManager);
+        label->alignVerticalCenter(static_cast<float>(width), static_cast<float>(height));
 
-        meshNode2d.push_back(meshNode2D);
+        fadeOutUniform = make_shared<FadeOutUniform>();
+        const auto shaderMaterial = make_shared<ShaderMaterial>(shader);
+        shaderMaterial->addUniform("alpha", fadeOutUniform);
+        shaderMaterial->addUniform("textColor", glm::vec3(1.0f));
+        shaderMaterial->addUniform("textTexture", 0);
+
+        label->setMaterial(shaderMaterial);
+        helpText = make_shared<MeshNode2D>(label, resourceManager);
+
+        tilesCounterText = make_shared<LabelNode2D>("", shader, settings);
+        fadeInUniform = make_shared<FadeInUniform>();
+        const auto shaderMaterial2 = make_shared<ShaderMaterial>(shader);
+        shaderMaterial2->addUniform("alpha", fadeInUniform);
+        shaderMaterial2->addUniform("textColor", glm::vec3(1.0f));
+        shaderMaterial2->addUniform("textTexture", 0);
+
+        tilesCounterText->setMaterial(shaderMaterial2);
+        tilesCounterNode = make_shared<MeshNode2D>(tilesCounterText, resourceManager);
+        tilesCounterNode->setVisible(false);
+
+        meshNode2d.push_back(helpText);
+        meshNode2d.push_back(tilesCounterNode);
     }
 
     void MainScene::resetRadar() const {
@@ -302,8 +323,8 @@ namespace Scenes {
                          "Points left:",
                          MAX_POINT - this->levelManager->getEatCounter()
                 );
-                std::string buffAsStdStr = buff;
-                // this->tilesCounterText->setText(buffAsStdStr);
+                const std::string buffAsStdStr = buff;
+                tilesCounterText->setText(buffAsStdStr);
             }
         });
     }
@@ -312,7 +333,7 @@ namespace Scenes {
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
                 this->eatManager->run(Manager::EatManager::firstPlace);
-                // this->startText->fadeOut();
+                fadeOutUniform->start();
                 char buff[100];
                 snprintf(buff, sizeof(buff),
                          "%s %d, %s %d, %s %d",
@@ -324,11 +345,9 @@ namespace Scenes {
                          MAX_POINT - this->levelManager->getEatCounter()
                 );
                 const std::string buffAsStdStr = buff;
-                // this->tilesCounterText->setText(buffAsStdStr);
-                // if (this->tilesCounterText->getAlpha() == 1.0f) {
-                //     this->tilesCounterText->setAlpha(0.0f);
-                //     this->tilesCounterText->fadeIn();
-                // }
+                tilesCounterNode->setVisible(true);
+                tilesCounterText->setText(buffAsStdStr);
+                fadeInUniform->start();
             }
         });
     }
@@ -350,17 +369,21 @@ namespace Scenes {
                          "Points left:",
                          MAX_POINT - this->levelManager->getEatCounter()
                 );
-                std::string buffAsStdStr = buff;
-                // this->tilesCounterText->setText(buffAsStdStr);
+                const std::string buffAsStdStr = buff;
+                tilesCounterText->setText(buffAsStdStr);
                 coinMeshNode3D->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
                     this->levelManager->createLevel(1);
-                    // this->startText->setVisible(true);
+                    fadeOutUniform->setAlpha(1.0f);
                     this->levelManager->setLive(3);
                     cout << "crash callback call" << endl;
                 }
             }
         });
+    }
+
+    void MainScene::update() {
+        Scene::update();
     }
 } // Scenes

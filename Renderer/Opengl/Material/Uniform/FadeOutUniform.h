@@ -1,0 +1,30 @@
+#ifndef SNAKE3_FADEOUTUNIFORM_H
+#define SNAKE3_FADEOUTUNIFORM_H
+
+#include "../IUniform.h"
+#include "../../../../Tools/Timer.h"
+
+using namespace Tools;
+using namespace Material;
+using namespace Manager;
+using namespace std;
+
+namespace Uniform {
+    class FadeOutUniform : public IUniform {
+    public:
+        explicit FadeOutUniform();
+        void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
+        void setAlpha(float alpha);
+        float getAlpha() const;
+        void start() const;
+    protected:
+        virtual bool isFinished() const;
+
+        bool running;
+        float alpha;
+        float step;
+        unique_ptr<Timer> timer;
+    };
+} // Uniform
+
+#endif //SNAKE3_FADEOUTUNIFORM_H

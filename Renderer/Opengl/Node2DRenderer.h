@@ -14,7 +14,7 @@ using namespace std;
 namespace Renderer {
     class Node2DRenderer final : public BaseRenderer { // BaseRenderer2D
     public:
-        Node2DRenderer(const std::shared_ptr<Camera> &camera, int width, int height);
+        Node2DRenderer(const shared_ptr<Camera> &camera, int width, int height);
         ~Node2DRenderer() override = default;
         void render3D(float dt) override;
         void render2D(float dt) override;
@@ -27,7 +27,7 @@ namespace Renderer {
     protected:
         void renderScene() const;
 
-        std::shared_ptr<Camera> camera;
+        shared_ptr<Camera> camera;
         shared_ptr<MeshNode2D> rootNode;
         glm::mat4 ortho{};
     };

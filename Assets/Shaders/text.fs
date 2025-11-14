@@ -10,6 +10,6 @@ uniform vec3 textColor;
 
 void main()
 {
-    float a = texture(textTexture, TexCoords).r;
-    FragColor = vec4(textColor * a, a);
+    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(textTexture, TexCoords).r);
+    FragColor = alphaBlending(textColor) * sampled;
 }

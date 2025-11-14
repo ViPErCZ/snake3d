@@ -18,17 +18,22 @@ namespace ModelUtils {
 
         void initialize();
 
-        void bind(const std::string &text, const shared_ptr<Font> &font);
+        void bind() const;
+
+        void update(const std::string &text, const shared_ptr<Font> &font);
 
         [[nodiscard]] std::vector<float> getVertices() const;
 
         [[nodiscard]] float getSizeY() const;
+
+        [[nodiscard]] float getWidth() const;
 
     protected:
         shared_ptr<Vao> vao{};
         shared_ptr<Vbo> vbo{};
         std::vector<float> vertices;
         float maxSizeY = 0.0f;
+        float width = 0.0f;
     };
 } // ModelUtils
 

@@ -15,7 +15,7 @@ namespace ModelUtils {
         vbo = make_shared<Vbo>();
     }
 
-    void TextMesh::bind(const std::string &text, const shared_ptr<Font> &font) {
+    void TextMesh::update(const std::string &text, const shared_ptr<Font> &font) {
         if (vao == nullptr) {
             initialize();
         }
@@ -56,6 +56,8 @@ namespace ModelUtils {
             x += static_cast<float>(ch->advance);
         }
 
+        width = x;
+
         vao->bind();
         vbo->bind();
         glEnableVertexAttribArray(0);
@@ -64,11 +66,19 @@ namespace ModelUtils {
                      GL_DYNAMIC_DRAW);
     }
 
+    void TextMesh::bind() const {
+        vao->bind();
+    }
+
     std::vector<float> TextMesh::getVertices() const {
         return vertices;
     }
 
     float TextMesh::getSizeY() const {
         return maxSizeY;
+    }
+
+    float TextMesh::getWidth() const {
+        return width;
     }
 } // ModelUtils

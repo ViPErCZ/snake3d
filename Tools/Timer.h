@@ -3,10 +3,35 @@
 
 namespace Tools {
     class Timer {
-        private:
-            bool autoStart;
-            double startTime;
-            double endTime;
+    public:
+        explicit Timer(bool autoStart = false);
+
+        void start();
+
+        void stop();
+
+        void reset();
+
+        [[nodiscard]] bool isRunning();
+
+        double getElapsedTime();
+
+        [[nodiscard]] double getDeltaTime();
+
+        void update();
+
+        [[nodiscard]] double getWaitTime() const;
+
+        [[nodiscard]] double getNow() const;
+
+    private:
+        bool autoStart;
+        bool running;
+        float waitTime;
+        double now;
+        double lastTime;
+        double startTime;
+        bool waitTimeLeave;
     };
 } // Tools
 

@@ -100,6 +100,10 @@ namespace Manager {
         );
     }
 
+    bool ShaderManager::hasUniform(const string &name) const {
+        return glGetUniformLocation(id, name.c_str()) != -1;
+    }
+
     template<>
     void ShaderManager::setUniformArray<float>(const std::string &name, const std::vector<float> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());

@@ -12,8 +12,8 @@ namespace Material {
     public:
         explicit LabelSettings(const std::shared_ptr<Font> &font);
         [[nodiscard]] shared_ptr<Font> getFont() const;
-        // glm::vec4 getColor() const;
-        // void setColor(const glm::vec4 &color);
+        [[nodiscard]] glm::vec3 getColor() const;
+        void setColor(const glm::vec3 &color);
         [[nodiscard]] float getLetterSpacing() const;
         // void setLetterSpacing(float letterSpacing);
         // float getLineSpacing() const;
@@ -22,7 +22,7 @@ namespace Material {
         // void setWordWrap(bool wordWrap);
     private:
         std::shared_ptr<Font> font;
-        glm::vec4 color = glm::vec4(1.0f);
+        glm::vec3 color;
         float letterSpacing = 0.0f;
         float lineSpacing = 1.0f;
         bool wordWrap = false;

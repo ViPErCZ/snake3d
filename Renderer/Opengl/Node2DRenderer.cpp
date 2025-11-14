@@ -3,7 +3,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 namespace Renderer {
-    Node2DRenderer::Node2DRenderer(const std::shared_ptr<Camera> &camera, const int width, const int height)
+    Node2DRenderer::Node2DRenderer(const shared_ptr<Camera> &camera, const int width, const int height)
         : camera(camera) {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     }
@@ -20,14 +20,9 @@ namespace Renderer {
     }
 
     void Node2DRenderer::beforeRender() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_DEPTH_TEST);
     }
 
     void Node2DRenderer::afterRender() {
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
     }
 
     void Node2DRenderer::setRootNode(const shared_ptr<MeshNode2D> &rootNode) {
