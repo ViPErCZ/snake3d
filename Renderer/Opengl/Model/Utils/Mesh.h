@@ -3,12 +3,9 @@
 
 #include "Vao.h"
 #include "Ebo.h"
-#include "../../../../ItemsDto/BaseItem.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 
-using namespace ItemsDto;
 using namespace std;
 
 namespace ModelUtils {

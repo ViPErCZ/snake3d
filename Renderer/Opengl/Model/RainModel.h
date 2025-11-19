@@ -1,9 +1,11 @@
 #ifndef SNAKE3_RAINMODEL_H
 #define SNAKE3_RAINMODEL_H
 
+#include "../../../ItemsDto/BaseItem.h"
 #include "Utils/Mesh.h"
 
 using namespace ModelUtils;
+using namespace ItemsDto;
 
 namespace Model {
 

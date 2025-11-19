@@ -65,6 +65,10 @@ namespace Material {
         }
 
         ascender_pixels = static_cast<float>(face->size->metrics.ascender >> 6);
+        ascender = face->ascender;
+        descender = face->descender;
+        lineHeight = face->height;
+        scale = static_cast<float>(fontSize) / static_cast<float>(face->units_per_EM);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);
@@ -82,4 +86,5 @@ namespace Material {
 
         return it != characters.end() ? &it->second : nullptr;
     }
+
 } // Material

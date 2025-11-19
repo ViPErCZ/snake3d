@@ -15,8 +15,8 @@ namespace Model {
 
         void addNode(const std::shared_ptr<MeshNode3D> &node);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-                    const glm::mat4 &parentTransform, bool shadows) const;
+        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                    const glm::mat4 &parentTransform, bool shadows);
 
         virtual void update(float dt);
 

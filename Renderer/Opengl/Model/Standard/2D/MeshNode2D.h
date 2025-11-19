@@ -16,10 +16,16 @@ namespace Model {
     public:
         explicit MeshNode2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const;
 
         virtual void update(float dt);
+
+        void addNode(const std::shared_ptr<MeshNode2D> &node);
+
+        void setTransformDetached(bool transform_detached, bool recursive = true);
+
+        [[nodiscard]] const vector<shared_ptr<MeshNode2D> > &getChildren() const;
 
     protected:
         shared_ptr<BaseNode2D> mesh;

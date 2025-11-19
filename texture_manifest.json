@@ -70,11 +70,6 @@
     "category": "Albedo"
   },
   {
-    "name": "red_screen.bmp",
-    "path": "Albedo/radar/red_screen.bmp",
-    "category": "Albedo"
-  },
-  {
     "name": "raindrops.png",
     "path": "Albedo/rain/raindrops.png",
     "category": "Albedo"

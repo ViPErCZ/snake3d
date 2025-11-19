@@ -62,7 +62,7 @@ namespace ModelUtils {
         vao->linkAttrib (vbo, 7, 4, GL_FLOAT, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Weights)));
         // Unbind all to prevent accidentally modifying them
         vao->unBind();
-        vbo.unBind();
+        Vbo::unBind();
         ebo.unBind();
     }
 

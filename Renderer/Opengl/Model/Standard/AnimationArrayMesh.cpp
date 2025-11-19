@@ -50,8 +50,8 @@ namespace Model {
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
         auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
                                         [&](const auto &anim) {
-                                            //return "KostraAction" == anim.name;
-                                            return "Armature|Take 001|BaseLayer2" == anim.name;
+                                            return "KostraAction" == anim.name; // TODO: dynamic anim name
+                                            // return "Armature|Take 001|BaseLayer2" == anim.name;
                                         });
 
         if (found == model->getAnimations().end()) {
@@ -60,9 +60,10 @@ namespace Model {
 
         if (found != model->getAnimations().end()) {
             const auto animation = &(*found);
-            if (animationPlayer.get()) {
+            // TODO: speed animace bude v anim playeru
+            //if (animationPlayer.get()) { // TODO: toto povolit az budu mit vyse dynamicky nazev animace
                 model->updateAnimation(animation);
-            }
+            //}
             for (int i = 0; i < model->getMetadata(animation)->bone_transform.size(); ++i) {
                 baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
                                     model->getMetadata(animation)->bone_transform[i]);

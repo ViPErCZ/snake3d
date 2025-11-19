@@ -16,7 +16,7 @@ namespace Model {
     }
 
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
-                            const glm::mat4 &parentTransform, const bool shadows) const {
+                            const glm::mat4 &parentTransform, const bool shadows) {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
             mesh->render(camera, projection, 1, finalTransform, shadows);

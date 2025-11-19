@@ -1,8 +1,15 @@
 #ifndef SNAKE3_SNAKEMESHNODE3D_H
 #define SNAKE3_SNAKEMESHNODE3D_H
 
+#include "../../../../Tools/Timer.h"
+#include "../../Material/ShaderMaterial.h"
+#include "../../Material/Uniform/TimerUniform.h"
 #include "../Standard/MeshNode3D.h"
 #include "../Standard/SphereMesh.h"
+
+using namespace Tools;
+using namespace Uniform;
+using namespace std;
 
 namespace Model {
     class SnakeMeshNode3D final : public MeshNode3D {
@@ -35,10 +42,21 @@ namespace Model {
 
         [[nodiscard]] eDIRECTION getDirection() const;
 
+        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                    const glm::mat4 &parentTransform, bool shadows) override;
+
+        void stopRespawn();
+
+        bool isReady() const;
+
     private:
+        unique_ptr<Timer> timer;
         shared_ptr<SphereMesh> createTileNode() const;
         shared_ptr<StandardMaterial> tileMaterial;
+        shared_ptr<ShaderMaterial> respawnMaterial;
+        shared_ptr<TimerUniform> timerUniform;
         eDIRECTION direction = NONE;
+        bool respawned = false;
     };
 } // Model
 

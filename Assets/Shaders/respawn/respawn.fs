@@ -1,9 +1,12 @@
 #version 330 core
 
 in vec2 TexCoords;
-in vec3 Color;
+in vec3 meshColor;
+in vec3 Normal;
+in vec3 camPos;
+in vec3 fragPos;
 
-uniform sampler2D u_NoiseTexture; // tex_frg_4
+uniform sampler2D u_NoiseTexture;
 uniform vec4 u_LightColor;
 uniform float u_Speed;
 uniform float u_FloatParameter;
@@ -11,6 +14,8 @@ uniform float u_Time;
 uniform float u_Delay;
 
 out vec4 FragColor;
+
+#include "../functions/lights.glsl"
 
 void main()
 {
@@ -51,6 +56,11 @@ void main()
     // 4. Finální barva
     // Sečteme základní barvu a barvu emise.
     // Alfa kanál vezmeme z textury šumu, aby okraj byl jemnější.
-    vec3 finalColor = mix(Color.rgb, emission, stepValue);
-    FragColor = vec4(finalColor, 1.0);
+    vec3 finalColor = mix(meshColor.rgb, emission, stepValue);
+    vec3 viewDir = normalize(camPos - fragPos);
+
+    finalColor = CalcDirLight(dirLight, Normal, viewDir, emission, 0.0);
+    finalColor /= 1;
+
+    FragColor = vec4(pow(finalColor, vec3(1.0/2.2)), 1.0);
 }

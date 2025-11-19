@@ -9,13 +9,17 @@ using namespace Manager;
 using namespace std;
 
 namespace Uniform {
-    class TextureUniform : public IUniform {
-        public:
-            TextureUniform(int index, const shared_ptr<TextureManager> &texture);
-            void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
-        protected:
-            shared_ptr<TextureManager> texture;
-            int index;
+    class TextureUniform final : public IUniform {
+    public:
+        TextureUniform(int index, const shared_ptr<TextureManager> &texture);
+
+        void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
+
+        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+
+    protected:
+        shared_ptr<TextureManager> texture;
+        int index;
     };
 } // Uniform
 

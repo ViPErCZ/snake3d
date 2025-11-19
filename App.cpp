@@ -5,14 +5,11 @@
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/Node3DRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
-#include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/SpinnerModel.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/BoxMesh.h"
-#include "Renderer/Opengl/Model/Standard/CapsuleMesh.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 #include "Resource/TextureLoader.h"
@@ -693,8 +690,12 @@ void App::InitResourceManager() const {
         std::cout << "Shader normalShader ready!" << std::endl;
     });
 
-    resourceManager->loadAsyncShader("radarShader", "Assets/Shaders/radar.vs", "", "Assets/Shaders/radar.fs", []() {;
-        std::cout << "Shader radarShader ready!" << std::endl;
+    resourceManager->loadAsyncShader("basic2d", "Assets/Shaders/basic_2d.vs", "", "Assets/Shaders/basic_2d.fs", []() {;
+        std::cout << "Shader basic2d ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("quadCorner", "Assets/Shaders/basic_2d.vs", "", "Assets/Shaders/corner/corner.fs", []() {;
+        std::cout << "Shader quadCorner ready!" << std::endl;
     });
 
     resourceManager->loadAsyncShader("skyboxShader", "Assets/Shaders/skybox.vs", "", "Assets/Shaders/skybox.fs", []() {
@@ -736,27 +737,6 @@ void App::InitResourceManager() const {
         std::cout << "Shader explosion ready!" << std::endl;
     });
 }
-
-// GameField *App::InitGameField() {
-//     gameField = new GameField();
-//     gameField->Init();
-//
-//     return gameField;
-// }
-
-// Snake *App::InitSnake() {
-//     snake = new Snake();
-//     snake->init();
-//
-//     return snake;
-// }
-//
-// ObjWall *App::InitObjWall() {
-//     objWall = new ObjWall();
-//     objWall->init();
-//
-//     return objWall;
-// }
 
 // Radar *App::CreateRadar() {
 //     auto radar = new Radar();

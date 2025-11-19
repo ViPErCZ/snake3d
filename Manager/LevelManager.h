@@ -1,6 +1,10 @@
 #ifndef SNAKE3_LEVELMANAGER_H
 #define SNAKE3_LEVELMANAGER_H
 
+#define MAX_POINT 6
+#define MAX_LIVES 4
+#define START_LEVEL 2
+
 #include <memory>
 
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"

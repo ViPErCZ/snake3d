@@ -3,24 +3,22 @@
 
 #include <memory>
 
+#include "BarriersScene.h"
 #include "PlayerScene.h"
 #include "../Manager/EatManager.h"
-#include "../Manager/LevelManager.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
+#include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 using namespace Uniform;
 using namespace Physic;
 using namespace Scenes;
 using namespace std;
-
-#define MAX_POINT 6
-#define MAX_LIVES 4
-#define START_LEVEL 2
 
 namespace Scenes {
     class MainScene final : public Scene {
@@ -38,13 +36,11 @@ namespace Scenes {
     private:
         void initPlayerScene();
 
+        void initBarriersScene();
+
         void initSkybox();
 
         void initPlane();
-
-        void initBarriers();
-
-        void initLevelManager();
 
         void initEat();
 
@@ -63,19 +59,25 @@ namespace Scenes {
         void buildCrashCallback() const;
 
         shared_ptr<PlayerScene> playerScene;
-        unique_ptr<LevelManager> levelManager;
+        shared_ptr<BarriersScene> barriersScene;
         unique_ptr<EatManager> eatManager;
+        shared_ptr<LevelManager> levelManager;
         shared_ptr<Radar> radar;
         shared_ptr<CoinMeshNode3D> coinMeshNode3D;
         shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         shared_ptr<SnakeRenderer> snakeRenderer; // TODO: jen docasne dokud neprejde pod svoji scenu a standardRenderer
-        shared_ptr<MeshNode3D> levelBoxes;
         shared_ptr<FadeOutUniform> fadeOutUniform;
         shared_ptr<FadeInUniform> fadeInUniform;
         shared_ptr<LabelNode2D> tilesCounterText;
         shared_ptr<MeshNode2D> helpText;
         shared_ptr<MeshNode2D> tilesCounterNode;
+        shared_ptr<ShaderMaterial> radarExpansionIn;
+        shared_ptr<ShaderMaterial> radarExpansionOut;
+        shared_ptr<FadeInUniform> radarFadeInUniform;
+        shared_ptr<FadeOutUniform> radarFadeOutUniform;
+        shared_ptr<QuadNode2D> radarNode;
+        shared_ptr<RadarMeshNode2D> radarMeshNode;
         glm::mat4 ortho{};
     };
 } // Scenes

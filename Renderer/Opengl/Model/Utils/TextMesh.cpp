@@ -37,11 +37,7 @@ namespace ModelUtils {
             const auto bearingY = static_cast<float>(ch->bearing.y);
             const float sizeY = h;
             const float air_below = (bearingY > sizeY) ? (bearingY - sizeY) : 0.0f;
-            float ypos = (y - bearingY) + air_below;
-
-            if (maxSizeY < sizeY) {
-                maxSizeY = sizeY;
-            }
+            float ypos = y - bearingY + air_below;
 
             vertices.insert(vertices.end(), {
                         xpos, ypos + h, u0, v1, // Top-Left
@@ -57,6 +53,7 @@ namespace ModelUtils {
         }
 
         width = x;
+        maxSizeY = 0.9f * (font->getAscenderPx() - font->getDescenderPx());
 
         vao->bind();
         vbo->bind();

@@ -6,7 +6,7 @@ namespace Renderer {
                                  const glm::mat4 &proj) : radar(radar), resourceManager(resManager), camera(camera),
                                                           projection(proj) {
         model = make_unique<RadarModel>(radar);
-        shader = resourceManager->getShader("radarShader");
+        shader = resourceManager->getShader("basic2d");
         frameTexture = resourceManager->getTexture("red_screen.bmp");
     }
 
@@ -16,7 +16,7 @@ namespace Renderer {
             glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
             shader->use();
             shader->setMat4("projection", projection);
-            shader->setInt("albedo", 0);
+            shader->setInt("textureMap", 0);
             shader->setFloat("alpha", 1.0);
 
             frameTexture->bind();
@@ -36,7 +36,7 @@ namespace Renderer {
                 if (radarItem.item->isVisible()) {
 
                     shader->setBool("useMaterial", true);
-                    shader->setVec3("Color", radarItem.color);
+                    shader->setVec3("color", radarItem.color);
                     shader->setMat4("model", radarItem.radarPresent->getModelMatrix());
 
                     glDrawElements(GL_TRIANGLES, static_cast<int>(radarMesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);

@@ -2,15 +2,15 @@
 #include "PlayerScene.h"
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
-#include "../Renderer/Opengl/RadarRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
+#include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
+#include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 namespace Scenes {
     MainScene::MainScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
@@ -24,11 +24,10 @@ namespace Scenes {
         initPlayerScene();
         initSkybox();
         initPlane();
-        initBarriers();
+        initBarriersScene();
         initEat();
         initRadar();
         initEatManager();
-        initLevelManager();
         initLabels();
 
         buildStartMoveCallback();
@@ -50,6 +49,20 @@ namespace Scenes {
                 break;
             case GLFW_KEY_F:
                 rendererManager->toggleFog();
+                break;
+            case GLFW_KEY_M:
+                playerScene->getSnake()->respawn();
+                break;
+            case GLFW_KEY_R:
+                if (radarMeshNode->isVisible()) {
+                    radarNode->setMaterial(radarExpansionOut);
+                    radarFadeOutUniform->start();
+                } else {
+                    radarFadeOutUniform->setAlpha(1.0);
+                    radarMeshNode->setVisible(true);
+                    radarNode->setMaterial(radarExpansionIn);
+                    radarFadeInUniform->start();
+                }
                 break;
             default:
                 break;
@@ -73,25 +86,12 @@ namespace Scenes {
 
     void MainScene::initPlane() {
         auto basicShader = resourceManager->getShader("basicShader");
-        auto planeShader = resourceManager->getShader("shadowShader");
         auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
         const auto shadowMap = resourceManager->getTexture("depth");
         const auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
         const auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
         const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
         const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
-        const auto shaderMaterial = make_shared<ShaderMaterial>(planeShader, shadowDepthShader);
-
-        // const auto albedo = make_shared<TextureUniform>(0, gamefieldAlbedo);
-        // const auto normalMap = make_shared<TextureUniform>(2, gamefieldNormal);
-        // const auto specularMap = make_shared<TextureUniform>(3, gamefieldSpecular);
-        // const auto shadow = make_shared<TextureArrayUniform>(4, shadowMap);
-        // shaderMaterial->addUniform("diffuseMap", albedo);
-        // shaderMaterial->addUniform("normalMap", normalMap);
-        // shaderMaterial->addUniform("specularMap", specularMap);
-        // shaderMaterial->addUniform("shadowMap", shadow);
-        // shaderMaterial->addUniform("material.diffuse", 0);
-        // shaderMaterial->addUniform("shadowsEnable", true);
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -118,68 +118,11 @@ namespace Scenes {
         meshNode3d.push_back(node3d);
     }
 
-    void MainScene::initBarriers() {
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
-
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 110.0f});
-        directionalLight->setDirection({0, 1.0, -3});
-        directionalLight->setAmbient({0.1f, 0.1f, 0.1f});
-        directionalLight->setDiffuse({0.005f, 0.005f, 0.005f});
-        directionalLight->setSpecular({.01f, .01f, .01f});
-
-        const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
-        const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
-        const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
-        const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        boxMaterial->setNormalEnabled(true);
-        boxMaterial->setAlbedo(brickWall);
-        boxMaterial->setNormal(brickWallNormal);
-        boxMaterial->setSpecular(brickWallSpecular);
-        boxMaterial->setColor({1.0, 1.0, 1.0});
-        boxMaterial->setAmbientLightColorIntensity(0.1);
-        boxMaterial->setDirectionalLight(directionalLight);
-
-        boxMesh->setMaterial(boxMaterial);
-
-        const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
-        boxNode3D->setPosition({-25.0, -25.0, -23.0});
-        boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
-
-        for (int x = 2; x <= 98; x += 2) {
-            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
-            boxNode3D_2->setPosition({x, 0.0, 0.0});
-            boxNode3D->addNode(boxNode3D_2);
-        }
-
-        for (int x = 0; x <= 98; x += 2) {
-            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
-            boxNode3D_2->setPosition({x, 98.0, 0.0});
-            boxNode3D->addNode(boxNode3D_2);
-        }
-
-        for (int y = 2; y <= 96; y += 2) {
-            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
-            boxNode3D_2->setPosition({0, y, 0.0});
-            boxNode3D->addNode(boxNode3D_2);
-        }
-
-        for (int y = 2; y <= 96; y += 2) {
-            const auto boxNode3D_2 = make_shared<MeshNode3D>(boxMesh, resourceManager);
-            boxNode3D_2->setPosition({98, y, 0.0});
-            boxNode3D->addNode(boxNode3D_2);
-        }
-
-        meshNode3d.push_back(boxNode3D);
-    }
-
-    void MainScene::initLevelManager() {
-        levelManager = make_unique<LevelManager>(1, MAX_LIVES, resourceManager);
-        levelManager->createLevel(START_LEVEL);
-        levelBoxes = levelManager->createLevel(START_LEVEL);
-        meshNode3d.push_back(levelBoxes);
+    void MainScene::initBarriersScene() {
+        barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
+        barriersScene->init();
+        levelManager = barriersScene->getLevelManager();
+        addNode(barriersScene);
     }
 
     void MainScene::initEat() {
@@ -228,11 +171,34 @@ namespace Scenes {
     }
 
     void MainScene::initRadar() {
-        radar = make_shared<Radar>();
-        resetRadar();
+        radarFadeInUniform = make_shared<FadeInUniform>();
+        radarFadeInUniform->setStep(5.0f);
+        radarExpansionIn = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
+        radarExpansionIn->addUniform("quadSize", glm::vec2(200, 200));
+        radarExpansionIn->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
+        radarExpansionIn->addUniform("borderWidth", 12.0f);
+        radarExpansionIn->addUniform("radius", 8.0f);
+        radarExpansionIn->addUniform("expansion", radarFadeInUniform);
+        radarFadeInUniform->start();
 
-        const auto radarRenderer = make_shared<RadarRenderer>(radar, camera, resourceManager, ortho);
-        rendererManager->addRenderer(radarRenderer);
+        radarFadeOutUniform = make_shared<FadeOutUniform>();
+        radarFadeOutUniform->setStep(5.0f);
+        radarExpansionOut = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
+        radarExpansionOut->addUniform("quadSize", glm::vec2(200, 200));
+        radarExpansionOut->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
+        radarExpansionOut->addUniform("borderWidth", 12.0f);
+        radarExpansionOut->addUniform("radius", 8.0f);
+        radarExpansionOut->addUniform("expansion", radarFadeOutUniform);
+
+        const auto shader = resourceManager->getShader("basic2d");
+        radarNode = make_shared<QuadNode2D>(200, 200, nullptr);
+        radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
+        radarNode->setMaterial(radarExpansionIn);
+        radarMeshNode = make_shared<RadarMeshNode2D>(radarNode, resourceManager);
+        radarMeshNode->setPosition({width - 220 + 100, 30.0 + 100, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
+        radarMeshNode->addItem(dynamic_pointer_cast<Transform>(playerScene->getSnake()));
+
+        meshNode2d.push_back(radarMeshNode);
     }
 
     void MainScene::initLabels() {
@@ -267,12 +233,12 @@ namespace Scenes {
     }
 
     void MainScene::resetRadar() const {
-        radar->reset();
-        radar->setVisible(true);
-        radar->setPosition({1.25, 1.4, 0.0});
-        radar->setScale({100, 100, 1});
-        radar->setWidth(176);
-        radar->setHeight(176);
+        // radar->reset();
+        // radar->setVisible(true);
+        // radar->setPosition({1.25, 1.4, 0.0});
+        // radar->setScale({100, 100, 1});
+        // radar->setWidth(176);
+        // radar->setHeight(176);
 
         if (resourceManager) {
             // for (const auto& tile: snake->getItems()) {
@@ -304,7 +270,7 @@ namespace Scenes {
 
                 if (this->levelManager->getEatCounter() == MAX_POINT) {
                     //     this->startText->setVisible(true);
-                    //     this->snake->reset();
+                    //     playerScene->getSnake()->respawn();
                     //     this->eat->setVisible(false);
                     //     this->levelManager->createLevel(this->levelManager->getLevel() + 1);
                     //     this->eatManager->run(Manager::EatManager::clean);
@@ -355,7 +321,7 @@ namespace Scenes {
     void MainScene::buildCrashCallback() const {
         snakeMoveHandler->setCrashCallback([this]() {
             if (this->levelManager) {
-                //snake->reset();
+                playerScene->getSnake()->respawn();
                 resetRadar();
                 this->levelManager->setLive(this->levelManager->getLive() - 1);
                 this->levelManager->setEatCounter(0);
@@ -385,5 +351,9 @@ namespace Scenes {
 
     void MainScene::update() {
         Scene::update();
+
+        if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {
+            radarMeshNode->setVisible(false);
+        }
     }
 } // Scenes

@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Tools {
-    Timer::Timer(const bool autoStart) : autoStart(false), running(false), waitTime(5.0f), now(0),
+    Timer::Timer(const bool autoStart) : autoStart(false), running(false), waitTime(0.0f), now(0),
                                          lastTime(0), startTime(0), waitTimeLeave(false) {
         if (autoStart) {
             start();

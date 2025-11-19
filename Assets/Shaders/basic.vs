@@ -29,7 +29,7 @@ uniform mat4 projection;
 uniform bool useBones = true;
 uniform vec2 uvScale = vec2(1.0, 1.0);
 uniform vec2 uvOffset = vec2(0.0, 0.0);
-uniform vec3 lightPos;
+uniform vec3 lightPos = vec3(0.0, 0.0, 0.0);
 //uniform vec3 cameraPos;
 
 #include "functions/bonesTransform.glsl"

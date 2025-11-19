@@ -1,9 +1,11 @@
 #ifndef SNAKE3_MESHMODEL_H
 #define SNAKE3_MESHMODEL_H
 
+#include "../../../ItemsDto/BaseItem.h"
 #include "Utils/Mesh.h"
 
 using namespace ModelUtils;
+using namespace ItemsDto;
 
 namespace Model {
 

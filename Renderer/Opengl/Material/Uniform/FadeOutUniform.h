@@ -15,10 +15,12 @@ namespace Uniform {
         explicit FadeOutUniform();
         void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
         void setAlpha(float alpha);
-        float getAlpha() const;
-        void start() const;
+        [[nodiscard]] float getAlpha() const;
+        virtual void start();
+        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+        void setStep(float step);
     protected:
-        virtual bool isFinished() const;
+        [[nodiscard]] virtual bool isFinished() const;
 
         bool running;
         float alpha;

@@ -29,6 +29,10 @@ namespace Material {
 
         [[nodiscard]] float getAscenderPixels() const;
 
+        float getAscenderPx() const   { return ascender * scale; }
+        float getDescenderPx() const  { return descender * scale; }
+        float getLineHeightPx() const { return lineHeight * scale; }
+
     private:
         void buildAtlas();
 
@@ -36,6 +40,10 @@ namespace Material {
         unsigned int atlasTexture = 0;
         int fontSize;
         float ascender_pixels;
+        float scale{};
+        float ascender{};
+        float descender{};
+        float lineHeight{};
         std::string fontPath;
         std::vector<unsigned char> atlasBuffer;
     };

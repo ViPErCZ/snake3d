@@ -22,19 +22,26 @@ namespace ModelUtils {
         float Weights[4];
     };
 
+    struct Vertex2D {
+        glm::vec3 position{};
+        glm::vec2 texUV{};
+        glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    };
+
     class Vbo {
     public:
         // Constructor that generates a Vertex Buffer Object and links it to vertices
         explicit Vbo(const vector<Vertex>& vertices);
+        explicit Vbo(const vector<Vertex2D>& vertices);
         explicit Vbo();
         // Reference ID of the Vertex Buffer Object
         GLuint ID{};
         // Binds the VBO
         void bind() const;
         // Unbinds the VBO
-        void unBind();
+        static void unBind();
         // Deletes the VBO
-        void clear();
+        void clear() const;
     };
 
 } // ModelUtils

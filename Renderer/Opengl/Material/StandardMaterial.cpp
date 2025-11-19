@@ -247,7 +247,7 @@ void Material::StandardMaterial::set_uv_offset(const glm::vec2 &uv_offset) {
     UVOffset = uv_offset;
 }
 
-void Material::StandardMaterial::setAmbientLightColorIntensity(float intensity) {
+void Material::StandardMaterial::setAmbientLightColorIntensity(const float intensity) {
     ambientLightColorIntensity = intensity;
 }
 

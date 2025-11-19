@@ -12,8 +12,10 @@ namespace Uniform {
 
         void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
 
+        void start() override;
+
     private:
-        bool isFinished() const override;
+        [[nodiscard]] bool isFinished() const override;
     };
 } // Uniform
 

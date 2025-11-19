@@ -13,13 +13,13 @@ namespace Material {
     ShaderMaterial::~ShaderMaterial() = default;
 
     void ShaderMaterial::addUniform(const string &name, const UniformValue &value) {
-        uniforms.emplace(name, value);
+        uniforms[name] = value;
     }
 
     void ShaderMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
         const glm::mat4 &model, const bool shadows) const {
         shader->use();
-        if (shader->hasUniform("viewPos")) {
+        if (shader->hasUniform("view")) {
             shader->setMat4("view", view);
         }
         shader->setMat4("projection", projection);
@@ -27,8 +27,13 @@ namespace Material {
         if (shader->hasUniform("viewPos")) {
             shader->setVec3("viewPos", posView);
         }
-        if (shader->hasUniform("viewPos")) {
+        if (shader->hasUniform("shadows")) {
             shader->setBool("shadows", shadows);
+        }
+
+        if (directionalLight) {
+            directionalLight->bind(shader.get());
+            shader->setBool("directionLightEnable", true);
         }
 
         for (auto& [name, value] : uniforms) {
@@ -48,30 +53,18 @@ namespace Material {
             shader, shadowDepthShader, worldEnvironment
         );
 
-        cloned->albedo = albedo;
-        cloned->normal = normal;
-        cloned->specular = specular;
-        cloned->roughness = roughness;
-        cloned->metalness = metalness;
-        cloned->shadow = shadow;
-        cloned->aoMap = aoMap;
-        cloned->environmentMap = environmentMap;
-        cloned->directionalLight = directionalLight;
-        cloned->spotLights = spotLights;
-        cloned->pointLights = pointLights;
-        cloned->shader = shader;
-        cloned->shadowDepthShader = shadowDepthShader;
-        cloned->worldEnvironment = worldEnvironment;
-        if (color) {
-            cloned->color = std::make_shared<glm::vec3>(*color);
+        for (const auto& [name, value] : uniforms) {
+            cloned->addUniform(name, std::visit([]<typename T0>(T0&& v) -> UniformValue {
+                using T = std::decay_t<T0>;
+                if constexpr (std::is_base_of_v<IUniform, T>) {
+                    return v.clone();
+                } else if constexpr (std::is_same_v<T, std::shared_ptr<IUniform>>) {
+                    return v ? v->clone() : nullptr;
+                } else {
+                    return v;
+                }
+            }, value));
         }
-        cloned->UVScale = UVScale;
-        cloned->UVOffset = UVOffset;
-        cloned->normal_enabled = normal_enabled;
-        cloned->shadowsEnabled = shadowsEnabled;
-        cloned->shininess = shininess;
-
-        cloned->uniforms = uniforms;
 
         return cloned;
     }

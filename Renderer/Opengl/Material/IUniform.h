@@ -12,6 +12,7 @@ namespace Material {
     public:
         virtual ~IUniform() = default;
         virtual void bind(const shared_ptr<ShaderManager>& shader, const string& name) = 0;
+        [[nodiscard]] virtual shared_ptr<IUniform> clone() const = 0;
     };
 } // Material
 

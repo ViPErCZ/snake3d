@@ -9,4 +9,10 @@ namespace Uniform {
         texture->bindArr(index, 0);
         shader.get()->setUniform(name, index);
     }
+
+    shared_ptr<IUniform> TextureArrayUniform::clone() const {
+        auto cloned = make_shared<TextureArrayUniform>(index, texture);
+
+        return cloned;
+    }
 } // Uniform

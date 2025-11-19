@@ -14,7 +14,7 @@ namespace Handler {
             case GLFW_KEY_I:
             case GLFW_KEY_J:
             case GLFW_KEY_K:
-                if (!stop) {
+                if (!stop && snakeMeshNode->isReady()) {
                     changeMove(key);
                 }
                 break;

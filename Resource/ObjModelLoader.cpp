@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ObjModelLoader.h"
 #include "../Thirdparty/tinyobj/tiny_obj_loader.h"
 

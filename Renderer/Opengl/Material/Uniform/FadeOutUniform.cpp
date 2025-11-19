@@ -10,6 +10,7 @@ namespace Uniform {
         if (timer->isRunning()) {
             if (isFinished() == false) {
                 alpha -= step * static_cast<float>(timer->getDeltaTime());
+                alpha = glm::clamp(alpha, 0.0f, 1.0f);
                 running = true;
             }  else {
                 running = false;
@@ -28,8 +29,20 @@ namespace Uniform {
         return alpha;
     }
 
-    void FadeOutUniform::start() const {
+    void FadeOutUniform::start() {
+        alpha = 1;
+        timer->reset();
         timer->start();
+    }
+
+    shared_ptr<IUniform> FadeOutUniform::clone() const {
+        auto cloned = make_shared<FadeOutUniform>();
+
+        return cloned;
+    }
+
+    void FadeOutUniform::setStep(const float step) {
+        this->step = step;
     }
 
     bool FadeOutUniform::isFinished() const {

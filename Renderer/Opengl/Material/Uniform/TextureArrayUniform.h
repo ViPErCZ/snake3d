@@ -13,6 +13,9 @@ namespace Uniform {
     public:
         TextureArrayUniform(int index, const shared_ptr<TextureManager> &texture);
         void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
+
+        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+
     protected:
         shared_ptr<TextureManager> texture;
         int index;

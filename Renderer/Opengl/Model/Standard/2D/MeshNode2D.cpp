@@ -27,4 +27,27 @@ namespace Model {
             node->update(dt);
         }
     }
+
+    void MeshNode2D::addNode(const std::shared_ptr<MeshNode2D> &node) {
+        node->parent = shared_from_this();
+        node->depth = this->depth + 1;
+        if (this->depth > 20) {
+            throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 20");
+        }
+        children.push_back(node);
+    }
+
+    void MeshNode2D::setTransformDetached(const bool transform_detached, const bool recursive) {
+        transformDetached = transform_detached;
+
+        if (recursive) {
+            for (const auto &child: children) {
+                child->setTransformDetached(transform_detached, recursive);
+            }
+        }
+    }
+
+    const vector<shared_ptr<MeshNode2D>> & MeshNode2D::getChildren() const {
+        return children;
+    }
 } // Model
