@@ -15,6 +15,13 @@ float roundedRectDist(vec2 p, vec2 size, float r)
     return length(max(d,0.0)) - r;
 }
 
+float rectDist(vec2 p, vec2 size)
+{
+    vec2 halfSize = size * 0.5;
+    vec2 d = abs(p) - halfSize;
+    return max(max(d.x, d.y), 0.0);
+}
+
 void main()
 {
     // uv ve středu quadu [-width/2, width/2]
@@ -22,7 +29,8 @@ void main()
 
     // vnější a vnitřní rounded rect
     float distOuter = roundedRectDist(uv, quadSize, radius);
-    float distInner = roundedRectDist(uv, quadSize - 2.0 * vec2(borderWidth), radius);
+    //float distInner = roundedRectDist(uv, quadSize - 2.0 * vec2(borderWidth), radius);
+    float distInner = rectDist(uv, quadSize - 2.0 * vec2(borderWidth));
 
     // Discard mimo vnější tvar – odstraní černé trojúhelníky
     if (distOuter > 0.0)

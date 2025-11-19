@@ -131,6 +131,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/Uniform/TimerUniform.h
         Scenes/BarriersScene.cpp
         Scenes/BarriersScene.h
+        Renderer/Opengl/Model/Game/RadarItem.cpp
+        Renderer/Opengl/Model/Game/RadarItem.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -307,6 +309,8 @@ set(APP_SOURCES
         Renderer/Opengl/Material/Uniform/TimerUniform.h
         Scenes/BarriersScene.cpp
         Scenes/BarriersScene.h
+        Renderer/Opengl/Model/Game/RadarItem.cpp
+        Renderer/Opengl/Model/Game/RadarItem.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -405,6 +409,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Material/Uniform/TimerUniform.h
         Scenes/BarriersScene.cpp
         Scenes/BarriersScene.h
+        Renderer/Opengl/Model/Game/RadarItem.cpp
+        Renderer/Opengl/Model/Game/RadarItem.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

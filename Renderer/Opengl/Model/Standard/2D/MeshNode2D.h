@@ -1,6 +1,7 @@
 #ifndef SNAKE3_MESHNODE2D_H
 #define SNAKE3_MESHNODE2D_H
 
+#include <map>
 #include <memory>
 
 #include "BaseNode2D.h"
@@ -12,7 +13,7 @@ using namespace std;
 using namespace Manager;
 
 namespace Model {
-    class MeshNode2D : public enable_shared_from_this<MeshNode2D>, public Transform, public Visibility {
+    class MeshNode2D : public enable_shared_from_this<MeshNode2D>, public Transform, public Visibility, public Vector3i {
     public:
         explicit MeshNode2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
@@ -21,16 +22,16 @@ namespace Model {
 
         virtual void update(float dt);
 
-        void addNode(const std::shared_ptr<MeshNode2D> &node);
+        void addNode(const std::shared_ptr<MeshNode2D> &node, const std::string &name);
 
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
-        [[nodiscard]] const vector<shared_ptr<MeshNode2D> > &getChildren() const;
+        [[nodiscard]] const map<std::string, shared_ptr<MeshNode2D> > &getChildren() const;
 
     protected:
         shared_ptr<BaseNode2D> mesh;
         weak_ptr<MeshNode2D> parent;
-        vector<shared_ptr<MeshNode2D> > children;
+        map<std::string, shared_ptr<MeshNode2D> > children;
         shared_ptr<ResourceManager> resourceManager;
         int depth = 0;
         bool transformDetached;

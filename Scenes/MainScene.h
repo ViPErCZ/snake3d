@@ -50,8 +50,6 @@ namespace Scenes {
 
         void initLabels();
 
-        void resetRadar() const;
-
         void buildEatenUpCallback() const;
 
         void buildStartMoveCallback() const;

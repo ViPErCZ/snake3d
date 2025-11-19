@@ -11,43 +11,46 @@ namespace Model {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
             mesh->render(camera, ortho, 1, finalTransform);
 
-            for (auto &node: children) {
-                node->render(camera, ortho, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+            for (const auto &[fst, snd]: children) {
+                snd->render(camera, ortho, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
             }
         } else if (transformDetached) {
-            for (auto &node: children) {
-                node->render(camera, ortho, dt, glm::mat4(1.0f));
+            for (const auto &[fst, snd]: children) {
+                snd->render(camera, ortho, dt, glm::mat4(1.0f));
             }
         }
     }
 
     void MeshNode2D::update(const float dt) {
         mesh->update(dt);
-        for (const auto &node: children) {
-            node->update(dt);
+        for (const auto &[fst, snd]: children) {
+            snd->update(dt);
         }
     }
 
-    void MeshNode2D::addNode(const std::shared_ptr<MeshNode2D> &node) {
+    void MeshNode2D::addNode(const std::shared_ptr<MeshNode2D> &node, const std::string &name) {
         node->parent = shared_from_this();
         node->depth = this->depth + 1;
         if (this->depth > 20) {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 20");
         }
-        children.push_back(node);
+        const auto [fst, snd] = children.emplace(name, node);
+        if (!snd) {
+            throw std::runtime_error("Duplicate node item key: " + name);
+        }
     }
 
     void MeshNode2D::setTransformDetached(const bool transform_detached, const bool recursive) {
         transformDetached = transform_detached;
 
         if (recursive) {
-            for (const auto &child: children) {
-                child->setTransformDetached(transform_detached, recursive);
+            for (const auto &[fst, snd]: children) {
+                snd->setTransformDetached(transform_detached, recursive);
             }
         }
     }
 
-    const vector<shared_ptr<MeshNode2D>> & MeshNode2D::getChildren() const {
+    const map<std::string, shared_ptr<MeshNode2D> > & MeshNode2D::getChildren() const {
         return children;
     }
 } // Model

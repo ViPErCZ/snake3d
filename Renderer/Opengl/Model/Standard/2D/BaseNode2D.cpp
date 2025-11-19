@@ -31,8 +31,9 @@ namespace Model {
             baseShader->setMat4("model", parentTransform);
             baseShader->setVec3("color", color);
             baseShader->setInt("textureMap", 0);
-            baseShader->setFloat("alpha", 1.0);
             baseShader->setBool("useMaterial", true);
+            baseShader->setFloat("alpha", 1.0);
+            baseShader->setFloat("expansion", 1.0);
         }
 
         mesh->bind();

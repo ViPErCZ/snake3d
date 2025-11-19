@@ -15,6 +15,9 @@ namespace Uniform {
             }  else {
                 running = false;
                 timer->stop();
+                if (finished) {
+                    finished();
+                }
             }
         }
         shader->setUniform(name, alpha);
@@ -43,6 +46,10 @@ namespace Uniform {
 
     void FadeOutUniform::setStep(const float step) {
         this->step = step;
+    }
+
+    void FadeOutUniform::setFinishedCallback(const std::function<void()> &callback) {
+        finished = callback;
     }
 
     bool FadeOutUniform::isFinished() const {

@@ -10,6 +10,9 @@ namespace Uniform {
             } else {
                 running = false;
                 timer->stop();
+                if (finished) {
+                    finished();
+                }
             }
         }
         shader->setUniform(name, alpha);

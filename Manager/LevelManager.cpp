@@ -68,15 +68,15 @@ namespace Manager {
                         // "1"
                         if (isFirst) {
                             boxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
-                            boxNode3D->x = x;
-                            boxNode3D->y = y;
+                            boxNode3D->x = (x + 1) * 32;
+                            boxNode3D->y = (y + 1) * 30;
                             isFirst = false;
                         } else {
                             const auto childBoxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
                             childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
                             childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
-                            childBoxNode3D->x = x;
-                            childBoxNode3D->y = y;
+                            childBoxNode3D->x = (x + 1) * 32;
+                            childBoxNode3D->y = (y + 1) * 30;
                             boxNode3D->addNode(childBoxNode3D);
                         }
                     }

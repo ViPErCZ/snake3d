@@ -57,6 +57,7 @@ namespace Scenes {
                 if (radarMeshNode->isVisible()) {
                     radarNode->setMaterial(radarExpansionOut);
                     radarFadeOutUniform->start();
+                    radarMeshNode->hideItems();
                 } else {
                     radarFadeOutUniform->setAlpha(1.0);
                     radarMeshNode->setVisible(true);
@@ -180,9 +181,12 @@ namespace Scenes {
         radarExpansionIn = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
         radarExpansionIn->addUniform("quadSize", glm::vec2(200, 200));
         radarExpansionIn->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionIn->addUniform("borderWidth", 12.0f);
+        radarExpansionIn->addUniform("borderWidth", 11.9f);
         radarExpansionIn->addUniform("radius", 8.0f);
         radarExpansionIn->addUniform("expansion", radarFadeInUniform);
+        radarFadeInUniform->setFinishedCallback([this]() {
+            radarMeshNode->showItems();
+        });
         radarFadeInUniform->start();
 
         radarFadeOutUniform = make_shared<FadeOutUniform>();
@@ -190,17 +194,20 @@ namespace Scenes {
         radarExpansionOut = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
         radarExpansionOut->addUniform("quadSize", glm::vec2(200, 200));
         radarExpansionOut->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionOut->addUniform("borderWidth", 12.0f);
+        radarExpansionOut->addUniform("borderWidth", 11.9f);
         radarExpansionOut->addUniform("radius", 8.0f);
         radarExpansionOut->addUniform("expansion", radarFadeOutUniform);
 
-        const auto shader = resourceManager->getShader("basic2d");
-        radarNode = make_shared<QuadNode2D>(200, 200, nullptr);
+        //const auto shader = resourceManager->getShader("basic2d");
+        radarNode = make_shared<QuadNode2D>(220, 220, nullptr);
         radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         radarNode->setMaterial(radarExpansionIn);
         radarMeshNode = make_shared<RadarMeshNode2D>(radarNode, resourceManager);
-        radarMeshNode->setPosition({width - 220 + 100, 30.0 + 100, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
-        radarMeshNode->addItem(dynamic_pointer_cast<Transform>(playerScene->getSnake()));
+        radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
+        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
+        radarMeshNode->addItem(coinMeshNode3D, glm::vec3(1.0,1.0,0.0), "coin");
+        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+        radarMeshNode->hideItems();
 
         meshNode2d.push_back(radarMeshNode);
     }
@@ -234,25 +241,6 @@ namespace Scenes {
 
         meshNode2d.push_back(helpText);
         meshNode2d.push_back(tilesCounterNode);
-    }
-
-    void MainScene::resetRadar() const {
-        // radar->reset();
-        // radar->setVisible(true);
-        // radar->setPosition({1.25, 1.4, 0.0});
-        // radar->setScale({100, 100, 1});
-        // radar->setWidth(176);
-        // radar->setHeight(176);
-
-        if (resourceManager) {
-            // for (const auto& tile: snake->getItems()) {
-            //     radar->addItem(tile->tile, {0.278,1.,0.});
-            // }
-            // for (const auto& block: barriers->getItems()) {
-            //     radar->addItem(block, {0.694,0.078,0.016});
-            // }
-            // radar->addItem(eat, {1.,0.953,0.});
-        }
     }
 
     void MainScene::buildEatenUpCallback() const {
@@ -326,7 +314,6 @@ namespace Scenes {
         snakeMoveHandler->setCrashCallback([this]() {
             if (this->levelManager) {
                 playerScene->getSnake()->respawn();
-                resetRadar();
                 this->levelManager->setLive(this->levelManager->getLive() - 1);
                 this->levelManager->setEatCounter(0);
                 char buff[100];

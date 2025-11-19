@@ -1,6 +1,8 @@
 #ifndef SNAKE3_FADEOUTUNIFORM_H
 #define SNAKE3_FADEOUTUNIFORM_H
 
+#include <functional>
+
 #include "../IUniform.h"
 #include "../../../../Tools/Timer.h"
 
@@ -19,6 +21,7 @@ namespace Uniform {
         virtual void start();
         [[nodiscard]] shared_ptr<IUniform> clone() const override;
         void setStep(float step);
+        void setFinishedCallback(const std::function<void()> &callback);
     protected:
         [[nodiscard]] virtual bool isFinished() const;
 
@@ -26,6 +29,7 @@ namespace Uniform {
         float alpha;
         float step;
         unique_ptr<Timer> timer;
+        std::function<void()> finished;
     };
 } // Uniform
 

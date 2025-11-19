@@ -102,9 +102,6 @@ namespace Handler {
 
         for (int x = 0; x < counter + 1; x++) {
             snake->addTile(snake->getDirection());
-            // if (tile != nullptr) { // TODO: toto by nemelo byt treba, radar bude mit celej SnakeMeshNode
-            //     radar->addItem(tile->tile, {0.278, 1., 0.});
-            // }
         }
     }
 
