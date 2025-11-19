@@ -515,9 +515,9 @@ void App::run() {
 
     if (state == SceneState::RUNNING) {
         //keyboardManager->runDefault();
-        if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
-            eatManager->run(Manager::EatManager::checkPlace);
-        }
+        // if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
+        //     eatManager->run(Manager::EatManager::checkPlace);
+        // }
         mainScene->update();
         mainScene->render();
     } else {

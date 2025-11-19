@@ -14,6 +14,8 @@ namespace Scenes {
 
         [[nodiscard]] shared_ptr<LevelManager> getLevelManager() const;
 
+        [[nodiscard]] shared_ptr<MeshNode3D> getLevelBoxes() const;
+
     protected:
         void initBarriers();
 

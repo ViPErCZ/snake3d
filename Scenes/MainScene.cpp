@@ -22,9 +22,9 @@ namespace Scenes {
     void MainScene::init() {
         Scene::init();
         initPlayerScene();
+        initBarriersScene();
         initSkybox();
         initPlane();
-        initBarriersScene();
         initEat();
         initRadar();
         initEatManager();
@@ -166,7 +166,11 @@ namespace Scenes {
     }
 
     void MainScene::initEatManager() {
-        auto eatLocationHandler = make_shared<EatLocationHandler>(nullptr, playerScene->getSnake(), coinMeshNode3D, radar);
+        auto eatLocationHandler = make_shared<EatLocationHandler>(
+            barriersScene->getLevelBoxes(),
+            playerScene->getSnake(),
+            coinMeshNode3D
+        );
         eatManager = make_unique<EatManager>(eatLocationHandler);
     }
 
@@ -354,6 +358,10 @@ namespace Scenes {
 
         if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {
             radarMeshNode->setVisible(false);
+        }
+
+        if (!helpText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
+            eatManager->run(EatManager::checkPlace);
         }
     }
 } // Scenes

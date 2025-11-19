@@ -17,6 +17,10 @@ namespace Scenes {
         return levelManager;
     }
 
+    shared_ptr<MeshNode3D> BarriersScene::getLevelBoxes() const {
+        return levelBoxes;
+    }
+
     void BarriersScene::initBarriers() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");

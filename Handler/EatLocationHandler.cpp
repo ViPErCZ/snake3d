@@ -2,10 +2,9 @@
 #include <random>
 
 namespace Handler {
-    EatLocationHandler::EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
-                                           const shared_ptr<CoinMeshNode3D> &eat,
-                                           const shared_ptr<Radar> &radar)
-        : radar(radar), barriers(barriers), snake(snake), eat(eat), counter(0) {
+    EatLocationHandler::EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                           const shared_ptr<CoinMeshNode3D> &eat)
+        : barriers(barriers), snake(snake), eat(eat), counter(0) {
     }
 
     EatLocationHandler::~EatLocationHandler() = default;
@@ -46,12 +45,15 @@ namespace Handler {
             }
         }
 
-        // for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
-        //     if ((*Iter)->x - 16 + 32 > posX && (*Iter)->x - 16 <= posX
-        //         && (*Iter)->y - 16 + 32 > posY && (*Iter)->y - 16 <= posY) {
-        //         return false;
-        //     }
-        // } // TODO: Nahradit za MeshNode3D s barierama
+        if (barriers->x == x && barriers->y == y) {
+            return false;
+        }
+
+        for (auto Iter = barriers->getChildren().begin(); Iter < barriers->getChildren().end(); ++Iter) {
+            if ((*Iter)->x == x && (*Iter)->y == y) {
+                return false;
+            }
+        }
 
         return true;
     }

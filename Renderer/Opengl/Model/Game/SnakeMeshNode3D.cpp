@@ -9,27 +9,29 @@ namespace Model {
     SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<StandardMesh> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(
         mesh, resourceManager) {
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        tileMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        tileMaterial->setColor({0.88, 0.05, 0.05});
-        tileMaterial->setShadow(resourceManager->getTexture("depth"));
-
-        timer = std::make_unique<Timer>(false);
-        const auto respawnShader = resourceManager->getShader("respawnShader");
-        respawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
-        respawnMaterial->setShadow(resourceManager->getTexture("depth"));
-        respawnMaterial->addUniform("u_LightColor", glm::vec4(0.88, 0.05, 0.05, 1.0f));
-        respawnMaterial->addUniform("u_Speed", 4.7f);
-        respawnMaterial->addUniform("u_Delay", 0.1f);
-        respawnMaterial->addUniform("u_FloatParameter", 0.1f);
-
-        const auto textureUniform = make_shared<TextureUniform>(11, this->resourceManager->getTexture("fast_noise.bmp"));
         timerUniform = make_shared<TimerUniform>(true);
-        respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
-        respawnMaterial->addUniform("u_Time", timerUniform);
-        respawnMaterial->addUniform("useBones", false);
-        respawnMaterial->addUniform("useMaterial", true);
+        if (resourceManager) {
+            const auto shader = resourceManager->getShader("basicShader");
+            const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
+            tileMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+            tileMaterial->setColor({0.88, 0.05, 0.05});
+            tileMaterial->setShadow(resourceManager->getTexture("depth"));
+
+            timer = std::make_unique<Timer>(false);
+            const auto respawnShader = resourceManager->getShader("respawnShader");
+            respawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
+            respawnMaterial->setShadow(resourceManager->getTexture("depth"));
+            respawnMaterial->addUniform("u_LightColor", glm::vec4(0.88, 0.05, 0.05, 1.0f));
+            respawnMaterial->addUniform("u_Speed", 4.7f);
+            respawnMaterial->addUniform("u_Delay", 0.1f);
+            respawnMaterial->addUniform("u_FloatParameter", 0.1f);
+
+            const auto textureUniform = make_shared<TextureUniform>(11, this->resourceManager->getTexture("fast_noise.bmp"));
+            respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
+            respawnMaterial->addUniform("u_Time", timerUniform);
+            respawnMaterial->addUniform("useBones", false);
+            respawnMaterial->addUniform("useMaterial", true);
+        }
     }
 
     void SnakeMeshNode3D::respawn() {
@@ -43,7 +45,9 @@ namespace Model {
         const auto sphere = createTileNode();
 
         const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile->setDirectionalLight(directionalLight);
+        if (directionalLight) {
+            tile->setDirectionalLight(directionalLight);
+        }
         tile->setPosition({21, -3, -23});
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 2;
@@ -51,7 +55,9 @@ namespace Model {
         addNode(tile);
 
         const auto tile2 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile2->setDirectionalLight(directionalLight);
+        if (directionalLight) {
+            tile2->setDirectionalLight(directionalLight);
+        }
         tile2->setScale({0.041667f, 0.041667f, 0.041667f});
         tile2->setPosition({19, -3, -23});
         tile2->x = x - 4;
@@ -59,7 +65,9 @@ namespace Model {
         addNode(tile2);
 
         const auto tile3 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile3->setDirectionalLight(directionalLight);
+        if (directionalLight) {
+            tile3->setDirectionalLight(directionalLight);
+        }
         tile3->setScale({0.041667f, 0.041667f, 0.041667f});
         tile3->setPosition({17, -3, -23});
         tile3->x = x - 6;
@@ -135,7 +143,9 @@ namespace Model {
         }
 
         const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
-        tile->setDirectionalLight(directionalLight);
+        if (directionalLight) {
+            tile->setDirectionalLight(directionalLight);
+        }
         tile->setPosition(pos);
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 2;

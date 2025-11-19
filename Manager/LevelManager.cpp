@@ -26,21 +26,23 @@ namespace Manager {
 
     shared_ptr<MeshNode3D> LevelManager::createLevel(int level) {
         // const auto geometry = make_shared<BaseItem>(BaseItem());
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
 
-        const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
-        const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
-        const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
-        const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        boxMaterial->setColor({1.0, 1.0, 1.0});
-        boxMaterial->setNormalEnabled(true);
-        boxMaterial->setAlbedo(brickWall);
-        boxMaterial->setNormal(brickWallNormal);
-        boxMaterial->setSpecular(brickWallSpecular);
+        if (resourceManager) {
+            const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
+            const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
+            const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
+            const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+            boxMaterial->setColor({1.0, 1.0, 1.0});
+            boxMaterial->setNormalEnabled(true);
+            boxMaterial->setAlbedo(brickWall);
+            boxMaterial->setNormal(brickWallNormal);
+            boxMaterial->setSpecular(brickWallSpecular);
 
-        boxMesh->setMaterial(boxMaterial);
+            boxMesh->setMaterial(boxMaterial);
+        }
 
         const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
         boxNode3D->setPosition({0.0, 0.0, -23.0});
@@ -66,11 +68,15 @@ namespace Manager {
                         // "1"
                         if (isFirst) {
                             boxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
+                            boxNode3D->x = x;
+                            boxNode3D->y = y;
                             isFirst = false;
                         } else {
                             const auto childBoxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
                             childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
                             childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
+                            childBoxNode3D->x = x;
+                            childBoxNode3D->y = y;
                             boxNode3D->addNode(childBoxNode3D);
                         }
                     }

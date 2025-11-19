@@ -17,8 +17,8 @@ namespace Handler {
     public:
         ~EatLocationHandler() override;
 
-        explicit EatLocationHandler(const shared_ptr<Barriers> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
-                                    const shared_ptr<CoinMeshNode3D> &eat, const shared_ptr<Radar> &radar);
+        explicit EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                    const shared_ptr<CoinMeshNode3D> &eat);
 
         void onDefaultHandler() override;
 
@@ -33,8 +33,7 @@ namespace Handler {
         [[nodiscard]] bool isFieldEmpty(int x, int y) const;
 
     protected:
-        shared_ptr<Radar> radar;
-        shared_ptr<Barriers> barriers;
+        shared_ptr<MeshNode3D> barriers;
         shared_ptr<SnakeMeshNode3D> snake;
         shared_ptr<CoinMeshNode3D> eat;
         int counter;
