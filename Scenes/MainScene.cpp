@@ -3,7 +3,6 @@
 #include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
-#include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
@@ -21,11 +20,14 @@ namespace Scenes {
 
     void MainScene::init() {
         Scene::init();
+
+        collisionDetector = make_shared<CollisionDetector>();
         initPlayerScene();
         initBarriersScene();
+        initCoinScene();
         initSkybox();
         initPlane();
-        initEat();
+        // initEat();
         initRadar();
         initEatManager();
         initLabels();
@@ -43,9 +45,6 @@ namespace Scenes {
                 break;
             case GLFW_KEY_B:
                 rendererManager->toggleBloom();
-                if (snakeRenderer) {
-                     snakeRenderer->toggleBlur();
-                }
                 break;
             case GLFW_KEY_F:
                 rendererManager->toggleFog();
@@ -74,7 +73,6 @@ namespace Scenes {
         playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
         playerScene->init();
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
-        collisionDetector = make_shared<CollisionDetector>();
         snakeMoveHandler->setCollisionDetector(collisionDetector);
         addNode(playerScene);
     }
@@ -126,51 +124,19 @@ namespace Scenes {
         addNode(barriersScene);
     }
 
-    void MainScene::initEat() {
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const std::shared_ptr<ObjItem> coinModel(
-            resourceManager->getModel("coin"), [](ObjItem *) {
-        });
-        const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(shader));
-        coinMesh->fromObj(coinModel);
+    void MainScene::initCoinScene() {
+        coinScene = make_shared<CoinScene>(rendererManager, camera, projection, resourceManager, width, height);
+        coinScene->init();
+        addNode(coinScene);
 
-        coinMeshNode3D = make_shared<CoinMeshNode3D>(coinMesh, resourceManager);
-        coinMeshNode3D->setPosition({-69.0, -69, -70.0f});
-        coinMeshNode3D->setScale({0.013888889, 0.013888889, 0.013888889});
-        coinMeshNode3D->setRotationX(90);
-        coinMeshNode3D->setVisible(false);
-
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.091f, .091f, .091f});
-
-        const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
-        const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
-        const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
-        auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
-        const auto coinMaterial = make_shared<StandardMaterial>(shader, shadowsShader);
-        coinMaterial->setAlbedo(coinAlbedo);
-        coinMaterial->setNormal(coinNormal);
-        coinMaterial->setSpecular(coinMetalness);
-        coinMaterial->setNormalEnabled(true);
-        coinMaterial->setDirectionalLight(directionalLight);
-
-        coinMesh->setMaterial(coinMaterial);
-
-        collisionDetector->addStaticItem(coinMeshNode3D);
-
-        meshNode3d.push_back(coinMeshNode3D);
+        collisionDetector->addStaticItem(coinScene->getCoin());
     }
 
     void MainScene::initEatManager() {
         auto eatLocationHandler = make_shared<EatLocationHandler>(
             barriersScene->getLevelBoxes(),
             playerScene->getSnake(),
-            coinMeshNode3D
+            coinScene->getCoin()
         );
         eatManager = make_unique<EatManager>(eatLocationHandler);
     }
@@ -186,7 +152,7 @@ namespace Scenes {
         radarExpansionIn->addUniform("expansion", radarFadeInUniform);
         radarFadeInUniform->setFinishedCallback([this]() {
             radarMeshNode->showItems();
-            if (coinMeshNode3D->isVisible() == false) {
+            if (coinScene->getCoin()->isVisible() == false) {
                 radarMeshNode->hideItem("coin");
             }
         });
@@ -207,7 +173,7 @@ namespace Scenes {
         radarMeshNode = make_shared<RadarMeshNode2D>(radarNode, resourceManager);
         radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
         radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
-        radarMeshNode->addItem(coinMeshNode3D, glm::vec3(1.0,1.0,0.0), "coin");
+        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
         radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
         radarMeshNode->hideItems();
 
@@ -218,7 +184,7 @@ namespace Scenes {
         const auto shader = resourceManager->getShader("textShader");
         const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 26);
         const auto settings = make_shared<LabelSettings>(font);
-        const auto label = make_shared<LabelNode2D>("Press start I, K or L...", shader, settings);
+        const auto label = make_shared<LabelNode2D>("Press start I, K or L...-+_", shader, settings);
         label->alignVerticalCenter(static_cast<float>(width), static_cast<float>(height));
 
         fadeOutUniform = make_shared<FadeOutUniform>();
@@ -331,7 +297,7 @@ namespace Scenes {
                 );
                 const std::string buffAsStdStr = buff;
                 tilesCounterText->setText(buffAsStdStr);
-                coinMeshNode3D->setVisible(false);
+                coinScene->getCoin()->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
                     this->levelManager->createLevel(1);

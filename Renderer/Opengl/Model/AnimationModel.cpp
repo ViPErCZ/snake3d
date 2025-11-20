@@ -1,5 +1,6 @@
 #include "AnimationModel.h"
 #include <functional>
+#include <ranges>
 
 namespace Model {
     AnimationModel::AnimationModel(BaseItem* item,
@@ -174,7 +175,7 @@ namespace Model {
 
     void AnimationModel::setGlobalPause(const bool globalPause) {
         AnimationModel::globalPause = globalPause;
-        for (const auto &[key, meta]: metadata) {
+        for (const auto &meta: metadata | views::values) {
             meta->pause = globalPause;
         }
     }

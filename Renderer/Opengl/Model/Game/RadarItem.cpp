@@ -1,11 +1,13 @@
 #include "RadarItem.h"
 
+#include <utility>
+
 #include "../Standard/2D/QuadNode2D.h"
 
 namespace Model {
     RadarItem::RadarItem(const shared_ptr<ResourceManager> &resourceManager,
-        const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, const std::string &name)
-        : mesh(mesh), itemsCount(mesh->getChildren().size()), changedSize(false), name(name), color(color) {
+        const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, std::string name)
+        : mesh(mesh), itemsCount(static_cast<int>(mesh->getChildren().size())), changedSize(false), name(std::move(name)), color(color) {
         const auto quad = make_shared<QuadNode2D>(4, 4, resourceManager->getShader("basic2d"));
         quad->setColor(color);
         radarItem = make_shared<MeshNode2D>(quad, resourceManager);
@@ -18,7 +20,7 @@ namespace Model {
 
         if (mesh->getChildren().size() != itemsCount) {
             changedSize = true;
-            itemsCount = mesh->getChildren().size();
+            itemsCount = static_cast<int>(mesh->getChildren().size());
         } else {
             changedSize = false;
         }

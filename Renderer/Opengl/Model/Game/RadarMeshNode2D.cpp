@@ -1,5 +1,7 @@
 #include "RadarMeshNode2D.h"
 
+#include <ranges>
+
 namespace Model {
     RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<QuadNode2D> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager)
@@ -11,7 +13,7 @@ namespace Model {
 
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
-            for (const auto &[fst, snd]: children) {
+            for (const auto &snd: children | views::values) {
                 snd->render(camera, ortho, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
             }
             glEnable(GL_BLEND);
@@ -20,7 +22,7 @@ namespace Model {
             mesh->render(camera, ortho, 1, finalTransform);
             glDisable(GL_BLEND);
         } else if (transformDetached) {
-            for (const auto &[fst, snd]: children) {
+            for (const auto &snd: children | views::values) {
                 snd->render(camera, ortho, dt, glm::mat4(1.0f));
             }
         }
@@ -28,7 +30,7 @@ namespace Model {
 
     void RadarMeshNode2D::update(const float dt) {
         MeshNode2D::update(dt);
-        for (const auto &[fst, snd]: items) {
+        for (const auto &snd: items | views::values) {
             snd->update();
             if (snd->hasChangedSize()) {
                 for (auto it = items.begin(); it != items.end(); ) {
@@ -45,9 +47,9 @@ namespace Model {
                         ++it;
                 }
 
-                // create new radar items for new snake tile
+                // create new radar items for a new snake tile
                 int index = 0;
-                for (const auto child: snd->getChildren()) {
+                for (const auto& child: snd->getChildren()) {
                     addItem(child, snd->getColor(), snd->getName() + "-" + std::to_string(index++));
                 }
             }
@@ -71,13 +73,13 @@ namespace Model {
     }
 
     void RadarMeshNode2D::hideItems() const {
-        for (const auto &[fst, snd]: children) {
+        for (const auto &snd: children | views::values) {
             snd->setVisible(false);
         }
     }
 
     void RadarMeshNode2D::showItems() const {
-        for (const auto &[fst, snd]: children) {
+        for (const auto &snd: children | views::values) {
             snd->setVisible(true);
         }
     }

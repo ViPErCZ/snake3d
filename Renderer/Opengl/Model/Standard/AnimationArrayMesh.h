@@ -17,6 +17,8 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
         void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
         void stop(bool stop) const;
+        void play(const string &animation);
+        void setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer);
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform) const;

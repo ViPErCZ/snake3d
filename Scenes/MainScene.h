@@ -4,13 +4,12 @@
 #include <memory>
 
 #include "BarriersScene.h"
+#include "CoinScene.h"
 #include "PlayerScene.h"
 #include "../Manager/EatManager.h"
-#include "../Renderer/Opengl/SnakeRenderer.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
-#include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
@@ -38,11 +37,11 @@ namespace Scenes {
 
         void initBarriersScene();
 
+        void initCoinScene();
+
         void initSkybox();
 
         void initPlane();
-
-        void initEat();
 
         void initEatManager();
 
@@ -57,13 +56,12 @@ namespace Scenes {
         void buildCrashCallback() const;
 
         shared_ptr<PlayerScene> playerScene;
+        shared_ptr<CoinScene> coinScene;
         shared_ptr<BarriersScene> barriersScene;
         unique_ptr<EatManager> eatManager;
         shared_ptr<LevelManager> levelManager;
-        shared_ptr<CoinMeshNode3D> coinMeshNode3D;
         shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
-        shared_ptr<SnakeRenderer> snakeRenderer; // TODO: jen docasne dokud neprejde pod svoji scenu a standardRenderer
         shared_ptr<FadeOutUniform> fadeOutUniform;
         shared_ptr<FadeInUniform> fadeInUniform;
         shared_ptr<LabelNode2D> tilesCounterText;

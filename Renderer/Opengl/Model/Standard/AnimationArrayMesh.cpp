@@ -47,6 +47,14 @@ namespace Model {
         model->setGlobalPause(stop);
     }
 
+    void AnimationArrayMesh::play(const string &animation) {
+        model->setGlobalPause(false);
+    }
+
+    void AnimationArrayMesh::setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer) {
+        this->animationPlayer = animationPlayer;
+    }
+
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
         auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
                                         [&](const auto &anim) {

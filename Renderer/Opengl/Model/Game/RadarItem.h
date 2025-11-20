@@ -10,14 +10,14 @@ namespace Model {
     class RadarItem {
     public:
         RadarItem(const shared_ptr<ResourceManager> &resourceManager,
-            const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, const std::string &name);
+            const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, std::string name);
         void update();
         shared_ptr<MeshNode2D> getRadarItem();
-        bool hasChangedSize() const;
-        std::string getName() const;
-        int getItemsCount() const;
-        const vector<shared_ptr<MeshNode3D>> &getChildren() const;
-        glm::vec3 getColor() const;
+        [[nodiscard]] bool hasChangedSize() const;
+        [[nodiscard]] std::string getName() const;
+        [[nodiscard]] int getItemsCount() const;
+        [[nodiscard]] const vector<shared_ptr<MeshNode3D>> &getChildren() const;
+        [[nodiscard]] glm::vec3 getColor() const;
     private:
         shared_ptr<MeshNode3D> mesh;
         shared_ptr<MeshNode2D> radarItem;
