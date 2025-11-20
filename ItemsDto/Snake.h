@@ -1,10 +1,6 @@
 #ifndef SNAKE3_SNAKE_H
 #define SNAKE3_SNAKE_H
 
-#define UNIT_MOVE 0.125
-#define VIRTUAL_MOVE 2 // kvuli nepresnosti float cislum pocitame virtualne v integer formatu
-#define CUBE_SIZE 32
-
 #include <functional>
 #include <memory>
 #include "BaseContainer.h"

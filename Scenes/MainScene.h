@@ -60,7 +60,6 @@ namespace Scenes {
         shared_ptr<BarriersScene> barriersScene;
         unique_ptr<EatManager> eatManager;
         shared_ptr<LevelManager> levelManager;
-        shared_ptr<Radar> radar;
         shared_ptr<CoinMeshNode3D> coinMeshNode3D;
         shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;

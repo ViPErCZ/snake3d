@@ -45,12 +45,12 @@ namespace Handler {
             }
         }
 
-        if (barriers->x == x && barriers->y == y) {
+        if (barriers->x == posX && barriers->y == posY) {
             return false;
         }
 
         for (auto Iter = barriers->getChildren().begin(); Iter < barriers->getChildren().end(); ++Iter) {
-            if ((*Iter)->x == x && (*Iter)->y == y) {
+            if ((*Iter)->x == posX && (*Iter)->y == posY) {
                 return false;
             }
         }

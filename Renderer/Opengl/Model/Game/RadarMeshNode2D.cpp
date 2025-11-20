@@ -56,6 +56,7 @@ namespace Model {
 
     void RadarMeshNode2D::addItem(const shared_ptr<MeshNode3D> &item, const glm::vec3 &color, const std::string &name) {
         const auto radarItem = make_shared<RadarItem>(resourceManager, item, color, name);
+        radarItem->getRadarItem()->setVisible(item->isVisible());
         items.emplace(name, radarItem);
         addNode(radarItem->getRadarItem(), name);
         int index = 0;
@@ -79,5 +80,13 @@ namespace Model {
         for (const auto &[fst, snd]: children) {
             snd->setVisible(true);
         }
+    }
+
+    void RadarMeshNode2D::hideItem(const std::string &name) const {
+        items.at(name)->getRadarItem()->setVisible(false);
+    }
+
+    void RadarMeshNode2D::showItem(const std::string &name) const {
+        items.at(name)->getRadarItem()->setVisible(true);
     }
 } // Model

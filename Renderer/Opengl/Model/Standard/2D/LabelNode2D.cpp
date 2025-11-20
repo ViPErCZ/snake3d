@@ -24,7 +24,7 @@ namespace Model {
     void LabelNode2D::setText(const string &text) {
         this->text = text;
         mesh->update(text, settings->getFont());
-        align = glm::vec2(2.0f, mesh->getSizeY());
+        align = glm::vec2(3.0f, mesh->getSizeY());
     }
 
     void LabelNode2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,

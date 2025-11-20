@@ -186,6 +186,9 @@ namespace Scenes {
         radarExpansionIn->addUniform("expansion", radarFadeInUniform);
         radarFadeInUniform->setFinishedCallback([this]() {
             radarMeshNode->showItems();
+            if (coinMeshNode3D->isVisible() == false) {
+                radarMeshNode->hideItem("coin");
+            }
         });
         radarFadeInUniform->start();
 
@@ -198,7 +201,6 @@ namespace Scenes {
         radarExpansionOut->addUniform("radius", 8.0f);
         radarExpansionOut->addUniform("expansion", radarFadeOutUniform);
 
-        //const auto shader = resourceManager->getShader("basic2d");
         radarNode = make_shared<QuadNode2D>(220, 220, nullptr);
         radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         radarNode->setMaterial(radarExpansionIn);
@@ -306,6 +308,7 @@ namespace Scenes {
                 tilesCounterNode->setVisible(true);
                 tilesCounterText->setText(buffAsStdStr);
                 fadeInUniform->start();
+                radarMeshNode->showItem("coin");
             }
         });
     }

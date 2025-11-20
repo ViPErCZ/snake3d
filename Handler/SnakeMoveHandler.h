@@ -1,6 +1,10 @@
 #ifndef SNAKE3_SNAKEMOVEHANDLER_H
 #define SNAKE3_SNAKEMOVEHANDLER_H
 
+#define UNIT_MOVE 0.125
+#define VIRTUAL_MOVE 2 // kvuli nepresnosti float cislum pocitame virtualne v integer formatu
+#define CUBE_SIZE 32
+
 #include "../Physic/CollisionDetector.h"
 #include "BaseKeydownHandle.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"

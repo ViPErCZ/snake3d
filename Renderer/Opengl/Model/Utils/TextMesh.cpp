@@ -53,7 +53,7 @@ namespace ModelUtils {
         }
 
         width = x;
-        maxSizeY = 0.9f * (font->getAscenderPx() - font->getDescenderPx());
+        maxSizeY = 0.5f * (font->getAscenderPx() - font->getDescenderPx());
 
         vao->bind();
         vbo->bind();
