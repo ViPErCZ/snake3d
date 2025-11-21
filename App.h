@@ -11,7 +11,6 @@
 #include "Renderer/Opengl/RadarRenderer.h"
 #include "Handler/EatLocationHandler.h"
 #include "Renderer/Opengl/EatRenderer.h"
-#include "Renderer/Opengl/TextRenderer.h"
 #include "ItemsDto/Eat.h"
 #include "Manager/EatManager.h"
 #include "Renderer/Opengl/EatRemoveAnimateRenderer.h"
@@ -100,8 +99,6 @@ private:
     unique_ptr<KeyboardManager> keyboardManager;
     shared_ptr<CollisionDetector> collisionDetector;
     unique_ptr<EatManager> eatManager;
-    Text* startText;
-    Text* tilesCounterText;
     shared_ptr<Camera> camera;
     glm::mat4 projection{};
     int width;

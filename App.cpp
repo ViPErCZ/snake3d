@@ -17,8 +17,6 @@
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
     keyboardManager = make_unique<KeyboardManager>();
-    startText = new Text("Press start I, K or L...");
-    tilesCounterText = new Text("");
     eat = new Eat;
     torchRenderer = nullptr;
 
