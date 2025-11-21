@@ -46,8 +46,6 @@ namespace Scenes {
         snake = make_shared<SnakeMeshNode3D>(pacmanMesh, resourceManager);
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
-        snake->setRotationX(90);
-        snake->setPosition({23, -3, -23});
         snake->respawn();
 
         camera->setStickyPoint(snake);

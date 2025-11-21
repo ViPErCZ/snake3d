@@ -548,14 +548,15 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
         //            camera->startUpsideDownRotate();
         //            break;
         case GLFW_KEY_M:
-            ALint source_state;
-            alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
-
-            if (source_state == AL_PLAYING) {
-                alSourceStop(musicSource);
-            } else {
-                alSourcePlay(musicSource);
-            }
+            // TODO: sound
+            // ALint source_state;
+            // alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
+            //
+            // if (source_state == AL_PLAYING) {
+            //     alSourceStop(musicSource);
+            // } else {
+            //     alSourcePlay(musicSource);
+            // }
             break;
         // case GLFW_KEY_1: // show classic red head
             // snake->getHeadTile()->setVisible(true);

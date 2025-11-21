@@ -36,7 +36,8 @@ namespace ModelUtils {
 
             const auto bearingY = static_cast<float>(ch->bearing.y);
             const float sizeY = h;
-            const float air_below = (bearingY > sizeY) ? (bearingY - sizeY) : 0.0f;
+            const bool exclude = c == '-' || c == '`' || c == '~' || c == '\'' || c == '=';
+            const float air_below = (bearingY > sizeY && !exclude) ? (bearingY - sizeY) : 0.0f;
             float ypos = y - bearingY + air_below;
 
             vertices.insert(vertices.end(), {
@@ -53,7 +54,7 @@ namespace ModelUtils {
         }
 
         width = x;
-        maxSizeY = 0.5f * (font->getAscenderPx() - font->getDescenderPx());
+        maxSizeY = 0.8f * (font->getAscenderPx() - font->getDescenderPx());
 
         vao->bind();
         vbo->bind();

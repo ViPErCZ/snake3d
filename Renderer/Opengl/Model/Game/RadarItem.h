@@ -14,14 +14,13 @@ namespace Model {
         void update();
         shared_ptr<MeshNode2D> getRadarItem();
         [[nodiscard]] bool hasChangedSize() const;
+        [[nodiscard]] bool hasReferenceHasOnlyRadar() const;
         [[nodiscard]] std::string getName() const;
-        [[nodiscard]] int getItemsCount() const;
         [[nodiscard]] const vector<shared_ptr<MeshNode3D>> &getChildren() const;
         [[nodiscard]] glm::vec3 getColor() const;
     private:
         shared_ptr<MeshNode3D> mesh;
         shared_ptr<MeshNode2D> radarItem;
-        int itemsCount;
         bool changedSize;
         std::string name;
         glm::vec3 color;

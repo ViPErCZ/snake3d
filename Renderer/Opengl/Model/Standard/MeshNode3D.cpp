@@ -3,7 +3,7 @@
 namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
-        : mesh(mesh), resourceManager(resourceManager), transformDetached(false) {
+        : mesh(mesh), resourceManager(resourceManager), transformDetached(false), childrenChangedSignal(false) {
     }
 
     void MeshNode3D::addNode(const std::shared_ptr<MeshNode3D> &node) {
@@ -13,6 +13,7 @@ namespace Model {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 20");
         }
         children.push_back(node);
+        childrenChangedSignal = true;
     }
 
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
@@ -35,6 +36,12 @@ namespace Model {
         mesh->update(dt);
         for (const auto &node: children) {
             node->update(dt);
+        }
+        if (childrenChangedSignalCycles > 1) {
+            childrenChangedSignal = false;
+            childrenChangedSignalCycles = 0;
+        } else if (childrenChangedSignal) {
+            childrenChangedSignalCycles++;
         }
     }
 
@@ -61,7 +68,7 @@ namespace Model {
         directionalLight = directional_light;
     }
 
-    void MeshNode3D::setTransformDetached(const bool transform_detached, bool recursive) {
+    void MeshNode3D::setTransformDetached(const bool transform_detached, const bool recursive) {
         transformDetached = transform_detached;
 
         if (recursive) {
@@ -94,4 +101,7 @@ namespace Model {
         *this = *copy;
     }
 
+    bool MeshNode3D::hasChildrenChangedSignal() const {
+        return childrenChangedSignal;
+    }
 } // Model

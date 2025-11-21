@@ -27,7 +27,6 @@ namespace Scenes {
         initCoinScene();
         initSkybox();
         initPlane();
-        // initEat();
         initRadar();
         initEatManager();
         initLabels();
@@ -184,7 +183,7 @@ namespace Scenes {
         const auto shader = resourceManager->getShader("textShader");
         const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 26);
         const auto settings = make_shared<LabelSettings>(font);
-        const auto label = make_shared<LabelNode2D>("Press start I, K or L...-+_", shader, settings);
+        const auto label = make_shared<LabelNode2D>("Press start I, K or L...", shader, settings);
         label->alignVerticalCenter(static_cast<float>(width), static_cast<float>(height));
 
         fadeOutUniform = make_shared<FadeOutUniform>();
@@ -192,6 +191,9 @@ namespace Scenes {
         shaderMaterial->addUniform("alpha", fadeOutUniform);
         shaderMaterial->addUniform("textColor", glm::vec3(1.0f));
         shaderMaterial->addUniform("textTexture", 0);
+        fadeOutUniform->setFinishedCallback([this]() {
+            helpText->setVisible(false);
+        });
 
         label->setMaterial(shaderMaterial);
         helpText = make_shared<MeshNode2D>(label, resourceManager);

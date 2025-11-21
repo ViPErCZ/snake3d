@@ -41,6 +41,10 @@ namespace Model {
         transformDetached = true;
         this->x = (23 - -23) / 2 * 32 + 16;
         this->y = (-3 - -23) / 2 * 32 + 16;
+        this->setRotationX(90);
+        this->setRotationY(0);
+        this->setPosition({23, -3, -23});
+        this->setDirection(NONE);
 
         const auto sphere = createTileNode();
 

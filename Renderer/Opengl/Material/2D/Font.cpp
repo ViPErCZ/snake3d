@@ -69,6 +69,7 @@ namespace Material {
         descender = face->descender;
         lineHeight = face->height;
         scale = static_cast<float>(fontSize) / static_cast<float>(face->units_per_EM);
+        ascender_pixels = lineHeight * scale;
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);

@@ -31,6 +31,8 @@ namespace Model {
 
         void make_unique();
 
+        bool hasChildrenChangedSignal() const;
+
     protected:
         std::shared_ptr<MeshNode3D> deepCopy() const;
 
@@ -41,6 +43,8 @@ namespace Model {
         shared_ptr<DirectionalLight> directionalLight;
         int depth = 0;
         bool transformDetached;
+        bool childrenChangedSignal;
+        int childrenChangedSignalCycles = 0;
     };
 } // Model
 
