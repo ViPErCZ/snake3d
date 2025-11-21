@@ -6,11 +6,9 @@
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
-#include "Renderer/Opengl/GameFieldRenderer.h"
 #include "Renderer/Opengl/SkyboxRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
-#include "Handler/RadarHandler.h"
 #include "Handler/EatLocationHandler.h"
 #include "Renderer/Opengl/EatRenderer.h"
 #include "Renderer/Opengl/TextRenderer.h"
@@ -24,15 +22,12 @@
 #include "Manager/Camera.h"
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
-#include "Renderer/Opengl/AnimRenderer.h"
 #include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/FireRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
-#include "Renderer/Opengl/Material/StandardMaterial.h"
 #include <AL/al.h>
 #include <nlohmann/json.hpp>
-#include "Renderer/Opengl/Model/SpinnerModel.h"
 #include "Scenes/MainScene.h"
 
 #define MAX_POINT 6
@@ -83,7 +78,6 @@ private:
     unique_ptr<LevelManager> levelManager;
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
-    shared_ptr<GameFieldRenderer> gameFieldRenderer{};
     Snake* snake{};
     Eat* animateEat{};
     Eat* eat;

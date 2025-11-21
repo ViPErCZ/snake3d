@@ -3,14 +3,13 @@
 #include <ranges>
 
 namespace Model {
-    AnimationModel::AnimationModel(BaseItem* item,
-                                   const vector<Mesh *> &meshes,
+    AnimationModel::AnimationModel(const vector<Mesh *> &meshes,
                                    decltype(animations)&& _animations,
                                    decltype(bones)&& bones,
                                    decltype(skeleton)&& skeleton,
                                    decltype(bones_map)&& bones_map,
                                    const glm::mat4& _global_matrix) :
-            baseItem(item), meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
+            meshes(meshes), animations(std::move(_animations)), bones(std::move(bones)),
             skeleton(skeleton), bones_map(bones_map), global_inverse{_global_matrix}, globalPause(true) {
 
         this->acceleration = 1.0;
@@ -163,14 +162,6 @@ namespace Model {
 
     AnimationMeta *AnimationModel::getMetadata(const Animation *animation) const {
         return metadata.at(animation->name);
-    }
-
-    shared_ptr<BaseItem> AnimationModel::getBaseItem() const {
-        return baseItem;
-    }
-
-    void AnimationModel::setBaseItem(const shared_ptr<BaseItem> &baseItem) {
-        AnimationModel::baseItem = baseItem;
     }
 
     void AnimationModel::setGlobalPause(const bool globalPause) {

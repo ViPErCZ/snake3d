@@ -1,6 +1,5 @@
 #include "MainScene.h"
 #include "PlayerScene.h"
-#include "../Renderer/Opengl/AnimRenderer.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
