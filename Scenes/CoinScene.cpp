@@ -4,7 +4,7 @@
 
 namespace Scenes {
     CoinScene::CoinScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height)
+        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
         : Scene(rendererManager, camera, projection, rm, width, height) {
     }
 
@@ -49,8 +49,39 @@ namespace Scenes {
         coinMaterial->setSpecular(coinMetalness);
         coinMaterial->setNormalEnabled(true);
         coinMaterial->setDirectionalLight(directionalLight);
+        coinMaterial->setBlending(Blending::Translucent);
 
         coinMesh->setMaterial(coinMaterial);
+
+        std::vector<KeyFrame<glm::vec3>> pos_frames;
+        std::vector<KeyFrame<glm::fquat>> rot_frames;
+        std::vector<KeyFrame<glm::vec3>> scale_frames;
+        std::vector<KeyFrame<float>> alpha_frames;
+
+        pos_frames.emplace_back(glm::vec3(0.0f, 0.0, 0.0), 0);
+        pos_frames.emplace_back(glm::vec3(0.0f, 6.0, 0.0), 8);
+        pos_frames.emplace_back(glm::vec3(0.0f, 12.0, 0.0), 16);
+        pos_frames.emplace_back(glm::vec3(0.0f, 6.0, 0.0), 24);
+        pos_frames.emplace_back(glm::vec3(0.0f, 0.0, 0.0), 32);
+
+        // glm::angleAxis expects angle in radians
+        rot_frames.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 0.f);
+        rot_frames.emplace_back(glm::angleAxis(glm::radians(90.f),  glm::vec3(0,1,0)), 8.f);
+        rot_frames.emplace_back(glm::angleAxis(glm::radians(180.f), glm::vec3(0,1,0)), 16.f);
+        rot_frames.emplace_back(glm::angleAxis(glm::radians(270.f), glm::vec3(0,1,0)), 24.f);
+        rot_frames.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 32.f);
+
+        alpha_frames.emplace_back(1.0f, 0);
+        alpha_frames.emplace_back(0.5f, 8);
+        alpha_frames.emplace_back(0.0f, 16);
+        alpha_frames.emplace_back(0.5f, 24);
+        alpha_frames.emplace_back(1.0f, 32);
+
+        const auto animationNode = make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, nullptr);
+        animationNode->setAlphaFrames(alpha_frames);
+        coinAnimation = make_shared<AnimationPlayer>("coin");
+        coinAnimation->addAnimationNode("coin", animationNode);
+        coinMesh->setAnimationPlayer(coinAnimation);
 
         meshNode3d.push_back(coin);
     }

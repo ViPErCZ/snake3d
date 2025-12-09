@@ -2,8 +2,14 @@
 #include <functional>
 #include <ranges>
 
+// TODO: presunout do AnimationArrayMesh + veci okolo animations do AninationPlayeru
+// tim se tento objekt zrusi
+// AnimationArrayMesh bude mit rovnou naplneny animation player
+// cimz se vse sjednoti pod jednu strechu
+// AnimationLoader bude tedy vytvaret AnimationArrayMesh
+//
 namespace Model {
-    AnimationModel::AnimationModel(const vector<Mesh *> &meshes,
+    AnimationModel::AnimationModel(const vector<shared_ptr<Mesh> > &meshes,
                                    decltype(animations)&& _animations,
                                    decltype(bones)&& bones,
                                    decltype(skeleton)&& skeleton,
@@ -15,7 +21,7 @@ namespace Model {
         this->acceleration = 1.0;
         std::erase_if(
             this->meshes,
-            [this](Mesh *p) {
+            [this](const shared_ptr<Mesh> &p) {
                 if (!p->isHasBones()) {
                     noBonesMeshes.push_back(p);
                     return true;
@@ -45,21 +51,11 @@ namespace Model {
         }
 
         metadata.clear();
-
-        for (const auto mesh : meshes) {
-            delete mesh;
-        }
-
         meshes.clear();
-
-        for (const auto mesh : noBonesMeshes) {
-            delete mesh;
-        }
-
         noBonesMeshes.clear();
     }
 
-    const vector<Mesh *> &AnimationModel::getMeshes() const {
+    const vector<shared_ptr<Mesh> > &AnimationModel::getMeshes() const {
         return meshes;
     }
 
@@ -83,15 +79,15 @@ namespace Model {
         return bones_map;
     }
 
-    const vector<Mesh *> &AnimationModel::getNoBonesMeshes() const {
+    const vector<shared_ptr<Mesh> > &AnimationModel::getNoBonesMeshes() const {
         return noBonesMeshes;
     }
 
     const AnimationNode *
     AnimationModel::findAnimationNode(const Animation *animation, const Bone &bone) noexcept {
         for (auto &node: animation->nodes) {
-            if (&node.bone == &bone) {
-                return &node;
+            if (node->bone == &bone) {
+                return node.get();
             }
         }
 

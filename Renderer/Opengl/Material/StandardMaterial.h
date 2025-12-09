@@ -9,6 +9,7 @@
 #include "../../../Lights/SpotLight.h"
 #include "../../../Manager/ShaderManager.h"
 #include "../../../Manager/TextureManager.h"
+#include "../../../Tools/Blending.h"
 #include "../../../Tools/WorldEnvironment.h"
 
 using namespace Manager;
@@ -70,6 +71,8 @@ namespace Material {
 
         void setRoughness(const shared_ptr<TextureManager> &roughness);
 
+        void setAlpha(float alpha);
+
         [[nodiscard]] shared_ptr<TextureManager> getMetalness() const;
 
         void setMetalness(const shared_ptr<TextureManager> &metalness);
@@ -108,6 +111,7 @@ namespace Material {
         bool shadowsEnabled = false;
         bool unShaded = false;
         float shininess = 32.0f;
+        float alpha = 1.0f;
         float ambientLightColorIntensity = 0.05;
     };
 }

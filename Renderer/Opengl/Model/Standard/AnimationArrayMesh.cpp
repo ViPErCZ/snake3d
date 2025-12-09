@@ -51,10 +51,6 @@ namespace Model {
         model->setGlobalPause(false);
     }
 
-    void AnimationArrayMesh::setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer) {
-        this->animationPlayer = animationPlayer;
-    }
-
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
         auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
                                         [&](const auto &anim) {
@@ -76,9 +72,9 @@ namespace Model {
                 baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
                                     model->getMetadata(animation)->bone_transform[i]);
             }
-            for (const auto animMesh: model->getMeshes()) {
+            for (const auto& animMesh: model->getMeshes()) {
                 if (animMesh->getName() ==
-                    animation->nodes[0].bone.meshName) {
+                    animation->nodes[0]->bone->meshName) {
                     if (!animMesh->isHasBones()) {
                         baseShader->setBool("useBones", false);
                         baseShader->setMat4(
@@ -95,7 +91,7 @@ namespace Model {
             }
         }
 
-        for (const auto animMesh: model->getNoBonesMeshes()) {
+        for (const auto& animMesh: model->getNoBonesMeshes()) {
             baseShader->setBool("useBones", false);
             baseShader->setMat4("model", parentTransform * animMesh->getGlobalTransformation());
             animMesh->bind();

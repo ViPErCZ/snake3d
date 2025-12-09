@@ -6,6 +6,7 @@
 #include "../ItemsDto/AnimItem.h"
 #include <filesystem>
 #include <memory>
+#include <vector>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
@@ -39,11 +40,13 @@ namespace Resource {
         public:
             static shared_ptr<AnimationModel> loadObj(const fs::path &path);
         protected:
-            static void processNode(aiNode *node, const aiScene *scene, vector<Mesh*>* meshes, glm::mat4 parentTransformation, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
-            static Mesh* processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
+            static void processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
+                unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
+            static shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
             static glm::mat4 AiMatrix4x4ToGlm(const aiMatrix4x4 *from);
-            static std::vector<Animation> loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map);
-            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, std::vector<Animation>& anim);
+            static vector<Animation> loadAnimations(const aiScene* scene, vector<Bone>& bones, const unordered_map<std::string, uint32_t>& bone_map);
+            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, vector<Bone>& bones, unordered_map<std::string, uint32_t>& bone_map,
+                vector<Animation>& anim);
             static std::vector<Animation> animations2;
     };
 

@@ -6,7 +6,6 @@
 namespace ModelUtils {
     template <typename T>
     class Tree {
-    private:
         T data;
         std::vector<Tree<T>> children;
     public:

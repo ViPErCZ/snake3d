@@ -53,6 +53,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setInt("roughness", 5);
     shader->setInt("environmentMap", 6);
     shader->setInt("aoMap", 7);
+    shader->setFloat("alpha", alpha);
 
     if (shadowsEnabled && shadows) {
         shader->setBool("shadowsEnable", true);
@@ -221,6 +222,10 @@ shared_ptr<TextureManager> Material::StandardMaterial::getRoughness() const {
 
 void Material::StandardMaterial::setRoughness(const shared_ptr<TextureManager> &roughness) {
     this->roughness = roughness;
+}
+
+void Material::StandardMaterial::setAlpha(const float alpha) {
+    this->alpha = alpha;
 }
 
 shared_ptr<TextureManager> Material::StandardMaterial::getMetalness() const {

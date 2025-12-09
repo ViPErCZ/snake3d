@@ -4,9 +4,11 @@
 #include <memory>
 
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 
 using namespace Model;
+using namespace Animations;
 
 namespace Scenes {
     class CoinScene final : public Scene {
@@ -22,6 +24,7 @@ namespace Scenes {
         void initCoin();
 
         shared_ptr<CoinMeshNode3D> coin;
+        shared_ptr<AnimationPlayer> coinAnimation;
     };
 } // Scenes
 

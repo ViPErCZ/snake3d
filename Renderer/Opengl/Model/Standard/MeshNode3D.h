@@ -5,6 +5,9 @@
 #include "StandardMesh.h"
 #include "../../../../ItemsDto/Visibility.h"
 #include "../../../../Manager/ResourceManager.h"
+#include "../../../../Tools/ContextState.h"
+
+using namespace Tools;
 
 namespace Model {
     class MeshNode3D : public enable_shared_from_this<MeshNode3D>, public Transform, public Visibility, public Vector3i {
@@ -33,9 +36,12 @@ namespace Model {
 
         bool hasChildrenChangedSignal() const;
 
-    protected:
-        std::shared_ptr<MeshNode3D> deepCopy() const;
+        void setBlending(Blending blending);
 
+    protected:
+        shared_ptr<MeshNode3D> deepCopy() const;
+
+        shared_ptr<ContextState> contextState;
         shared_ptr<StandardMesh> mesh;
         weak_ptr<MeshNode3D> parent;
         vector<shared_ptr<MeshNode3D> > children;

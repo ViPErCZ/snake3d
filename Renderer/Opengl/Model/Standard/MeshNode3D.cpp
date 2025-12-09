@@ -4,6 +4,7 @@ namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
         : mesh(mesh), resourceManager(resourceManager), transformDetached(false), childrenChangedSignal(false) {
+        contextState = make_shared<ContextState>();
     }
 
     void MeshNode3D::addNode(const std::shared_ptr<MeshNode3D> &node) {
@@ -20,6 +21,7 @@ namespace Model {
                             const glm::mat4 &parentTransform, const bool shadows) {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            contextState->setBlendingMode(mesh->getBlending());
             mesh->render(camera, projection, 1, finalTransform, shadows);
 
             for (auto &node: children) {

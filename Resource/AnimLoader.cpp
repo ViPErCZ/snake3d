@@ -2,18 +2,20 @@
 #include <assimp/postprocess.h>
 #include <functional>
 
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+
 namespace Resource {
     shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
-        // Increase smoothing angle to better smooth low-poly assets (e.g., pacman) and join duplicate vertices
+        // Increase smoothing angle to better smooth low-poly assets and join duplicate vertices
         importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
-        const unsigned int pp_flags = aiProcess_Triangulate |
-                                      aiProcess_GenSmoothNormals |
-                                      aiProcess_FlipUVs |
-                                      aiProcess_CalcTangentSpace |
-                                      aiProcess_JoinIdenticalVertices |
-                                      aiProcess_ImproveCacheLocality |
-                                      aiProcess_OptimizeMeshes;
+        constexpr unsigned int pp_flags = aiProcess_Triangulate |
+                                          aiProcess_GenSmoothNormals |
+                                          aiProcess_FlipUVs |
+                                          aiProcess_CalcTangentSpace |
+                                          aiProcess_JoinIdenticalVertices |
+                                          aiProcess_ImproveCacheLocality |
+                                          aiProcess_OptimizeMeshes;
         const aiScene *scene = importer.ReadFile(path, pp_flags);
         // check for errors
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
@@ -22,37 +24,42 @@ namespace Resource {
             exit(1);
         }
 
-        vector<Mesh*> meshes;
+        vector<shared_ptr<Mesh> > meshes;
         vector<Bone> bones;
         unordered_map<std::string, uint32_t> bone_map;
 
-        processNode(scene->mRootNode, scene, &meshes, glm::mat4(1.0f), bone_map, bones);
+        processNode(scene->mRootNode, scene, meshes, glm::mat4(1.0f), bone_map, bones);
         bones.reserve(bones.size() + 100);
 
         auto animations = loadAnimations(scene, bones, bone_map);
         auto animation_tree = loadAnimationTree(scene, bones, bone_map, animations);
-        auto global_matrix = convert(scene->mRootNode->mTransformation);
+        const auto global_matrix = convert(scene->mRootNode->mTransformation);
 
         importer.FreeScene();
+
+        // std::make_shared<Animations::AnimationPlayer>(meshes, animations, std::move(bones),
+        //                                         std::move(animation_tree), std::move(bone_map),
+        //                                         glm::inverse(global_matrix));
 
         return std::make_shared<AnimationModel>(meshes, std::move(animations), std::move(bones),
                                                 std::move(animation_tree), std::move(bone_map),
                                                 glm::inverse(global_matrix));
     }
 
-    std::vector<Animation> AnimLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
+    std::vector<Animation> AnimLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, const unordered_map<std::string, uint32_t>& bone_map) {
         std::vector<Animation> animations;
+        map<string, shared_ptr<Animation> > animations2;
 
         for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
             const auto* anim = scene->mAnimations[i];
 
             std::string anim_name(anim->mName.C_Str());
-            std::vector<AnimationNode> anim_nodes;
+            std::vector<shared_ptr<AnimationNode> > anim_nodes;
 
             for (uint32_t j = 0; j < anim->mNumChannels; ++j) {
                 const auto* channel = anim->mChannels[j];
 
-                auto bi = bone_map.find(channel->mNodeName.C_Str());
+                // auto bi = bone_map.find(channel->mNodeName.C_Str());
 //                transformace na objektu bez kosti (pohnu-li v animaci objektem a ne kosti) - zatim nepodporovano
 //                if (bi == bone_map.end()) {
 //                    bones.emplace_back("", channel->mNodeName.C_Str(), glm::mat4(1.f));
@@ -79,16 +86,17 @@ namespace Resource {
                     scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
                 }
 
-                anim_nodes.emplace_back(pos_frames, rot_frames, scale_frames, bone);
+                anim_nodes.emplace_back(make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, &bone));
             }
 
             animations.emplace_back(anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes);
+            animations2.emplace(anim_name, make_shared<Animation>(anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes));
         }
 
         return animations;
     }
 
-    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, std::vector<Animation>& anim) {
+    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, vector<Bone>& bones, unordered_map<std::string, uint32_t>& bone_map, vector<Animation>& anim) {
         auto bone_finder = [&] (const std::string& str, std::vector<Animation>&) {
             if (auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
@@ -115,15 +123,17 @@ namespace Resource {
         return tree;
     }
 
-    void AnimLoader::processNode(aiNode *node, const aiScene *scene, vector<Mesh*>* meshes, glm::mat4 parentTransformation, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
-        glm::mat4 transformation = AiMatrix4x4ToGlm(&node->mTransformation);
-        glm::mat4 globalTransformation = parentTransformation * transformation;
+    void AnimLoader::processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
+        unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones)
+    {
+        const glm::mat4 transformation = AiMatrix4x4ToGlm(&node->mTransformation);
+        const glm::mat4 globalTransformation = parentTransformation * transformation;
 
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-            Mesh* myMesh = processMesh(mesh, scene, bone_map, bones);
+            auto myMesh = processMesh(mesh, scene, bone_map, bones);
             myMesh->setGlobalTransformation(globalTransformation);
-            meshes->push_back(myMesh);
+            meshes.push_back(myMesh);
         }
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
             processNode(node->mChildren[i], scene, meshes, globalTransformation, bone_map, bones);
@@ -142,7 +152,7 @@ namespace Resource {
         return to;
     }
 
-    Mesh* AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
+    shared_ptr<Mesh> AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
 
         std::vector<VertexBoneWeight> bone_weights;
 
@@ -186,8 +196,7 @@ namespace Resource {
         // walk through each of the mesh's vertices
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex{};
-            glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-            // positions
+            glm::vec3 vector;
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;
             vector.z = mesh->mVertices[i].z;
@@ -296,6 +305,6 @@ namespace Resource {
 //        std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-        return new Mesh(vertices, indices, mesh->HasBones(), mesh->mName.C_Str());
+        return make_shared<Mesh>(vertices, indices, mesh->HasBones(), mesh->mName.C_Str());
     }
 } // Resource

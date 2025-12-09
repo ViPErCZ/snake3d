@@ -534,13 +534,13 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
             // }
             break;
         case GLFW_KEY_F:
-            rendererManager->toggleFog();
+            // rendererManager->toggleFog();
             break;
         case GLFW_KEY_W:
-            if (rainRenderer && rainDropRenderer) {
-                rainRenderer->toggle();
-                rainDropRenderer->setEnable(rainRenderer->isEnable());
-            }
+            // if (rainRenderer && rainDropRenderer) {
+            //     rainRenderer->toggle();
+            //     rainDropRenderer->setEnable(rainRenderer->isEnable());
+            // }
             break;
         //        case GLFW_KEY_U:
         //            camera->startUpsideDownRotate();
@@ -567,9 +567,9 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
             //snakeRenderer->toggleStyle(2);
             // break;
         case GLFW_KEY_T:
-            if (boltRenderer) {
-                boltRenderer->triggerBolt();
-            }
+            // if (boltRenderer) {
+            //     boltRenderer->triggerBolt();
+            // }
             break;
         case GLFW_KEY_ESCAPE:
             if (state == SceneState::RUNNING) {

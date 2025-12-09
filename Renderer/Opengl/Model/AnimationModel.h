@@ -21,8 +21,8 @@ namespace Model {
 
     class AnimationModel final {
     protected:
-        vector<Mesh*> meshes;
-        vector<Mesh*> noBonesMeshes;
+        vector<shared_ptr<Mesh> > meshes;
+        vector<shared_ptr<Mesh> > noBonesMeshes;
         vector<Animation> animations;
         vector<Bone> bones;
         unordered_map<std::string, uint32_t> bones_map;
@@ -32,18 +32,18 @@ namespace Model {
         bool globalPause;
         float acceleration;
     public:
-        AnimationModel(const vector<Mesh *> &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
+        AnimationModel(const vector<shared_ptr<Mesh> > &meshes, decltype(animations)&& _animations, decltype(bones)&& bones,
                        decltype(skeleton)&& skeleton, decltype(bones_map)&& bones_map, const glm::mat4& _global_matrix);
 
-        virtual ~AnimationModel();
+        ~AnimationModel();
 
-        [[nodiscard]] const vector<Mesh *> &getMeshes() const;
+        [[nodiscard]] const vector<shared_ptr<Mesh> > &getMeshes() const;
         [[nodiscard]] const vector<Animation> &getAnimations() const;
         [[nodiscard]] const vector<Bone> &getBones() const;
         [[nodiscard]] const unordered_map<std::string, uint32_t> &getBonesMap() const;
         [[nodiscard]] const Tree<uint32_t> &getSkeleton() const;
         [[nodiscard]] const glm::mat4 &getGlobalInverse() const;
-        [[nodiscard]] const vector<Mesh*> &getNoBonesMeshes() const;
+        [[nodiscard]] const vector<shared_ptr<Mesh> > &getNoBonesMeshes() const;
         [[nodiscard]] static const AnimationNode* findAnimationNode(const Animation * animation, const Bone& bone) noexcept;
         void updateAnimation(const Animation* animation) const;
         AnimationMeta* getMetadata(const Animation* animation) const;

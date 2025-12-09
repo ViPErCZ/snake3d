@@ -1,6 +1,8 @@
 #include "StandardMesh.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "../../../../Tools/ContextState.h"
+
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
         : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN) {
@@ -21,7 +23,7 @@ namespace Model {
     void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                               const glm::mat4 &parentTransform, const bool shadows) const {
         if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->bind(
+            standardMaterial->bind(
                 camera->getPosition(),
                 camera->getViewMatrix(),
                 projection,
@@ -44,6 +46,11 @@ namespace Model {
             baseShader->setInt("numPointLights", 0);
             baseShader->setInt("numSpotLights", 0);
             baseShader->setBool("directionLightEnable", false);
+        }
+
+        if (nullptr != animationPlayer) {
+            const auto playTransform = animationPlayer->play("coin", baseShader); // TODO: baseShader ne... nebude fungovat s materialem
+            baseShader->setMat4("model", parentTransform * playTransform);
         }
 
         mesh->bind();
@@ -117,5 +124,17 @@ namespace Model {
         }
 
         return newMesh;
+    }
+
+    void StandardMesh::setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer) {
+        this->animationPlayer = animationPlayer;
+    }
+
+    Blending StandardMesh::getBlending() const {
+        if (material) {
+            return material->getBlending();
+        }
+
+        return blending;
     }
 } // Model

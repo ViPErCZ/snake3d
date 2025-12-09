@@ -6,9 +6,11 @@
 #include "../../Material/StandardMaterial.h"
 #include "../../../../Manager/ShaderManager.h"
 #include "../../../../Manager/Camera.h"
+#include "Animation/AnimationPlayer.h"
 
 using namespace ModelUtils;
 using namespace Material;
+using namespace Animations;
 using namespace std;
 
 namespace Model {
@@ -39,12 +41,18 @@ namespace Model {
 
         [[nodiscard]] shared_ptr<StandardMesh> deepCopy() const;
 
+        void setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer);
+
+        [[nodiscard]] Blending getBlending() const;
+
     protected:
         shared_ptr<Mesh> mesh;
         shared_ptr<BaseMaterial> material;
         shared_ptr<ShaderManager> baseShader;
+        shared_ptr<AnimationPlayer> animationPlayer;
         glm::vec3 localMin;
         glm::vec3 localMax;
+        Blending blending = Blending::Opaque;
     };
 } // Model
 

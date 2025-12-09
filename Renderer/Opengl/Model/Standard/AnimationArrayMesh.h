@@ -18,13 +18,11 @@ namespace Model {
         void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
         void stop(bool stop) const;
         void play(const string &animation);
-        void setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer);
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform) const;
         shared_ptr<AnimationModel> model;
         shared_ptr<ShaderManager> baseShader;
-        shared_ptr<AnimationPlayer> animationPlayer;
     };
 } // Model
 

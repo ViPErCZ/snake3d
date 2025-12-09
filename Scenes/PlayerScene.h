@@ -4,9 +4,11 @@
 #include <memory>
 
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 
 using namespace Model;
+using namespace Animations;
 
 namespace Scenes {
     class PlayerScene final : public Scene {

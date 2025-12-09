@@ -1,13 +1,23 @@
 #include "AnimItem.h"
 
-ItemsDto::AnimationNode::AnimationNode(decltype(positions) _positions, decltype(rotations) _rotations, decltype(scales) _scales, Bone& _bone) noexcept
-        : rotations(std::move(_rotations))
-        , positions(std::move(_positions))
-        , scales(std::move(_scales))
+ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone* _bone) noexcept
+        : rotations(std::move(rotations))
+        , positions(std::move(positions))
+        , scales(std::move(scales))
         , bone(_bone) {
 }
 
-glm::vec3 ItemsDto::AnimationNode::positionLerp(double anim_time) const {
+ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept
+    : rotations(std::move(rotations))
+    , positions(std::move(positions))
+    , scales(std::move(scales)) {
+}
+
+void ItemsDto::AnimationNode::setAlphaFrames(decltype(alphas) alphas) noexcept {
+    this->alphas = std::move(alphas);
+}
+
+glm::vec3 ItemsDto::AnimationNode::positionLerp(const double anim_time) const {
     if (positions.empty()) {
         return glm::vec3{0.0f};
     }
@@ -16,22 +26,25 @@ glm::vec3 ItemsDto::AnimationNode::positionLerp(double anim_time) const {
         return positions[0].data;
     }
 
-    auto index = findPositionKeyframe(anim_time);
+    const auto index = findPositionKeyframe(anim_time);
     auto& a = positions[index];
     auto& b = positions[index + 1];
 
-    double dt = b.time - a.time;
-    double norm = (anim_time - a.time) / dt;
+    const double dt = b.time - a.time;
+    const double norm = (anim_time - a.time) / dt;
 
 //    if (!(norm >= 0.f && norm <= 1.f)) {
 //        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
 //    }
+    const double eased = ease(norm, easing_value);
+
+    return a.data * static_cast<float>(1.0 - eased) + b.data * static_cast<float>(eased);
 
 //    return glm::mix(a.data, b.data, norm);
-    return a.data * (float)(1.0 - norm) + b.data * (float)norm;
+    //return a.data * static_cast<float>(1.0 - norm) + b.data * static_cast<float>(norm);
 }
 
-glm::fquat ItemsDto::AnimationNode::rotationLerp(double anim_time) const {
+glm::fquat ItemsDto::AnimationNode::rotationLerp(const double anim_time) const {
     if (rotations.empty()) {
         return glm::fquat{1.f, 0.f, 0.f, 0.f};
     }
@@ -39,12 +52,12 @@ glm::fquat ItemsDto::AnimationNode::rotationLerp(double anim_time) const {
         return rotations[0].data;
     }
 
-    auto index = findRotationKeyframe(anim_time);
+    const auto index = findRotationKeyframe(anim_time);
     auto& a = rotations[index];
     auto& b = rotations[index + 1];
 
-    double dt = b.time - a.time;
-    double norm = (anim_time - a.time) / dt;
+    const double dt = b.time - a.time;
+    const double norm = (anim_time - a.time) / dt;
 
 //    if (!(norm >= 0.f && norm <= 1.f)) {
 //        throw std::runtime_error("norm >= 0.f && norm <= 1.f");
@@ -53,7 +66,32 @@ glm::fquat ItemsDto::AnimationNode::rotationLerp(double anim_time) const {
     return glm::normalize(glm::slerp(a.data, b.data, static_cast<float>(norm)));
 }
 
-glm::vec3 ItemsDto::AnimationNode::scalingLerp(double anim_time) const {
+float ItemsDto::AnimationNode::alphaLerp(const double anim_time) const {
+    if (alphas.empty()) {
+        return 1.0f;
+    }
+
+    if (alphas.size() == 1) {
+        return alphas[0].data;
+    }
+
+    const size_t index = findAlphaKeyframe(anim_time);
+    const auto& a = alphas[index];
+    const auto& b = alphas[index + 1];
+
+    const double dt = b.time - a.time;
+    if (dt <= 0.0) {
+        return b.data;
+    }
+
+    double t = (anim_time - a.time) / dt;
+    t = std::clamp(t, 0.0, 1.0);
+    t = ease(t, easing_value);
+
+    return static_cast<float>(a.data + (b.data - a.data) * t);
+}
+
+glm::vec3 ItemsDto::AnimationNode::scalingLerp(const double anim_time) const {
     if (scales.empty()) {
         return glm::vec3{1.f};
     }
@@ -76,7 +114,20 @@ glm::vec3 ItemsDto::AnimationNode::scalingLerp(double anim_time) const {
     return glm::mix(a.data, b.data, norm);
 }
 
-size_t ItemsDto::AnimationNode::findPositionKeyframe(double anim_time) const {
+double ItemsDto::AnimationNode::ease(double t, const double curve) {
+    if (t < 0.0) t = 0.0;
+    else if (t > 1.0) t = 1.0;
+
+    if (curve > 0.0) {
+        return 1.0 - std::pow(1.0 - t, 1.0 + curve * 3.0);
+    }
+    if (curve < 0.0) {
+        return std::pow(t, 1.0 - curve * 3.0);
+    }
+    return t;
+}
+
+size_t ItemsDto::AnimationNode::findPositionKeyframe(const double anim_time) const {
     for (size_t i = 0; i < positions.size() - 1; ++i) {
         if (anim_time <= positions[i + 1].time) {
             return i;
@@ -86,7 +137,7 @@ size_t ItemsDto::AnimationNode::findPositionKeyframe(double anim_time) const {
     throw std::out_of_range("no position keyframe for time " + std::to_string(anim_time));
 }
 
-size_t ItemsDto::AnimationNode::findRotationKeyframe(double anim_time) const {
+size_t ItemsDto::AnimationNode::findRotationKeyframe(const double anim_time) const {
     for (size_t i = 0; i < rotations.size() - 1; ++i) {
         if (anim_time <= rotations[i + 1].time)
             return i;
@@ -95,9 +146,18 @@ size_t ItemsDto::AnimationNode::findRotationKeyframe(double anim_time) const {
     throw std::out_of_range("no rotation keyframe for time " + std::to_string(anim_time));
 }
 
-size_t ItemsDto::AnimationNode::findScalingKeyframe(double anim_time) const {
+size_t ItemsDto::AnimationNode::findScalingKeyframe(const double anim_time) const {
     for (size_t i = 0; i < scales.size() - 1; ++i) {
         if (anim_time <= scales[i + 1].time)
+            return i;
+    }
+    return 0;
+    throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));
+}
+
+size_t ItemsDto::AnimationNode::findAlphaKeyframe(const double anim_time) const {
+    for (size_t i = 0; i < alphas.size() - 1; ++i) {
+        if (anim_time <= alphas[i + 1].time)
             return i;
     }
     return 0;

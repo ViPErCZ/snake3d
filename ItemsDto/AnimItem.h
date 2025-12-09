@@ -15,7 +15,7 @@ namespace ItemsDto {
         T data;
         double time;
 
-        KeyFrame(T data, double time) noexcept
+        KeyFrame(T data, const double time) noexcept
                 : data{std::move(data)}
                 , time(time) {}
     };
@@ -41,9 +41,9 @@ namespace ItemsDto {
         std::array<uint32_t, BONE_COUNT> bone_index;
         std::array<float, BONE_COUNT> weight;
 
-        void addBoneWeight(uint32_t id, float w) noexcept {
+        void addBoneWeight(const uint32_t id, const float w) noexcept {
             uint32_t i;
-            for (i = 0; i < BONE_COUNT && weight[i] != 0.0f; ++i);
+            for (i = 0; i < BONE_COUNT && weight[i] != 0.0f; ++i) {}
 
             if (i >= BONE_COUNT) {/* no more weight slots */ return; }
 
@@ -56,27 +56,47 @@ namespace ItemsDto {
         vector<KeyFrame<glm::fquat>> rotations;
         vector<KeyFrame<glm::vec3>> positions;
         vector<KeyFrame<glm::vec3>> scales;
-        Bone &bone;
+        vector<KeyFrame<float>> alphas;
+        Bone *bone = nullptr;
+        float easing_value = 0.0f;
+//      0 → linear
+//      0.5 → mírné ease-out
+//      2 → hodně silné ease-out
+//      –2 → silné ease-in
+//      –15 → ultra rychlý ease-in
 
-        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone &_bone) noexcept;
+        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone *_bone) noexcept;
+        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept;
+
+        //void addFrame(double time, const glm::fquat &rotation, const glm::vec3 &position, const glm::vec3 &scale) noexcept;
+        void setAlphaFrames(decltype(alphas) alphas) noexcept;
 
         [[nodiscard]] size_t findPositionKeyframe(double anim_time) const;
         [[nodiscard]] size_t findRotationKeyframe(double anim_time) const;
         [[nodiscard]] size_t findScalingKeyframe(double anim_time) const;
+        [[nodiscard]] size_t findAlphaKeyframe(double anim_time) const;
         [[nodiscard]] glm::vec3 positionLerp(double anim_time) const;
         [[nodiscard]] glm::fquat rotationLerp(double anim_time) const;
         [[nodiscard]] glm::vec3 scalingLerp(double anim_time) const;
+        [[nodiscard]] float alphaLerp(double anim_time) const;
+        [[nodiscard]] double static ease(double t, double curve);
     };
 
     struct Animation {
-        std::vector<AnimationNode> nodes;
+        std::vector<shared_ptr<AnimationNode> > nodes;
         std::string name;
         double duration;
         double tps;
 
-        Animation(std::string name, double duration, double tps, decltype(nodes) nodes) noexcept
+        Animation(std::string name, const double duration, const double tps, decltype(nodes) nodes) noexcept
                 : nodes(std::move(nodes))
                 , name(std::move(name))
+                , duration(duration)
+                , tps(tps) {
+        }
+
+        Animation(std::string name, const double duration, const double tps) noexcept
+                : name(std::move(name))
                 , duration(duration)
                 , tps(tps) {
         }

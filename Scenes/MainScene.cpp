@@ -24,6 +24,7 @@ namespace Scenes {
         initPlayerScene();
         initBarriersScene();
         initCoinScene();
+
         initSkybox();
         initPlane();
         initRadar();
