@@ -277,6 +277,7 @@ namespace Scenes {
                 tilesCounterText->setText(buffAsStdStr);
                 fadeInUniform->start();
                 radarMeshNode->showItem("coin");
+                playerScene->getSnake()->animationStart("KostraAction");
             }
         });
     }

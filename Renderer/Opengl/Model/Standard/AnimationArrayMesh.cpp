@@ -1,9 +1,10 @@
 #include "AnimationArrayMesh.h"
 
 namespace Model {
-    AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationModel> &model,
+    AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
                                            const shared_ptr<ShaderManager> &baseShader)
-        : StandardMesh(baseShader), model(model), baseShader(baseShader) {
+        : StandardMesh(baseShader), baseShader(baseShader) {
+        setAnimationPlayer(model);
     }
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
@@ -43,55 +44,41 @@ namespace Model {
         }
     }
 
-    void AnimationArrayMesh::stop(const bool stop) const {
-        model->setGlobalPause(stop);
+    void AnimationArrayMesh::stop(const string &name) const {
+        animationPlayer->stop(name);
     }
 
-    void AnimationArrayMesh::play(const string &animation) {
-        model->setGlobalPause(false);
+    void AnimationArrayMesh::play(const string &name) const {
+        animationPlayer->start(name);
     }
 
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
-        auto found = std::find_if(model->getAnimations().begin(), model->getAnimations().end(),
-                                        [&](const auto &anim) {
-                                            return "KostraAction" == anim.name; // TODO: dynamic anim name
-                                            // return "Armature|Take 001|BaseLayer2" == anim.name;
-                                        });
+        const auto metadata = animationPlayer->play("KostraAction");
 
-        if (found == model->getAnimations().end()) {
-            found = model->getAnimations().begin();
+        // TODO: udelat to jeste ne jen s baseShaderem, ale i materialem
+
+        for (int i = 0; i < metadata->bone_transform.size(); ++i) {
+            baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
         }
-
-        if (found != model->getAnimations().end()) {
-            const auto animation = &(*found);
-            // TODO: speed animace bude v anim playeru
-            //if (animationPlayer.get()) { // TODO: toto povolit az budu mit vyse dynamicky nazev animace
-                model->updateAnimation(animation);
-            //}
-            for (int i = 0; i < model->getMetadata(animation)->bone_transform.size(); ++i) {
-                baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
-                                    model->getMetadata(animation)->bone_transform[i]);
-            }
-            for (const auto& animMesh: model->getMeshes()) {
-                if (animMesh->getName() ==
-                    animation->nodes[0]->bone->meshName) {
-                    if (!animMesh->isHasBones()) {
-                        baseShader->setBool("useBones", false);
-                        baseShader->setMat4(
-                            "model", parentTransform * animMesh->getGlobalTransformation());
-                    } else {
-                        baseShader->setBool("useBones", true);
-                        baseShader->setMat4("model", parentTransform);
-                    }
-                    animMesh->bind();
-                    glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
-                                   GL_UNSIGNED_INT,
-                                   nullptr);
+        for (const auto &animMesh: animationPlayer->getMeshes()) {
+            if (animMesh->getName() ==
+                metadata->current_animation->nodes[0]->bone->meshName) {
+                if (!animMesh->isHasBones()) {
+                    baseShader->setBool("useBones", false);
+                    baseShader->setMat4(
+                        "model", parentTransform * animMesh->getGlobalTransformation());
+                } else {
+                    baseShader->setBool("useBones", true);
+                    baseShader->setMat4("model", parentTransform);
                 }
+                animMesh->bind();
+                glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
+                               GL_UNSIGNED_INT,
+                               nullptr);
             }
         }
 
-        for (const auto& animMesh: model->getNoBonesMeshes()) {
+        for (const auto& animMesh: animationPlayer->getNoBonesMeshes()) {
             baseShader->setBool("useBones", false);
             baseShader->setMat4("model", parentTransform * animMesh->getGlobalTransformation());
             animMesh->bind();

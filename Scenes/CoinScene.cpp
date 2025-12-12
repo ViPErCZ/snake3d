@@ -72,15 +72,15 @@ namespace Scenes {
         rot_frames.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 32.f);
 
         alpha_frames.emplace_back(1.0f, 0);
-        alpha_frames.emplace_back(0.5f, 8);
+        alpha_frames.emplace_back(1.0f, 8);
         alpha_frames.emplace_back(0.0f, 16);
-        alpha_frames.emplace_back(0.5f, 24);
+        alpha_frames.emplace_back(1.0f, 24);
         alpha_frames.emplace_back(1.0f, 32);
 
         const auto animationNode = make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, nullptr);
         animationNode->setAlphaFrames(alpha_frames);
         coinAnimation = make_shared<AnimationPlayer>("coin");
-        coinAnimation->addAnimationNode("coin", animationNode);
+        coinAnimation->addAnimationNode("coin", animationNode, 32);
         coinMesh->setAnimationPlayer(coinAnimation);
 
         meshNode3d.push_back(coin);

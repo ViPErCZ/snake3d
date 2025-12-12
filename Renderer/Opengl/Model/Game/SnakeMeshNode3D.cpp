@@ -92,9 +92,17 @@ namespace Model {
         this->direction = direction;
     }
 
-    void SnakeMeshNode3D::stop(const bool stop) const {
+    void SnakeMeshNode3D::animationStart(const string &name) const {
         try {
-            dynamic_pointer_cast<AnimationArrayMesh>(mesh)->stop(stop);
+            dynamic_pointer_cast<AnimationArrayMesh>(mesh)->play(name);
+        } catch (exception &e) {
+            cout << "Mesh is not AnimationArrayMesh instance." << endl;
+        }
+    }
+
+    void SnakeMeshNode3D::animationStop(const string &name) const {
+        try {
+            dynamic_pointer_cast<AnimationArrayMesh>(mesh)->stop(name);
         } catch (exception &e) {
             cout << "Mesh is not AnimationArrayMesh instance." << endl;
         }

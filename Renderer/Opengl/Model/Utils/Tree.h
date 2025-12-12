@@ -3,11 +3,13 @@
 
 #include <vector>
 
+using namespace std;
+
 namespace ModelUtils {
     template <typename T>
     class Tree {
         T data;
-        std::vector<Tree<T>> children;
+        std::vector<Tree> children;
     public:
         explicit Tree(T data) noexcept : data{std::move(data)} {}
 

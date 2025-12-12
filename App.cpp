@@ -472,12 +472,12 @@ void App::Init() const {
     camera->setStickyPoint(preLoader);
 
     const fs::path assets_dir{"Assets/Objects"};
-    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "pacman.glb", "pacman", []() {
+    resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
         std::cout << "Model pacman ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<AnimationModel>(assets_dir / "skeleton.glb", "skeleton", []() {
-        std::cout << "Model skeleton ready!" << std::endl;
-    });
+    // resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "skeleton.glb", "skeleton", []() {
+    //     std::cout << "Model skeleton ready!" << std::endl;
+    // });
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Cube.obj", "cube", []() {
         std::cout << "Model cube ready!" << std::endl;
     });

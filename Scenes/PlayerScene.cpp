@@ -27,8 +27,6 @@ namespace Scenes {
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader);
 
-        const auto animationPlayer = make_shared<AnimationPlayer>();
-
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
         directionalLight->setDirection({1, 1.0, -3});
@@ -41,7 +39,7 @@ namespace Scenes {
         material->setNormalEnabled(true);
         material->setDirectionalLight(directionalLight);
         pacmanMesh->setMaterial(material);
-        pacmanMesh->setAnimationPlayer(animationPlayer);
+        pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
         snake = make_shared<SnakeMeshNode3D>(pacmanMesh, resourceManager);
         snake->setDirectionalLight(directionalLight);
@@ -63,13 +61,13 @@ namespace Scenes {
 
     void PlayerScene::buildStartMoveCallback() const {
         snakeMoveHandler->addStartMoveCallback([this]() {
-            this->snake->stop(false);
+            this->snake->animationStart("KostraAction");
         });
     }
 
     void PlayerScene::buildStopMoveCallback() const {
         snakeMoveHandler->setStopMoveCallback([this](const bool stop) {
-            this->snake->stop(stop);
+            this->snake->animationStop("KostraAction");
         });
     }
 } // Scenes

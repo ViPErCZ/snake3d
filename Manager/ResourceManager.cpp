@@ -83,7 +83,7 @@ namespace Manager {
         }
     }
 
-    void ResourceManager::addModel(const string &name, std::shared_ptr<AnimationModel> res) {
+    void ResourceManager::addModel(const string &name, std::shared_ptr<AnimationPlayer> res) {
         std::unique_lock lock(mutex);
         if (const auto [fst, snd] = animationModel.emplace(name, std::move(res)); !snd) {
             throw invalid_argument("Failed to add model " + name + ", already contains.");
@@ -99,7 +99,7 @@ namespace Manager {
         }
     }
 
-    shared_ptr<AnimationModel> ResourceManager::getAnimationModel(const string &name) const {
+    shared_ptr<AnimationPlayer> ResourceManager::getAnimationModel(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return animationModel.at(name);

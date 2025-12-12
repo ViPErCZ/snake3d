@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "StandardMesh.h"
-#include "../AnimationModel.h"
 #include "Animation/AnimationPlayer.h"
 
 using namespace std;
@@ -13,15 +12,14 @@ using namespace Animations;
 namespace Model {
     class AnimationArrayMesh final : public StandardMesh {
     public:
-        AnimationArrayMesh(const shared_ptr<AnimationModel> &model, const shared_ptr<ShaderManager>& baseShader);
+        AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model, const shared_ptr<ShaderManager>& baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
         void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
-        void stop(bool stop) const;
-        void play(const string &animation);
+        void stop(const string &name) const;
+        void play(const string &name) const;
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform) const;
-        shared_ptr<AnimationModel> model;
         shared_ptr<ShaderManager> baseShader;
     };
 } // Model

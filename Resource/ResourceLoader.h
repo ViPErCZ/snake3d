@@ -11,17 +11,17 @@
 #include <condition_variable>
 #include "../ItemsDto/ObjItem.h"
 #include "../Manager/TextureManager.h"
-#include "../Renderer/Opengl/Model/AnimationModel.h"
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 using namespace ItemsDto;
-using namespace Model;
 using namespace Manager;
+using namespace Animations;
 
 namespace Resource {
     class ResourceLoader {
     public:
         using Callback = std::function<void(std::shared_ptr<ObjItem>)>;
-        using AnimCallback = std::function<void(std::shared_ptr<AnimationModel>)>;
+        using AnimCallback = std::function<void(std::shared_ptr<AnimationPlayer>)>;
         using TextureCallback = std::function<void(vector<unsigned char>, bool albedo)>;
         using ShaderCallback = std::function<void(vector<unsigned char>, vector<unsigned char>, vector<unsigned char>)>;
 

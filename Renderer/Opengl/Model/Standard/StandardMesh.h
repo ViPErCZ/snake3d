@@ -43,6 +43,8 @@ namespace Model {
 
         void setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer);
 
+        [[nodiscard]] const shared_ptr<AnimationPlayer> &getAnimationPlayer() const;
+
         [[nodiscard]] Blending getBlending() const;
 
     protected:

@@ -22,18 +22,31 @@ namespace Model {
 
     void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                               const glm::mat4 &parentTransform, const bool shadows) const {
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+
+        glm::mat4 worldTransform = parentTransform;
+        float alpha = 1.0f;
+
+        if (nullptr != animationPlayer) {
+            const auto metadata = animationPlayer->play("coin");
+            worldTransform = worldTransform * metadata->world_transform;
+            alpha = metadata->alpha;
+        }
+
+        if (const auto standardMaterial = std::dynamic_pointer_cast<StandardMaterial>(material)) {
+            if (nullptr != animationPlayer) {
+                standardMaterial->setAlpha(alpha);
+            }
             standardMaterial->bind(
                 camera->getPosition(),
                 camera->getViewMatrix(),
                 projection,
-                parentTransform,
+                worldTransform,
                 shadows
             );
         } else {
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", projection);
-            baseShader->setMat4("model", parentTransform);
+            baseShader->setMat4("model", worldTransform);
             baseShader->setVec3("viewPos", camera->getPosition());
             baseShader->setBool("useMaterial", true);
             baseShader->setBool("useBones", false);
@@ -46,11 +59,7 @@ namespace Model {
             baseShader->setInt("numPointLights", 0);
             baseShader->setInt("numSpotLights", 0);
             baseShader->setBool("directionLightEnable", false);
-        }
-
-        if (nullptr != animationPlayer) {
-            const auto playTransform = animationPlayer->play("coin", baseShader); // TODO: baseShader ne... nebude fungovat s materialem
-            baseShader->setMat4("model", parentTransform * playTransform);
+            baseShader->setFloat("alpha", alpha);
         }
 
         mesh->bind();
@@ -128,6 +137,10 @@ namespace Model {
 
     void StandardMesh::setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer) {
         this->animationPlayer = animationPlayer;
+    }
+
+    const shared_ptr<AnimationPlayer> & StandardMesh::getAnimationPlayer() const {
+        return animationPlayer;
     }
 
     Blending StandardMesh::getBlending() const {

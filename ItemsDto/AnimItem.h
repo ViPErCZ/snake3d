@@ -57,7 +57,7 @@ namespace ItemsDto {
         vector<KeyFrame<glm::vec3>> positions;
         vector<KeyFrame<glm::vec3>> scales;
         vector<KeyFrame<float>> alphas;
-        Bone *bone = nullptr;
+        shared_ptr<Bone> bone = nullptr;
         float easing_value = 0.0f;
 //      0 → linear
 //      0.5 → mírné ease-out
@@ -65,7 +65,7 @@ namespace ItemsDto {
 //      –2 → silné ease-in
 //      –15 → ultra rychlý ease-in
 
-        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone *_bone) noexcept;
+        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept;
         AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept;
 
         //void addFrame(double time, const glm::fquat &rotation, const glm::vec3 &position, const glm::vec3 &scale) noexcept;

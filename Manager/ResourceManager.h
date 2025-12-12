@@ -9,13 +9,12 @@
 #include "../ItemsDto/ObjItem.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
-#include "../Renderer/Opengl/Model/AnimationModel.h"
 #include "../Resource/ResourceLoader.h"
 
 using namespace std;
 using namespace ItemsDto;
 using namespace Resource;
-using namespace Model;
+using namespace Animations;
 
 namespace Manager {
         template<class>
@@ -35,7 +34,7 @@ namespace Manager {
 
         void addModel(const string &name, shared_ptr<ObjItem> res);
 
-        void addModel(const string &name, shared_ptr<AnimationModel> res);
+        void addModel(const string &name, shared_ptr<AnimationPlayer> res);
 
         shared_ptr<TextureManager> getTexture(const string &name) const;
 
@@ -43,7 +42,7 @@ namespace Manager {
 
         ObjItem *getModel(const string &name) const;
 
-        shared_ptr<AnimationModel> getAnimationModel(const string &name) const;
+        shared_ptr<AnimationPlayer> getAnimationModel(const string &name) const;
 
         void loadAsyncTexture(const string &path, const string &name, bool albedo, const function<void()> &onReady = nullptr);
 
@@ -73,8 +72,8 @@ namespace Manager {
                             }
                             --loadingCount;
                         });
-                    } else if constexpr (std::is_same_v<T, AnimationModel>) {
-                        loader->enqueueAnimation(path, [this, name, onReady](const std::shared_ptr<AnimationModel> &model) {
+                    } else if constexpr (std::is_same_v<T, AnimationPlayer>) {
+                        loader->enqueueAnimation(path, [this, name, onReady](const std::shared_ptr<AnimationPlayer> &model) {
                             {
                                 std::lock_guard guard(pendingMutex);
                                 pendingAnim.push({name, model, onReady});
@@ -108,7 +107,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<TextureManager> > texture;
         std::unordered_map<std::string, std::shared_ptr<ShaderManager> > shader;
         std::unordered_map<std::string, std::shared_ptr<ObjItem> > model;
-        std::unordered_map<std::string, std::shared_ptr<AnimationModel> > animationModel;
+        std::unordered_map<std::string, std::shared_ptr<AnimationPlayer> > animationModel;
         std::unique_ptr<ResourceLoader> loader;
 
         mutable std::mutex pendingMutex;
@@ -121,7 +120,7 @@ namespace Manager {
 
         struct PendingAnimation {
             std::string name;
-            std::shared_ptr<AnimationModel> model;
+            std::shared_ptr<AnimationPlayer> model;
             std::function<void()> onReady;
         };
 

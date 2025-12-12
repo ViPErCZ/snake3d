@@ -10,6 +10,7 @@
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
 using namespace ItemsDto;
+using namespace Model;
 using namespace std;
 
 namespace Manager {

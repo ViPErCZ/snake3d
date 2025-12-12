@@ -1,6 +1,6 @@
 #include "AnimItem.h"
 
-ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, Bone* _bone) noexcept
+ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept
         : rotations(std::move(rotations))
         , positions(std::move(positions))
         , scales(std::move(scales))
@@ -85,7 +85,7 @@ float ItemsDto::AnimationNode::alphaLerp(const double anim_time) const {
     }
 
     double t = (anim_time - a.time) / dt;
-    t = std::clamp(t, 0.0, 1.0);
+    t = glm::clamp(t, 0.0, 1.0);
     t = ease(t, easing_value);
 
     return static_cast<float>(a.data + (b.data - a.data) * t);

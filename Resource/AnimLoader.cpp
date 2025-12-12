@@ -5,7 +5,7 @@
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 namespace Resource {
-    shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {
+    shared_ptr<AnimationPlayer> AnimLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
         // Increase smoothing angle to better smooth low-poly assets and join duplicate vertices
         importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
@@ -25,7 +25,7 @@ namespace Resource {
         }
 
         vector<shared_ptr<Mesh> > meshes;
-        vector<Bone> bones;
+        vector<shared_ptr<Bone> > bones;
         unordered_map<std::string, uint32_t> bone_map;
 
         processNode(scene->mRootNode, scene, meshes, glm::mat4(1.0f), bone_map, bones);
@@ -37,18 +37,14 @@ namespace Resource {
 
         importer.FreeScene();
 
-        // std::make_shared<Animations::AnimationPlayer>(meshes, animations, std::move(bones),
-        //                                         std::move(animation_tree), std::move(bone_map),
-        //                                         glm::inverse(global_matrix));
-
-        return std::make_shared<AnimationModel>(meshes, std::move(animations), std::move(bones),
+        return std::make_shared<AnimationPlayer>(std::move(meshes), std::move(animations), bones,
                                                 std::move(animation_tree), std::move(bone_map),
                                                 glm::inverse(global_matrix));
     }
 
-    std::vector<Animation> AnimLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, const unordered_map<std::string, uint32_t>& bone_map) {
-        std::vector<Animation> animations;
-        map<string, shared_ptr<Animation> > animations2;
+    map<string, shared_ptr<Animation> > AnimLoader::loadAnimations(
+        const aiScene* scene, std::vector<shared_ptr<Bone> > &bones, const unordered_map<std::string, uint32_t>& bone_map) {
+        map<string, shared_ptr<Animation> > animations;
 
         for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
             const auto* anim = scene->mAnimations[i];
@@ -86,22 +82,23 @@ namespace Resource {
                     scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
                 }
 
-                anim_nodes.emplace_back(make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, &bone));
+                anim_nodes.emplace_back(make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, bone));
             }
 
-            animations.emplace_back(anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes);
-            animations2.emplace(anim_name, make_shared<Animation>(anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes));
+            animations.emplace(anim_name, make_shared<Animation>(
+                anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes));
         }
 
         return animations;
     }
 
-    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, vector<Bone>& bones, unordered_map<std::string, uint32_t>& bone_map, vector<Animation>& anim) {
-        auto bone_finder = [&] (const std::string& str, std::vector<Animation>&) {
-            if (auto bi = bone_map.find(str); bi != bone_map.end()) {
+    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, vector<shared_ptr<Bone> > &bones,
+        unordered_map<std::string, uint32_t>& bone_map, map<string, shared_ptr<Animation> >& anim) {
+        auto bone_finder = [&] (const std::string& str, map<string, shared_ptr<Animation> >&) {
+            if (const auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
             }
-            bones.emplace_back(str, "", glm::mat4(1.f));
+            bones.emplace_back(make_shared<Bone>(str, "", glm::mat4(1.f)));
             bone_map.emplace(str, bones.size() - 1);
             return static_cast<uint32_t>(bones.size() - 1);
         };
@@ -110,7 +107,7 @@ namespace Resource {
 
         function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
         dfs = [&] (Tree<uint32_t>& treeDfs, const aiNode* node, const int depth) {
-            bones[*treeDfs].node_transform = convert(node->mTransformation);
+            bones[*treeDfs]->node_transform = convert(node->mTransformation);
 
             for (uint32_t i = 0; i < node->mNumChildren; ++i) {
                 auto& child = treeDfs.add(bone_finder(node->mChildren[i]->mName.C_Str(), anim));
@@ -124,7 +121,7 @@ namespace Resource {
     }
 
     void AnimLoader::processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
-        unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones)
+        unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones)
     {
         const glm::mat4 transformation = AiMatrix4x4ToGlm(&node->mTransformation);
         const glm::mat4 globalTransformation = parentTransformation * transformation;
@@ -152,7 +149,8 @@ namespace Resource {
         return to;
     }
 
-    shared_ptr<Mesh> AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
+    shared_ptr<Mesh> AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string,
+        uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones) {
 
         std::vector<VertexBoneWeight> bone_weights;
 
@@ -166,8 +164,7 @@ namespace Resource {
                 auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
                 uint32_t bone_index;
                 if (bi == bone_map.end()) {
-//                    bones.emplace_back(bone_name, offset_mat);
-                    bones.emplace_back(bone_name, mesh_name, offset_mat);
+                    bones.emplace_back(make_shared<Bone>(bone_name, mesh_name, offset_mat));
                     bone_index = bones.size() - 1;
                     bone_map.insert({bone_name, bone_index});
                 } else {
@@ -237,10 +234,10 @@ namespace Resource {
                 vertex.Weights[1] = (bone_weights.begin() + i)->weight[1];
                 vertex.Weights[2] = (bone_weights.begin() + i)->weight[2];
                 vertex.Weights[3] = (bone_weights.begin() + i)->weight[3];
-                vertex.BoneIDs[0] = (int)(bone_weights.begin() + i)->bone_index[0];
-                vertex.BoneIDs[1] = (int)(bone_weights.begin() + i)->bone_index[1];
-                vertex.BoneIDs[2] = (int)(bone_weights.begin() + i)->bone_index[2];
-                vertex.BoneIDs[3] = (int)(bone_weights.begin() + i)->bone_index[3];
+                vertex.BoneIDs[0] = static_cast<int>((bone_weights.begin() + i)->bone_index[0]);
+                vertex.BoneIDs[1] = static_cast<int>((bone_weights.begin() + i)->bone_index[1]);
+                vertex.BoneIDs[2] = static_cast<int>((bone_weights.begin() + i)->bone_index[2]);
+                vertex.BoneIDs[3] = static_cast<int>((bone_weights.begin() + i)->bone_index[3]);
             }
             vertices.push_back(vertex);
         }

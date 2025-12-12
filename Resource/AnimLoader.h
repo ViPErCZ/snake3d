@@ -1,8 +1,6 @@
 #ifndef SNAKE3_ANIMLOADER_H
 #define SNAKE3_ANIMLOADER_H
 
-#include "../Renderer/Opengl/Model/AnimationModel.h"
-#include "../ItemsDto/ObjItem.h"
 #include "../ItemsDto/AnimItem.h"
 #include <filesystem>
 #include <memory>
@@ -10,8 +8,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+
 using namespace std;
-using namespace Model;
+using namespace Animations;
 
 namespace fs = std::filesystem;
 
@@ -38,16 +38,16 @@ namespace Resource {
 
     class AnimLoader {
         public:
-            static shared_ptr<AnimationModel> loadObj(const fs::path &path);
+            static shared_ptr<AnimationPlayer> loadObj(const fs::path &path);
         protected:
             static void processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
-                unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
-            static shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones);
+                unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones);
+            static shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones);
             static glm::mat4 AiMatrix4x4ToGlm(const aiMatrix4x4 *from);
-            static vector<Animation> loadAnimations(const aiScene* scene, vector<Bone>& bones, const unordered_map<std::string, uint32_t>& bone_map);
-            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, vector<Bone>& bones, unordered_map<std::string, uint32_t>& bone_map,
-                vector<Animation>& anim);
-            static std::vector<Animation> animations2;
+            static map<string, shared_ptr<Animation> > loadAnimations(const aiScene* scene, vector<shared_ptr<Bone>>& bones,
+                const unordered_map<std::string, uint32_t>& bone_map);
+            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, vector<shared_ptr<Bone>> &bones, unordered_map<std::string, uint32_t> &bone_map,
+                map<string, shared_ptr<Animation> > &anim);
     };
 
 } // Resource

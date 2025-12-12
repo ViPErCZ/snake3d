@@ -36,7 +36,9 @@ namespace Model {
 
         void setDirection(eDIRECTION direction);
 
-        void stop(bool stop) const;
+        void animationStart(const string &name) const;
+
+        void animationStop(const string &name) const;
 
         void addTile(eDIRECTION direction);
 
