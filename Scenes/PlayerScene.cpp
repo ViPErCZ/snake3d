@@ -25,7 +25,7 @@ namespace Scenes {
     void PlayerScene::initSnake() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader);
+        const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader, "KostraAction");
 
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
@@ -67,7 +67,11 @@ namespace Scenes {
 
     void PlayerScene::buildStopMoveCallback() const {
         snakeMoveHandler->setStopMoveCallback([this](const bool stop) {
-            this->snake->animationStop("KostraAction");
+            if (stop) {
+                this->snake->animationPause("KostraAction");
+            } else {
+                this->snake->animationResume("KostraAction");
+            }
         });
     }
 } // Scenes

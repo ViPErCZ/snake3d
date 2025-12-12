@@ -17,6 +17,10 @@ namespace Scenes {
         return coin;
     }
 
+    shared_ptr<CoinMeshNode3D> CoinScene::getRemoveCoin() const {
+        return removeCoin;
+    }
+
     void CoinScene::initCoin() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
@@ -53,36 +57,61 @@ namespace Scenes {
 
         coinMesh->setMaterial(coinMaterial);
 
-        std::vector<KeyFrame<glm::vec3>> pos_frames;
+        // CREATE rotation animation
         std::vector<KeyFrame<glm::fquat>> rot_frames;
-        std::vector<KeyFrame<glm::vec3>> scale_frames;
-        std::vector<KeyFrame<float>> alpha_frames;
-
-        pos_frames.emplace_back(glm::vec3(0.0f, 0.0, 0.0), 0);
-        pos_frames.emplace_back(glm::vec3(0.0f, 6.0, 0.0), 8);
-        pos_frames.emplace_back(glm::vec3(0.0f, 12.0, 0.0), 16);
-        pos_frames.emplace_back(glm::vec3(0.0f, 6.0, 0.0), 24);
-        pos_frames.emplace_back(glm::vec3(0.0f, 0.0, 0.0), 32);
-
-        // glm::angleAxis expects angle in radians
         rot_frames.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 0.f);
         rot_frames.emplace_back(glm::angleAxis(glm::radians(90.f),  glm::vec3(0,1,0)), 8.f);
         rot_frames.emplace_back(glm::angleAxis(glm::radians(180.f), glm::vec3(0,1,0)), 16.f);
         rot_frames.emplace_back(glm::angleAxis(glm::radians(270.f), glm::vec3(0,1,0)), 24.f);
         rot_frames.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 32.f);
 
-        alpha_frames.emplace_back(1.0f, 0);
-        alpha_frames.emplace_back(1.0f, 8);
-        alpha_frames.emplace_back(0.0f, 16);
-        alpha_frames.emplace_back(1.0f, 24);
-        alpha_frames.emplace_back(1.0f, 32);
-
+        std::vector<KeyFrame<glm::vec3>> pos_frames;
+        std::vector<KeyFrame<glm::vec3>> scale_frames;
         const auto animationNode = make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, nullptr);
-        animationNode->setAlphaFrames(alpha_frames);
-        coinAnimation = make_shared<AnimationPlayer>("coin");
-        coinAnimation->addAnimationNode("coin", animationNode, 32);
+
+        // CREATE eaten up animationi
+        std::vector<KeyFrame<glm::fquat>> rot_frames2;
+        rot_frames2.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 0.f);
+        rot_frames2.emplace_back(glm::angleAxis(glm::radians(90.f),  glm::vec3(0,1,0)), 8.f);
+        rot_frames2.emplace_back(glm::angleAxis(glm::radians(180.f), glm::vec3(0,1,0)), 16.f);
+
+        std::vector<KeyFrame<glm::vec3>> pos_frames2;
+        pos_frames2.emplace_back(glm::vec3(0.0f, 0.0, 0.0), 0);
+        pos_frames2.emplace_back(glm::vec3(0.0f, 6.0, 0.0), 8);
+        pos_frames2.emplace_back(glm::vec3(0.0f, 12.0, 0.0), 16);
+
+        std::vector<KeyFrame<float>> alpha_frames;
+        alpha_frames.emplace_back(1.0f, 0);
+        alpha_frames.emplace_back(0.5f, 8);
+        alpha_frames.emplace_back(0.0f, 16);
+
+        const auto animationNode2 = make_shared<AnimationNode>(pos_frames2, rot_frames2, scale_frames, nullptr);
+        animationNode2->setAlphaFrames(alpha_frames);
+
+        const auto coinAnimation = make_shared<AnimationPlayer>();
+        coinAnimation->createAnimation("coinRotation");
+        coinAnimation->addAnimationNode("coinRotation", animationNode, 32);
         coinMesh->setAnimationPlayer(coinAnimation);
 
+        const auto coinAnimation2 = make_shared<AnimationPlayer>();
+        coinAnimation2->createAnimation("eatenUp");
+        coinAnimation2->addAnimationNode("eatenUp", animationNode2, 16);
+        const auto coinMesh2 = make_shared<ArrayMesh>(ArrayMesh(shader));
+        coinMesh2->fromObj(coinModel);
+        coinMesh2->setAnimationPlayer(coinAnimation2);
+        coinMesh2->setMaterial(coinMaterial);
+        removeCoin = make_shared<CoinMeshNode3D>(coinMesh2, resourceManager);
+        removeCoin->setPosition({-69.0, -69, -70.0f});
+        removeCoin->setScale({0.013888889, 0.013888889, 0.013888889});
+        removeCoin->setRotationX(90);
+        removeCoin->setVisible(false);
+
+        coinAnimation2->setCompletedCallback([this](AnimationPlayer * player) {
+            removeCoin->setVisible(false);
+            player->reset("eatenUp");
+        });
+
         meshNode3d.push_back(coin);
+        meshNode3d.push_back(removeCoin);
     }
 } // Scenes

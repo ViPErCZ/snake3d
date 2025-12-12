@@ -80,6 +80,31 @@ namespace Model {
         }
     }
 
+    void MeshNode3D::animationStart(const string &name, bool loop) {
+        try {
+            animation = name;
+            mesh->animationPlay(name, loop);
+        } catch (exception &e) {
+            cout << "Mesh is not AnimationArrayMesh instance." << endl;
+        }
+    }
+
+    void MeshNode3D::animationStop(const string &name) const {
+        try {
+            mesh->animationStop(name);
+        } catch (exception &e) {
+            cout << "Mesh is not AnimationArrayMesh instance." << endl;
+        }
+    }
+
+    void MeshNode3D::animationPause(const string &name) const {
+        mesh->animationPause(name);
+    }
+
+    void MeshNode3D::animationResume(const string &name) const {
+        mesh->animationResume(name);
+    }
+
     std::shared_ptr<MeshNode3D> MeshNode3D::deepCopy() const {
         auto copyMesh = std::make_shared<StandardMesh>(*mesh);
         auto copyNode = std::make_shared<MeshNode3D>(copyMesh, resourceManager);
@@ -106,4 +131,5 @@ namespace Model {
     bool MeshNode3D::hasChildrenChangedSignal() const {
         return childrenChangedSignal;
     }
+
 } // Model

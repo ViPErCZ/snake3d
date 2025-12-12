@@ -47,6 +47,14 @@ namespace Model {
 
         [[nodiscard]] Blending getBlending() const;
 
+        void animationPlay(const string &name, bool loop = true);
+
+        void animationStop(const string &name) const;
+
+        void animationPause(const string &name) const;
+
+        void animationResume(const string &name) const;
+
     protected:
         shared_ptr<Mesh> mesh;
         shared_ptr<BaseMaterial> material;
@@ -55,6 +63,7 @@ namespace Model {
         glm::vec3 localMin;
         glm::vec3 localMax;
         Blending blending = Blending::Opaque;
+        string animation;
     };
 } // Model
 

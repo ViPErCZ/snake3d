@@ -27,7 +27,7 @@ namespace Model {
         float alpha = 1.0f;
 
         if (nullptr != animationPlayer) {
-            const auto metadata = animationPlayer->play("coin");
+            const auto metadata = animationPlayer->play(animation);
             worldTransform = worldTransform * metadata->world_transform;
             alpha = metadata->alpha;
         }
@@ -44,6 +44,7 @@ namespace Model {
                 shadows
             );
         } else {
+            baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", projection);
             baseShader->setMat4("model", worldTransform);
@@ -149,5 +150,30 @@ namespace Model {
         }
 
         return blending;
+    }
+
+    void StandardMesh::animationPlay(const string &name, bool loop) {
+        if (animationPlayer) {
+            animationPlayer->start(name, loop);
+            animation = name;
+        }
+    }
+
+    void StandardMesh::animationStop(const string &name) const {
+        if (animationPlayer) {
+            animationPlayer->stop(name);
+        }
+    }
+
+    void StandardMesh::animationPause(const string &name) const {
+        if (animationPlayer) {
+            animationPlayer->pause(name);
+        }
+    }
+
+    void StandardMesh::animationResume(const string &name) const {
+        if (animationPlayer) {
+            animationPlayer->resume(name);
+        }
     }
 } // Model

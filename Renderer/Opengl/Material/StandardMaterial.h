@@ -89,6 +89,12 @@ namespace Material {
 
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
+        void bindUseBones(bool useBones) const;
+
+        void bindBonesMatrices(int index, const glm::mat4 &matrice) const;
+
+        void bindModel(const glm::mat4 &model) const;
+
     protected:
         shared_ptr<TextureManager> albedo;
         shared_ptr<TextureManager> normal;

@@ -221,22 +221,20 @@ namespace Scenes {
                 // if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
                 //     cout << "Sound error" << endl;
                 // }
-                //
-                // if (this->eatRemoveAnimateRenderer && this->animateEat) {
-                //     this->animateEat->setPosition(eat->getPosition());
-                //     this->animateEat->setVisible(true);
-                //     this->animateEat->fadeOut();
-                // }
+
+                coinScene->getRemoveCoin()->setPosition(coinScene->getCoin());
+                coinScene->getRemoveCoin()->setVisible(true);
+                coinScene->getRemoveCoin()->animationStart("eatenUp", false);
 
                 this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
 
                 if (this->levelManager->getEatCounter() == MAX_POINT) {
-                    //     this->startText->setVisible(true);
+                    fadeOutUniform->setAlpha(1.0f);
+                    coinScene->getCoin()->setVisible(false);
                     //     playerScene->getSnake()->respawn();
                     //     this->eat->setVisible(false);
                     //     this->levelManager->createLevel(this->levelManager->getLevel() + 1);
                     //     this->eatManager->run(Manager::EatManager::clean);
-                    //     initRadar();
                 } else {
                     this->eatManager->run(EatManager::eatenUp);
                 }
@@ -260,7 +258,7 @@ namespace Scenes {
     void MainScene::buildStartMoveCallback() const {
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
-                this->eatManager->run(Manager::EatManager::firstPlace);
+                this->eatManager->run(EatManager::firstPlace);
                 fadeOutUniform->start();
                 char buff[100];
                 snprintf(buff, sizeof(buff),
@@ -277,7 +275,8 @@ namespace Scenes {
                 tilesCounterText->setText(buffAsStdStr);
                 fadeInUniform->start();
                 radarMeshNode->showItem("coin");
-                playerScene->getSnake()->animationStart("KostraAction");
+                coinScene->getCoin()->animationStart("coinRotation");
+                playerScene->getSnake()->animationStart("KostraAction", true);
             }
         });
     }
@@ -319,7 +318,7 @@ namespace Scenes {
             radarMeshNode->setVisible(false);
         }
 
-        if (!helpText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
+        if (!helpText->isVisible()) {
             eatManager->run(EatManager::checkPlace);
         }
     }

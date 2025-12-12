@@ -2,9 +2,10 @@
 
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
-                                           const shared_ptr<ShaderManager> &baseShader)
+                                           const shared_ptr<ShaderManager> &baseShader, const string &animationName)
         : StandardMesh(baseShader), baseShader(baseShader) {
         setAnimationPlayer(model);
+        animation = animationName;
     }
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
@@ -18,6 +19,7 @@ namespace Model {
                 shadows
             );
         } else {
+            baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
             baseShader->setMat4("projection", projection);
             baseShader->setVec3("viewPos", camera->getPosition());
@@ -44,33 +46,37 @@ namespace Model {
         }
     }
 
-    void AnimationArrayMesh::stop(const string &name) const {
-        animationPlayer->stop(name);
-    }
-
-    void AnimationArrayMesh::play(const string &name) const {
-        animationPlayer->start(name);
-    }
+    // void AnimationArrayMesh::stop(const string &name) const {
+    //     animationPlayer->stop(name);
+    // }
+    //
+    // void AnimationArrayMesh::play(const string &name) const {
+    //     animationPlayer->start(name);
+    // }
 
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
-        const auto metadata = animationPlayer->play("KostraAction");
-
-        // TODO: udelat to jeste ne jen s baseShaderem, ale i materialem
+        const auto metadata = animationPlayer->play(animation);
 
         for (int i = 0; i < metadata->bone_transform.size(); ++i) {
-            baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
+            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+                standardMaterial->bindBonesMatrices(i, metadata->bone_transform[i]);
+            } else {
+                baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
+            }
         }
         for (const auto &animMesh: animationPlayer->getMeshes()) {
             if (animMesh->getName() ==
                 metadata->current_animation->nodes[0]->bone->meshName) {
-                if (!animMesh->isHasBones()) {
-                    baseShader->setBool("useBones", false);
-                    baseShader->setMat4(
-                        "model", parentTransform * animMesh->getGlobalTransformation());
+                glm::mat4 finalTransform = animMesh->isHasBones() ? parentTransform : parentTransform * animMesh->getGlobalTransformation();
+                if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+                    standardMaterial->bindUseBones(animMesh->isHasBones());
+                    standardMaterial->bindModel(finalTransform);
                 } else {
-                    baseShader->setBool("useBones", true);
-                    baseShader->setMat4("model", parentTransform);
+                    baseShader->setBool("useBones", animMesh->isHasBones());
+                    baseShader->setMat4(
+                        "model", finalTransform);
                 }
+
                 animMesh->bind();
                 glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
                                GL_UNSIGNED_INT,

@@ -92,22 +92,6 @@ namespace Model {
         this->direction = direction;
     }
 
-    void SnakeMeshNode3D::animationStart(const string &name) const {
-        try {
-            dynamic_pointer_cast<AnimationArrayMesh>(mesh)->play(name);
-        } catch (exception &e) {
-            cout << "Mesh is not AnimationArrayMesh instance." << endl;
-        }
-    }
-
-    void SnakeMeshNode3D::animationStop(const string &name) const {
-        try {
-            dynamic_pointer_cast<AnimationArrayMesh>(mesh)->stop(name);
-        } catch (exception &e) {
-            cout << "Mesh is not AnimationArrayMesh instance." << endl;
-        }
-    }
-
     shared_ptr<SphereMesh> SnakeMeshNode3D::createTileNode() const {
         const auto sphere = make_shared<SphereMesh>(nullptr, 1.5, 0.75);
         sphere->setMaterial(respawned ? tileMaterial : respawnMaterial);

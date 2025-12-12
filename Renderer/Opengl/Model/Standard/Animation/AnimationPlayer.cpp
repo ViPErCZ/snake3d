@@ -72,12 +72,14 @@ namespace Animations {
         this->acceleration = acceleration;
     }
 
-    void AnimationPlayer::start(const string &name) const {
+    void AnimationPlayer::start(const string &name, const bool loop) {
+        this->setRepeat(loop);
         const auto meta = metadata.at(name);
         if (!meta) {
             throw std::invalid_argument("Animation metadata not found");
         }
         meta->pause = false;
+        meta->alpha = 1.0f;
     }
 
     void AnimationPlayer::stop(const string &name) const {
@@ -87,9 +89,25 @@ namespace Animations {
         }
         meta->animation_duration = std::chrono::seconds(0);
         meta->last_time = std::chrono::time_point<std::chrono::steady_clock>();
-        meta->pause = false;
+        meta->pause = true;
         meta->alpha = 1.0f;
         meta->world_transform = glm::mat4(1.0f);
+    }
+
+    void AnimationPlayer::pause(const string &name) const {
+        const auto meta = metadata.at(name);
+        if (!meta) {
+            throw std::invalid_argument("Animation metadata not found");
+        }
+        meta->pause = true;
+    }
+
+    void AnimationPlayer::resume(const string &name) const {
+        const auto meta = metadata.at(name);
+        if (!meta) {
+            throw std::invalid_argument("Animation metadata not found");
+        }
+        meta->pause = false;
     }
 
     shared_ptr<AnimationMeta> AnimationPlayer::play(const string &name) {
@@ -111,18 +129,25 @@ namespace Animations {
             meta->animation_duration += delta_time * this->acceleration;
             meta->last_time = current_time;
 
-            // TOTO ZAJISTUJE, ze se animace prehrava cyklicky
-            // pokud by animace mela byt jen jednou, tak se to muze odstranit
-            auto animation_time = glm::mod(meta->animation_duration.count() * anim->second->tps, anim->second->duration);
-            // const auto animation_time = meta->animation_duration.count() * anim.tps;
-            if (animation_time >= anim->second->duration) {
-                meta->animation_duration = std::chrono::seconds(0);;
-                animation_time = 0;
+            auto raw_time = meta->animation_duration.count() * anim->second->tps;
+            if (raw_time >= anim->second->duration) {
+                if (repeat) {
+                    raw_time = 0.0f;
+                    meta->animation_duration = std::chrono::seconds(0);
+                } else {
+                    completed = true;
+                    meta->pause = true;
+                    raw_time = anim->second->duration;
+                    if (completedCallback) {
+                        completedCallback(this);
+                    }
+                }
             }
 
-            // bud mam kosti nebo mam to mam jen positional animaci vcetne timer uniformu aktualniho shaderu
+            const auto animation_time = raw_time;
+
             if (!meta->bone_transform.empty()) { // mam kosti
-                this->updateBonesAnimation(anim->second, meta);
+                this->updateBonesAnimation(anim->second, meta, animation_time);
             } else {
                 const glm::vec3 scale = anim->second->nodes.begin()->get()->scalingLerp(animation_time);
                 const glm::vec3 position = anim->second->nodes.begin()->get()->positionLerp(animation_time);
@@ -152,63 +177,69 @@ namespace Animations {
         return meshes;
     }
 
+    bool AnimationPlayer::isCompleted() const {
+        return completed;
+    }
+
+    void AnimationPlayer::setRepeat(const bool repeat) {
+        this->repeat = repeat;
+    }
+
+    void AnimationPlayer::setCompletedCallback(const std::function<void(AnimationPlayer*)> &callback) {
+        completedCallback = callback;
+    }
+
+    void AnimationPlayer::reset(const string &name) {
+        completed = false;
+        const auto meta = metadata.at(name);
+        if (!meta) {
+            throw std::invalid_argument("Animation metadata not found");
+        }
+        meta->animation_duration = std::chrono::seconds(0);
+        meta->last_time = std::chrono::time_point<std::chrono::steady_clock>();
+        meta->pause = false;
+        meta->alpha = 1.0f;
+        meta->world_transform = glm::mat4(1.0f);
+    }
+
     void AnimationPlayer::updateBonesAnimation(
-        const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta) const {
-        if (!meta->pause) {
-            // const auto current_time = std::chrono::steady_clock::now();
-            // if (meta->last_time == std::chrono::time_point<std::chrono::steady_clock>()) {
-            //     meta->last_time = current_time;
-            // }
-            // const auto delta_time = current_time - meta->last_time;
-            // meta->animation_duration += delta_time * this->acceleration;
-            // meta->last_time = current_time;
-            //
-            // // TOTO ZAJISTUJE, ze se animace prehrava cyklicky
-            // // pokud by animace mela byt jen jednou, tak se to muze odstranit
-            const auto animation_time = glm::mod(meta->animation_duration.count() * anim->tps, anim->duration);
-            // const auto animation_time = meta->animation_duration.count() * anim.tps;
-            // if (animation_time >= anim.duration) {
-            //     return;
-            // }
+        const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta, const double animation_time) const {
+        function<void(const Tree<uint32_t> &, const glm::mat4 &)> node_traversal;
+        node_traversal = [&](const Tree<uint32_t> &node, const glm::mat4 &parent_mat) {
+            const auto anim_node = findAnimationNode(anim, bones[*node]);
+            auto local_transform = !bones[*node]->isFake()
+                                       ? bones[*node]->node_transform
+                                       : glm::mat4(1.f);
 
-            function<void(const Tree<uint32_t> &, const glm::mat4 &)> node_traversal;
-            node_traversal = [&](const Tree<uint32_t> &node, const glm::mat4 &parent_mat) {
-                const auto anim_node = findAnimationNode(anim, bones[*node]);
-                auto local_transform = !bones[*node]->isFake() ? bones[*node]->node_transform
-                                                                          : glm::mat4(1.f);
+            if (anim_node) {
+                const glm::vec3 scale = anim_node->scalingLerp(animation_time);
+                const glm::vec3 position = anim_node->positionLerp(animation_time);
+                const auto rotation = anim_node->rotationLerp(animation_time);
 
-                if (anim_node) {
-                    const glm::vec3 scale = anim_node->scalingLerp(animation_time);
-                    const glm::vec3 position = anim_node->positionLerp(animation_time);
-                    const auto rotation = anim_node->rotationLerp(animation_time);
+                const auto translate = glm::translate(glm::mat4(1.f), position);
+                const auto rotate = glm::mat4_cast(rotation);
+                const auto scale_mat = glm::scale(glm::mat4(1.f), scale);
 
-                    const auto translate = glm::translate(glm::mat4(1.f), position);
-                    const auto rotate = glm::mat4_cast(rotation);
-                    const auto scale_mat = glm::scale(glm::mat4(1.f), scale);
-
-                    local_transform = translate * rotate * scale_mat;
-                }
-
-                const auto transform = parent_mat * local_transform;
-
-                if (anim_node) {
-                    meta->bone_transform[*node] = parent_mat * local_transform * (bones[*node])->offset_matrix;
-                } else {
-                    meta->bone_transform[*node] = local_transform;
-                }
-
-                for (const auto &n: node) {
-                    node_traversal(n, transform);
-                }
-            };
-
-            try {
-                node_traversal(*skeleton, glm::mat4(1.f));
-            } catch (const std::exception &e) {
-                throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
+                local_transform = translate * rotate * scale_mat;
             }
-        } else if (meta) {
-            meta->last_time = std::chrono::steady_clock::now();
+
+            const auto transform = parent_mat * local_transform;
+
+            if (anim_node) {
+                meta->bone_transform[*node] = parent_mat * local_transform * (bones[*node])->offset_matrix;
+            } else {
+                meta->bone_transform[*node] = local_transform;
+            }
+
+            for (const auto &n: node) {
+                node_traversal(n, transform);
+            }
+        };
+
+        try {
+            node_traversal(*skeleton, glm::mat4(1.f));
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Wrong TPS/duration. " + std::string(e.what()));
         }
     }
 

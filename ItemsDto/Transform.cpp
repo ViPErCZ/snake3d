@@ -23,6 +23,10 @@ namespace Node3D {
         Transform::position = position;
     }
 
+    void Transform::setPosition(const shared_ptr<Transform> &object) {
+        position = object->getPosition();
+    }
+
     const glm::vec3 &Transform::getScale() const {
         return scale;
     }

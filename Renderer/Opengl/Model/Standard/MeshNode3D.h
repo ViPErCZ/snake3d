@@ -38,6 +38,14 @@ namespace Model {
 
         void setBlending(Blending blending);
 
+        void animationStart(const string &name, bool loop = true);
+
+        void animationStop(const string &name) const;
+
+        void animationPause(const string &name) const;
+
+        void animationResume(const string &name) const;
+
     protected:
         shared_ptr<MeshNode3D> deepCopy() const;
 
@@ -51,6 +59,7 @@ namespace Model {
         bool transformDetached;
         bool childrenChangedSignal;
         int childrenChangedSignalCycles = 0;
+        string animation;
     };
 } // Model
 

@@ -2,6 +2,7 @@
 #define SNAKE3_ANIMATIONPLAYER_H
 
 #include <chrono>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -44,11 +45,15 @@ namespace Animations {
 
         void setAcceleration(float acceleration);
 
-        void start(const string &name) const;
+        void start(const string &name, bool loop = true);
 
         void stop(const string &name) const;
-        // void pause(const string &name);
-        // void resume(const string &name);
+
+        void pause(const string &name) const;
+
+        void resume(const string &name) const;
+
+        void reset(const string &name);
 
         shared_ptr<AnimationMeta> play(const string &name);
 
@@ -56,8 +61,14 @@ namespace Animations {
 
         vector<shared_ptr<Mesh> > getMeshes() const;
 
+        bool isCompleted() const;
+
+        void setRepeat(bool repeat);
+
+        void setCompletedCallback(const std::function<void(AnimationPlayer*)> &callback);
+
     protected:
-        void updateBonesAnimation(const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta) const;
+        void updateBonesAnimation(const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
         static shared_ptr<AnimationNode> findAnimationNode(const shared_ptr<Animation> &animation, const shared_ptr<Bone> &bone);
 
     private:
@@ -65,7 +76,9 @@ namespace Animations {
         unordered_map<string, shared_ptr<AnimationMeta> > metadata;
         float acceleration = 1.0f;
         bool repeat = false;
+        bool completed = false;
 
+        std::function<void(AnimationPlayer*)> completedCallback;
         vector<shared_ptr<Mesh> > meshes;
         vector<shared_ptr<Bone> > bones;
         vector<shared_ptr<Mesh> > noBonesMeshes;

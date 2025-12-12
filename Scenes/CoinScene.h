@@ -19,12 +19,13 @@ namespace Scenes {
         void init() override;
 
         [[nodiscard]] shared_ptr<CoinMeshNode3D> getCoin() const;
+        [[nodiscard]] shared_ptr<CoinMeshNode3D> getRemoveCoin() const;
 
     protected:
         void initCoin();
 
         shared_ptr<CoinMeshNode3D> coin;
-        shared_ptr<AnimationPlayer> coinAnimation;
+        shared_ptr<CoinMeshNode3D> removeCoin;
     };
 } // Scenes
 

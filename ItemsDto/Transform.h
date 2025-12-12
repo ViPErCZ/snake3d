@@ -1,9 +1,12 @@
 #ifndef SNAKE3_TRANSFORM_H
 #define SNAKE3_TRANSFORM_H
 
+#include <memory>
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_transform.hpp>
+
+using namespace std;
 
 namespace Node3D {
     class Transform {
@@ -13,6 +16,8 @@ namespace Node3D {
         virtual ~Transform() = default;
 
         void setPosition(const glm::vec3 &position);
+
+        void setPosition(const shared_ptr<Transform> &object);
 
         [[nodiscard]] const glm::vec3 &getPosition() const;
 
