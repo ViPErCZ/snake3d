@@ -281,18 +281,19 @@ std::shared_ptr<Material::BaseMaterial> Material::StandardMaterial::clone() cons
 }
 
 void Material::StandardMaterial::bindUseBones(const bool useBones) const {
-    shader->use();
     shader->setBool("useBones", useBones);
 }
 
 void Material::StandardMaterial::bindBonesMatrices(const int index, const glm::mat4 &matrice) const {
-    shader->use();
     shader->setMat4("finalBonesMatrices[" + std::to_string(index) + "]", matrice);
 }
 
 void Material::StandardMaterial::bindModel(const glm::mat4 &model) const {
-    shader->use();
     shader->setMat4("model", model);
+}
+
+void Material::StandardMaterial::bindShadowModel(const glm::mat4 &model) const {
+    shadowDepthShader->setMat4("model", model);
 }
 
 void Material::StandardMaterial::setNormal(const std::shared_ptr<TextureManager> &normal) {

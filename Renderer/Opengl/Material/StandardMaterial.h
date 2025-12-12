@@ -95,6 +95,8 @@ namespace Material {
 
         void bindModel(const glm::mat4 &model) const;
 
+        void bindShadowModel(const glm::mat4 &model) const;
+
     protected:
         shared_ptr<TextureManager> albedo;
         shared_ptr<TextureManager> normal;

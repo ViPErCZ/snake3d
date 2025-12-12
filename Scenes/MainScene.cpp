@@ -222,7 +222,7 @@ namespace Scenes {
                 //     cout << "Sound error" << endl;
                 // }
 
-                coinScene->getRemoveCoin()->setPosition(coinScene->getCoin());
+                coinScene->getRemoveCoin()->setTransform(coinScene->getCoin());
                 coinScene->getRemoveCoin()->setVisible(true);
                 coinScene->getRemoveCoin()->animationStart("eatenUp", false);
 

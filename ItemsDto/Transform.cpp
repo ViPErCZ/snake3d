@@ -58,4 +58,12 @@ namespace Node3D {
     float Transform::getRotationZ() const {
         return rotationZ;
     }
+
+    void Transform::setTransform(const shared_ptr<Transform> &transform) {
+        this->position = transform->getPosition();
+        this->scale = transform->getScale();
+        this->rotationX = transform->getRotationX();
+        this->rotationY = transform->getRotationY();
+        this->rotationZ = transform->getRotationZ();
+    }
 } // Node3D

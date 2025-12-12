@@ -67,6 +67,8 @@ namespace Animations {
 
         void setCompletedCallback(const std::function<void(AnimationPlayer*)> &callback);
 
+        shared_ptr<AnimationMeta> getMetadata(const string &name) const;
+
     protected:
         void updateBonesAnimation(const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
         static shared_ptr<AnimationNode> findAnimationNode(const shared_ptr<Animation> &animation, const shared_ptr<Bone> &bone);

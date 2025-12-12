@@ -10,10 +10,8 @@
 #include "Renderer/Opengl/SnakeRenderer.h"
 #include "Renderer/Opengl/RadarRenderer.h"
 #include "Handler/EatLocationHandler.h"
-#include "Renderer/Opengl/EatRenderer.h"
 #include "ItemsDto/Eat.h"
 #include "Manager/EatManager.h"
-#include "Renderer/Opengl/EatRemoveAnimateRenderer.h"
 #include "ItemsDto/Barriers.h"
 #include "Renderer/Opengl/BarrierRenderer.h"
 #include "Manager/LevelManager.h"
@@ -86,10 +84,8 @@ private:
     shared_ptr<SnakeRenderer> snakeRenderer;
     shared_ptr<ObjWallRenderer> objWallRenderer{};
     shared_ptr<BarrierRenderer> barrierRenderer{};
-    shared_ptr<EatRenderer> eatRenderer{};
     shared_ptr<RadarRenderer> radarRenderer{};
     //shared_ptr<TextRenderer> textRenderer{};
-    shared_ptr<EatRemoveAnimateRenderer> eatRemoveAnimateRenderer{};
     shared_ptr<RainRenderer> rainRenderer{};
     // shared_ptr<AnimRenderer> animRenderer{};
     shared_ptr<RainDropRenderer> rainDropRenderer{};

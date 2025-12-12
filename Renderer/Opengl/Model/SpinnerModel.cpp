@@ -60,7 +60,6 @@ namespace Model {
             baseShader->setUniform("model", parentTransform * model);
             baseShader->setUniform("objectColor", hsvToRgb(hue, 0.9f, 1.0f));
 
-            glLoadIdentity();
             glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
         }
     }

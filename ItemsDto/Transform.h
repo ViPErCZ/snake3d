@@ -39,6 +39,8 @@ namespace Node3D {
 
         [[nodiscard]] float getRotationZ() const;
 
+        void setTransform(const shared_ptr<Transform> &transform);
+
     protected:
         glm::mat4 worldMatrix{};
         glm::vec3 position{};

@@ -189,6 +189,20 @@ namespace Animations {
         completedCallback = callback;
     }
 
+    shared_ptr<AnimationMeta> AnimationPlayer::getMetadata(const string &name) const {
+        const auto anim = animations.find(name);
+        if (anim == animations.end()) {
+            throw std::invalid_argument("Animation not found");
+        }
+        const auto meta = metadata.at(name);
+        if (!meta) {
+            throw std::invalid_argument("Animation metadata not found");
+        }
+        meta->current_animation = anim->second;
+
+        return meta;
+    }
+
     void AnimationPlayer::reset(const string &name) {
         completed = false;
         const auto meta = metadata.at(name);

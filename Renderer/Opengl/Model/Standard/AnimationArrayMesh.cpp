@@ -10,7 +10,7 @@ namespace Model {
 
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
         const glm::mat4 &parentTransform, const bool shadows) const {
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+        if (const auto standardMaterial = dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->bind(
                 camera->getPosition(),
                 camera->getViewMatrix(),
@@ -29,7 +29,7 @@ namespace Model {
 
         renderMesh(parentTransform);
 
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+        if (const auto standardMaterial = dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->unbind();
         }
     }
@@ -40,22 +40,14 @@ namespace Model {
         if (standardMaterial && standardMaterial->isShadowEnabled()) {
             standardMaterial.get()->bindShadow(parentTransform);
 
-            renderMesh(parentTransform * glm::mat4(1.0f));
+            renderMesh(parentTransform * glm::mat4(1.0f), false);
 
             standardMaterial.get()->unbind();
         }
     }
 
-    // void AnimationArrayMesh::stop(const string &name) const {
-    //     animationPlayer->stop(name);
-    // }
-    //
-    // void AnimationArrayMesh::play(const string &name) const {
-    //     animationPlayer->start(name);
-    // }
-
-    void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform) const {
-        const auto metadata = animationPlayer->play(animation);
+    void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform, const bool animPlay) const {
+        const auto metadata = animPlay ? animationPlayer->play(animation) : animationPlayer->getMetadata(animation);
 
         for (int i = 0; i < metadata->bone_transform.size(); ++i) {
             if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
@@ -70,7 +62,11 @@ namespace Model {
                 glm::mat4 finalTransform = animMesh->isHasBones() ? parentTransform : parentTransform * animMesh->getGlobalTransformation();
                 if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
                     standardMaterial->bindUseBones(animMesh->isHasBones());
-                    standardMaterial->bindModel(finalTransform);
+                    if (animPlay) {
+                        standardMaterial->bindModel(finalTransform);
+                    } else {
+                        standardMaterial->bindShadowModel(finalTransform);
+                    }
                 } else {
                     baseShader->setBool("useBones", animMesh->isHasBones());
                     baseShader->setMat4(
@@ -85,10 +81,18 @@ namespace Model {
         }
 
         for (const auto& animMesh: animationPlayer->getNoBonesMeshes()) {
-            baseShader->setBool("useBones", false);
-            baseShader->setMat4("model", parentTransform * animMesh->getGlobalTransformation());
+            if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+                standardMaterial->bindUseBones(false);
+                if (animPlay) {
+                    standardMaterial->bindModel(parentTransform * animMesh->getGlobalTransformation());
+                } else {
+                    standardMaterial->bindShadowModel(parentTransform * animMesh->getGlobalTransformation());
+                }
+            } else {
+                baseShader->setBool("useBones", false);
+                baseShader->setMat4("model", parentTransform * animMesh->getGlobalTransformation());
+            }
             animMesh->bind();
-            glLoadIdentity();
             glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()), GL_UNSIGNED_INT,
                            nullptr);
         }
