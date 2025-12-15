@@ -6,6 +6,7 @@
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
@@ -33,6 +34,13 @@ namespace Scenes {
 
         buildStartMoveCallback();
         buildEatenUpCallback();
+
+        // GPU Particle TEST
+        // ===========================
+        const auto quad = make_shared<PlaneMesh>(resourceManager->getShader("basicShader"), 1, 1);
+        const auto particle = make_shared<GPUParticle3D>(quad, resourceManager, 10);
+        camera->setStickyPoint(particle);
+        meshNode3d.push_back(particle);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -120,7 +128,7 @@ namespace Scenes {
         barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
         barriersScene->init();
         levelManager = barriersScene->getLevelManager();
-        addNode(barriersScene);
+        // addNode(barriersScene);
     }
 
     void MainScene::initCoinScene() {

@@ -20,6 +20,14 @@ namespace Model {
         return material;
     }
 
+    void StandardMesh::bind() const {
+        mesh->bind();
+    }
+
+    unsigned long StandardMesh::indicesCount() const {
+        return mesh->getIndices().size();
+    }
+
     void StandardMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                               const glm::mat4 &parentTransform, const bool shadows) const {
 

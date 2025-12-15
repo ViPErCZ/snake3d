@@ -87,8 +87,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
         Resource/ResourceLoader.cpp
         Resource/ResourceLoader.h
-        Renderer/Opengl/Model/SpinnerModel.cpp
-        Renderer/Opengl/Model/SpinnerModel.h
+        Renderer/Opengl/Model/SpinnerMesh.cpp
+        Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
@@ -140,6 +140,16 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Tools/Blending.h
         Tools/ContextState.cpp
         Tools/ContextState.h
+        Scenes/PreloaderScene.cpp
+        Scenes/PreloaderScene.h
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
+        Renderer/Opengl/Model/Standard/TringleMesh3D.cpp
+        Renderer/Opengl/Model/Standard/TringleMesh3D.h
+        Renderer/Opengl/Model/Standard/QuadMesh3D.cpp
+        Renderer/Opengl/Model/Standard/QuadMesh3D.h
+        Renderer/Opengl/Model/Standard/GPUParticle3D.cpp
+        Renderer/Opengl/Model/Standard/GPUParticle3D.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -260,8 +270,8 @@ set(APP_SOURCES
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
         Resource/ResourceLoader.cpp
         Resource/ResourceLoader.h
-        Renderer/Opengl/Model/SpinnerModel.cpp
-        Renderer/Opengl/Model/SpinnerModel.h
+        Renderer/Opengl/Model/SpinnerMesh.cpp
+        Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
@@ -315,6 +325,16 @@ set(APP_SOURCES
         Tools/Blending.h
         Tools/ContextState.cpp
         Tools/ContextState.h
+        Scenes/PreloaderScene.cpp
+        Scenes/PreloaderScene.h
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
+        Renderer/Opengl/Model/Standard/TringleMesh3D.cpp
+        Renderer/Opengl/Model/Standard/TringleMesh3D.h
+        Renderer/Opengl/Model/Standard/QuadMesh3D.cpp
+        Renderer/Opengl/Model/Standard/QuadMesh3D.h
+        Renderer/Opengl/Model/Standard/GPUParticle3D.cpp
+        Renderer/Opengl/Model/Standard/GPUParticle3D.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -369,8 +389,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Material/Uniform/TextureArrayUniform.h
         Resource/ResourceLoader.cpp
         Resource/ResourceLoader.h
-        Renderer/Opengl/Model/SpinnerModel.cpp
-        Renderer/Opengl/Model/SpinnerModel.h
+        Renderer/Opengl/Model/SpinnerMesh.cpp
+        Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
@@ -422,6 +442,16 @@ add_library(snake3d_lib ${APP_SOURCES}
         Tools/Blending.h
         Tools/ContextState.cpp
         Tools/ContextState.h
+        Scenes/PreloaderScene.cpp
+        Scenes/PreloaderScene.h
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
+        Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
+        Renderer/Opengl/Model/Standard/TringleMesh3D.cpp
+        Renderer/Opengl/Model/Standard/TringleMesh3D.h
+        Renderer/Opengl/Model/Standard/QuadMesh3D.cpp
+        Renderer/Opengl/Model/Standard/QuadMesh3D.h
+        Renderer/Opengl/Model/Standard/GPUParticle3D.cpp
+        Renderer/Opengl/Model/Standard/GPUParticle3D.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

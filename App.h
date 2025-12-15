@@ -26,6 +26,7 @@
 #include <AL/al.h>
 #include <nlohmann/json.hpp>
 #include "Scenes/MainScene.h"
+#include "Scenes/PreloaderScene.h"
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
@@ -49,7 +50,7 @@ class App {
 public:
     App(const shared_ptr<Camera> &camera, int width, int height);
     ~App();
-    void Init() const;
+    void Init();
     void run();
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) const;
@@ -58,7 +59,6 @@ public:
     void cameraProcessKeyboard(GLFWwindow *window) const;
 protected:
     void initScene();
-    [[nodiscard]] shared_ptr<MeshNode3D> initPreloader() const;
     void InitResourceManager() const;
     // Snake* InitSnake();
     // ObjWall* InitObjWall(); // outer wall
@@ -104,6 +104,7 @@ private:
     SceneState state = SceneState::LOADING;
     std::atomic<bool> scanning = false;
     shared_ptr<MainScene> mainScene;
+    shared_ptr<PreloaderScene> preloaderScene;
 };
 
 #endif //SNAKE3_APP_H

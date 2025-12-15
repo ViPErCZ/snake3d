@@ -3,16 +3,16 @@
 
 #include <memory>
 #include "Standard/StandardMesh.h"
-#include "Utils/Mesh.h"
+#include "Standard/TringleMesh3D.h"
 
 using namespace ModelUtils;
 
 namespace Model {
-    class SpinnerModel final : public StandardMesh {
+    class SpinnerMesh final : public TringleMesh3D {
     public:
-        explicit SpinnerModel(shared_ptr<ShaderManager> &baseShader);
+        explicit SpinnerMesh(const shared_ptr<ShaderManager> &baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-            const glm::mat4 &parentTransform, bool shadows) const override;
+                            const glm::mat4 &parentTransform, bool shadows) const override;
         void update(float dt) override;
     protected:
         static glm::vec3 hsvToRgb(float h, float s, float v);

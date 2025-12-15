@@ -10,6 +10,9 @@ using namespace std;
 namespace fs = std::filesystem;
 
 namespace Resource {
+    struct vShader {
+        vector<unsigned char> vertex;
+    };
     struct fvShader {
         vector<unsigned char> fragment;
         vector<unsigned char> vertex;
@@ -30,10 +33,12 @@ namespace Resource {
 
     class ShaderLoader {
     public:
+        static unsigned int loadShader(const fs::path& vertexPath);
         static unsigned int loadShader(const fs::path& vertexPath, const fs::path& fragmentPath);
         static unsigned int loadShader(const fs::path& vertexPath,
                                  const fs::path& geometryPath,
                                  const fs::path& fragmentPath);
+        static vShader loadShaderToBuffer(const fs::path& vertexPath);
         static fvShader loadShaderToBuffer(const fs::path& vertexPath, const fs::path& fragmentPath);
         static fgvShader loadShaderToBuffer(const fs::path& vertexPath,
                                                         const fs::path& geometryPath,
@@ -44,6 +49,7 @@ namespace Resource {
         static void replaceIncludes(const fs::path& base_dir, const string &path, string &source);
         static void resolveIncludes(const fs::path& base_dir, std::string& src);
         static void checkCompileErrors(unsigned int shader, const string &type);
+        static unsigned int compileShader(const string &vertexStr);
         static unsigned int compileShader(const string &vertexStr, const string &fragmentStr);
         static unsigned int compileShader(const string &vertexStr, const string &fragmentStr, const string &geometryStr);
         static string readFile(const string &filePath);

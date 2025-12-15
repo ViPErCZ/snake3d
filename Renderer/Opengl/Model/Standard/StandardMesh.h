@@ -26,6 +26,10 @@ namespace Model {
 
         [[nodiscard]] shared_ptr<BaseMaterial> getMaterial() const;
 
+        void bind() const;
+
+        [[nodiscard]] unsigned long indicesCount() const;
+
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                             const glm::mat4 &parentTransform, bool shadows) const;
 

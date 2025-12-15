@@ -3,11 +3,9 @@
 #include "App.h"
 #include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
-#include "Renderer/Opengl/Node3DRenderer.h"
 #include "Renderer/Opengl/TorchRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
-#include "Renderer/Opengl/Model/SpinnerModel.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Resource/AnimLoader.h"
@@ -402,7 +400,7 @@ void App::initScene() {
      }
 }
 
-void App::Init() const {
+void App::Init() {
     InitResourceManager();
 
     resourceManager->addShader(
@@ -463,13 +461,27 @@ void App::Init() const {
                 "Assets/Shaders/preloader/preloader.fs"
             ))
     );
+    resourceManager->addShader(
+        "particle_update",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/particle_update.vs"
+                ))
+    );
+    resourceManager->addShader(
+        "instanced_mesh",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/instanced_mesh.vs",
+                "Assets/Shaders/particle/instanced_mesh.fs"
+                ))
+    );
 
     rendererManager->initBloom();
     rendererManager->initShadowMapping();
 
-    const auto preLoader = initPreloader();
-    rendererManager->addRenderer(make_shared<Node3DRenderer>(camera, projection, preLoader));
-    camera->setStickyPoint(preLoader);
+    preloaderScene = make_shared<PreloaderScene>(rendererManager, camera, projection, resourceManager, width, height);
+    preloaderScene->init();
 
     const fs::path assets_dir{"Assets/Objects"};
     resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
@@ -484,9 +496,6 @@ void App::Init() const {
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });
-    // resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Tile.obj", "tile", []() {
-    //     std::cout << "Model tile ready!" << std::endl;
-    // });
     resourceManager->loadAsyncModel<ObjItem>(assets_dir / "torch.obj", "torch", []() {
         std::cout << "Model torch ready!" << std::endl;
     });
@@ -505,21 +514,12 @@ void App::run() {
         }
     }
 
-    static float lastFrame = 0.0f;
-    const auto currentFrame = static_cast<float>(glfwGetTime());
-    float deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-    deltaTime = std::min(deltaTime, 0.05f);
-
     if (state == SceneState::RUNNING) {
-        //keyboardManager->runDefault();
-        // if (!startText->isVisible()) { // pokud hra bezi, tak checkneme zda je videt jidlo, pokud ne zkusime znova umisti
-        //     eatManager->run(Manager::EatManager::checkPlace);
-        // }
         mainScene->update();
         mainScene->render();
     } else {
-        rendererManager->render(deltaTime);
+        preloaderScene->update();
+        preloaderScene->render();
     }
 }
 
@@ -617,13 +617,6 @@ void App::setKeyState(const int key, const bool pressed) const {
 
 void App::cameraProcessKeyboard(GLFWwindow *window) const {
     camera->processKeyboard(window, 1);
-}
-
-shared_ptr<MeshNode3D> App::initPreloader() const {
-    auto shader = resourceManager->getShader("preloadShader");
-    auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
-
-    return make_shared<MeshNode3D>(make_shared<SpinnerModel>(shader), resourceManager);
 }
 
 void App::InitResourceManager() const {

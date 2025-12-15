@@ -3,6 +3,13 @@
 #include <GL/glew.h>
 
 namespace Resource {
+    unsigned int ShaderLoader::loadShader(const fs::path &vertexPath) {
+        const auto vertex = loadShaderToBuffer(vertexPath);
+        const string vertexStr(vertex.vertex.begin(), vertex.vertex.end());
+
+        return compileShader(vertexStr);
+    }
+
     unsigned int ShaderLoader::loadShader(const fs::path &vertexPath, const fs::path &fragmentPath) {
         const auto [fragment, vertex] = loadShaderToBuffer(vertexPath, fragmentPath);
         const string vertexStr(vertex.begin(), vertex.end());
@@ -22,8 +29,16 @@ namespace Resource {
         return compileShader(vertexStr, fragmentStr, geomStr);
     }
 
-    fvShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath, const fs::path &fragmentPath) {
+    vShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath) {
+        vShader shader;
+        string vertex = readFile(vertexPath);
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertex);
+        shader.vertex.insert(shader.vertex.end(), vertex.begin(), vertex.end());
 
+        return shader;
+    }
+
+    fvShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath, const fs::path &fragmentPath) {
         fvShader shader;
         string vertex = readFile(vertexPath);
         string fragment = readFile(fragmentPath);
@@ -83,6 +98,35 @@ namespace Resource {
         }
     }
 
+    unsigned int ShaderLoader::compileShader(const string &vertexStr) {
+        const GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+
+        // Compile vertex shader
+        const char* vertexSource = vertexStr.c_str();
+        glShaderSource(vertShader, 1, &vertexSource, nullptr);
+        glCompileShader(vertShader);
+        checkCompileErrors(vertShader, "VERTEX");
+
+        const GLuint program = glCreateProgram();
+        glAttachShader(program, vertShader);
+
+        const char* varyings[] = {
+            "outModel",
+            "outColor"
+        };
+
+        glTransformFeedbackVaryings(program, 2, varyings, GL_INTERLEAVED_ATTRIBS);
+        glLinkProgram(program);
+
+        glLinkProgram(program);
+        checkCompileErrors(program, "PROGRAM");
+
+        glDetachShader(program, vertShader);
+        glDeleteShader(vertShader);
+
+        return program;
+    }
+
     unsigned int ShaderLoader::compileShader(const string &vertexStr, const string &fragmentStr) {
         const GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
         const GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -99,7 +143,7 @@ namespace Resource {
         glCompileShader(fragShader);
         checkCompileErrors(fragShader, "FRAGMENT");
 
-        GLuint program = glCreateProgram();
+        const GLuint program = glCreateProgram();
         glAttachShader(program, vertShader);
         glAttachShader(program, fragShader);
         glLinkProgram(program);
