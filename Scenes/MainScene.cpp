@@ -207,7 +207,7 @@ namespace Scenes {
         barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
         barriersScene->init();
         levelManager = barriersScene->getLevelManager();
-        // addNode(barriersScene);
+        addNode(barriersScene);
     }
 
     void MainScene::initCoinScene() {

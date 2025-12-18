@@ -14,7 +14,6 @@
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
     keyboardManager = make_unique<KeyboardManager>();
-    eat = new Eat;
     torchRenderer = nullptr;
 
     projection = glm::perspective(
@@ -31,7 +30,6 @@ App::App(const shared_ptr<Camera> &camera, const int width, const int height) : 
 }
 
 App::~App() {
-    delete eat;
     alDeleteSources(1, &musicSource);
     alDeleteSources(1, &coinSource);
     alDeleteBuffers(1, &musicBuffer);
@@ -41,39 +39,6 @@ App::~App() {
 void App::initScene() {
     mainScene->init();
     //const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
-
-    // InitSnake();
-    // animRenderer = make_shared<AnimRenderer>((*snake->getItems().begin()), resourceManager->getAnimationModel("pacman"), camera.get(), projection, resourceManager.get());
-    // animRenderer->addPlay("KostraAction");
-    // animRenderer->setAcceleration(2.2f);
-    // snake->getHeadTile()->setVisible(false);
-    //    animRenderer->addPlay("Armature|Take 001|BaseLayer");
-    //    animRenderer->addPlay("Kostra2Action.002");
-    //    animRenderer->addPlay("Kostra3Action");
-    // bloomRenderer = new BloomRenderer(resourceManager.get(), width, height);
-    // depthMapRenderer = new DepthMapRenderer(camera.get(), projection, resourceManager.get());
-    //gameFieldRenderer = new GameFieldRenderer(InitGameField(), camera.get(), projection, resourceManager.get());
-    //eat = InitEat();
-    // ObjWall *objWall = InitObjWall();
-    //barriers = new Barriers();
-    //radar = CreateRadar();
-    //InitRadar();
-
-    // TORCH
-    // ===============================
-    // const auto torch = new Cube();
-    // torch->setPosition(glm::vec3(0.33, 0.3, -8.2));
-    // torch->setRotate(
-    //     glm::vec4(1.0, 0.0, 0.0, 90.0f),
-    //     glm::vec4(0.0, 1.0, 0.0, 0.0f),
-    //     glm::vec4(0.0, 0.0, 1.0, 0.0f));
-    // torch->setZoom({0.12, 0.12, 0.12});
-
-    //levelManager = make_unique<LevelManager>(1, MAX_LIVES, barriers);
-    //levelManager->createLevel(START_LEVEL);
-
-    //auto *eatLocationHandler = new EatLocationHandler(barriers, snake, eat, radar);
-    //eatManager = make_unique<EatManager>(eatLocationHandler);
 
     auto basicShader = resourceManager->getShader("basicShader");
     auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
@@ -478,7 +443,7 @@ void App::Init() {
 
     // Instanced fire shader (texturovaný oheň)
     resourceManager->addShader(
-        "instanced_fire",
+        "instanced_texture",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/instanced_texture.vs",

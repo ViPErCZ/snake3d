@@ -8,9 +8,7 @@
 #include "Manager/KeyboardManager.h"
 #include "Renderer/Opengl/SkyboxRenderer.h"
 #include "Renderer/Opengl/SnakeRenderer.h"
-#include "Renderer/Opengl/RadarRenderer.h"
 #include "Handler/EatLocationHandler.h"
-#include "ItemsDto/Eat.h"
 #include "Manager/EatManager.h"
 #include "ItemsDto/Barriers.h"
 #include "Renderer/Opengl/BarrierRenderer.h"
@@ -76,15 +74,11 @@ private:
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
     Snake* snake{};
-    Eat* animateEat{};
-    Eat* eat;
-    // Radar* radar{};
     ObjWall* objWall{};
     Barriers* barriers = nullptr;
     shared_ptr<SnakeRenderer> snakeRenderer;
     shared_ptr<ObjWallRenderer> objWallRenderer{};
     shared_ptr<BarrierRenderer> barrierRenderer{};
-    shared_ptr<RadarRenderer> radarRenderer{};
     //shared_ptr<TextRenderer> textRenderer{};
     shared_ptr<RainRenderer> rainRenderer{};
     // shared_ptr<AnimRenderer> animRenderer{};
