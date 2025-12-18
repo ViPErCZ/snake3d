@@ -27,9 +27,9 @@ namespace Handler {
             case GLFW_KEY_RIGHT:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.x += 0.1f;
-                    } else {
                         pos.x += 0.01f;
+                    } else {
+                        pos.x += 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }
@@ -37,9 +37,9 @@ namespace Handler {
             case GLFW_KEY_LEFT:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.x -= 0.1f;
-                    } else {
                         pos.x -= 0.01f;
+                    } else {
+                        pos.x -= 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }
@@ -47,9 +47,9 @@ namespace Handler {
             case GLFW_KEY_UP:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.y += 0.1f;
-                    } else {
                         pos.y += 0.01f;
+                    } else {
+                        pos.y += 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }
@@ -57,9 +57,9 @@ namespace Handler {
             case GLFW_KEY_DOWN:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.y -= 0.1f;
-                    } else {
                         pos.y -= 0.01f;
+                    } else {
+                        pos.y -= 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }
@@ -67,9 +67,9 @@ namespace Handler {
             case GLFW_KEY_PAGE_UP:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.z += 0.1f;
-                    } else {
                         pos.z += 0.01f;
+                    } else {
+                        pos.z += 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }
@@ -77,9 +77,9 @@ namespace Handler {
             case GLFW_KEY_PAGE_DOWN:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.z -= 0.1f;
-                    } else {
                         pos.z -= 0.01f;
+                    } else {
+                        pos.z -= 0.0001f;
                     }
                     activeItem->setPosition(pos);
                 }

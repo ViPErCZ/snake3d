@@ -1,10 +1,12 @@
 #include <iostream>
 
 #include "ObjModelLoader.h"
+
+#include "../Manager/VboIndexer.h"
 #include "../Thirdparty/tinyobj/tiny_obj_loader.h"
 
 namespace Resource {
-    shared_ptr<ObjItem> ObjModelLoader::loadObj(const fs::path &path) {
+    shared_ptr<Mesh> ObjModelLoader::loadObj(const fs::path &path) {
         std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
         std::vector<glm::vec3> temp_vertices;
         std::vector<glm::vec2> temp_uvs;
@@ -80,10 +82,38 @@ namespace Resource {
             }
         }
 
-        return std::make_shared<ObjItem>(vertices, uvs, normals);
+        std::vector<unsigned int> indices;
+        vector<glm::vec3> tangents;
+        vector<glm::vec3> biTangents;
+        std::vector<glm::vec3> indexed_vertices;
+        std::vector<glm::vec2> indexed_uvs;
+        std::vector<glm::vec3> indexed_normals;
+        std::vector<glm::vec3> indexed_tangents;
+        std::vector<glm::vec3> indexed_biTangents;
+        Manager::VboIndexer::computeTangentBasis(vertices, uvs, normals, tangents, biTangents);
+        Manager::VboIndexer::indexVBO_TBN(vertices, uvs, normals, tangents, biTangents,
+                                          indices, indexed_vertices,
+                                          indexed_uvs, indexed_normals, indexed_tangents, indexed_biTangents);
+
+        vector<Vertex> vertex_vertices;
+        int index = 0;
+        for (auto vert: indexed_vertices) {
+            Vertex vertex{};
+            vertex.position = vert;
+            vertex.normal = *(indexed_normals.begin() + index);
+            vertex.color = {1.0f, 1.0f, 1.0f};
+            vertex.texUV = *(indexed_uvs.begin() + index);
+            vertex.tangents = *(indexed_tangents.begin() + index);
+            vertex.biTangents = *(indexed_biTangents.begin() + index);
+
+            vertex_vertices.push_back(vertex);
+            index++;
+        }
+
+        return std::make_shared<Mesh>(vertex_vertices, indices);
     }
 
-    shared_ptr<ObjItem> ObjModelLoader::loadObjFromStr(const fs::path &path, const string &str) {
+    shared_ptr<Mesh> ObjModelLoader::loadObjFromStr(const fs::path &path, const string &str) {
         std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
         std::vector<glm::vec3> temp_vertices;
         std::vector<glm::vec2> temp_uvs;
@@ -115,7 +145,7 @@ namespace Resource {
             // Loop over faces(polygon)
             size_t index_offset = 0;
             for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++) {
-                auto fv = size_t(shape.mesh.num_face_vertices[f]);
+                auto fv = static_cast<size_t>(shape.mesh.num_face_vertices[f]);
 
                 // Loop over vertices in the face.
                 for (size_t v = 0; v < fv; v++) {
@@ -157,6 +187,34 @@ namespace Resource {
             }
         }
 
-        return std::make_shared<ObjItem>(vertices, uvs, normals);
+        std::vector<unsigned int> indices;
+        vector<glm::vec3> tangents;
+        vector<glm::vec3> biTangents;
+        std::vector<glm::vec3> indexed_vertices;
+        std::vector<glm::vec2> indexed_uvs;
+        std::vector<glm::vec3> indexed_normals;
+        std::vector<glm::vec3> indexed_tangents;
+        std::vector<glm::vec3> indexed_biTangents;
+        Manager::VboIndexer::computeTangentBasis(vertices, uvs, normals, tangents, biTangents);
+        Manager::VboIndexer::indexVBO_TBN(vertices, uvs, normals, tangents, biTangents,
+                                          indices, indexed_vertices,
+                                          indexed_uvs, indexed_normals, indexed_tangents, indexed_biTangents);
+
+        vector<Vertex> vertex_vertices;
+        int index = 0;
+        for (auto vert: indexed_vertices) {
+            Vertex vertex{};
+            vertex.position = vert;
+            vertex.normal = *(indexed_normals.begin() + index);
+            vertex.color = {1.0f, 1.0f, 1.0f};
+            vertex.texUV = *(indexed_uvs.begin() + index);
+            vertex.tangents = *(indexed_tangents.begin() + index);
+            vertex.biTangents = *(indexed_biTangents.begin() + index);
+
+            vertex_vertices.push_back(vertex);
+            index++;
+        }
+
+        return std::make_shared<Mesh>(vertex_vertices, indices);
     }
 } // Resource

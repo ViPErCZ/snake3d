@@ -2,10 +2,6 @@
 #include "../../../../Manager/VboIndexer.h"
 
 namespace Model {
-    void ArrayMesh::fromObj(const shared_ptr<ObjItem> &item) {
-        mesh = shared_ptr<Mesh>(item->getMesh(), [](Mesh*) {});
-    }
-
     void ArrayMesh::fromMesh(const shared_ptr<Mesh> &mesh) {
         this->mesh = mesh;
     }

@@ -6,6 +6,7 @@
 #include "BarriersScene.h"
 #include "CoinScene.h"
 #include "PlayerScene.h"
+#include "../Handler/Debug/PositionHandler.h"
 #include "../Manager/EatManager.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
@@ -73,6 +74,7 @@ namespace Scenes {
         shared_ptr<FadeOutUniform> radarFadeOutUniform;
         shared_ptr<QuadNode2D> radarNode;
         shared_ptr<RadarMeshNode2D> radarMeshNode;
+        shared_ptr<PositionHandler> positionHandler;
         glm::mat4 ortho{};
     };
 } // Scenes

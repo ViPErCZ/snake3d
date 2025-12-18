@@ -24,11 +24,8 @@ namespace Scenes {
     void CoinScene::initCoin() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const std::shared_ptr<ObjItem> coinModel(
-            resourceManager->getModel("coin"), [](ObjItem *) {
-        });
-        const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(shader));
-        coinMesh->fromObj(coinModel);
+        const auto coinMesh = make_shared<ArrayMesh>(shader);
+        coinMesh->fromMesh(resourceManager->getModel("coin"));
 
         coin = make_shared<CoinMeshNode3D>(coinMesh, resourceManager);
         coin->setPosition({-69.0, -69, -70.0f});
@@ -97,7 +94,7 @@ namespace Scenes {
         coinAnimation2->createAnimation("eatenUp");
         coinAnimation2->addAnimationNode("eatenUp", animationNode2, 16);
         const auto coinMesh2 = make_shared<ArrayMesh>(ArrayMesh(shader));
-        coinMesh2->fromObj(coinModel);
+        coinMesh2->fromMesh(resourceManager->getModel("coin"));
         coinMesh2->setAnimationPlayer(coinAnimation2);
         coinMesh2->setMaterial(coinMaterial);
         removeCoin = make_shared<CoinMeshNode3D>(coinMesh2, resourceManager);

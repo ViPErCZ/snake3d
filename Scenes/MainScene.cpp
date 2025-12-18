@@ -1,4 +1,7 @@
 #include "MainScene.h"
+
+#include <glm/gtc/random.hpp>
+
 #include "PlayerScene.h"
 #include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
@@ -21,6 +24,7 @@ namespace Scenes {
     void MainScene::init() {
         Scene::init();
 
+        positionHandler = make_shared<PositionHandler>(camera);
         collisionDetector = make_shared<CollisionDetector>();
         initPlayerScene();
         initBarriersScene();
@@ -37,10 +41,83 @@ namespace Scenes {
 
         // GPU Particle TEST
         // ===========================
-        const auto quad = make_shared<PlaneMesh>(resourceManager->getShader("basicShader"), 1, 1);
-        const auto particle = make_shared<GPUParticle3D>(quad, resourceManager, 10);
-        camera->setStickyPoint(particle);
-        meshNode3d.push_back(particle);
+        const auto quad = make_shared<PlaneMesh>(resourceManager->getShader("basicShader"), 3.5, 3.5);
+        const auto fire = make_shared<GPUParticle3D>(quad, resourceManager, 150);
+        const auto smoke = make_shared<GPUParticle3D>(quad, resourceManager, 90);
+
+        fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
+        smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
+        fire->setScale({2.2, 2.2, 2.2});
+        smoke->setScale({2.0, 2.0, 2.0});
+        fire->setRotationX(-90);
+        smoke->setRotationX(-90);
+
+        // Preset a parametry pro vizuál ohně podobný FireParticleSystem
+        fire->setPreset(GPUParticle3D::Preset::Fire);
+        smoke->setPreset(GPUParticle3D::Preset::Smoke);
+        auto fp = fire->getParams();
+        fp.lifeMin = 0.5f;
+        fp.lifeMax = 1.0f;
+        fp.sizeMin = 0.008f;
+        fp.sizeMax = 0.042f; // trochu vyšší max pro výraznější šlehy
+        // Z‑up: Y téměř nulová, Z výrazně kladná (vzhůru)
+        fp.velMin  = glm::vec3(-0.005f, 0.000f, 0.100f);
+        fp.velMax  = glm::vec3( 0.005f, 0.010f, 0.200f);
+        fp.gravity = glm::vec3(glm::linearRand(-0.005f, 0.005f), glm::linearRand(0.01f, 0.001f), glm::linearRand(0.005f, 0.009f));
+        fp.emitterRadius = 0.03f;
+        fp.emitterRadiusX = 0.03f;
+        fp.emitterRadiusZ = 0.0f;
+        fp.emitterYOffset = 0.24f;
+        fp.spawnPerFrame = 0.6f;   // lehce vyšší efektivní hustota
+        fp.stretch = 0.105f;        // ~2× „hloubka“ (natažení podél Up)
+        fp.colorStart = glm::vec4(6.0f, 3.5f, 1.0f, 1.0f);
+        fp.colorEnd   = glm::vec4(7.0f, 4.5f, 1.5f, 0.0f);
+        fp.texture = "fire.png";
+        fire->setParams(fp);
+        fire->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
+        auto sp = smoke->getParams();
+        sp.lifeMax = 0.7f;
+        sp.sizeMin = 0.08f;
+        sp.sizeMax = 0.042f;
+        sp.emitterRadius = 0.03f;
+        sp.emitterRadiusX = 0.03f;
+        sp.emitterRadiusZ = 0.0f;
+        sp.emitterYOffset = 0.24f;
+        sp.velMin  = glm::vec3(-0.005f, 0.000f, 0.100f);
+        sp.velMax  = glm::vec3( 0.005f, 0.010f, 0.200f);
+        sp.texture = "smoke.png";
+        smoke->setParams(sp);
+        smoke->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
+        const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
+        torch->fromMesh(resourceManager->getModel("torch"));
+        const auto torchNode = make_shared<MeshNode3D>(torch, resourceManager);
+        torchNode->setRotationX(90);
+        torchNode->setScale({0.2, 0.2, 0.2});
+        torchNode->setPosition({0.0, 0.0, -5.0});
+        const auto directionalLight = make_shared<DirectionalLight>();
+        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        directionalLight->setDirection({1, 1.0, -3});
+        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        directionalLight->setSpecular({.091f, .091f, .091f});
+        const auto torchAlbedo = resourceManager->getTexture("torch.png");
+        const auto torchNormal = resourceManager->getTexture("torch_normal.png");
+        const auto torchMaterial = make_shared<StandardMaterial>(resourceManager->getShader("basicShader"), resourceManager->getShader("shadowDepthShader"));
+        torchMaterial->setAlbedo(torchAlbedo);
+        torchMaterial->setNormal(torchNormal);
+        torchMaterial->setNormalEnabled(true);
+        torchMaterial->setDirectionalLight(directionalLight);
+        torchMaterial->setBlending(Blending::Translucent);
+        torch->setMaterial(torchMaterial);
+
+
+        torchNode->addNode(smoke);
+        torchNode->addNode(fire);
+
+        meshNode3d.push_back(torchNode);
+        positionHandler->addItem(torchNode);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -74,6 +151,8 @@ namespace Scenes {
             default:
                 break;
         }
+
+        keyboardManager->addEventHandler(positionHandler);
     }
 
     void MainScene::initPlayerScene() {
@@ -86,8 +165,8 @@ namespace Scenes {
 
     void MainScene::initSkybox() {
         const auto skybox = make_shared<Cube>();
-        const auto skyboxRenderer = make_shared<SkyboxRenderer>(skybox, camera.get(), projection, resourceManager.get());
-        rendererManager->addRenderer(skyboxRenderer);
+        const auto skyboxRenderer = make_shared<SkyboxRenderer>(skybox, camera, projection, resourceManager);
+        rendererManager->addRenderer(skyboxRenderer, 1000);
     }
 
     void MainScene::initPlane() {

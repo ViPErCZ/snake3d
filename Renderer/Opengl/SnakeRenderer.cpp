@@ -4,7 +4,7 @@ namespace Renderer {
 
     SnakeRenderer::SnakeRenderer(const shared_ptr<Snake> &snake, Camera *camera, const glm::mat4 &projection, ResourceManager *resManager)
             : snake(snake), camera(camera), projection(projection), resourceManager(resManager), blur(false), renderStyle(2) {
-        mesh = resourceManager->getModel("tile")->getMesh();
+        //mesh = resourceManager->getModel("tile")->getMesh();
         baseShader = resourceManager->getShader("basicShader").get();
         respawn = resourceManager->getShader("explosion").get();
         shadowShader = resourceManager->getShader("shadowDepthShader").get();
@@ -107,10 +107,10 @@ namespace Renderer {
 
     void SnakeRenderer::toggleStyle(const int style) {
         if (style == 1) {
-            mesh = resourceManager->getModel("cube")->getMesh();
+            //mesh = resourceManager->getModel("cube")->getMesh();
             renderStyle = 1;
         } else {
-            mesh = resourceManager->getModel("tile")->getMesh();
+            //mesh = resourceManager->getModel("tile")->getMesh();
             renderStyle = 2;
         }
     }

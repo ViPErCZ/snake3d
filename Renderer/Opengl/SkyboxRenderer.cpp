@@ -1,13 +1,12 @@
 #include "SkyboxRenderer.h"
 
 namespace Renderer {
-    SkyboxRenderer::SkyboxRenderer(shared_ptr<Cube> cube, Camera *camera, const glm::mat4 &projection,
-                                   ResourceManager *resourceManager) : cube(std::move(cube)), camera(camera),
-                                                                       projection(projection),
-                                                                       resourceManager(resourceManager) {
-        mesh = resourceManager->getModel("cube")->getMesh();
-        shader = resourceManager->getShader("skyboxShader").get();
-        texture = resourceManager->getTexture("skybox").get();
+    SkyboxRenderer::SkyboxRenderer(shared_ptr<Cube> cube, const shared_ptr<Camera> &camera, const glm::mat4 &projection,
+                                   const shared_ptr<ResourceManager> &resourceManager)
+        : cube(std::move(cube)), camera(camera), projection(projection), resourceManager(resourceManager) {
+        mesh = resourceManager->getModel("cube");
+        shader = resourceManager->getShader("skyboxShader");
+        texture = resourceManager->getTexture("skybox");
     }
 
     void SkyboxRenderer::render3D(float dt) {
@@ -24,19 +23,19 @@ namespace Renderer {
             // skybox cube
             mesh->bind();
             texture->cubeBind();
-            glDrawElements(GL_TRIANGLES, (int) mesh->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT, nullptr);
             glBindVertexArray(0);
         }
     }
 
     void SkyboxRenderer::beforeRender() {
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
+        glDepthMask(GL_FALSE);
         glDisable(GL_BLEND);
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        glDepthFunc(GL_LEQUAL);
     }
 
     void SkyboxRenderer::afterRender() {
-        glDepthFunc(GL_LESS); // set depth function back to default
+        glDepthFunc(GL_LESS);
+        glDepthMask(GL_TRUE);
     }
 } // Renderer

@@ -7,7 +7,6 @@
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 #include "Resource/TextureLoader.h"
@@ -477,6 +476,16 @@ void App::Init() {
                 ))
     );
 
+    // Instanced fire shader (texturovaný oheň)
+    resourceManager->addShader(
+        "instanced_fire",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/instanced_texture.vs",
+                "Assets/Shaders/particle/instanced_texture.fs"
+            ))
+    );
+
     rendererManager->initBloom();
     rendererManager->initShadowMapping();
 
@@ -490,13 +499,13 @@ void App::Init() {
     // resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "skeleton.glb", "skeleton", []() {
     //     std::cout << "Model skeleton ready!" << std::endl;
     // });
-    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Cube.obj", "cube", []() {
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "Cube.obj", "cube", []() {
         std::cout << "Model cube ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "Coin.obj", "coin", []() {
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<ObjItem>(assets_dir / "torch.obj", "torch", []() {
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.obj", "torch", []() {
         std::cout << "Model torch ready!" << std::endl;
     });
 }

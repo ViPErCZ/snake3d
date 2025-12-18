@@ -110,12 +110,15 @@ namespace Resource {
         const GLuint program = glCreateProgram();
         glAttachShader(program, vertShader);
 
+        // Transform Feedback pro stav částic (interleaved do jednoho VBO)
         const char* varyings[] = {
-            "outModel",
-            "outColor"
+            "outPos",
+            "outVel",
+            "outLife",
+            "outSeed"
         };
 
-        glTransformFeedbackVaryings(program, 2, varyings, GL_INTERLEAVED_ATTRIBS);
+        glTransformFeedbackVaryings(program, 4, varyings, GL_INTERLEAVED_ATTRIBS);
         glLinkProgram(program);
 
         glLinkProgram(program);

@@ -8,7 +8,7 @@ namespace Renderer {
                                  ResourceManager *resManager): cube(cube), camera(camera),
                                                                projection(projection),
                                                                resourceManager(resManager) {
-        mesh = resourceManager->getModel("torch")->getMesh();
+        //mesh = resourceManager->getModel("torch")->getMesh();
         baseShader = resourceManager->getShader("normalShader").get();
         texture = resourceManager->getTexture("torch.png").get();
         texture2 = resourceManager->getTexture("torch_normal.png").get();

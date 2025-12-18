@@ -17,8 +17,8 @@ namespace Renderer {
 
     class SkyboxRenderer : public BaseRenderer {
     public:
-        SkyboxRenderer(shared_ptr<Cube> cube, Camera *camera, const glm::mat4 &projection,
-                       ResourceManager *resourceManager);
+        SkyboxRenderer(shared_ptr<Cube> cube, const shared_ptr<Camera> &camera, const glm::mat4 &projection,
+                       const shared_ptr<ResourceManager> &resourceManager);
 
         void render3D(float dt) override;
         void beforeRender() override;
@@ -26,12 +26,12 @@ namespace Renderer {
         void renderShadowMap() override {};
     protected:
         shared_ptr<Cube> cube;
-        Mesh* mesh;
-        Camera* camera;
+        shared_ptr<Mesh> mesh;
+        shared_ptr<Camera> camera;
         glm::mat4 projection;
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        TextureManager* texture;
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ShaderManager> shader;
+        shared_ptr<TextureManager> texture;
     };
 
 } // Renderer

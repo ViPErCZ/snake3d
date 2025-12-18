@@ -3,7 +3,7 @@
 namespace Renderer {
     ObjWallRenderer::ObjWallRenderer(const shared_ptr<Snake> &snake, const shared_ptr<ObjWall> &item, Camera* camera, const glm::mat4 &proj, ResourceManager* resManager)
         : snake(snake), wall(item), camera(camera), projection(proj), resourceManager(resManager), parallax(false) {
-        mesh = resourceManager->getModel("cube")->getMesh();
+        //mesh = resourceManager->getModel("cube")->getMesh();
         shader = resourceManager->getShader("normalShader").get();
         texture1 = resourceManager->getTexture("brickwork-texture.jpg").get();
         texture2 = resourceManager->getTexture("brickwork_normal-map.jpg").get();

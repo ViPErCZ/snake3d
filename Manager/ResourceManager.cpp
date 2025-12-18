@@ -76,9 +76,9 @@ namespace Manager {
         }
     }
 
-    void ResourceManager::addModel(const string &name, std::shared_ptr<ObjItem> res) {
+    void ResourceManager::addModel(const string &name, std::shared_ptr<Mesh> &res) {
         std::unique_lock lock(mutex);
-        if (const auto [fst, snd] = model.emplace(name, std::move(res)); !snd) {
+        if (const auto [fst, snd] = model.emplace(name, res); !snd) {
             throw invalid_argument("Failed to add model " + name + ", already contains.");
         }
     }
@@ -90,10 +90,10 @@ namespace Manager {
         }
     }
 
-    ObjItem *ResourceManager::getModel(const string &name) const {
+    shared_ptr<Mesh> ResourceManager::getModel(const string &name) const {
         std::unique_lock lock(mutex);
         try {
-            return model.at(name).get();
+            return model.at(name);
         } catch (...) {
             throw invalid_argument("No such resource called " + name);
         }
