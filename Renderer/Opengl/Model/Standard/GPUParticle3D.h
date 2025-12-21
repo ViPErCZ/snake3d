@@ -32,10 +32,11 @@ namespace Model {
 
     class GPUParticle3D : public MeshNode3D {
     public:
-        GPUParticle3D(const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager,
+        GPUParticle3D(const shared_ptr<Camera> &camera,
+            const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager,
             int maxParticles);
 
-        void update(float dt) override;
+        void update(float dt, uint64_t frameId) override;
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
@@ -116,6 +117,8 @@ namespace Model {
         Preset currentPreset = Preset::Custom;
         RenderMode renderMode = RenderMode::Color;
         ParticleParams particleParams{};
+        shared_ptr<Camera> camera;
+        float phaseOffset;
     };
 } // Model
 

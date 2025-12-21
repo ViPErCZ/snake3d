@@ -3,7 +3,6 @@
 #include "App.h"
 #include "Handler/Debug/PositionHandler.h"
 #include "Renderer/Opengl/BoltRenderer.h"
-#include "Renderer/Opengl/TorchRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
@@ -14,7 +13,6 @@
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
     keyboardManager = make_unique<KeyboardManager>();
-    torchRenderer = nullptr;
 
     projection = glm::perspective(
         glm::radians(camera->getZoom()),
@@ -37,7 +35,7 @@ App::~App() {
 }
 
 void App::initScene() {
-    mainScene->init();
+    mainScene->init(0);
     //const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
 
     auto basicShader = resourceManager->getShader("basicShader");
@@ -455,7 +453,7 @@ void App::Init() {
     rendererManager->initShadowMapping();
 
     preloaderScene = make_shared<PreloaderScene>(rendererManager, camera, projection, resourceManager, width, height);
-    preloaderScene->init();
+    preloaderScene->init(0);
 
     const fs::path assets_dir{"Assets/Objects"};
     resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
@@ -559,15 +557,15 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
     glfwGetCursorPos(window, &xpos, &ypos);
     const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
 
-    if (torchRenderer != nullptr) {
-        if (button == GLFW_MOUSE_BUTTON_LEFT) {
-            if (action == GLFW_PRESS) {
-                torchRenderer->onMouseDown(cursor, width, height);
-            } else if (action == GLFW_RELEASE) {
-                torchRenderer->onMouseUp();
-            }
-        }
-    }
+    // if (torchRenderer != nullptr) {
+    //     if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    //         if (action == GLFW_PRESS) {
+    //             torchRenderer->onMouseDown(cursor, width, height);
+    //         } else if (action == GLFW_RELEASE) {
+    //             torchRenderer->onMouseUp();
+    //         }
+    //     }
+    // }
     if (camera) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             camera->onMouseDown(button, action, mods);
@@ -577,9 +575,9 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
 
 void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
     const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
-    if (torchRenderer != nullptr) {
-        torchRenderer->onMouseMove(cursor, width, height);
-    }
+    //if (torchRenderer != nullptr) {
+    //    torchRenderer->onMouseMove(cursor, width, height);
+    //}
     if (state == SceneState::RUNNING && camera != nullptr) {
         camera->processMouseMovement(x, y);
     }
@@ -702,60 +700,4 @@ void App::InitResourceManager() const {
                                        "Assets/Shaders/explosion/explosion.fs", []() {
         std::cout << "Shader explosion ready!" << std::endl;
     });
-}
-
-// Radar *App::CreateRadar() {
-//     auto radar = new Radar();
-//
-//     return radar;
-// }
-
-// void App::InitRadar() {
-//     radar->reset();
-//     radar->setVisible(true);
-//     radar->setPosition({125.0, 160.0, 0.0});
-//     radar->setZoom({100, 100, 1});
-//     radar->setWidth(176);
-//     radar->setHeight(176);
-//
-//     if (resourceManager) {
-//         for (auto tile: snake->getItems()) {
-//             // radar->addItem(tile->tile, {0.278,1.,0.});
-//         }
-//         for (auto block: barriers->getItems()) {
-//             // radar->addItem(block, {0.694,0.078,0.016});
-//         }
-//         radar->addItem(eat, {1.,0.953,0.});
-//     }
-// }
-
-// Eat *App::InitEat() const {
-//     eat->setVirtualX((23 - -23) / 2 * 32 + 16);
-//     eat->setVirtualY((-3 - -23) / 2 * 32 + 16);
-//     eat->setPosition({-69.0, -69, -70.0f});
-//     eat->setZoom({0.013888889, 0.013888889, 0.013888889});
-//     eat->setRotate({1, 0, 0, 90}, {0, 1, 0, 0}, {0, 0, 1, 0});
-//     eat->setVisible(false);
-//
-//     return eat;
-// }
-
-void App::initTexts() const {
-    // if (textRenderer && resourceManager) {
-    //     startText->setVisible(true);
-    //     startText->setColor({0.8, 0.8, 0.8});
-    //     startText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-    //     startText->setFontSize(22);
-    //     startText->setPosition({(width - 360) / 2, height / 2 + 15, 0.0});
-    //     startText->setScale({1.0f, 0, 0});
-    //     textRenderer->addText(startText, resourceManager->getShader("textShader").get());
-    //
-    //     tilesCounterText->setVisible(true);
-    //     tilesCounterText->setColor({0.8, 0.8, 0.8});
-    //     tilesCounterText->setFontPath("Assets/Fonts/OCRAEXT.TTF");
-    //     tilesCounterText->setFontSize(22);
-    //     tilesCounterText->setPosition({25.0f, 25.0f, 0.0});
-    //     tilesCounterText->setScale({1.0f, 0, 0});
-    //     textRenderer->addText(tilesCounterText, resourceManager->getShader("textShader").get());
-    // }
 }

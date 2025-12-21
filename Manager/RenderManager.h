@@ -72,6 +72,7 @@ namespace Manager {
         bool shadows;
         bool bloom;
         bool fog;
+        uint64_t gFrameId = 0;
     };
 } // Manager
 

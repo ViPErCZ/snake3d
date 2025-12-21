@@ -16,7 +16,7 @@ namespace Scenes {
         PlayerScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
                     const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
 
-        void init() override;
+        void init(int priority) override;
 
         [[nodiscard]] shared_ptr<SnakeMeshNode3D> getSnake() const;
 

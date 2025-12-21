@@ -1,10 +1,8 @@
 #version 330 core
 
-layout(location = 0) in vec3 aPos;            // z PlaneMesh: XZ quad
-// Pozor: UV u StandardMesh jsou na layoutu 3 (viz Mesh::initialize)
+layout(location = 0) in vec3 aPos;
 layout(location = 3) in vec2 aTex;
 
-// Instanced stav (z TF ping‑pong VBO)
 layout(location = 4) in vec3 iPos;
 layout(location = 5) in vec3 iVel;
 layout(location = 6) in float iLife;
@@ -17,32 +15,65 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
 
-// Sdílené parametry jako v TF
-uniform float u_lifeMin;
 uniform float u_lifeMax;
 uniform float u_sizeMin;
 uniform float u_sizeMax;
 uniform vec4  u_colorStart;
 uniform vec4  u_colorEnd;
-uniform float u_stretch; // natažení billboardu podél osy Up podle rychlosti
+uniform float u_stretch;
+uniform int   u_mode; // 0 = Billboard (Fire/Smoke), 1 = Stretched (Rain)
 
 void main() {
     vTex = aTex;
 
-    // Stejný výpočet t, velikosti a barvy jako v TF (vizuální shoda)
     float t = clamp(iLife / max(u_lifeMax, 0.0001), 0.0, 1.0);
-    float s = mix(u_sizeMin, u_sizeMax, t);
-    float vlen = length(iVel);
-    float sx = s;
-    float sy = s + vlen * u_stretch;
+    float s;
+    if (u_mode == 1) {
+       // Vytvoříme pseudo-náhodnou velikost mezi sizeMin a sizeMax založenou na seedu
+       float variation = fract(sin(iSeed) * 43758.5453);
+       s = mix(u_sizeMin, u_sizeMax, variation);
+    } else {
+       // Pro oheň necháme postupné zmenšování/zvětšování podle života
+       s = mix(u_sizeMin, u_sizeMax, t);
+    }
     vColor = mix(u_colorEnd, u_colorStart, t);
 
-    // Camera-facing billboard: Right/Up z view matice
-    vec2 quad = vec2(aPos.x, aPos.z);
-    mat3 camRot = transpose(mat3(view));
-    vec3 right = camRot[0];
-    vec3 up    = camRot[1];
+    // Extrakce vektorů kamery z view matice
+    vec3 camRight = vec3(view[0][0], view[1][0], view[2][0]);
+    vec3 camUp    = vec3(view[0][1], view[1][1], view[2][1]);
 
-    vec3 worldPos = iPos + right * (quad.x * sx) + up * (quad.y * sy);
-    gl_Position = projection * view * model * vec4(worldPos, 1.0);
+    vec3 offset;
+
+    if (u_mode == 1) {
+        // --- REŽIM DÉŠŤ (Protažení podle rychlosti) ---
+        vec3 stretchDir = normalize(iVel);
+        float speed = length(iVel);
+
+        // aPos.x je šířka (do stran od kamery)
+        // aPos.z je délka (ve směru pádu)
+        offset = (camRight * aPos.x * s) +
+                 (stretchDir * aPos.z * (s + speed * u_stretch));
+    }
+    else {
+        // --- REŽIM OHEŇ/KOUŘ (Klasický billboard) ---
+        // Použijeme iPos.y pro případné mírné protažení ohně nahoru,
+        // ale standardně se točí za kamerou (aPos.x a aPos.z tvoří quad)
+        float speed = length(iVel);
+        float sx = s;
+        float sy = s + speed * u_stretch; // Oheň se může natahovat "vzhůru"
+
+        offset = (camRight * aPos.x * sx) + (camUp * aPos.z * sy);
+    }
+
+    // Výpočet výsledné pozice
+    vec4 worldPos;
+    if (u_mode == 1) {
+        // Rain je v World Space, ignorujeme model matrix (nebo použijeme Identity)
+        worldPos = vec4(iPos + offset, 1.0);
+    } else {
+        // Oheň/Kouř jsou lokální k objektu
+        worldPos = model * vec4(iPos + offset, 1.0);
+    }
+
+    gl_Position = projection * view * worldPos;
 }

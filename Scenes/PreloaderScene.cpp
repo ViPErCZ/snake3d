@@ -8,12 +8,13 @@ namespace Scenes {
         : Scene(rendererManager, camera, projection, rm, width, height) {
     }
 
-    void PreloaderScene::init() {
-        Scene::init();
+    void PreloaderScene::init(const int priority) {
+        Scene::init(priority);
 
         const auto preLoader = initPreloader();
         camera->setStickyPoint(preLoader);
-        meshNode3d.push_back(preLoader);
+        // meshNode3d.push_back(preLoader);
+        addMeshNode3D(preLoader);
     }
 
     shared_ptr<MeshNode3D> PreloaderScene::initPreloader() const {

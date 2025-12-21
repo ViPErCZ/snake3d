@@ -14,7 +14,7 @@ namespace Renderer {
         delete smokes;
     }
 
-    void FireRenderer::render3D(const float dt) {
+    void FireRenderer::render3D(const float dt, uint64_t frameId) {
         fires->update(dt, offset);
         smokes->update(dt, offset);
         fires->render(camera->getViewMatrix(), projection);

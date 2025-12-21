@@ -106,7 +106,7 @@ namespace Renderer {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    void BoltRenderer::render3D(float dt) {
+    void BoltRenderer::render3D(float dt, uint64_t frameId) {
         if (!isActive) return;
 
         timeSinceLastBolt += dt;

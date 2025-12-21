@@ -21,7 +21,7 @@ namespace Model {
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows);
 
-        virtual void update(float dt);
+        virtual void update(float dt, uint64_t frameId);
 
         void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const;
@@ -60,6 +60,7 @@ namespace Model {
         bool childrenChangedSignal;
         int childrenChangedSignalCycles = 0;
         string animation;
+        uint64_t lastUpdatedFrame;
     };
 } // Model
 

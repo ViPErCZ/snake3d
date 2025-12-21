@@ -17,15 +17,23 @@ using namespace Model;
 using namespace Manager;
 
 namespace Scenes {
+    struct RendererEntry3D {
+        shared_ptr<MeshNode3D> node;
+        int priority;
+    };
+    struct RendererEntry2D {
+        shared_ptr<MeshNode2D> node;
+        int priority;
+    };
     class SceneRenderer final : public BaseRenderer {
     public:
         SceneRenderer(const shared_ptr<Camera> &camera, const glm::mat4 &projection, int width, int height);
 
         ~SceneRenderer() override;
 
-        void update(const vector<shared_ptr<MeshNode3D> > &nodes, const vector<shared_ptr<MeshNode2D> > &nodes2d);
+        void update(const vector<RendererEntry3D> &nodes, const vector<RendererEntry2D> &nodes2d);
 
-        void render3D(float dt) override;
+        void render3D(float dt, uint64_t frameId) override;
 
         void render2D(float dt) override;
 
@@ -40,8 +48,8 @@ namespace Scenes {
     private:
         shared_ptr<Camera> camera;
         glm::mat4 projection;
-        vector<shared_ptr<MeshNode3D> > nodes3d;
-        vector<shared_ptr<MeshNode2D> > nodes2d;
+        vector<RendererEntry3D> nodes3d;
+        vector<RendererEntry2D> nodes2d;
         unique_ptr<Node3DRenderer> meshNode3DRenderer;
         unique_ptr<Node2DRenderer> meshNode2DRenderer;
     };

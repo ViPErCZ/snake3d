@@ -1,26 +1,19 @@
 #ifndef SNAKE3_APP_H
 #define SNAKE3_APP_H
 
-#include "ItemsDto/Snake.h"
-#include "ItemsDto/ObjWall.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
 #include "Renderer/Opengl/SkyboxRenderer.h"
-#include "Renderer/Opengl/SnakeRenderer.h"
 #include "Handler/EatLocationHandler.h"
 #include "Manager/EatManager.h"
-#include "ItemsDto/Barriers.h"
-#include "Renderer/Opengl/BarrierRenderer.h"
 #include "Manager/LevelManager.h"
-#include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
 #include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/FireRenderer.h"
-#include "Renderer/Opengl/TorchRenderer.h"
 #include <AL/al.h>
 #include <nlohmann/json.hpp>
 #include "Scenes/MainScene.h"
@@ -58,12 +51,6 @@ public:
 protected:
     void initScene();
     void InitResourceManager() const;
-    // Snake* InitSnake();
-    // ObjWall* InitObjWall(); // outer wall
-    //static Radar* CreateRadar();
-    //void InitRadar();
-    // [[nodiscard]] Eat *InitEat() const;
-    void initTexts() const;
 private:
     struct TextureEntry {
         std::string name;
@@ -73,18 +60,9 @@ private:
     unique_ptr<LevelManager> levelManager;
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
-    Snake* snake{};
-    ObjWall* objWall{};
-    Barriers* barriers = nullptr;
-    shared_ptr<SnakeRenderer> snakeRenderer;
-    shared_ptr<ObjWallRenderer> objWallRenderer{};
-    shared_ptr<BarrierRenderer> barrierRenderer{};
-    //shared_ptr<TextRenderer> textRenderer{};
     shared_ptr<RainRenderer> rainRenderer{};
-    // shared_ptr<AnimRenderer> animRenderer{};
     shared_ptr<RainDropRenderer> rainDropRenderer{};
     shared_ptr<FireRenderer> fireRenderer{};
-    shared_ptr<TorchRenderer> torchRenderer{};
     shared_ptr<BoltRenderer> boltRenderer{};
     unique_ptr<KeyboardManager> keyboardManager;
     shared_ptr<CollisionDetector> collisionDetector;

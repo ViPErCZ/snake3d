@@ -8,7 +8,7 @@ namespace Renderer {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     }
 
-    void Node2DRenderer::render3D(float dt) {
+    void Node2DRenderer::render3D(float dt, uint64_t frameId) {
         throw std::runtime_error("Not implemented. Use render2D() instead.");
     }
 

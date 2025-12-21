@@ -8,8 +8,8 @@ namespace Scenes {
         : Scene(rendererManager, camera, projection, rm, width, height) {
     }
 
-    void CoinScene::init() {
-        Scene::init();
+    void CoinScene::init(const int priority) {
+        Scene::init(priority);
         initCoin();
     }
 
@@ -108,7 +108,9 @@ namespace Scenes {
             player->reset("eatenUp");
         });
 
-        meshNode3d.push_back(coin);
-        meshNode3d.push_back(removeCoin);
+        // meshNode3d.push_back(coin);
+        // meshNode3d.push_back(removeCoin);
+        addMeshNode3D(coin);
+        addMeshNode3D(removeCoin);
     }
 } // Scenes

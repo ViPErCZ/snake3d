@@ -1,16 +1,21 @@
 #include "GPUParticle3D.h"
 
 namespace Model {
-    GPUParticle3D::GPUParticle3D(const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager,
-                                 const int maxParticles) : MeshNode3D(mesh, resourceManager),
-                                                           resourceManager(resourceManager), maxParticles(maxParticles),
-                                                           VAO{}, particleVBO{} {
+    GPUParticle3D::GPUParticle3D(const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager,
+                                 const int maxParticles) : MeshNode3D(mesh, resourceManager), resourceManager(resourceManager),
+                                                           maxParticles(maxParticles), VAO{},
+                                                           particleVBO{}, camera(camera) {
         initBuffers();
         setPreset(Preset::Fire);
         setRenderMode(RenderMode::Color);
     }
 
-    void GPUParticle3D::update(const float dt) {
+    void GPUParticle3D::update(const float dt, const uint64_t frameId) {
+        if (lastUpdatedFrame == frameId) {
+            return;
+        }
+
+        lastUpdatedFrame = frameId;
         auto runTfStep = [&](const float stepDt) {
             const int src = frameIndex % 2;
             const int dst = (frameIndex + 1) % 2;
@@ -18,7 +23,17 @@ namespace Model {
             shader->use();
             shader->setFloat("u_dt", stepDt);
             shader->setFloat("u_timeAccum", timeAccum);
-            shader->setVec3("u_emitterPos", glm::vec3(0.0f));
+            if (currentPreset == Preset::Rain) {
+                shader->setVec3("u_emitterPos", camera->getPosition());
+                shader->setVec3("u_camRight", camera->getRight());
+                shader->setVec3("u_camForward", camera->getFront());
+                shader->setVec2("u_rainArea", glm::vec2(30.0f, 30.0f));
+                shader->setFloat("u_rainHeight", 15.0f);
+                shader->setInt("u_mode", 1);
+            } else {
+                shader->setVec3("u_emitterPos", glm::vec3(0.0f));
+                shader->setInt("u_mode", 0);
+            }
             // Obecné uniformy z ParticleParams (parametrizace TF výstupu)
             shader->setFloat("u_lifeMin", particleParams.lifeMin);
             shader->setFloat("u_lifeMax", particleParams.lifeMax);
@@ -44,7 +59,6 @@ namespace Model {
             frameIndex++;
         };
 
-        // Smooth start: první frame udělej warm-up substeps s malým dt, abychom odstranili burst
         if (firstFrame && particleParams.smoothStart) {
             const int substeps = std::max(1, particleParams.warmupSubsteps);
             const float totalWarmup = std::max(0.0f, particleParams.warmupTime);
@@ -58,7 +72,6 @@ namespace Model {
             return;
         }
 
-        // Běžná aktualizace s ochranou proti extrémnímu prvotnímu dt
         float usedDt = dt;
         if (firstFrame) {
             usedDt = std::min(dt, particleParams.firstFrameClamp);
@@ -80,8 +93,15 @@ namespace Model {
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setMat4("projection", projection);
-        shader->setMat4("model", parentTransform * this->getModelMatrix());
-        // Poskytnout stejné uniformy jako TF, aby render VS dopočítal velikost/barvu shodně
+        if (currentPreset != Preset::Rain) {
+            shader->setMat4("model", parentTransform * this->getModelMatrix());
+            shader->setInt("u_mode", 0);
+        } else {
+            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+            shader->setMat4("model", glm::mat4(1.0f));
+            shader->setInt("u_mode", 1);
+        }
         shader->setFloat("u_lifeMin", particleParams.lifeMin);
         shader->setFloat("u_lifeMax", particleParams.lifeMax);
         shader->setFloat("u_sizeMin", particleParams.sizeMin);
@@ -90,7 +110,6 @@ namespace Model {
         shader->setVec4("u_colorStart", particleParams.colorStart);
         shader->setVec4("u_colorEnd", particleParams.colorEnd);
         if (useTexture) {
-            // explicitně nastav sampler na jednotku 0 a bindni texturu
             shader->setInt("uTexture0", 0);
             const auto tex = resourceManager->getTexture(particleParams.texture);
             if (tex) tex->bind();
@@ -126,18 +145,21 @@ namespace Model {
             maxParticles
         );
 
+        glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
     }
 
     void GPUParticle3D::initBuffers() {
-        // Inicializace "simulačních" částic pro TF
         std::vector<GPUParticle> initial(maxParticles);
         for (int i = 0; i < maxParticles; i++) {
             initial[i].position = glm::vec3(0.0f);
             initial[i].velocity = glm::vec3(0.0f);
             initial[i].life = 0.0f;
             initial[i].seed = static_cast<float>(i) * 17.123f;
+
+            const float maxL = particleParams.lifeMax > 0 ? particleParams.lifeMax : 2.0f;
+            initial[i].life = static_cast<float>(random()) / static_cast<float>(RAND_MAX) * maxL;
         }
 
         // Ping-pong buffer pro TF
@@ -156,22 +178,22 @@ namespace Model {
             glEnableVertexAttribArray(0); // inPos
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                                   sizeof(GPUParticle),
-                                  (void *) offsetof(GPUParticle, position));
+                                  reinterpret_cast<void *>(offsetof(GPUParticle, position)));
 
             glEnableVertexAttribArray(1); // inVel
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
                                   sizeof(GPUParticle),
-                                  (void *) offsetof(GPUParticle, velocity));
+                                  reinterpret_cast<void *>(offsetof(GPUParticle, velocity)));
 
             glEnableVertexAttribArray(2); // inLife
             glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE,
                                   sizeof(GPUParticle),
-                                  (void *) offsetof(GPUParticle, life));
+                                  reinterpret_cast<void *>(offsetof(GPUParticle, life)));
 
             glEnableVertexAttribArray(3); // inSeed
             glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
                                   sizeof(GPUParticle),
-                                  (void *) offsetof(GPUParticle, seed));
+                                  reinterpret_cast<void *>(offsetof(GPUParticle, seed)));
         }
 
         glBindVertexArray(0);
@@ -211,24 +233,35 @@ namespace Model {
                 break;
             }
             case Preset::Rain: {
-                particleParams.lifeMin = 1.0f; particleParams.lifeMax = 1.5f;
-                particleParams.sizeMin = 0.005f; particleParams.sizeMax = 0.01f;
-                particleParams.velMin = {0.0f, -3.5f, 0.0f};
-                particleParams.velMax = {0.0f, -6.0f, 0.0f};
-                particleParams.gravity = {0.0f, -9.0f, 0.0f};
-                particleParams.emitterRadius = 1.5f;
-                particleParams.colorStart = {0.7f, 0.8f, 1.0f, 0.8f};
-                particleParams.colorEnd   = {0.7f, 0.8f, 1.0f, 0.2f};
+                particleParams.lifeMin = 1.0f;
+                particleParams.lifeMax = 1.8f; // Kratší život, padá to rychle
+                particleParams.sizeMin = 0.012f;
+                particleParams.sizeMax = 0.012f;
+                particleParams.stretch = 0.05f; // Snížíme stretch násobič
+                particleParams.stretch = 0.003f;
+
+                particleParams.velMin = { -0.2f, -0.2f, -15.0f };
+                particleParams.velMax = {  0.2f,  0.2f, -25.0f };
+
+                particleParams.gravity = { 0.0f, 0.0f, -2.8f };
+
+                particleParams.emitterRadius = 25.0f;
+                particleParams.emitterYOffset = 15.0f;
+
+                particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
+                particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
                 break;
             }
             case Preset::Snow: {
-                particleParams.lifeMin = 3.0f; particleParams.lifeMax = 6.0f;
-                particleParams.sizeMin = 0.01f; particleParams.sizeMax = 0.03f;
-                particleParams.velMin = {-0.1f, -0.5f, -0.1f};
-                particleParams.velMax = { 0.1f, -0.2f,  0.1f};
-                particleParams.gravity = {0.0f, -0.8f, 0.0f};
-                particleParams.emitterRadius = 2.0f;
-                particleParams.colorStart = {1.0f, 1.0f, 1.0f, 0.9f};
+                particleParams.lifeMin = 4.0f; particleParams.lifeMax = 6.0f;
+                particleParams.sizeMin = 0.1f; particleParams.sizeMax = 0.3f;
+                particleParams.stretch = 0.0f; // Sníh se nenatahuje
+                particleParams.velMin = {-0.5f, -0.5f, -1.0f}; // Pomalý pád a mírný vítr
+                particleParams.velMax = { 0.5f,  0.5f, -2.0f};
+                particleParams.gravity = {0.0f, 0.0f, -0.5f};
+                particleParams.emitterRadius = 15.0f;
+                particleParams.emitterYOffset = 10.0f;
+                particleParams.colorStart = {1.0f, 1.0f, 1.0f, 0.8f};
                 particleParams.colorEnd   = {1.0f, 1.0f, 1.0f, 0.0f};
                 break;
             }

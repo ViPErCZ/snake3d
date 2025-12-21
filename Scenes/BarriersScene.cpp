@@ -7,8 +7,8 @@ namespace Scenes {
         : Scene(rendererManager, camera, projection, rm, width, height) {
     }
 
-    void BarriersScene::init() {
-        Scene::init();
+    void BarriersScene::init(const int priority) {
+        Scene::init(priority);
         initBarriers();
         initLevelManager();
     }
@@ -75,13 +75,13 @@ namespace Scenes {
             boxNode3D->addNode(boxNode3D_2);
         }
 
-        meshNode3d.push_back(boxNode3D);
+        addMeshNode3D(boxNode3D, 100);
     }
 
     void BarriersScene::initLevelManager() {
         levelManager = make_shared<LevelManager>(1, MAX_LIVES, resourceManager);
         levelManager->createLevel(START_LEVEL);
         levelBoxes = levelManager->createLevel(START_LEVEL);
-        meshNode3d.push_back(levelBoxes);
+        addMeshNode3D(levelBoxes, 3001);
     }
 } // Scenes

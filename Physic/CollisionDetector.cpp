@@ -13,37 +13,37 @@ namespace Physic {
         staticItems.push_back(item);
     }
 
-    void CollisionDetector::setPerimeter(const shared_ptr<ObjWall> &wall) {
-        this->perimeter = wall;
-    }
-
-    void CollisionDetector::setBarriers(const shared_ptr<Barriers> &barriers) {
-        CollisionDetector::barriers = barriers;
-    }
-
-    bool CollisionDetector::perimeterDetect(const shared_ptr<BaseItem> &snakeHead) const {
-
-        if (perimeter == nullptr) {
-            return false;
-        }
-
-        // for (auto Iter = perimeter->getItems().begin(); Iter < perimeter->getItems().end(); ++Iter) {
-        //     blendBarrierDetect(snakeHead, Iter);
-        // }
-
-        const int x = snakeHead->x;
-        const int y = snakeHead->y;
-
-        if (x > perimeter->getMaxX()
-            || x < perimeter->getMinX()
-            || y > perimeter->getMaxY()
-            || y < perimeter->getMinY()
-                ) { // detekujeme ohradu kolem hraciho pole
-            return true;
-        }
-
-        return false;
-    }
+    // void CollisionDetector::setPerimeter(const shared_ptr<ObjWall> &wall) {
+    //     this->perimeter = wall;
+    // }
+    //
+    // void CollisionDetector::setBarriers(const shared_ptr<Barriers> &barriers) {
+    //     CollisionDetector::barriers = barriers;
+    // }
+    //
+    // bool CollisionDetector::perimeterDetect(const shared_ptr<BaseItem> &snakeHead) const {
+    //
+    //     if (perimeter == nullptr) {
+    //         return false;
+    //     }
+    //
+    //     // for (auto Iter = perimeter->getItems().begin(); Iter < perimeter->getItems().end(); ++Iter) {
+    //     //     blendBarrierDetect(snakeHead, Iter);
+    //     // }
+    //
+    //     const int x = snakeHead->x;
+    //     const int y = snakeHead->y;
+    //
+    //     if (x > perimeter->getMaxX()
+    //         || x < perimeter->getMinX()
+    //         || y > perimeter->getMaxY()
+    //         || y < perimeter->getMinY()
+    //             ) { // detekujeme ohradu kolem hraciho pole
+    //         return true;
+    //     }
+    //
+    //     return false;
+    // }
 
     bool CollisionDetector::detectWithStaticItem(const shared_ptr<MeshNode3D> &node) {
         for (auto Iter = staticItems.begin(); Iter < staticItems.end(); ++Iter) {
@@ -80,18 +80,18 @@ namespace Physic {
         return false;
     }
 
-    bool CollisionDetector::barrierCollision(const shared_ptr<BaseItem> &snakeHead) const {
-        if (barriers) {
-            for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
-                //blendBarrierDetect(snakeHead, Iter);
-                if (detect(snakeHead, static_pointer_cast<BaseItem>(*Iter))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
+    // bool CollisionDetector::barrierCollision(const shared_ptr<BaseItem> &snakeHead) const {
+    //     if (barriers) {
+    //         for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); ++Iter) {
+    //             //blendBarrierDetect(snakeHead, Iter);
+    //             if (detect(snakeHead, static_pointer_cast<BaseItem>(*Iter))) {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //
+    //     return false;
+    // }
 
     void CollisionDetector::blendBarrierDetect(shared_ptr<BaseItem> &snakeHead, shared_ptr<BaseItem> &barrier) {
 //        glm::vec3 headPosition = snakeHead->getPosition();
@@ -106,20 +106,20 @@ namespace Physic {
 //        }
     }
 
-    bool CollisionDetector::intoHimSelf(const shared_ptr<Snake> &snake) {
-        const auto snakeHead = snake->getItems().begin()->get()->tile;
-
-        for (auto Iter = snake->getItems().begin()+3; Iter < snake->getItems().end(); ++Iter) {
-            if (!(*Iter)->tile->isVisible()) {
-                continue;
-            }
-
-            if (detect(snakeHead, (*Iter)->tile)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    // bool CollisionDetector::intoHimSelf(const shared_ptr<Snake> &snake) {
+    //     const auto snakeHead = snake->getItems().begin()->get()->tile;
+    //
+    //     for (auto Iter = snake->getItems().begin()+3; Iter < snake->getItems().end(); ++Iter) {
+    //         if (!(*Iter)->tile->isVisible()) {
+    //             continue;
+    //         }
+    //
+    //         if (detect(snakeHead, (*Iter)->tile)) {
+    //             return true;
+    //         }
+    //     }
+    //
+    //     return false;
+    // }
 
 } // Physic

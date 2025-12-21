@@ -7,7 +7,6 @@ namespace Model {
     class CoinMeshNode3D final : public MeshNode3D {
     public:
         using MeshNode3D::MeshNode3D;
-        void update(float dt) override;
     protected:
         double lastTime{};
     };

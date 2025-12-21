@@ -3,7 +3,7 @@
 namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
-        : mesh(mesh), resourceManager(resourceManager), transformDetached(false), childrenChangedSignal(false) {
+        : mesh(mesh), resourceManager(resourceManager), transformDetached(false), childrenChangedSignal(false), lastUpdatedFrame(0) {
         contextState = make_shared<ContextState>();
     }
 
@@ -34,10 +34,16 @@ namespace Model {
         }
     }
 
-    void MeshNode3D::update(const float dt) {
+    void MeshNode3D::update(const float dt, const uint64_t frameId) {
+        if (lastUpdatedFrame == frameId) {
+            return;
+        }
+
+        lastUpdatedFrame = frameId;
+
         mesh->update(dt);
         for (const auto &node: children) {
-            node->update(dt);
+            node->update(dt, frameId);
         }
         if (childrenChangedSignalCycles > 1) {
             childrenChangedSignal = false;

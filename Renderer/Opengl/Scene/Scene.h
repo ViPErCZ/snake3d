@@ -21,7 +21,7 @@ namespace Scenes {
             const shared_ptr<Camera> &camera, const glm::mat4 &projection,
             const shared_ptr<ResourceManager> &rm, int width, int height);
 
-        virtual void init();
+        virtual void init(int priority);
 
         virtual void update();
 
@@ -31,9 +31,13 @@ namespace Scenes {
 
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
+        void addMeshNode3D(shared_ptr<MeshNode3D> node, int priority = 0);
+
+        void addMeshNode2D(shared_ptr<MeshNode2D> node, int priority = 0);
+
     protected:
-        vector<shared_ptr<MeshNode3D> > meshNode3d;
-        vector<shared_ptr<MeshNode2D> > meshNode2d;
+        vector<RendererEntry3D> meshNode3d;
+        vector<RendererEntry2D> meshNode2d;
         shared_ptr<DirectionalLight> directionalLight;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<SceneRenderer> sceneRenderer;

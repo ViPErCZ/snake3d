@@ -45,7 +45,7 @@ namespace Renderer {
         BoltRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
         ~BoltRenderer() override;
         
-        void render3D(float dt) override;
+        void render3D(float dt, uint64_t frameId) override;
         void beforeRender() override;
         void afterRender() override;
         void renderShadowMap() override;

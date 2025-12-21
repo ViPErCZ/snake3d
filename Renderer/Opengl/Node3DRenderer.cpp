@@ -16,8 +16,8 @@ namespace Renderer {
 
     Node3DRenderer::~Node3DRenderer() = default;
 
-    void Node3DRenderer::render3D(const float dt) {
-        rootNode->update(dt);
+    void Node3DRenderer::render3D(const float dt, const uint64_t frameId) {
+        rootNode->update(dt, frameId);
         renderScene();
     }
 

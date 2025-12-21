@@ -9,15 +9,15 @@ namespace Scenes {
 
     SceneRenderer::~SceneRenderer() = default;
 
-    void SceneRenderer::update(const vector<shared_ptr<MeshNode3D> > &nodes, const vector<shared_ptr<MeshNode2D> > &nodes2d) {
+    void SceneRenderer::update(const vector<RendererEntry3D> &nodes, const vector<RendererEntry2D> &nodes2d) {
         this->nodes2d = nodes2d;
         this->nodes3d = nodes;
     }
 
-    void SceneRenderer::render3D(const float dt) {
+    void SceneRenderer::render3D(const float dt, uint64_t frameId) {
         for (auto &node : nodes3d) {
-            this->meshNode3DRenderer->setRootNode(node);
-            this->meshNode3DRenderer->render3D(dt);
+            this->meshNode3DRenderer->setRootNode(node.node);
+            this->meshNode3DRenderer->render3D(dt, frameId);
         }
     }
 
@@ -25,14 +25,14 @@ namespace Scenes {
         BaseRenderer::render2D(dt);
 
         for (auto &node : nodes2d) {
-            this->meshNode2DRenderer->setRootNode(node);
+            this->meshNode2DRenderer->setRootNode(node.node);
             this->meshNode2DRenderer->render2D(dt);
         }
     }
 
     void SceneRenderer::renderShadowMap() {
         for (auto &node : nodes3d) {
-            this->meshNode3DRenderer->setRootNode(node);
+            this->meshNode3DRenderer->setRootNode(node.node);
             this->meshNode3DRenderer->renderShadowMap();
         }
     }

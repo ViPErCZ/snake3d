@@ -8,8 +8,8 @@ namespace Scenes {
             : Scene(rendererManager, camera, projection, rm, width, height) {
     }
 
-    void PlayerScene::init() {
-        Scene::init();
+    void PlayerScene::init(const int priority) {
+        Scene::init(priority);
         initSnake();
         initSnakeMoveHandler();
     }
@@ -48,7 +48,8 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
-        meshNode3d.push_back(snake);
+        // meshNode3d.push_back(snake);
+        addMeshNode3D(snake);
     }
 
     void PlayerScene::initSnakeMoveHandler() {

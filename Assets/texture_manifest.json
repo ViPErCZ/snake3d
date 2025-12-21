@@ -70,6 +70,11 @@
     "category": "Albedo"
   },
   {
+    "name": "rain.png",
+    "path": "Albedo/rain/rain.png",
+    "category": "Albedo"
+  },
+  {
     "name": "raindrops.png",
     "path": "Albedo/rain/raindrops.png",
     "category": "Albedo"
@@ -77,11 +82,6 @@
   {
     "name": "raindrops_nor.png",
     "path": "Albedo/rain/raindrops_nor.png",
-    "category": "Albedo"
-  },
-  {
-    "name": "rain.jpg",
-    "path": "Albedo/rain.jpg",
     "category": "Albedo"
   },
   {

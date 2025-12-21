@@ -3,7 +3,6 @@
 #include <glm/gtc/random.hpp>
 
 #include "PlayerScene.h"
-#include "../Renderer/Opengl/BarrierRenderer.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
@@ -21,8 +20,8 @@ namespace Scenes {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
     }
 
-    void MainScene::init() {
-        Scene::init();
+    void MainScene::init(const int priority) {
+        Scene::init(priority);
 
         positionHandler = make_shared<PositionHandler>(camera);
         collisionDetector = make_shared<CollisionDetector>();
@@ -42,8 +41,9 @@ namespace Scenes {
         // GPU Particle TEST
         // ===========================
         const auto quad = make_shared<PlaneMesh>(resourceManager->getShader("basicShader"), 3.5, 3.5);
-        const auto fire = make_shared<GPUParticle3D>(quad, resourceManager, 150);
-        const auto smoke = make_shared<GPUParticle3D>(quad, resourceManager, 90);
+        const auto fire = make_shared<GPUParticle3D>(camera, quad, resourceManager, 150);
+        const auto smoke = make_shared<GPUParticle3D>(camera, quad, resourceManager, 10);
+        const auto rain = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
         smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
@@ -55,6 +55,7 @@ namespace Scenes {
         // Preset a parametry pro vizuál ohně podobný FireParticleSystem
         fire->setPreset(GPUParticle3D::Preset::Fire);
         smoke->setPreset(GPUParticle3D::Preset::Smoke);
+        rain->setPreset(GPUParticle3D::Preset::Rain);
         auto fp = fire->getParams();
         fp.lifeMin = 0.5f;
         fp.lifeMax = 1.0f;
@@ -77,7 +78,7 @@ namespace Scenes {
         fire->setRenderMode(GPUParticle3D::RenderMode::Textured);
 
         auto sp = smoke->getParams();
-        sp.lifeMax = 0.7f;
+        sp.lifeMax = 0.5f;
         sp.sizeMin = 0.08f;
         sp.sizeMax = 0.042f;
         sp.emitterRadius = 0.03f;
@@ -90,12 +91,29 @@ namespace Scenes {
         smoke->setParams(sp);
         smoke->setRenderMode(GPUParticle3D::RenderMode::Textured);
 
+        auto rp = rain->getParams();
+        rp.texture = "rain.png";
+        rain->setParams(rp);
+        rain->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
         const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
         torch->fromMesh(resourceManager->getModel("torch"));
         const auto torchNode = make_shared<MeshNode3D>(torch, resourceManager);
+        const auto torchNode2 = make_shared<MeshNode3D>(torch, resourceManager);
+        const auto torchNode3 = make_shared<MeshNode3D>(torch, resourceManager);
+        const auto torchNode4 = make_shared<MeshNode3D>(torch, resourceManager);
         torchNode->setRotationX(90);
+        torchNode2->setRotationX(90);
+        torchNode3->setRotationX(90);
+        torchNode4->setRotationX(90);
         torchNode->setScale({0.2, 0.2, 0.2});
-        torchNode->setPosition({0.0, 0.0, -5.0});
+        torchNode2->setScale({0.2, 0.2, 0.2});
+        torchNode3->setScale({0.2, 0.2, 0.2});
+        torchNode4->setScale({0.2, 0.2, 0.2});
+        torchNode->setPosition({-5.07928, -5.47677, -4.98698});
+        torchNode2->setPosition({15.2239, -5.47677, -4.98698});
+        torchNode3->setPosition({15.2753, 15.4487, -4.98698});
+        torchNode4->setPosition({-5.07928, 15.4487, -4.98698});
         const auto directionalLight = make_shared<DirectionalLight>();
         directionalLight->setPosition({0.0f, 7.0f, 11.0f});
         directionalLight->setDirection({1, 1.0, -3});
@@ -114,10 +132,20 @@ namespace Scenes {
 
 
         torchNode->addNode(smoke);
+        torchNode2->addNode(smoke);
+        torchNode3->addNode(smoke);
+        torchNode4->addNode(smoke);
         torchNode->addNode(fire);
+        torchNode2->addNode(fire);
+        torchNode3->addNode(fire);
+        torchNode4->addNode(fire);
 
-        meshNode3d.push_back(torchNode);
-        positionHandler->addItem(torchNode);
+        addMeshNode3D(torchNode, 1);
+        addMeshNode3D(torchNode2, 1);
+        addMeshNode3D(torchNode3, 1);
+        addMeshNode3D(torchNode4, 1);
+        addMeshNode3D(rain, 1);
+        positionHandler->addItem(torchNode4);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -153,14 +181,6 @@ namespace Scenes {
         }
 
         keyboardManager->addEventHandler(positionHandler);
-    }
-
-    void MainScene::initPlayerScene() {
-        playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
-        playerScene->init();
-        snakeMoveHandler = playerScene->getSnakeMoveHandler();
-        snakeMoveHandler->setCollisionDetector(collisionDetector);
-        addNode(playerScene);
     }
 
     void MainScene::initSkybox() {
@@ -200,19 +220,28 @@ namespace Scenes {
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
 
-        meshNode3d.push_back(node3d);
+        // meshNode3d.push_back(node3d);
+        addMeshNode3D(node3d, 101);
+    }
+
+    void MainScene::initPlayerScene() {
+        playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
+        playerScene->init(0);
+        snakeMoveHandler = playerScene->getSnakeMoveHandler();
+        snakeMoveHandler->setCollisionDetector(collisionDetector);
+        addNode(playerScene);
     }
 
     void MainScene::initBarriersScene() {
         barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
-        barriersScene->init();
+        barriersScene->init(1);
         levelManager = barriersScene->getLevelManager();
         addNode(barriersScene);
     }
 
     void MainScene::initCoinScene() {
         coinScene = make_shared<CoinScene>(rendererManager, camera, projection, resourceManager, width, height);
-        coinScene->init();
+        coinScene->init(1);
         addNode(coinScene);
 
         collisionDetector->addStaticItem(coinScene->getCoin());
@@ -263,7 +292,8 @@ namespace Scenes {
         radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
         radarMeshNode->hideItems();
 
-        meshNode2d.push_back(radarMeshNode);
+        // meshNode2d.push_back(radarMeshNode);
+        addMeshNode2D(radarMeshNode);
     }
 
     void MainScene::initLabels() {
@@ -296,8 +326,10 @@ namespace Scenes {
         tilesCounterNode = make_shared<MeshNode2D>(tilesCounterText, resourceManager);
         tilesCounterNode->setVisible(false);
 
-        meshNode2d.push_back(helpText);
-        meshNode2d.push_back(tilesCounterNode);
+        // meshNode2d.push_back(helpText);
+        // meshNode2d.push_back(tilesCounterNode);
+        addMeshNode2D(helpText);
+        addMeshNode2D(tilesCounterNode);
     }
 
     void MainScene::buildEatenUpCallback() const {

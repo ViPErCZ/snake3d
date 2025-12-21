@@ -106,7 +106,7 @@ namespace Manager {
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             Iter->renderer->beforeRender();
-            Iter->renderer->render3D(dt);
+            Iter->renderer->render3D(dt, gFrameId);
             Iter->renderer->afterRender();
         }
 
@@ -119,6 +119,7 @@ namespace Manager {
         if (bloom) {
             this->bloomRenderer->afterRender();
         }
+        gFrameId++;
     }
 
     void RenderManager::setWidth(const int width) {

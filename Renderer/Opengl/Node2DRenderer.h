@@ -16,7 +16,7 @@ namespace Renderer {
     public:
         Node2DRenderer(const shared_ptr<Camera> &camera, int width, int height);
         ~Node2DRenderer() override = default;
-        void render3D(float dt) override;
+        void render3D(float dt, uint64_t frameId) override;
         void render2D(float dt) override;
         void beforeRender() override;
         void afterRender() override;

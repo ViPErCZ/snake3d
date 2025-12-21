@@ -10,8 +10,8 @@ namespace Scenes {
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
     }
 
-    void Scene::init() {
-        rendererManager->addRenderer(sceneRenderer);
+    void Scene::init(const int priority) {
+        rendererManager->addRenderer(sceneRenderer, priority);
     }
 
     Scene::~Scene() {
@@ -51,5 +51,17 @@ namespace Scenes {
         for (const auto &node: nodes) {
             node->keyboardInput(window, keyCode, scancode, action, mods);
         }
+    }
+
+    void Scene::addMeshNode3D(shared_ptr<MeshNode3D> node, const int priority) {
+        meshNode3d.push_back({std::move(node), priority});
+        stable_sort(meshNode3d.begin(), meshNode3d.end(),
+                     [](auto &a, auto &b) { return a.priority > b.priority; });
+    }
+
+    void Scene::addMeshNode2D(shared_ptr<MeshNode2D> node, const int priority) {
+        meshNode2d.push_back({std::move(node), priority});
+        stable_sort(meshNode2d.begin(), meshNode2d.end(),
+                     [](auto &a, auto &b) { return a.priority > b.priority; });
     }
 } // Scene
