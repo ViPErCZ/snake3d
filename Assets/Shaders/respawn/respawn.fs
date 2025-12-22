@@ -12,6 +12,7 @@ uniform float u_Speed;
 uniform float u_FloatParameter;
 uniform float u_Time;
 uniform float u_Delay;
+uniform bool u_useMaterial = false;
 
 out vec4 FragColor;
 
@@ -51,7 +52,7 @@ void main()
     // Místo `vec3(stepValue)` (což dává bílou), použijeme `stepValue`
     // jako násobič pro u_LightColor.
     // =================================================================
-    vec3 emission = stepValue * u_LightColor.rgb;
+    vec3 emission = stepValue * mix(u_LightColor.rgb, meshColor.rgb, float(u_useMaterial));
 
     // 4. Finální barva
     // Sečteme základní barvu a barvu emise.

@@ -7,27 +7,29 @@ layout(location = 3) in float inSeed;
 
 uniform float u_dt;
 uniform vec3  u_emitterPos;
-uniform float u_emitterYOffset = 0.0;
-// Fire params (konfigurovatelné přes GPUParticle3D)
-uniform float u_lifeMin = 1.2;
-uniform float u_lifeMax = 1.8;
-uniform float u_sizeMin = 0.02;
-uniform float u_sizeMax = 0.08;
-uniform vec3  u_velMin  = vec3(-0.1, 0.6, -0.1);
-uniform vec3  u_velMax  = vec3( 0.1, 1.6,  0.1);
-uniform vec3  u_gravity = vec3(0.0, 0.0, -0.4);
-uniform float u_emitterRadius = 0.05; // zkratka pro X/Z, použitá pokud nejsou specifické radii
-uniform float u_emitterRadiusX = 0.05;
-uniform float u_emitterRadiusZ = 0.05;
-uniform float u_spawnPerFrame = 1.0;
-// Akumulovaný čas od startu (pro plynulý rozběh, může zůstat nevyužitý)
-uniform float u_timeAccum = 0.0;
+uniform float u_timeAccum;
 
-uniform int u_mode; // 0 = fire, 1 = rain
-uniform vec2 u_rainArea; // half-size X/Y (world space)
-uniform float u_rainHeight;
-uniform vec3 u_camRight;
-uniform vec3 u_camForward;
+uniform int   u_spawnShape;  // 0 = Local (Fire/Smoke), 1 = Environment (Snow/Rain)
+uniform int   u_respawnMode; // 0 = Die (Fire), 1 = Infinite Wrap (Snow)
+
+// --- (u_spawnShape = 1) ---
+uniform vec2  u_turbulence;
+uniform float u_minRadius;
+uniform float u_maxRadius;
+uniform float u_spawnHeight;
+
+// --- (u_spawnShape = 0) ---
+uniform float u_emitterRadius;
+uniform float u_emitterRadiusX;
+uniform float u_emitterRadiusZ;
+uniform float u_emitterYOffset;
+
+// --- base physic ---
+uniform float u_lifeMin;
+uniform float u_lifeMax;
+uniform vec3  u_velMin;
+uniform vec3  u_velMax;
+uniform vec3  u_gravity;
 
 out vec3 outPos;
 out vec3 outVel;
@@ -38,83 +40,95 @@ float rand(float n) {
     return fract(sin(n) * 43758.5453123);
 }
 
-mat4 compose(vec3 pos, vec3 scale) {
-    return mat4(
-        scale.x, 0, 0, 0,
-        0, scale.y, 0, 0,
-        0, 0, scale.z, 0,
-        pos.x, pos.y, pos.z, 1
-    );
+vec3 spawnRing(float seed, float minR, float maxR) {
+    float a = rand(seed) * 6.2831853;
+    float r = sqrt(mix(minR * minR, maxR * maxR, rand(seed * 1.37)));
+    return vec3(cos(a) * r, sin(a) * r, 0.0);
 }
 
 void main() {
     vec3 pos = inPos;
     vec3 vel = inVel;
     float life = inLife;
+    bool respawn = false;
 
     if (life <= 0.0) {
-        if (u_mode == 1) { // 🌧 RAIN
-            float rx = rand(inSeed + u_timeAccum);
-            float ry = rand(inSeed * 1.37 + u_timeAccum);
-            // Vytvoříme vodorovné vektory (ignorujeme sklon kamery nahoru/dolů)
-                vec3 flatForward = normalize(vec3(u_camForward.x, u_camForward.y, 0.0));
-                vec3 flatRight   = normalize(vec3(u_camRight.x, u_camRight.y, 0.0));
-
-                // Spawnování v boxu kolem kamery
-                // x a y rozptyl (u_rainArea je např. 15, 15)
-                float offsetX = (rx - 0.5) * u_rainArea.x * 2.0;
-                float offsetY = (ry - 0.5) * u_rainArea.y * 2.0;
-
-                // Pozice: Kamera + horizontální posun + pevná výška
-                pos = u_emitterPos
-                    + flatRight * offsetX
-                    + flatForward * offsetY
-                    + vec3(0.0, 0.0, u_rainHeight); // Z je UP
-
-                float rVel = rand(inSeed * 0.123);
-                vel = mix(u_velMin, u_velMax, rVel);
-                life = mix(u_lifeMin, u_lifeMax, rand(inSeed * 0.456));
-        }
-        else {
-            float r0 = rand(inSeed + u_dt * 11.37);
-            float r1 = rand(inSeed + u_dt);
-            float r2 = rand(inSeed * 2.3);
-
-            float ang = r0 * 6.2831853; // 2*pi
-            // generuj jednotkový disk s rovnoměrným rozdělením (sqrt pro plochu)
-            float rad = sqrt(r1);
-            vec2 unitDisk = vec2(cos(ang), sin(ang)) * rad;
-            // použij specifické poloměry v XZ, případně fallback na u_emitterRadius
-            float rx = u_emitterRadiusX > 0.0 ? u_emitterRadiusX : u_emitterRadius;
-            float rz = u_emitterRadiusZ > 0.0 ? u_emitterRadiusZ : u_emitterRadius;
-            vec2 disk = vec2(unitDisk.x * rx, unitDisk.y * rz);
-            pos = u_emitterPos + vec3(disk.x, disk.y, u_emitterYOffset);
-
-            vec3 rv = mix(u_velMin, u_velMax, vec3(r1, r0, r2));
-            vel = rv;
-
-            life = mix(u_lifeMin, u_lifeMax, r2);
-        }
-    } else {
-        // jednoduchá integrace bez uložení stavu (stateless TF)
-        // pro skutečný stav by bylo nutné ping-pong TF pro pos/vel/life
-        vel += u_gravity * u_dt;
-        pos += vel * u_dt;
-        life -= u_dt;
+        respawn = true;
     }
 
-    float t = clamp(life / max(u_lifeMax, 0.0001), 0.0, 1.0);
-    // základní izotropická škála
-    float s = mix(u_sizeMin, u_sizeMax, t);
-    // "stretched billboard" – výška proporcionalní rychlosti částice
-    float speed = length(vel);
-    vec3 scale = vec3(s, s, s + speed * 0.02);
+    if (length(vel) < 0.001 && length(u_gravity) > 0.001) {
+        respawn = true;
+    }
 
-    // výstup stavů pro ping-pong TF
+    if (!respawn) {
+
+        if (u_turbulence.x > 0.0) {
+            float sway = sin(u_timeAccum * u_turbulence.y + inSeed) * u_turbulence.x;
+            pos.x += sway * u_dt;
+            pos.y += cos(u_timeAccum * (u_turbulence.y * 0.8) + inSeed) * (u_turbulence.x * 0.5) * u_dt;
+        }
+
+        vel += u_gravity * u_dt;
+        pos += vel * u_dt;
+
+        if (u_respawnMode == 1) {
+            float floorLevel = u_emitterPos.z - u_spawnHeight;
+            if (pos.z < floorLevel) {
+                pos.z += u_spawnHeight * 1.5;
+                vec3 offset = spawnRing(inSeed + u_timeAccum, 0.0, u_maxRadius * 0.2);
+                pos.x += offset.x;
+                pos.y += offset.y;
+            }
+
+            float dist = distance(pos.xy, u_emitterPos.xy);
+            if (dist > u_maxRadius * 1.2 || (dist < u_minRadius && pos.z < u_emitterPos.z)) {
+                respawn = true;
+            }
+
+            life = u_lifeMax;
+        } else {
+            life -= u_dt;
+        }
+    }
+
+    // 3. SPAWN / RESPAWN
+    if (respawn) {
+        float r0 = rand(inSeed + u_timeAccum);
+        float r1 = rand(inSeed * 1.45 + u_dt);
+        float r2 = rand(inSeed * 2.11);
+
+        if (u_spawnShape == 1) {
+            vec3 ring = spawnRing(inSeed + u_timeAccum, u_minRadius, u_maxRadius);
+            pos.x = u_emitterPos.x + ring.x;
+            pos.y = u_emitterPos.y + ring.y;
+            pos.z = u_emitterPos.z + mix(-u_spawnHeight * 0.5, u_spawnHeight, r2);
+
+            vel = vec3(
+                mix(u_velMin.x, u_velMax.x, r0),
+                mix(u_velMin.y, u_velMax.y, r1),
+                mix(u_velMin.z, u_velMax.z, r2)
+            );
+            life = u_lifeMax;
+        }
+        else {
+            float ang = r0 * 6.2831853;
+            float rad = sqrt(r1); // Normalized radius 0..1
+            float rx = u_emitterRadiusX > 0.0 ? u_emitterRadiusX : u_emitterRadius;
+            float rz = u_emitterRadiusZ > 0.0 ? u_emitterRadiusZ : u_emitterRadius;
+            vec2 disk = vec2(cos(ang), sin(ang)) * rad;
+
+            disk.x *= rx;
+            disk.y *= rz;
+
+            pos = u_emitterPos + vec3(disk.x, disk.y, u_emitterYOffset);
+            vel = mix(u_velMin, u_velMax, vec3(r0, r1, r2));
+            life = mix(u_lifeMin, u_lifeMax, r2);
+        }
+    }
+
     outPos = pos;
     outVel = vel;
     outLife = life;
     outSeed = inSeed;
-
-    gl_Position = vec4(0.0); // TF VS neukazuje na obrazovku
+    gl_Position = vec4(0.0);
 }

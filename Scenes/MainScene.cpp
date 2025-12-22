@@ -44,6 +44,7 @@ namespace Scenes {
         const auto fire = make_shared<GPUParticle3D>(camera, quad, resourceManager, 150);
         const auto smoke = make_shared<GPUParticle3D>(camera, quad, resourceManager, 10);
         const auto rain = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
+        const auto snow = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
         smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
@@ -56,6 +57,7 @@ namespace Scenes {
         fire->setPreset(GPUParticle3D::Preset::Fire);
         smoke->setPreset(GPUParticle3D::Preset::Smoke);
         rain->setPreset(GPUParticle3D::Preset::Rain);
+        snow->setPreset(GPUParticle3D::Preset::Snow);
         auto fp = fire->getParams();
         fp.lifeMin = 0.5f;
         fp.lifeMax = 1.0f;
@@ -95,6 +97,11 @@ namespace Scenes {
         rp.texture = "rain.png";
         rain->setParams(rp);
         rain->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
+        auto snowParams = snow->getParams();
+        snowParams.texture = "snow.png";
+        snow->setParams(snowParams);
+        snow->setRenderMode(GPUParticle3D::RenderMode::Textured);
 
         const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
         torch->fromMesh(resourceManager->getModel("torch"));
@@ -144,7 +151,8 @@ namespace Scenes {
         addMeshNode3D(torchNode2, 1);
         addMeshNode3D(torchNode3, 1);
         addMeshNode3D(torchNode4, 1);
-        addMeshNode3D(rain, 1);
+        // addMeshNode3D(rain, 1);
+        addMeshNode3D(snow, 1);
         positionHandler->addItem(torchNode4);
     }
 

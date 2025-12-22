@@ -85,6 +85,11 @@
     "category": "Albedo"
   },
   {
+    "name": "snow.png",
+    "path": "Albedo/snow/snow.png",
+    "category": "Albedo"
+  },
+  {
     "name": "rusted_albedo.png",
     "path": "Albedo/rusted/rusted_albedo.png",
     "category": "Albedo"

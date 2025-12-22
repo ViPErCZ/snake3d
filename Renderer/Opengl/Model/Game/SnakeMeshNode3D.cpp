@@ -14,6 +14,7 @@ namespace Model {
             const auto shader = resourceManager->getShader("basicShader");
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
             tileMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
+            headMaterial = mesh->getMaterial();
             tileMaterial->setColor({0.88, 0.05, 0.05});
             tileMaterial->setShadow(resourceManager->getTexture("depth"));
 
@@ -21,16 +22,29 @@ namespace Model {
             const auto respawnShader = resourceManager->getShader("respawnShader");
             respawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
             respawnMaterial->setShadow(resourceManager->getTexture("depth"));
+            respawnMaterial->addUniform("u_useMaterial", false);
             respawnMaterial->addUniform("u_LightColor", glm::vec4(0.88, 0.05, 0.05, 1.0f));
             respawnMaterial->addUniform("u_Speed", 4.7f);
             respawnMaterial->addUniform("u_Delay", 0.1f);
             respawnMaterial->addUniform("u_FloatParameter", 0.1f);
+
+            headRespawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
+            headRespawnMaterial->setShadow(resourceManager->getTexture("depth"));
+            headRespawnMaterial->addUniform("u_useMaterial", true);
+            headRespawnMaterial->addUniform("u_Speed", 4.7f);
+            headRespawnMaterial->addUniform("u_Delay", 0.1f);
+            headRespawnMaterial->addUniform("u_FloatParameter", 0.1f);
 
             const auto textureUniform = make_shared<TextureUniform>(11, this->resourceManager->getTexture("fast_noise.bmp"));
             respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
             respawnMaterial->addUniform("u_Time", timerUniform);
             respawnMaterial->addUniform("useBones", false);
             respawnMaterial->addUniform("useMaterial", true);
+
+            headRespawnMaterial->addUniform("u_NoiseTexture", textureUniform);
+            headRespawnMaterial->addUniform("u_Time", timerUniform);
+            headRespawnMaterial->addUniform("useBones", false);
+            headRespawnMaterial->addUniform("useMaterial", true);
         }
     }
 
@@ -39,6 +53,7 @@ namespace Model {
         children.clear();
         timerUniform->start();
         transformDetached = true;
+        mesh->setMaterial(headRespawnMaterial);
         this->x = (23 - -23) / 2 * 32 + 16;
         this->y = (-3 - -23) / 2 * 32 + 16;
         this->setRotationX(90);
@@ -158,6 +173,7 @@ namespace Model {
         const glm::mat4 &parentTransform, const bool shadows) {
         if (timerUniform->getElapsed() > 0.5f) {
             timerUniform->stop();
+            mesh->setMaterial(headMaterial);
             for (auto &child: children) {
                 reinterpret_pointer_cast<SnakeMeshNode3D>(child)->stopRespawn();
             }

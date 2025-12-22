@@ -24,15 +24,15 @@ namespace Model {
             shader->use();
             shader->setFloat("u_dt", stepDt);
             shader->setFloat("u_timeAccum", timeAccum);
-            if (currentPreset == Preset::Rain) {
-                shader->setVec3("u_emitterPos", camera->getPosition());
-                shader->setVec3("u_camRight", camera->getRight());
-                shader->setVec3("u_camForward", camera->getFront());
-                shader->setVec2("u_rainArea", glm::vec2(30.0f, 30.0f));
-                shader->setFloat("u_rainHeight", 15.0f);
-            } else {
-                shader->setVec3("u_emitterPos", glm::vec3(0.0f));
-            }
+            shader->setVec3("u_emitterPos", (particleParams.spawnShape == 1) ? camera->getPosition() : glm::vec3(0.0f));
+
+            // Nové uniformy
+            shader->setInt("u_spawnShape", particleParams.spawnShape);
+            shader->setInt("u_respawnMode", particleParams.respawnMode);
+            shader->setVec2("u_turbulence", particleParams.turbulence);
+            shader->setFloat("u_minRadius", particleParams.minRadius);
+            shader->setFloat("u_maxRadius", particleParams.maxRadius);
+            shader->setFloat("u_spawnHeight", particleParams.spawnHeight);
             // Obecné uniformy z ParticleParams (parametrizace TF výstupu)
             shader->setInt("u_mode", particleParams.mode);
             shader->setFloat("u_lifeMin", particleParams.lifeMin);
@@ -93,7 +93,7 @@ namespace Model {
         shader->use();
         shader->setMat4("view", camera->getViewMatrix());
         shader->setMat4("projection", projection);
-        if (currentPreset != Preset::Rain) {
+        if (currentPreset != Preset::Rain && currentPreset != Preset::Snow) {
             shader->setMat4("model", parentTransform * this->getModelMatrix());
         } else {
             // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -155,7 +155,7 @@ namespace Model {
         for (int i = 0; i < maxParticles; i++) {
             initial[i].position = glm::vec3(0.0f);
             initial[i].velocity = glm::vec3(0.0f);
-            initial[i].life = 0.0f;
+            //initial[i].life = 0.0f;
             initial[i].seed = static_cast<float>(i) * 17.123f;
 
             const float maxL = particleParams.lifeMax > 0 ? particleParams.lifeMax : 2.0f;
@@ -204,13 +204,16 @@ namespace Model {
 
     void GPUParticle3D::setPreset(const Preset preset) {
         currentPreset = preset;
+        particleParams.spawnShape = 0; // Local
+        particleParams.respawnMode = 0; // Die
+        particleParams.turbulence = {0.0f, 0.0f};
+        particleParams.minRadius = 0.0f;
 
         switch (preset) {
             case Preset::Fire: {
                 particleParams.lifeMin = 1.4f; particleParams.lifeMax = 1.6f;
                 particleParams.sizeMin = 0.006f; particleParams.sizeMax = 0.020f;
-                particleParams.stretch = 0.32f; // větší natažení pro 2× „hloubku“
-                // Z‑up: X malý rozptyl, Y téměř 0, Z výrazně kladná (vzhůru)
+                particleParams.stretch = 0.32f;
                 particleParams.velMin = {-0.005f, 0.000f, 0.100f};
                 particleParams.velMax = { 0.005f, 0.010f, 0.200f};
                 particleParams.gravity = {0.0f, 0.0f, -0.15f};
@@ -219,7 +222,7 @@ namespace Model {
                 particleParams.colorStart = {6.0f, 3.5f, 1.0f, 1.0f};
                 particleParams.colorEnd   = {7.0f, 4.5f, 1.5f, 0.0f};
                 particleParams.mode = Stretched;
-                // textura volitelná; necháme prázdnou, pokud si uživatel nepřeje texturu
+                particleParams.minRadius = 0.05f;
                 break;
             }
             case Preset::Smoke: {
@@ -232,42 +235,57 @@ namespace Model {
                 particleParams.colorStart = {0.4f, 0.4f, 0.4f, 0.8f};
                 particleParams.colorEnd   = {0.2f, 0.2f, 0.2f, 0.0f};
                 particleParams.mode = Stretched;
+                particleParams.minRadius = 0.05f;
                 break;
             }
             case Preset::Rain: {
                 particleParams.lifeMin = 1.0f;
-                particleParams.lifeMax = 1.8f; // Kratší život, padá to rychle
+                particleParams.lifeMax = 1.8f;
                 particleParams.sizeMin = 0.012f;
                 particleParams.sizeMax = 0.012f;
-                particleParams.stretch = 0.05f; // Snížíme stretch násobič
+                particleParams.stretch = 0.05f;
                 particleParams.stretch = 0.003f;
-
                 particleParams.velMin = { -0.2f, -0.2f, -15.0f };
                 particleParams.velMax = {  0.2f,  0.2f, -25.0f };
-
                 particleParams.gravity = { 0.0f, 0.0f, -2.8f };
-
                 particleParams.emitterRadius = 25.0f;
                 particleParams.emitterYOffset = 15.0f;
-
                 particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
                 particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
                 particleParams.colorSensitivity = 10.0f;
                 particleParams.mode = Billboard;
+                particleParams.spawnShape = 1;  // Environment (kolem kamery)
+                particleParams.respawnMode = 1; // Infinite wrap
+                particleParams.turbulence = {0.0f, 0.0f}; // ŽÁDNÉ KLOUZÁNÍ!
+
+                particleParams.minRadius = 3.0f;  // 3m díra kolem kamery
+                particleParams.maxRadius = 30.0f; // 30m dohlednost
+                particleParams.spawnHeight = 25.0f;
                 break;
             }
             case Preset::Snow: {
-                particleParams.lifeMin = 4.0f; particleParams.lifeMax = 6.0f;
-                particleParams.sizeMin = 0.1f; particleParams.sizeMax = 0.3f;
+                particleParams.lifeMin = 1.0f;
+                particleParams.lifeMax = 12.0f;
+                particleParams.sizeMin = 0.04f;
+                particleParams.sizeMax = 0.12f;
                 particleParams.stretch = 0.0f;
-                particleParams.velMin = {-0.5f, -0.5f, -1.0f};
-                particleParams.velMax = { 0.5f,  0.5f, -2.0f};
-                particleParams.gravity = {0.0f, 0.0f, -0.5f};
-                particleParams.emitterRadius = 15.0f;
+                particleParams.velMin = { -1.5f, -1.5f, -0.8f };
+                particleParams.velMax = {  1.5f,  1.5f, -1.8f };
+                particleParams.gravity = { 0.0f, 0.0f, -0.5f };
+                particleParams.emitterRadius = 30.0f;
                 particleParams.emitterYOffset = 10.0f;
-                particleParams.colorStart = {1.0f, 1.0f, 1.0f, 0.8f};
-                particleParams.colorEnd   = {1.0f, 1.0f, 1.0f, 0.0f};
+                particleParams.colorStart = { 1.0f, 1.0f, 1.0f, 1.0f };
+                particleParams.colorEnd   = { 1.0f, 1.0f, 1.0f, 0.0f };
+                particleParams.colorSensitivity = 2.0f;
+                particleParams.spawnPerFrame = 0;
                 particleParams.mode = Billboard;
+                particleParams.spawnShape = 1;
+                particleParams.respawnMode = 1;
+                particleParams.turbulence = {0.5f, 0.8f}; // SÍLA KLOUZÁNÍ
+
+                particleParams.minRadius = 4.0f;
+                particleParams.maxRadius = 25.0f;
+                particleParams.spawnHeight = 20.0f;
                 break;
             }
             case Preset::Explosion: {

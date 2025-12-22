@@ -43,15 +43,16 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        void stopRespawn();
-
         bool isReady() const;
 
     private:
+        void stopRespawn();
         unique_ptr<Timer> timer;
         shared_ptr<SphereMesh> createTileNode() const;
         shared_ptr<StandardMaterial> tileMaterial;
+        shared_ptr<BaseMaterial> headMaterial;
         shared_ptr<ShaderMaterial> respawnMaterial;
+        shared_ptr<ShaderMaterial> headRespawnMaterial;
         shared_ptr<TimerUniform> timerUniform;
         eDIRECTION direction = NONE;
         bool respawned = false;

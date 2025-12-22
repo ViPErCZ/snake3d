@@ -92,6 +92,12 @@ namespace Model {
             float firstFrameClamp = 1.0f/30.0f; // maximální dt na prvním snímku
             float colorSensitivity = 1.0f;
             ParticleMode mode = Billboard;
+            int spawnShape = 0;      // 0 = Local, 1 = Environment Ring
+            int respawnMode = 0;     // 0 = Die, 1 = Wrap infinite
+            glm::vec2 turbulence = {0.0f, 0.0f}; // x=sila, y=frekvence
+            float minRadius = 0.0f;  // vnitrni polomer (safe zone)
+            float maxRadius = 1.0f;  // vnejsi polomer (area)
+            float spawnHeight = 10.0f; // vyska sloupce
         };
 
         void setPreset(Preset preset);
