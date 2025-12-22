@@ -554,8 +554,8 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
 
 void App::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) const {
     double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
+    // glfwGetCursorPos(window, &xpos, &ypos);
+    // const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
 
     // if (torchRenderer != nullptr) {
     //     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -606,7 +606,7 @@ void App::InitResourceManager() const {
 
     std::ifstream manifestFile("Assets/texture_manifest.json");
     if (!manifestFile.is_open()) {
-        throw std::runtime_error("Nemohu otevřít manifest file.");
+        throw std::runtime_error("Cant open manifest file.");
     }
 
     nlohmann::json j;

@@ -23,6 +23,7 @@ namespace Model {
         glm::mat4 model;
         glm::vec4 color;
     };
+
     struct ParticleStateOut {
         glm::vec3 position;
         glm::vec3 velocity;
@@ -40,7 +41,6 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        // Univerzální presety a parametry
         enum class Preset {
             Fire,
             Smoke,
@@ -53,6 +53,11 @@ namespace Model {
         enum class RenderMode {
             Color,
             Textured
+        };
+
+        enum ParticleMode {
+            Billboard = 1,
+            Stretched = 0
         };
 
         struct ParticleParams {
@@ -85,6 +90,8 @@ namespace Model {
             float warmupTime = 2.5f;       // doba náběhu (s)
             int   warmupSubsteps = 4;      // počet dílčích kroků v prvním snímku
             float firstFrameClamp = 1.0f/30.0f; // maximální dt na prvním snímku
+            float colorSensitivity = 1.0f;
+            ParticleMode mode = Billboard;
         };
 
         void setPreset(Preset preset);
@@ -118,7 +125,6 @@ namespace Model {
         RenderMode renderMode = RenderMode::Color;
         ParticleParams particleParams{};
         shared_ptr<Camera> camera;
-        float phaseOffset;
     };
 } // Model
 

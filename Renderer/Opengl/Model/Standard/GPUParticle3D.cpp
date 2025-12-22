@@ -1,10 +1,11 @@
 #include "GPUParticle3D.h"
 
 namespace Model {
-    GPUParticle3D::GPUParticle3D(const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager,
-                                 const int maxParticles) : MeshNode3D(mesh, resourceManager), resourceManager(resourceManager),
-                                                           maxParticles(maxParticles), VAO{},
-                                                           particleVBO{}, camera(camera) {
+    GPUParticle3D::GPUParticle3D(const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh,
+                                 const shared_ptr<ResourceManager> &resourceManager,
+                                 const int maxParticles)
+        : MeshNode3D(mesh, resourceManager), resourceManager(resourceManager), maxParticles(maxParticles), VAO{},
+          particleVBO{}, camera(camera) {
         initBuffers();
         setPreset(Preset::Fire);
         setRenderMode(RenderMode::Color);
@@ -29,12 +30,11 @@ namespace Model {
                 shader->setVec3("u_camForward", camera->getFront());
                 shader->setVec2("u_rainArea", glm::vec2(30.0f, 30.0f));
                 shader->setFloat("u_rainHeight", 15.0f);
-                shader->setInt("u_mode", 1);
             } else {
                 shader->setVec3("u_emitterPos", glm::vec3(0.0f));
-                shader->setInt("u_mode", 0);
             }
             // Obecné uniformy z ParticleParams (parametrizace TF výstupu)
+            shader->setInt("u_mode", particleParams.mode);
             shader->setFloat("u_lifeMin", particleParams.lifeMin);
             shader->setFloat("u_lifeMax", particleParams.lifeMax);
             shader->setFloat("u_sizeMin", particleParams.sizeMin);
@@ -95,13 +95,12 @@ namespace Model {
         shader->setMat4("projection", projection);
         if (currentPreset != Preset::Rain) {
             shader->setMat4("model", parentTransform * this->getModelMatrix());
-            shader->setInt("u_mode", 0);
         } else {
             // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glDisable(GL_DEPTH_TEST);
             shader->setMat4("model", glm::mat4(1.0f));
-            shader->setInt("u_mode", 1);
         }
+        shader->setInt("u_mode", particleParams.mode);
         shader->setFloat("u_lifeMin", particleParams.lifeMin);
         shader->setFloat("u_lifeMax", particleParams.lifeMax);
         shader->setFloat("u_sizeMin", particleParams.sizeMin);
@@ -109,6 +108,7 @@ namespace Model {
         shader->setFloat("u_stretch", particleParams.stretch);
         shader->setVec4("u_colorStart", particleParams.colorStart);
         shader->setVec4("u_colorEnd", particleParams.colorEnd);
+        shader->setFloat("u_colorSensitivity", particleParams.colorSensitivity);
         if (useTexture) {
             shader->setInt("uTexture0", 0);
             const auto tex = resourceManager->getTexture(particleParams.texture);
@@ -218,6 +218,7 @@ namespace Model {
                 particleParams.emitterYOffset = 0.046f;
                 particleParams.colorStart = {6.0f, 3.5f, 1.0f, 1.0f};
                 particleParams.colorEnd   = {7.0f, 4.5f, 1.5f, 0.0f};
+                particleParams.mode = Stretched;
                 // textura volitelná; necháme prázdnou, pokud si uživatel nepřeje texturu
                 break;
             }
@@ -230,6 +231,7 @@ namespace Model {
                 particleParams.emitterRadius = 0.08f;
                 particleParams.colorStart = {0.4f, 0.4f, 0.4f, 0.8f};
                 particleParams.colorEnd   = {0.2f, 0.2f, 0.2f, 0.0f};
+                particleParams.mode = Stretched;
                 break;
             }
             case Preset::Rain: {
@@ -250,19 +252,22 @@ namespace Model {
 
                 particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
                 particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
+                particleParams.colorSensitivity = 10.0f;
+                particleParams.mode = Billboard;
                 break;
             }
             case Preset::Snow: {
                 particleParams.lifeMin = 4.0f; particleParams.lifeMax = 6.0f;
                 particleParams.sizeMin = 0.1f; particleParams.sizeMax = 0.3f;
-                particleParams.stretch = 0.0f; // Sníh se nenatahuje
-                particleParams.velMin = {-0.5f, -0.5f, -1.0f}; // Pomalý pád a mírný vítr
+                particleParams.stretch = 0.0f;
+                particleParams.velMin = {-0.5f, -0.5f, -1.0f};
                 particleParams.velMax = { 0.5f,  0.5f, -2.0f};
                 particleParams.gravity = {0.0f, 0.0f, -0.5f};
                 particleParams.emitterRadius = 15.0f;
                 particleParams.emitterYOffset = 10.0f;
                 particleParams.colorStart = {1.0f, 1.0f, 1.0f, 0.8f};
                 particleParams.colorEnd   = {1.0f, 1.0f, 1.0f, 0.0f};
+                particleParams.mode = Billboard;
                 break;
             }
             case Preset::Explosion: {
@@ -274,6 +279,7 @@ namespace Model {
                 particleParams.emitterRadius = 0.02f;
                 particleParams.colorStart = {8.0f, 5.0f, 2.0f, 1.0f};
                 particleParams.colorEnd   = {2.0f, 1.0f, 0.2f, 0.0f};
+                particleParams.mode = Stretched;
                 break;
             }
             case Preset::Custom:
