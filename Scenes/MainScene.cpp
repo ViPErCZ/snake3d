@@ -119,6 +119,7 @@ namespace Scenes {
 
         explosionParams = explosion2->getParams();
         explosionParams.texture = "explosion.png";
+        explosionParams.timeOffset = 0.2f;
         explosion2->setParams(explosionParams);
         explosion2->setRenderMode(GPUParticle3D::RenderMode::Textured);
 

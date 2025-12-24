@@ -99,6 +99,7 @@ namespace Model {
             float minRadius = 0.0f;  // vnitrni polomer (safe zone)
             float maxRadius = 1.0f;  // vnejsi polomer (area)
             float spawnHeight = 10.0f; // vyska sloupce
+            float timeOffset = 0.0f;
         };
 
         void setPreset(Preset preset);

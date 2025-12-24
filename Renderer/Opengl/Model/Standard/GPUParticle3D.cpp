@@ -23,7 +23,7 @@ namespace Model {
             const auto shader = resourceManager->getShader("particle_update");
             shader->use();
             shader->setFloat("u_dt", stepDt);
-            shader->setFloat("u_timeAccum", timeAccum);
+            shader->setFloat("u_timeAccum", timeAccum + particleParams.timeOffset);
             shader->setVec3("u_emitterPos", (particleParams.spawnShape == 1) ? camera->getPosition() : glm::vec3(0.0f));
 
             // Nové uniformy
