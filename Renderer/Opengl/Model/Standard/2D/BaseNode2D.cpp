@@ -43,4 +43,12 @@ namespace Model {
             standardMaterial.get()->unbind();
         }
     }
+
+    void BaseNode2D::bind() const {
+        mesh->bind();
+    }
+
+    unsigned long BaseNode2D::indicesCount() const {
+        return mesh->getIndices().size();
+    }
 } // Model

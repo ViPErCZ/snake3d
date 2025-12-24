@@ -252,7 +252,7 @@ namespace Model {
                 particleParams.emitterYOffset = 15.0f;
                 particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
                 particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
-                particleParams.colorSensitivity = 10.0f;
+                particleParams.colorSensitivity = 16.0f;
                 particleParams.mode = Billboard;
                 particleParams.spawnShape = 1;  // Environment (kolem kamery)
                 particleParams.respawnMode = 1; // Infinite wrap
@@ -289,15 +289,33 @@ namespace Model {
                 break;
             }
             case Preset::Explosion: {
-                particleParams.lifeMin = 0.4f; particleParams.lifeMax = 0.9f;
-                particleParams.sizeMin = 0.03f; particleParams.sizeMax = 0.12f;
-                particleParams.velMin = {-3.0f, -1.0f, -3.0f};
-                particleParams.velMax = { 3.0f,  3.0f,  3.0f};
-                particleParams.gravity = {0.0f, -4.0f, 0.0f};
-                particleParams.emitterRadius = 0.02f;
-                particleParams.colorStart = {8.0f, 5.0f, 2.0f, 1.0f};
-                particleParams.colorEnd   = {2.0f, 1.0f, 0.2f, 0.0f};
-                particleParams.mode = Stretched;
+                // Cyklus v shaderu je nastaven na 2.0 sekundy.
+                // Životnost musí být kratší, aby vznikla mezera (ticho).
+                particleParams.lifeMin = 0.1f;
+                particleParams.lifeMax = 0.5f; // Do 1.2s vše zmizí, pak 0.8s ticho.
+
+                // Velikost: Start=Malá -> Konec=Velká (Expanduje)
+                // Pozor: V shaderu používáte mix(sizeMin, sizeMax, t), kde t klesá od 1 do 0.
+                // Takže Start = sizeMax, Konec = sizeMin.
+                particleParams.sizeMax = 0.02f; // Start (malé jádro)
+                particleParams.sizeMin = 0.012f; // Konec (velký kouř)
+
+                particleParams.stretch = 0.0f; // Čtverečky
+
+                // Rychlost a Gravitace
+                particleParams.velMin = { 0.5f, 0.0f, 0.0f };
+                particleParams.velMax = { 1.3f, 0.0f, 0.0f }; // Větší rána
+                particleParams.gravity = {0.0f, 0.0f, -0.9f}; // Pomalý pád
+
+                particleParams.emitterRadius = 0.05f;
+
+                // Barvy: Flash -> Oheň -> Kouř -> Zmizení
+                particleParams.colorStart = {8.0f, 4.0f, 1.0f, 1.0f};
+                particleParams.colorEnd   = {0.1f, 0.1f, 0.1f, 0.0f}; // Alpha 0 nutná pro zmizení!
+
+                particleParams.mode = Billboard;
+                particleParams.spawnShape = 2;
+                particleParams.respawnMode = 0;
                 break;
             }
             case Preset::Custom:

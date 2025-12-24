@@ -56,6 +56,7 @@ namespace Model {
         };
 
         enum ParticleMode {
+            Mesh3D = 2,
             Billboard = 1,
             Stretched = 0
         };
@@ -82,7 +83,7 @@ namespace Model {
             glm::vec4 colorStart = {1.0f, 1.0f, 1.0f, 1.0f};
             glm::vec4 colorEnd   = {1.0f, 1.0f, 1.0f, 0.0f};
             // rendering
-            std::string texture; // prázdné = bez textury
+            std::string texture;
             // hustota spawnování (efektivní) – frakční část použita jako pravděpodobnost okamžitého respawnu
             float spawnPerFrame = 1.0f;
             // plynulý start simulace (eliminuje startovní „výstřel“)
@@ -92,7 +93,7 @@ namespace Model {
             float firstFrameClamp = 1.0f/30.0f; // maximální dt na prvním snímku
             float colorSensitivity = 1.0f;
             ParticleMode mode = Billboard;
-            int spawnShape = 0;      // 0 = Local, 1 = Environment Ring
+            int spawnShape = 0;      // 0 = Local, 1 = Environment Ring, 2 = Sphere
             int respawnMode = 0;     // 0 = Die, 1 = Wrap infinite
             glm::vec2 turbulence = {0.0f, 0.0f}; // x=sila, y=frekvence
             float minRadius = 0.0f;  // vnitrni polomer (safe zone)

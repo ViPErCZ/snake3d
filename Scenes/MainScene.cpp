@@ -8,8 +8,10 @@
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
+#include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
@@ -40,13 +42,18 @@ namespace Scenes {
 
         // GPU Particle TEST
         // ===========================
-        const auto quad = make_shared<PlaneMesh>(resourceManager->getShader("basicShader"), 3.5, 3.5);
-        const auto fire = make_shared<GPUParticle3D>(camera, quad, resourceManager, 150);
+        const auto quad = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
+        const auto quad2 = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
+        const auto fire = make_shared<GPUParticle3D>(camera, quad, resourceManager, 1000);
         const auto smoke = make_shared<GPUParticle3D>(camera, quad, resourceManager, 10);
         const auto rain = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
         const auto snow = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
+        const auto explosion = make_shared<GPUParticle3D>(camera, quad, resourceManager, 100);
+        const auto explosion2 = make_shared<GPUParticle3D>(camera, quad, resourceManager, 100);
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
+        explosion->setPosition(glm::vec3(0.0, 0.6, 0.0));
+        explosion2->setPosition(glm::vec3(2.0, 0.6, 0.0));
         smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
         fire->setScale({2.2, 2.2, 2.2});
         smoke->setScale({2.0, 2.0, 2.0});
@@ -58,6 +65,8 @@ namespace Scenes {
         smoke->setPreset(GPUParticle3D::Preset::Smoke);
         rain->setPreset(GPUParticle3D::Preset::Rain);
         snow->setPreset(GPUParticle3D::Preset::Snow);
+        explosion->setPreset(GPUParticle3D::Preset::Explosion);
+        explosion2->setPreset(GPUParticle3D::Preset::Explosion);
         auto fp = fire->getParams();
         fp.lifeMin = 0.5f;
         fp.lifeMax = 1.0f;
@@ -102,6 +111,16 @@ namespace Scenes {
         snowParams.texture = "snow.png";
         snow->setParams(snowParams);
         snow->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
+        auto explosionParams = explosion->getParams();
+        explosionParams.texture = "explosion.png";
+        explosion->setParams(explosionParams);
+        explosion->setRenderMode(GPUParticle3D::RenderMode::Textured);
+
+        explosionParams = explosion2->getParams();
+        explosionParams.texture = "explosion.png";
+        explosion2->setParams(explosionParams);
+        explosion2->setRenderMode(GPUParticle3D::RenderMode::Textured);
 
         const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
         torch->fromMesh(resourceManager->getModel("torch"));
@@ -151,8 +170,10 @@ namespace Scenes {
         addMeshNode3D(torchNode2, 1);
         addMeshNode3D(torchNode3, 1);
         addMeshNode3D(torchNode4, 1);
-        // addMeshNode3D(rain, 1);
-        addMeshNode3D(snow, 1);
+        addMeshNode3D(rain, 1);
+        // addMeshNode3D(snow, 1);
+        addMeshNode3D(explosion, 1);
+        addMeshNode3D(explosion2, 1);
         positionHandler->addItem(torchNode4);
     }
 

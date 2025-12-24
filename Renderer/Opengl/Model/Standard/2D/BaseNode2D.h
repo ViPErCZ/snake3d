@@ -32,6 +32,10 @@ namespace Model {
         virtual void update(float dt) {
         };
 
+        void bind() const;
+
+        [[nodiscard]] unsigned long indicesCount() const;
+
     protected:
         shared_ptr<Mesh2D> mesh;
         shared_ptr<BaseMaterial> material;

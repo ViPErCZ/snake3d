@@ -90,6 +90,11 @@
     "category": "Albedo"
   },
   {
+    "name": "explosion.png",
+    "path": "Albedo/explosion/explosion.png",
+    "category": "Albedo"
+  },
+  {
     "name": "rusted_albedo.png",
     "path": "Albedo/rusted/rusted_albedo.png",
     "category": "Albedo"
