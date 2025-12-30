@@ -21,12 +21,12 @@ namespace Scenes {
         }
     }
 
-    void SceneRenderer::render2D(const float dt) {
-        BaseRenderer::render2D(dt);
+    void SceneRenderer::render2D(const float dt, const uint64_t frameId) {
+        BaseRenderer::render2D(dt, frameId);
 
         for (auto &node : nodes2d) {
             this->meshNode2DRenderer->setRootNode(node.node);
-            this->meshNode2DRenderer->render2D(dt);
+            this->meshNode2DRenderer->render2D(dt, frameId);
         }
     }
 

@@ -49,17 +49,16 @@ namespace Model {
         explicit GPUParticle2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
         ~GPUParticle2D();
 
-        void update(float dt, uint64_t frameId);
-        void render(float aspectRatio); // aspectRatio pro zachování čtvercovosti
+        void update(float dt, uint64_t frameId) override;
+        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+                    const glm::mat4 &parentTransform) const override; // aspectRatio pro zachování čtvercovosti
 
         void setPreset(Preset preset);
         ParticleParams2D& getParams() { return params; }
 
     private:
         void initBuffers();
-        float randomFloat();
 
-        std::shared_ptr<ResourceManager> resourceManager;
         int maxParticles;
 
         // OpenGL handles

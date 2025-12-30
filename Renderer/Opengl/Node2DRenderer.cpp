@@ -12,8 +12,8 @@ namespace Renderer {
         throw std::runtime_error("Not implemented. Use render2D() instead.");
     }
 
-    void Node2DRenderer::render2D(const float dt) {
-        rootNode->update(dt);
+    void Node2DRenderer::render2D(const float dt, const uint64_t frameId) {
+        rootNode->update(dt, frameId);
         this->beforeRender();
         renderScene();
         this->afterRender();

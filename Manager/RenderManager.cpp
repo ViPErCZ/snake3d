@@ -112,7 +112,7 @@ namespace Manager {
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             Iter->renderer->beforeRender();
-            Iter->renderer->render2D(dt);
+            Iter->renderer->render2D(dt, gFrameId);
             Iter->renderer->afterRender();
         }
 

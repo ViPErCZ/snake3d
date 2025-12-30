@@ -2,6 +2,9 @@
 #include "TextureManager.h"
 
 namespace Manager {
+    TextureManager::TextureManager(const unsigned int id) {
+        textures.push_back(id);
+    }
 
     TextureManager::~TextureManager() {
         for (auto texture: textures) {

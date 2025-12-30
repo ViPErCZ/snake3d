@@ -6,26 +6,13 @@ out vec4 FragColor;
 
 uniform sampler2D uTexture0;
 uniform float u_colorSensitivity;
-uniform int u_mode; // 0 = Oheň/Kouř, 1 = Déšť
+uniform int u_mode;
 
 void main() {
     vec4 tex = texture(uTexture0, vTex);
-    
-    float alpha;
-    vec3 color;
 
-    if (u_mode == 1) {
-        // --- REŽIM DÉŠŤ ---
-        // Použijeme standardní barvy bez extrémního zesílení.
-        // vColor.a pro déšť by mělo být kolem 0.4 - 0.6
-        alpha = tex.a * vColor.a;
-        color = tex.rgb * vColor.rgb * u_colorSensitivity;
-    } else {
-        // --- REŽIM OHEŇ/HDR ---
-        // Tady necháme tvé původní hodnoty pro záření (Bloom)
-        alpha = tex.a * vColor.a;
-        color = tex.rgb * vColor.rgb * u_colorSensitivity;
-    }
+    float alpha = tex.a * vColor.a;
+    vec3 color = tex.rgb * vColor.rgb * u_colorSensitivity;
 
     FragColor = vec4(color, alpha);
 }

@@ -431,6 +431,13 @@ void App::Init() {
                 ))
     );
     resourceManager->addShader(
+        "particle_update_2d",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/particle_update_2d.vs"
+                ))
+    );
+    resourceManager->addShader(
         "instanced_mesh",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
@@ -438,14 +445,28 @@ void App::Init() {
                 "Assets/Shaders/particle/instanced_mesh.fs"
                 ))
     );
-
-    // Instanced fire shader (texturovaný oheň)
+    resourceManager->addShader(
+        "particle_render_2d",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/particle_render_2d.vs",
+                "Assets/Shaders/particle/particle_render_2d.fs"
+                ))
+    );
     resourceManager->addShader(
         "instanced_texture",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/instanced_texture.vs",
                 "Assets/Shaders/particle/instanced_texture.fs"
+            ))
+    );
+    resourceManager->addShader(
+        "particle_render_2d_tex",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/particle/particle_render_2d_tex.vs",
+                "Assets/Shaders/particle/particle_render_2d_tex.fs"
             ))
     );
 

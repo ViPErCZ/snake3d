@@ -13,7 +13,7 @@ namespace Renderer {
 
         virtual void render3D(float dt, uint64_t frameId) = 0;
 
-        virtual void render2D(float dt) {};
+        virtual void render2D(float dt, uint64_t frameId) {};
 
         virtual void renderShadowMap() = 0;
 

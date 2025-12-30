@@ -28,8 +28,8 @@ namespace Model {
         }
     }
 
-    void RadarMeshNode2D::update(const float dt) {
-        MeshNode2D::update(dt);
+    void RadarMeshNode2D::update(const float dt, const uint64_t frameId) {
+        MeshNode2D::update(dt, frameId);
         for (const auto &snd: items | views::values) {
             snd->update();
             if (snd->hasChangedSize()) {

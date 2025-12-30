@@ -20,7 +20,7 @@ namespace Model {
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const;
 
-        virtual void update(float dt);
+        virtual void update(float dt, uint64_t frameId);
 
         void addNode(const std::shared_ptr<MeshNode2D> &node, const std::string &name);
 

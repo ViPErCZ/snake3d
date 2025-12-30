@@ -7,10 +7,10 @@ namespace Model {
         float halfW = width / 2.0f;
         float halfH = height / 2.0f;
 
-        vertices[0].position = {-halfW, -halfH,  0.0f}; // Top-Left (v GL je Y- up usually, nebo Y+ depends on ortho)
-        vertices[1].position = { halfW, -halfH,  0.0f}; // Top-Right
-        vertices[2].position = { halfW,  halfH,  0.0f}; // Bottom-Right
-        vertices[3].position = {-halfW,  halfH,  0.0f}; // Bottom-Left
+        vertices[0].position = {-halfW, -halfH,  0.0f};
+        vertices[1].position = { halfW, -halfH,  0.0f};
+        vertices[2].position = { halfW,  halfH,  0.0f};
+        vertices[3].position = {-halfW,  halfH,  0.0f};
 
         vertices[0].texUV = {0.0f, 0.0f};
         vertices[1].texUV = {1.0f, 0.0f};

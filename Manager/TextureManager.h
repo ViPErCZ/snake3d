@@ -8,6 +8,10 @@ using namespace std;
 namespace Manager {
     class TextureManager final {
     public:
+        explicit TextureManager() = default;
+
+        explicit TextureManager(unsigned int id);
+        
         ~TextureManager();
 
         void addTexture(unsigned int id);

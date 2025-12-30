@@ -183,5 +183,10 @@
     "name": "torch_normal.png",
     "path": "Others/torch_normal.png",
     "category": "Others"
+  },
+  {
+    "name": "drop_normal.png",
+    "path": "Others/drop_normal.png",
+    "category": "Others"
   }
 ]

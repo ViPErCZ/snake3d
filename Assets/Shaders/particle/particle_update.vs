@@ -28,7 +28,6 @@ uniform vec3  u_velMin;
 uniform vec3  u_velMax;
 uniform vec3  u_gravity;
 
-// Nové pro explozi
 uniform float u_burstInterval = 3.0;
 uniform float u_spawnWindow = 0.1;
 
@@ -53,17 +52,15 @@ void main() {
     float life = inLife;
     bool respawn = false;
 
-    // 1. ORIGINÁLNÍ KONTROLA SMRTI
     if (life <= 0.0) {
         respawn = true;
     }
 
-    // 2. ORIGINÁLNÍ POJISTKA ZASEKNUTÍ (Vracím ji přesně jak byla)
     if (length(vel) < 0.001 && length(u_gravity) > 0.001) {
         respawn = true;
     }
 
-    // SPECIÁLNÍ LOGIKA PRO ČEKÁNÍ EXPLOZE (Nedotkne se deště)
+    // SPECIÁLNÍ LOGIKA PRO ČEKÁNÍ EXPLOZE
     if (u_spawnShape == 2 && respawn) {
         float cycleTime = mod(u_timeAccum, u_burstInterval);
         if (cycleTime > u_spawnWindow) {
@@ -73,7 +70,7 @@ void main() {
         }
     }
 
-    // 2. FYZIKA - 1:1 PODLE TVÉHO FUNKČNÍHO KÓDU
+    // 2. FYZIKA
     if (!respawn) {
         if (u_turbulence.x > 0.0) {
             float sway = sin(u_timeAccum * u_turbulence.y + inSeed) * u_turbulence.x;
@@ -81,13 +78,12 @@ void main() {
             pos.y += cos(u_timeAccum * (u_turbulence.y * 0.8) + inSeed) * (u_turbulence.x * 0.5) * u_dt;
         }
 
-        // Jen přidán drag pro explozi, déšť (Shape 1) to přeskočí
         if (u_spawnShape == 2) vel *= pow(0.8, u_dt);
 
         vel += u_gravity * u_dt;
         pos += vel * u_dt;
 
-        if (u_respawnMode == 1) { // Tvůj originální Wrap
+        if (u_respawnMode == 1) {
             float floorLevel = u_emitterPos.z - u_spawnHeight;
             if (pos.z < floorLevel) {
                 pos.z += u_spawnHeight * 1.5;
@@ -107,13 +103,13 @@ void main() {
         }
     }
 
-    // 3. SPAWN / RESPAWN - 1:1 PODLE TVÉHO FUNKČNÍHO KÓDU
+    // 3. SPAWN / RESPAWN
     if (respawn) {
         float r0 = rand(inSeed + u_timeAccum);
         float r1 = rand(inSeed * 1.45 + u_dt);
         float r2 = rand(inSeed * 2.11);
 
-        if (u_spawnShape == 1) { // TVŮJ ORIGINÁLNÍ DÉŠŤ
+        if (u_spawnShape == 1) {
             vec3 ring = spawnRing(inSeed + u_timeAccum, u_minRadius, u_maxRadius);
             pos.x = u_emitterPos.x + ring.x;
             pos.y = u_emitterPos.y + ring.y;
@@ -126,7 +122,7 @@ void main() {
             );
             life = u_lifeMax;
         }
-        else if (u_spawnShape == 2) { // NOVÁ EXPLOZE
+        else if (u_spawnShape == 2) {
             float theta = r0 * 6.2831853;
             float phi = r1 * 3.14159 * 0.6;
             float sinPhi = sin(phi);
@@ -135,7 +131,7 @@ void main() {
             vel = dir * mix(u_velMin.x, u_velMax.x, r2);
             life = mix(u_lifeMin, u_lifeMax, r0);
         }
-        else { // TVŮJ ORIGINÁLNÍ FIRE/SMOKE
+        else {
             float ang = r0 * 6.2831853;
             float rad = sqrt(r1);
             float rx = u_emitterRadiusX > 0.0 ? u_emitterRadiusX : u_emitterRadius;
@@ -151,5 +147,6 @@ void main() {
     outVel = vel;
     outLife = life;
     outSeed = inSeed;
-    gl_Position = vec4(0.0); // Vráceno podle originálu
+
+    gl_Position = vec4(0.0);
 }

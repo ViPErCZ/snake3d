@@ -126,9 +126,8 @@ namespace Model {
 
         int frameIndex = 0;
         bool firstFrame = true;
-        float timeAccum = 0.0f; // akumulovaný čas od startu (pro smooth start)
+        float timeAccum = 0.0f;
 
-        // Preset a parametry
         Preset currentPreset = Preset::Custom;
         RenderMode renderMode = RenderMode::Color;
         ParticleParams particleParams{};

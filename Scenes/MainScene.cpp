@@ -12,6 +12,7 @@
 #include "../Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include "../Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
@@ -26,6 +27,7 @@ namespace Scenes {
         Scene::init(priority);
 
         positionHandler = make_shared<PositionHandler>(camera);
+        keyboardManager->addEventHandler(positionHandler);
         collisionDetector = make_shared<CollisionDetector>();
         initPlayerScene();
         initBarriersScene();
@@ -48,8 +50,13 @@ namespace Scenes {
         const auto smoke = make_shared<GPUParticle3D>(camera, quad, resourceManager, 10);
         const auto rain = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
         const auto snow = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
-        const auto explosion = make_shared<GPUParticle3D>(camera, quad, resourceManager, 100);
-        const auto explosion2 = make_shared<GPUParticle3D>(camera, quad, resourceManager, 100);
+        const auto explosion = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
+        const auto explosion2 = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
+
+        const auto quad2D = make_shared<QuadNode2D>(1.7, 1.7);
+        const auto rainDrop2D = make_shared<GPUParticle2D>(quad2D, resourceManager, 5);
+
+        rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
         explosion->setPosition(glm::vec3(0.0, 0.6, 0.0));
@@ -60,7 +67,6 @@ namespace Scenes {
         fire->setRotationX(-90);
         smoke->setRotationX(-90);
 
-        // Preset a parametry pro vizuál ohně podobný FireParticleSystem
         fire->setPreset(GPUParticle3D::Preset::Fire);
         smoke->setPreset(GPUParticle3D::Preset::Smoke);
         rain->setPreset(GPUParticle3D::Preset::Rain);
@@ -71,8 +77,7 @@ namespace Scenes {
         fp.lifeMin = 0.5f;
         fp.lifeMax = 1.0f;
         fp.sizeMin = 0.008f;
-        fp.sizeMax = 0.042f; // trochu vyšší max pro výraznější šlehy
-        // Z‑up: Y téměř nulová, Z výrazně kladná (vzhůru)
+        fp.sizeMax = 0.042f;
         fp.velMin  = glm::vec3(-0.005f, 0.000f, 0.100f);
         fp.velMax  = glm::vec3( 0.005f, 0.010f, 0.200f);
         fp.gravity = glm::vec3(glm::linearRand(-0.005f, 0.005f), glm::linearRand(0.01f, 0.001f), glm::linearRand(0.005f, 0.009f));
@@ -80,10 +85,10 @@ namespace Scenes {
         fp.emitterRadiusX = 0.03f;
         fp.emitterRadiusZ = 0.0f;
         fp.emitterYOffset = 0.24f;
-        fp.spawnPerFrame = 0.6f;   // lehce vyšší efektivní hustota
-        fp.stretch = 0.105f;        // ~2× „hloubka“ (natažení podél Up)
+        fp.spawnPerFrame = 0.6f;
+        fp.stretch = 0.105f;
         fp.colorStart = glm::vec4(6.0f, 3.5f, 1.0f, 1.0f);
-        fp.colorEnd   = glm::vec4(7.0f, 4.5f, 1.5f, 0.0f);
+        fp.colorEnd = glm::vec4(7.0f, 4.5f, 1.5f, 0.0f);
         fp.texture = "fire.png";
         fire->setParams(fp);
         fire->setRenderMode(GPUParticle3D::RenderMode::Textured);
@@ -175,6 +180,8 @@ namespace Scenes {
         // addMeshNode3D(snow, 1);
         addMeshNode3D(explosion, 1);
         addMeshNode3D(explosion2, 1);
+        addMeshNode2D(rainDrop2D, 1);
+
         positionHandler->addItem(torchNode4);
     }
 
@@ -209,8 +216,6 @@ namespace Scenes {
             default:
                 break;
         }
-
-        keyboardManager->addEventHandler(positionHandler);
     }
 
     void MainScene::initSkybox() {

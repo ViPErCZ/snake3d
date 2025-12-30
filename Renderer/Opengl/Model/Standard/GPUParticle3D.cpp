@@ -26,14 +26,13 @@ namespace Model {
             shader->setFloat("u_timeAccum", timeAccum + particleParams.timeOffset);
             shader->setVec3("u_emitterPos", (particleParams.spawnShape == 1) ? camera->getPosition() : glm::vec3(0.0f));
 
-            // Nové uniformy
             shader->setInt("u_spawnShape", particleParams.spawnShape);
             shader->setInt("u_respawnMode", particleParams.respawnMode);
             shader->setVec2("u_turbulence", particleParams.turbulence);
             shader->setFloat("u_minRadius", particleParams.minRadius);
             shader->setFloat("u_maxRadius", particleParams.maxRadius);
             shader->setFloat("u_spawnHeight", particleParams.spawnHeight);
-            // Obecné uniformy z ParticleParams (parametrizace TF výstupu)
+
             shader->setInt("u_mode", particleParams.mode);
             shader->setFloat("u_lifeMin", particleParams.lifeMin);
             shader->setFloat("u_lifeMax", particleParams.lifeMax);
@@ -111,14 +110,12 @@ namespace Model {
         shader->setFloat("u_colorSensitivity", particleParams.colorSensitivity);
         if (useTexture) {
             shader->setInt("uTexture0", 0);
-            const auto tex = resourceManager->getTexture(particleParams.texture);
-            if (tex) tex->bind();
+            resourceManager->getTexture(particleParams.texture)->bind();
         }
 
         mesh->bind();
 
-        // Připravit instanced atributy (stav) pro aktuální src buffer
-        const int src = frameIndex % 2; // pozor: update už frameIndex zvýšil, proto zde aktuální src
+        const int src = frameIndex % 2;
         glBindBuffer(GL_ARRAY_BUFFER, particleVBO[src]);
         // iPos @location 4
         glEnableVertexAttribArray(4);
@@ -155,7 +152,6 @@ namespace Model {
         for (int i = 0; i < maxParticles; i++) {
             initial[i].position = glm::vec3(0.0f);
             initial[i].velocity = glm::vec3(0.0f);
-            //initial[i].life = 0.0f;
             initial[i].seed = static_cast<float>(i) * 17.123f;
 
             const float maxL = particleParams.lifeMax > 0 ? particleParams.lifeMax : 2.0f;
@@ -170,7 +166,7 @@ namespace Model {
             glBindVertexArray(VAO[i]);
             glBindBuffer(GL_ARRAY_BUFFER, particleVBO[i]);
             glBufferData(GL_ARRAY_BUFFER,
-                         maxParticles * sizeof(GPUParticle),
+                         static_cast<long>(maxParticles * sizeof(GPUParticle)),
                          initial.data(),
                          GL_DYNAMIC_COPY);
 
@@ -252,14 +248,14 @@ namespace Model {
                 particleParams.emitterYOffset = 15.0f;
                 particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
                 particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
-                particleParams.colorSensitivity = 16.0f;
+                particleParams.colorSensitivity = 26.0f;
                 particleParams.mode = Billboard;
-                particleParams.spawnShape = 1;  // Environment (kolem kamery)
-                particleParams.respawnMode = 1; // Infinite wrap
-                particleParams.turbulence = {0.0f, 0.0f}; // ŽÁDNÉ KLOUZÁNÍ!
+                particleParams.spawnShape = 1;
+                particleParams.respawnMode = 1;
+                particleParams.turbulence = {0.0f, 0.0f};
 
-                particleParams.minRadius = 3.0f;  // 3m díra kolem kamery
-                particleParams.maxRadius = 30.0f; // 30m dohlednost
+                particleParams.minRadius = 3.0f;
+                particleParams.maxRadius = 30.0f;
                 particleParams.spawnHeight = 25.0f;
                 break;
             }
@@ -281,7 +277,7 @@ namespace Model {
                 particleParams.mode = Billboard;
                 particleParams.spawnShape = 1;
                 particleParams.respawnMode = 1;
-                particleParams.turbulence = {0.5f, 0.8f}; // SÍLA KLOUZÁNÍ
+                particleParams.turbulence = {0.5f, 0.8f};
 
                 particleParams.minRadius = 4.0f;
                 particleParams.maxRadius = 25.0f;
@@ -289,29 +285,21 @@ namespace Model {
                 break;
             }
             case Preset::Explosion: {
-                // Cyklus v shaderu je nastaven na 2.0 sekundy.
-                // Životnost musí být kratší, aby vznikla mezera (ticho).
                 particleParams.lifeMin = 0.1f;
-                particleParams.lifeMax = 0.5f; // Do 1.2s vše zmizí, pak 0.8s ticho.
+                particleParams.lifeMax = 0.6f;
 
-                // Velikost: Start=Malá -> Konec=Velká (Expanduje)
-                // Pozor: V shaderu používáte mix(sizeMin, sizeMax, t), kde t klesá od 1 do 0.
-                // Takže Start = sizeMax, Konec = sizeMin.
-                particleParams.sizeMax = 0.02f; // Start (malé jádro)
-                particleParams.sizeMin = 0.012f; // Konec (velký kouř)
+                particleParams.sizeMax = 0.01f;
+                particleParams.sizeMin = 0.002f;
+                particleParams.stretch = 0.0f;
 
-                particleParams.stretch = 0.0f; // Čtverečky
-
-                // Rychlost a Gravitace
                 particleParams.velMin = { 0.5f, 0.0f, 0.0f };
-                particleParams.velMax = { 1.3f, 0.0f, 0.0f }; // Větší rána
-                particleParams.gravity = {0.0f, 0.0f, -0.9f}; // Pomalý pád
+                particleParams.velMax = { 1.3f, 0.0f, 0.0f };
+                particleParams.gravity = {0.0f, 0.0f, -0.9f};
 
                 particleParams.emitterRadius = 0.05f;
 
-                // Barvy: Flash -> Oheň -> Kouř -> Zmizení
                 particleParams.colorStart = {8.0f, 4.0f, 1.0f, 1.0f};
-                particleParams.colorEnd   = {0.1f, 0.1f, 0.1f, 0.0f}; // Alpha 0 nutná pro zmizení!
+                particleParams.colorEnd   = {0.1f, 0.1f, 0.1f, 0.0f};
 
                 particleParams.mode = Billboard;
                 particleParams.spawnShape = 2;

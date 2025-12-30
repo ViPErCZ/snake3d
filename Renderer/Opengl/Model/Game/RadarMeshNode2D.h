@@ -17,7 +17,7 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
             const glm::mat4 &parentTransform) const override;
 
-        void update(float dt) override;
+        void update(float dt, uint64_t frameId) override;
 
         void addItem(const shared_ptr<MeshNode3D> &item, const glm::vec3 &color, const std::string &name);
 
