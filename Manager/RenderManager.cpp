@@ -4,7 +4,7 @@ namespace Manager {
     RenderManager::RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
                                  const glm::mat4 &projection, const int width, const int height) : camera(camera),
         resourceManager(resourceManager), width(width), projection(projection), height(height), shadows(false),
-        bloom(false), fog(false) {
+        bloom(false), reflections(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
@@ -25,6 +25,10 @@ namespace Manager {
     }
 
     void RenderManager::render(const float dt) {
+        if (reflections && planarReflectionRenderer) {
+            planarReflectionRenderer->render3D(dt, gFrameId);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glEnable(GL_DEPTH_TEST);
         glLoadIdentity();
@@ -159,6 +163,10 @@ namespace Manager {
         RenderManager::bloomRenderer = std::move(bloomRenderer);
     }
 
+    void RenderManager::setPlanarReflectionRenderer(shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer) {
+        RenderManager::planarReflectionRenderer = std::move(planarReflectionRenderer);
+    }
+
     void RenderManager::toggleBloom() {
         bloom = !bloom;
     }
@@ -168,8 +176,20 @@ namespace Manager {
         updateFog();
     }
 
+    void RenderManager::toggleReflections() {
+        reflections = !reflections;
+    }
+
+    bool RenderManager::isReflectionsEnabled() const {
+        return reflections;
+    }
+
     void RenderManager::reset() {
         renderers.clear();
+    }
+
+    const vector<RendererEntry>& RenderManager::getRenderers() const {
+        return renderers;
     }
 
     void RenderManager::updateFog() {

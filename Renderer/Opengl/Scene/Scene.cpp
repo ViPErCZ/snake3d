@@ -64,4 +64,13 @@ namespace Scenes {
         stable_sort(meshNode2d.begin(), meshNode2d.end(),
                      [](auto &a, auto &b) { return a.priority > b.priority; });
     }
+
+    vector<RendererEntry3D> Scene::getAllMeshNodes3D() const {
+        vector<RendererEntry3D> allNodes = meshNode3d;
+        for (const auto &node : nodes) {
+            auto childNodes = node->getAllMeshNodes3D();
+            allNodes.insert(allNodes.end(), childNodes.begin(), childNodes.end());
+        }
+        return allNodes;
+    }
 } // Scene

@@ -21,6 +21,7 @@ out mat3 TBN;
 out vec3 camPos;
 out vec3 meshColor;
 out mat4 viewMatrix;
+out vec4 clipSpacePos;
 
 uniform vec3 viewPos;
 uniform mat4 model;
@@ -67,4 +68,5 @@ void main()
     camPos = viewPos;
     meshColor = aColor;
     viewMatrix = view;
+    clipSpacePos = gl_Position;
 }

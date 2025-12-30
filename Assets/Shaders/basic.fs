@@ -16,6 +16,7 @@ in vec3 worldNormal;
 in vec3 camPos;
 in mat3 TBN;
 in mat4 viewMatrix;
+in vec4 clipSpacePos;
 
 uniform vec3 viewPos;
 uniform vec3 ambientLightColor = vec3(1.0, 1.0, 1.0);
@@ -29,6 +30,7 @@ uniform sampler2D roughness;
 
 #include "functions/fog.glsl"
 #include "functions/lights.glsl"
+#include "functions/reflection.glsl"
 #include "functions/shadows.glsl"
 #include "functions/alpha.glsl"
 
@@ -129,6 +131,10 @@ void main()
        FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
     } else {
        FragColor = alphaBlending(pow(final, vec3(1.0/2.2)));
+    }
+
+    if (reflectionEnable) {
+        FragColor = vec4(calcReflexion(clipSpacePos, FragColor.rgb), FragColor.a);
     }
 
     gColor = FragColor;

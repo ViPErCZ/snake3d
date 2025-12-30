@@ -15,7 +15,7 @@ namespace Model {
         explicit MeshNode3D(const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
         ~MeshNode3D() override = default;
-
+        shared_ptr<StandardMesh> getMesh() const;
         void addNode(const std::shared_ptr<MeshNode3D> &node);
 
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,

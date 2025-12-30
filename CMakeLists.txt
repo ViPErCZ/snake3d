@@ -25,6 +25,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Particle/SmokeParticleSystem.h
         Renderer/Opengl/FireRenderer.cpp
         Renderer/Opengl/FireRenderer.h
+        Renderer/Opengl/PlanarReflectionRenderer.cpp
+        Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/BoltRenderer.cpp
         Renderer/Opengl/BoltRenderer.h
         Renderer/Opengl/Effects/LightningFlashEffect.cpp
@@ -45,6 +47,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
+        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
+        Renderer/Opengl/Material/PlanarReflectionMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -188,6 +192,8 @@ set(APP_SOURCES
         Renderer/Opengl/BloomRenderer.cpp
         Renderer/Opengl/RainRenderer.cpp
         Renderer/Opengl/RainDropRenderer.cpp
+        Renderer/Opengl/PlanarReflectionRenderer.cpp
+        Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/Model/Character.cpp
         Renderer/Opengl/Model/Utils/Vao.cpp
         Renderer/Opengl/Model/Utils/Vbo.cpp
@@ -222,6 +228,8 @@ set(APP_SOURCES
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
+        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
+        Renderer/Opengl/Material/PlanarReflectionMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -329,6 +337,10 @@ set(APP_SOURCES
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
 add_library(snake3d_lib ${APP_SOURCES}
+        Renderer/Opengl/PlanarReflectionRenderer.cpp
+        Renderer/Opengl/PlanarReflectionRenderer.h
+        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
+        Renderer/Opengl/Material/PlanarReflectionMaterial.h
         Renderer/Opengl/Model/Standard/BoxMesh.cpp
         Renderer/Opengl/Model/Standard/BoxMesh.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp

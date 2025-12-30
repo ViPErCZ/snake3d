@@ -7,6 +7,10 @@ namespace Model {
         contextState = make_shared<ContextState>();
     }
 
+    shared_ptr<StandardMesh> MeshNode3D::getMesh() const {
+        return mesh;
+    }
+
     void MeshNode3D::addNode(const std::shared_ptr<MeshNode3D> &node) {
         node->parent = shared_from_this();
         node->depth = this->depth + 1;

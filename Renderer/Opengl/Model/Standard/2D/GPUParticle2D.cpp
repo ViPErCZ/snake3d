@@ -82,6 +82,7 @@ namespace Model {
         shader->setVec4("u_colorEnd", params.colorEnd);
         shader->setFloat("u_sizeMin", params.sizeMin);
         shader->setFloat("u_sizeMax", params.sizeMax);
+        shader->setFloat("u_time", timeAccum);
 
         // Textura jednotka 0: SCÉNA (pozadí)
         resourceManager->getTexture("SceneTexture")->bind();

@@ -32,8 +32,9 @@ namespace Scenes {
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
         void addMeshNode3D(shared_ptr<MeshNode3D> node, int priority = 0);
-
         void addMeshNode2D(shared_ptr<MeshNode2D> node, int priority = 0);
+        
+        vector<RendererEntry3D> getAllMeshNodes3D() const;
 
     protected:
         vector<RendererEntry3D> meshNode3d;

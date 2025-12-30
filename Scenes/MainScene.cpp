@@ -3,12 +3,13 @@
 #include <glm/gtc/random.hpp>
 
 #include "PlayerScene.h"
+#include "../Resource/ShaderLoader.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
+#include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
@@ -24,6 +25,9 @@ namespace Scenes {
     }
 
     void MainScene::init(const int priority) {
+        planarReflectionRenderer = make_shared<PlanarReflectionRenderer>(resourceManager, camera, projection, width, height);
+        rendererManager->setPlanarReflectionRenderer(planarReflectionRenderer);
+
         Scene::init(priority);
 
         positionHandler = make_shared<PositionHandler>(camera);
@@ -53,10 +57,15 @@ namespace Scenes {
         const auto explosion = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
         const auto explosion2 = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
 
-        const auto quad2D = make_shared<QuadNode2D>(1.7, 1.7);
+        const auto quad2D = make_shared<QuadNode2D>(0.9, 1.2);
         const auto rainDrop2D = make_shared<GPUParticle2D>(quad2D, resourceManager, 5);
 
         rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
+        // auto& rp2d = rainDrop2D->getParams();
+        // rp2d.spawnRate = 2.0f;
+        // rp2d.turbulence = 0.2f;
+        // rp2d.lifeMin = 10.0f;
+        // rp2d.lifeMax = 20.0f;
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
         explosion->setPosition(glm::vec3(0.0, 0.6, 0.0));
@@ -195,6 +204,15 @@ namespace Scenes {
             case GLFW_KEY_B:
                 rendererManager->toggleBloom();
                 break;
+            case GLFW_KEY_F2:
+                rendererManager->toggleReflections();
+                planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
+                if (rendererManager->isReflectionsEnabled()) {
+                    planeMaterialDirLight->setAmbient({0.7f, 0.7f, 0.7f});
+                } else {
+                    planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
+                }
+                break;
             case GLFW_KEY_F:
                 rendererManager->toggleFog();
                 break;
@@ -231,16 +249,18 @@ namespace Scenes {
         const auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
         const auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
         const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
-        const auto planeMaterial = make_shared<StandardMaterial>(basicShader, shadowDepthShader);
+        planeMaterial = make_shared<PlanarReflectionMaterial>(basicShader, shadowDepthShader);
+        planeMaterial->setReflectionTexture(resourceManager->getTexture("PlanarReflectionTexture"));
+        planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
 
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.07f, 0.07f, 0.07f});
-        directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
-        directionalLight->setSpecular({.091f, .091f, .091f});
+        planeMaterialDirLight = make_shared<DirectionalLight>();
+        planeMaterialDirLight->setPosition({0.0f, 7.0f, 11.0f});
+        planeMaterialDirLight->setDirection({1, 1.0, -3});
+        planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
+        planeMaterialDirLight->setDiffuse({0.0f, 0.0f, 0.0f});
+        planeMaterialDirLight->setSpecular({.091f, .091f, .091f});
 
-        planeMaterial->setDirectionalLight(directionalLight);
+        planeMaterial->setDirectionalLight(planeMaterialDirLight);
         planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         planeMaterial->setShadow(shadowMap);
         planeMaterial->setNormalEnabled(true);
@@ -254,8 +274,8 @@ namespace Scenes {
         const auto node3d = make_shared<MeshNode3D>(planeMesh, resourceManager);
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
+        planarReflectionRenderer->setPlaneZ(-1.0f);
 
-        // meshNode3d.push_back(node3d);
         addMeshNode3D(node3d, 101);
     }
 
@@ -466,6 +486,10 @@ namespace Scenes {
     }
 
     void MainScene::update() {
+        if (planarReflectionRenderer) {
+            planarReflectionRenderer->update(getAllMeshNodes3D());
+            planarReflectionRenderer->updateRenderers(rendererManager->getRenderers());
+        }
         Scene::update();
 
         if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {

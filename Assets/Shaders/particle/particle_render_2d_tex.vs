@@ -7,28 +7,37 @@ layout (location = 4) in vec2 iVel;
 layout (location = 5) in float iLife;
 layout (location = 6) in float iSeed;
 
+uniform float u_time;
 uniform float u_aspectRatio;
 uniform float u_sizeMin;
 uniform float u_sizeMax;
 
 out vec2 vUV;
 out vec2 vScreenUV;
+out vec2 vVelocity;
 out float vAlpha;
 
 void main() {
     float speed = length(iVel);
-    float sizeBase = mix(u_sizeMin, u_sizeMax, clamp(speed * 2.0, 0.0, 1.0));
+    float sizeBase = mix(u_sizeMin, u_sizeMax, clamp(speed * 3.0, 0.0, 1.0));
+
+    float headBoost = 0.7;
     vec2 scale = vec2(sizeBase);
-    if (speed > 0.01) {
-        scale.y *= (1.0 + speed * 4.0);
-        scale.x *= (1.0 - clamp(speed * 0.5, 0.0, 0.4));
+    vec2 offsetPos = vec2(0.0);
+
+    if (aPos.y < 0.0) {
+        scale.y *= 4;
+        offsetPos.y += 0.003;
+    } else {
+        scale *= headBoost;
     }
 
-    vec2 vertexPos = iPos + (aPos * scale * vec2(1.0, u_aspectRatio));
+    vec2 vertexPos = iPos + ((aPos + offsetPos) * scale * vec2(1.0, u_aspectRatio));
     gl_Position = vec4(vertexPos, 0.0, 1.0);
 
     vScreenUV = vertexPos * 0.5 + 0.5;
+    vVelocity = iVel;
 
     vUV = aUV;
-    vAlpha = min(iLife, 1.0);
+    vAlpha = smoothstep(0.0, 0.2, iLife);
 }

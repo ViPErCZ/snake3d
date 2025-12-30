@@ -1,40 +1,34 @@
 #version 330 core
 
-// VSTUPY (z minulého framu - Locations 0, 1, 2, 3)
 layout (location = 0) in vec2 inPos;
 layout (location = 1) in vec2 inVel;
 layout (location = 2) in float inLife;
 layout (location = 3) in float inSeed;
 
-// VÝSTUPY (do dalšího framu - Transform Feedback)
-// Tyto názvy musí sedět s tím, co máš v poli `varyings` v C++
 out vec2 outPos;
 out vec2 outVel;
 out float outLife;
 out float outSeed;
 
-// PARAMETRY
 uniform float u_dt;
 uniform float u_time;
-uniform float u_seed_iter; // Random offset (např. frameIndex / 1000.0)
 
 // Config
 uniform vec2 u_emitterPos;
-uniform vec2 u_emitterSize; // x = width, y = height
+uniform vec2 u_emitterSize;
 uniform vec2 u_gravity;
 uniform vec2 u_velMin;
 uniform vec2 u_velMax;
-uniform float u_drag;       // Tření (vysoké pro kapky na skle)
-uniform float u_turbulence; // Šance na "uklouznutí"
+uniform float u_drag;
+uniform float u_turbulence;
 uniform float u_lifeMin;
 uniform float u_lifeMax;
-uniform int u_spawnMode;    // 0 = Bod, 1 = Obdélník (vršek), 2 = Celá plocha
+uniform int u_spawnMode;
 
 // Pomocná funkce pro náhodu
 float rand(float n){ return fract(sin(n) * 43758.5453123); }
 
 void main() {
-    // 1. Zestárnutí
     float newLife = inLife - u_dt;
     vec2 newPos = inPos;
     vec2 newVel = inVel;
@@ -78,31 +72,18 @@ void main() {
     }
     else {
         // --- FYZIKA POHYBU ---
-
-        // A) Gravitace
         newVel += u_gravity * u_dt;
-
-        // B) Odpor (Drag) - Klíčové pro efekt skla!
-        // Kapka se snaží zastavit o sklo.
-        // Pokud je u_drag např. 2.0, kapka rychle zpomalí.
         newVel *= (1.0 - min(u_dt * u_drag, 1.0));
-
-        // C) Turbulence (Uklouznutí)
-        // Občas kapka dostane impuls a sjede dolů (překoná povrchové napětí)
         float currentSpeed = length(newVel);
-        // Generujeme náhodu pro tento frame
         float slideChance = rand(u_time * 10.0 + inSeed);
 
-        // Pokud kapka skoro stojí A padne "šestka", tak ji postrčíme
         if (currentSpeed < 0.1 && slideChance < (u_turbulence * u_dt * 10.0)) {
             newVel.y -= 0.8; // Impuls dolů
         }
 
-        // D) Aplikace rychlosti
         newPos += newVel * u_dt;
     }
 
-    // Zápis do Transform Feedback bufferu
     outPos = newPos;
     outVel = newVel;
     outLife = newLife;

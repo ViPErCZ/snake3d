@@ -3,8 +3,16 @@
 
 #include <glm/vec3.hpp>
 #include <glm/gtc/type_precision.inl>
+#include <memory>
 
 namespace Renderer {
+    class BaseRenderer;
+
+    struct RendererEntry {
+        std::shared_ptr<BaseRenderer> renderer;
+        int priority;
+    };
+
     class BaseRenderer {
     public:
         explicit BaseRenderer();

@@ -49,7 +49,7 @@ namespace Material {
 
         void bindShadow(const glm::mat4 &model) const;
 
-        void unbind() const;
+        virtual void unbind() const;
 
         [[nodiscard]] glm::vec3 getColor() const;
 

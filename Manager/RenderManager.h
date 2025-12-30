@@ -4,6 +4,7 @@
 #include "../Renderer/Opengl/BaseRenderer.h"
 #include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../Renderer/Opengl/BloomRenderer.h"
+#include "../Renderer/Opengl/PlanarReflectionRenderer.h"
 #include <vector>
 
 using namespace std;
@@ -17,10 +18,6 @@ namespace Manager {
     };
 
     class RenderManager final {
-        struct RendererEntry {
-            shared_ptr<BaseRenderer> renderer;
-            int priority;
-        };
     public:
         RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
                       const glm::mat4 &projection,
@@ -40,6 +37,8 @@ namespace Manager {
 
         void setBloomRenderer(unique_ptr<BloomRenderer> &bloomRenderer);
 
+        void setPlanarReflectionRenderer(shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer);
+
         void setWidth(int width);
 
         void setHeight(int height);
@@ -54,7 +53,13 @@ namespace Manager {
 
         void toggleFog();
 
+        void toggleReflections();
+
+        [[nodiscard]] bool isReflectionsEnabled() const;
+
         void reset();
+
+        [[nodiscard]] const vector<RendererEntry>& getRenderers() const;
 
     protected:
         void updateShadows();
@@ -64,6 +69,7 @@ namespace Manager {
         vector<RendererEntry> renderers;
         unique_ptr<DepthMapRenderer> depthMapRenderer;
         unique_ptr<BloomRenderer> bloomRenderer;
+        shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         glm::mat4 projection{};
@@ -71,6 +77,7 @@ namespace Manager {
         int height;
         bool shadows;
         bool bloom;
+        bool reflections;
         bool fog;
         uint64_t gFrameId = 0;
     };

@@ -56,6 +56,6 @@ namespace Model {
             vertices[i].biTangents = biTangents[i];
         }
 
-        mesh = std::make_shared<Mesh>(vertices, indices);
+        mesh = std::make_shared<Mesh>(vertices, indices, false, "PlaneMesh");
     }
 } // Model

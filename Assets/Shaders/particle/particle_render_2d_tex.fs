@@ -2,6 +2,7 @@
 
 in vec2 vUV;
 in vec2 vScreenUV;
+in vec2 vVelocity;
 in float vAlpha;
 
 out vec4 FragColor;
@@ -10,14 +11,18 @@ uniform sampler2D uSceneTexture;
 uniform sampler2D uNormalTexture;
 
 void main() {
-    vec4 normalData = texture(uNormalTexture, vUV);
+    float speed = length(vVelocity);
+
+    vec2 trailUV = vUV;
+    float refractionStrength = 0.04;
+    vec4 normalData = texture(uNormalTexture, trailUV);
     float shapeAlpha = normalData.a;
 
-    if (shapeAlpha < 0.05) discard;
+    if (shapeAlpha < 0.01) discard;
 
     vec3 normal = normalize(normalData.rgb * 2.0 - 1.0);
+
     normal.y = -normal.y;
-    float refractionStrength = 0.04;
     vec2 offset = normal.xy * refractionStrength;
     offset.y *= -1.0;
     vec2 coords = vScreenUV + offset;

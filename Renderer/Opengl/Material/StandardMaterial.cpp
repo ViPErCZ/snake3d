@@ -54,6 +54,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setInt("environmentMap", 6);
     shader->setInt("aoMap", 7);
     shader->setFloat("alpha", alpha);
+    shader->setBool("reflectionEnable", false);
 
     if (shadowsEnabled && shadows) {
         shader->setBool("shadowsEnable", true);
