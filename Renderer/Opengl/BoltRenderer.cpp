@@ -95,10 +95,11 @@ namespace Renderer {
         }
     }
 
-    void BoltRenderer::beforeRender() {
+    void BoltRenderer::beforeRender(const MODE mode) {
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        this->mode = mode;
     }
 
     void BoltRenderer::afterRender() {

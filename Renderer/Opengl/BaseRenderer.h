@@ -13,6 +13,13 @@ namespace Renderer {
         int priority;
     };
 
+    enum MODE {
+        standard = 0,
+        shadowMap = 1,
+        reflection = 2,
+        bloom = 3
+    };
+
     class BaseRenderer {
     public:
         explicit BaseRenderer();
@@ -25,7 +32,7 @@ namespace Renderer {
 
         virtual void renderShadowMap() = 0;
 
-        virtual void beforeRender() = 0;
+        virtual void beforeRender(MODE mode) = 0;
 
         virtual void afterRender() = 0;
 
@@ -44,6 +51,7 @@ namespace Renderer {
     protected:
         bool shadows;
         bool fog;
+        MODE mode;
     };
 } // Manager
 

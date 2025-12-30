@@ -115,6 +115,14 @@ namespace Model {
         mesh->animationResume(name);
     }
 
+    void MeshNode3D::disableMirroring() {
+        includeMirroring = false;
+    }
+
+    bool MeshNode3D::isIncludeInMirroring() const {
+        return includeMirroring;
+    }
+
     std::shared_ptr<MeshNode3D> MeshNode3D::deepCopy() const {
         auto copyMesh = std::make_shared<StandardMesh>(*mesh);
         auto copyNode = std::make_shared<MeshNode3D>(copyMesh, resourceManager);

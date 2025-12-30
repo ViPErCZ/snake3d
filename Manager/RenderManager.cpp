@@ -18,10 +18,18 @@ namespace Manager {
         depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get());
     }
 
+    void RenderManager::initReflection() {
+        planarReflectionRenderer = make_unique<PlanarReflectionRenderer>(resourceManager, camera, projection, width, height);
+        planarReflectionRenderer->updateRenderers(renderers);
+    }
+
     void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
         renderers.push_back({std::move(renderer), priority});
         stable_sort(renderers.begin(), renderers.end(),
                      [](auto &a, auto &b) { return a.priority > b.priority; });
+        if (planarReflectionRenderer) {
+            planarReflectionRenderer->updateRenderers(renderers);
+        }
     }
 
     void RenderManager::render(const float dt) {
@@ -105,17 +113,17 @@ namespace Manager {
         glDrawBuffers(2, attachments);
 
         if (bloom) {
-            bloomRenderer->beforeRender();
+            bloomRenderer->beforeRender(MODE::bloom);
         }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            Iter->renderer->beforeRender();
+            Iter->renderer->beforeRender(standard);
             Iter->renderer->render3D(dt, gFrameId);
             Iter->renderer->afterRender();
         }
 
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            Iter->renderer->beforeRender();
+            Iter->renderer->beforeRender(standard);
             Iter->renderer->render2D(dt, gFrameId);
             Iter->renderer->afterRender();
         }
@@ -163,7 +171,7 @@ namespace Manager {
         RenderManager::bloomRenderer = std::move(bloomRenderer);
     }
 
-    void RenderManager::setPlanarReflectionRenderer(shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer) {
+    void RenderManager::setPlanarReflectionRenderer(unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer) {
         RenderManager::planarReflectionRenderer = std::move(planarReflectionRenderer);
     }
 

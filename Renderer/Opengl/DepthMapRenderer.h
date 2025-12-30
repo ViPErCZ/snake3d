@@ -1,7 +1,6 @@
 #ifndef SNAKE3_DEPTHMAPRENDERER_H
 #define SNAKE3_DEPTHMAPRENDERER_H
 
-#include "BaseRenderer.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"

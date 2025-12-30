@@ -21,7 +21,8 @@ namespace Renderer {
         smokes->render(camera->getViewMatrix(), projection);
     }
 
-    void FireRenderer::beforeRender() {
+    void FireRenderer::beforeRender(const MODE mode) {
+        this->mode = mode;
     }
 
     void FireRenderer::afterRender() {

@@ -13,7 +13,7 @@ namespace Material {
     }
 
     void PlanarReflectionMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                                        const glm::mat4 &model, bool shadows) const {
+                                        const glm::mat4 &model, const bool shadows) const {
         StandardMaterial::bind(posView, view, projection, model, shadows);
 
         shader->use();

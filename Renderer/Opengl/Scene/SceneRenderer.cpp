@@ -14,8 +14,9 @@ namespace Scenes {
         this->nodes3d = nodes;
     }
 
-    void SceneRenderer::render3D(const float dt, uint64_t frameId) {
+    void SceneRenderer::render3D(const float dt, const uint64_t frameId) {
         for (auto &node : nodes3d) {
+            this->meshNode3DRenderer->beforeRender(this->mode);
             this->meshNode3DRenderer->setRootNode(node.node);
             this->meshNode3DRenderer->render3D(dt, frameId);
         }
@@ -25,6 +26,7 @@ namespace Scenes {
         BaseRenderer::render2D(dt, frameId);
 
         for (auto &node : nodes2d) {
+            this->meshNode2DRenderer->beforeRender(this->mode);
             this->meshNode2DRenderer->setRootNode(node.node);
             this->meshNode2DRenderer->render2D(dt, frameId);
         }
@@ -37,7 +39,8 @@ namespace Scenes {
         }
     }
 
-    void SceneRenderer::beforeRender() {
+    void SceneRenderer::beforeRender(const MODE mode) {
+        this->mode = mode;
     }
 
     void SceneRenderer::afterRender() {

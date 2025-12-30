@@ -18,7 +18,7 @@ namespace Renderer {
         ~Node2DRenderer() override = default;
         void render3D(float dt, uint64_t frameId) override;
         void render2D(float dt, uint64_t frameId) override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void renderShadowMap() override {};
         void setRootNode(const shared_ptr<MeshNode2D> &rootNode);

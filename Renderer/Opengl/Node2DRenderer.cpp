@@ -14,12 +14,13 @@ namespace Renderer {
 
     void Node2DRenderer::render2D(const float dt, const uint64_t frameId) {
         rootNode->update(dt, frameId);
-        this->beforeRender();
+        this->beforeRender(standard);
         renderScene();
         this->afterRender();
     }
 
-    void Node2DRenderer::beforeRender() {
+    void Node2DRenderer::beforeRender(const MODE mode) {
+        this->mode = mode;
     }
 
     void Node2DRenderer::afterRender() {

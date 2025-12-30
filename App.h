@@ -9,7 +9,6 @@
 #include "Manager/EatManager.h"
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
-#include "Renderer/Opengl/RainRenderer.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/BoltRenderer.h"
@@ -60,7 +59,6 @@ private:
     unique_ptr<LevelManager> levelManager;
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
-    shared_ptr<RainRenderer> rainRenderer{};
     shared_ptr<RainDropRenderer> rainDropRenderer{};
     shared_ptr<FireRenderer> fireRenderer{};
     shared_ptr<BoltRenderer> boltRenderer{};

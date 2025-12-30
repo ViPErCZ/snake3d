@@ -20,7 +20,7 @@ namespace Renderer {
         ~RainDropRenderer() override;
         void render3D(float dt, uint64_t frameId) override;
         void renderShadowMap() override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void setEnable(bool enable);
 

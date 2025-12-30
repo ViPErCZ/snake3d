@@ -472,6 +472,7 @@ void App::Init() {
 
     rendererManager->initBloom();
     rendererManager->initShadowMapping();
+    rendererManager->initReflection();
 
     preloaderScene = make_shared<PreloaderScene>(rendererManager, camera, projection, resourceManager, width, height);
     preloaderScene->init(0);

@@ -21,7 +21,7 @@ namespace Renderer {
                        const shared_ptr<ResourceManager> &resourceManager);
 
         void render3D(float dt, uint64_t frameId) override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void renderShadowMap() override {};
     protected:

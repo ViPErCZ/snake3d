@@ -29,6 +29,8 @@ namespace Manager {
 
         void initShadowMapping();
 
+        void initReflection();
+
         void render(float dt);
 
         void addRenderer(shared_ptr<BaseRenderer> renderer, int priority = 0);
@@ -37,7 +39,7 @@ namespace Manager {
 
         void setBloomRenderer(unique_ptr<BloomRenderer> &bloomRenderer);
 
-        void setPlanarReflectionRenderer(shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer);
+        void setPlanarReflectionRenderer(unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer);
 
         void setWidth(int width);
 
@@ -69,7 +71,7 @@ namespace Manager {
         vector<RendererEntry> renderers;
         unique_ptr<DepthMapRenderer> depthMapRenderer;
         unique_ptr<BloomRenderer> bloomRenderer;
-        shared_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
+        unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         glm::mat4 projection{};

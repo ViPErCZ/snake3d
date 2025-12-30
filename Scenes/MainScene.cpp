@@ -25,9 +25,6 @@ namespace Scenes {
     }
 
     void MainScene::init(const int priority) {
-        planarReflectionRenderer = make_shared<PlanarReflectionRenderer>(resourceManager, camera, projection, width, height);
-        rendererManager->setPlanarReflectionRenderer(planarReflectionRenderer);
-
         Scene::init(priority);
 
         positionHandler = make_shared<PositionHandler>(camera);
@@ -61,11 +58,6 @@ namespace Scenes {
         const auto rainDrop2D = make_shared<GPUParticle2D>(quad2D, resourceManager, 5);
 
         rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
-        // auto& rp2d = rainDrop2D->getParams();
-        // rp2d.spawnRate = 2.0f;
-        // rp2d.turbulence = 0.2f;
-        // rp2d.lifeMin = 10.0f;
-        // rp2d.lifeMax = 20.0f;
 
         fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
         explosion->setPosition(glm::vec3(0.0, 0.6, 0.0));
@@ -272,9 +264,9 @@ namespace Scenes {
         auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
         const auto node3d = make_shared<MeshNode3D>(planeMesh, resourceManager);
+        node3d->disableMirroring();
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
-        planarReflectionRenderer->setPlaneZ(-1.0f);
 
         addMeshNode3D(node3d, 101);
     }
@@ -347,7 +339,6 @@ namespace Scenes {
         radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
         radarMeshNode->hideItems();
 
-        // meshNode2d.push_back(radarMeshNode);
         addMeshNode2D(radarMeshNode);
     }
 
@@ -381,8 +372,6 @@ namespace Scenes {
         tilesCounterNode = make_shared<MeshNode2D>(tilesCounterText, resourceManager);
         tilesCounterNode->setVisible(false);
 
-        // meshNode2d.push_back(helpText);
-        // meshNode2d.push_back(tilesCounterNode);
         addMeshNode2D(helpText);
         addMeshNode2D(tilesCounterNode);
     }
@@ -486,10 +475,6 @@ namespace Scenes {
     }
 
     void MainScene::update() {
-        if (planarReflectionRenderer) {
-            planarReflectionRenderer->update(getAllMeshNodes3D());
-            planarReflectionRenderer->updateRenderers(rendererManager->getRenderers());
-        }
         Scene::update();
 
         if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {

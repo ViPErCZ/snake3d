@@ -7,7 +7,6 @@
 #include "BaseRenderer.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/Camera.h"
-#include "Node3DRenderer.h"
 #include "Scene/SceneRenderer.h"
 
 using namespace std;
@@ -22,20 +21,17 @@ namespace Renderer {
                                  int width, int height);
         ~PlanarReflectionRenderer() override;
 
-        void update(const vector<Scenes::RendererEntry3D> &nodes);
         void updateRenderers(const vector<RendererEntry> &renderers);
         void render3D(float dt, uint64_t frameId) override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void renderShadowMap() override;
-
         void setPlaneZ(float z);
 
     protected:
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         glm::mat4 projection;
-        unique_ptr<Node3DRenderer> meshNode3DRenderer;
         vector<Scenes::RendererEntry3D> nodes3d;
         vector<RendererEntry> renderers;
 

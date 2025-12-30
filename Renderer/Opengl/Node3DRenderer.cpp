@@ -21,7 +21,8 @@ namespace Renderer {
         renderScene();
     }
 
-    void Node3DRenderer::beforeRender() {
+    void Node3DRenderer::beforeRender(const MODE mode) {
+        this->mode = mode;
     }
 
     void Node3DRenderer::afterRender() {
@@ -42,6 +43,10 @@ namespace Renderer {
     }
 
     void Node3DRenderer::renderScene() const {
+        if (mode == reflection && !rootNode->isIncludeInMirroring()) {
+            return;
+        }
+
         rootNode->render(camera, projection, 1, glm::mat4(1), shadows);
     }
 } // Renderer

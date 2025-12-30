@@ -14,7 +14,6 @@ using namespace Effects;
 
 namespace Renderer {
     class BoltRenderer : public BaseRenderer {
-    private:
         Camera* camera;
         glm::mat4 projection{};
         ResourceManager* resourceManager;
@@ -46,7 +45,7 @@ namespace Renderer {
         ~BoltRenderer() override;
         
         void render3D(float dt, uint64_t frameId) override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void renderShadowMap() override;
         void triggerBolt(); // Manuální spuštění blesku

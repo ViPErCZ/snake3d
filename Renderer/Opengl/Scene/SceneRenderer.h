@@ -39,7 +39,7 @@ namespace Scenes {
 
         void renderShadowMap() override;
 
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
 
         void afterRender() override;
 

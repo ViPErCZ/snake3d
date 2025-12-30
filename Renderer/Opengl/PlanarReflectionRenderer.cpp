@@ -12,8 +12,6 @@ namespace Renderer {
                                                        const int width, const int height)
         : resourceManager(resManager), camera(camera), projection(projection), width(width), height(height) {
 
-        meshNode3DRenderer = make_unique<Node3DRenderer>(camera, projection);
-
         // Framebuffer setup
         glGenFramebuffers(1, &reflectionFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
@@ -45,10 +43,6 @@ namespace Renderer {
         glDeleteRenderbuffers(1, &depthBuffer);
     }
 
-    void PlanarReflectionRenderer::update(const vector<Scenes::RendererEntry3D> &nodes) {
-        this->nodes3d = nodes;
-    }
-
     void PlanarReflectionRenderer::updateRenderers(const vector<RendererEntry> &renderers) {
         this->renderers = renderers;
     }
@@ -56,12 +50,12 @@ namespace Renderer {
     void PlanarReflectionRenderer::render3D(const float dt, const uint64_t frameId) {
         // Vypočet zrcadlené kamery
         glm::vec3 originalPos = camera->getPosition();
-        glm::vec3 originalFront = camera->getFront();
-        glm::vec3 originalUp = camera->getUp();
+        const glm::vec3 originalFront = camera->getFront();
+        const glm::vec3 originalUp = camera->getUp();
         
         // Předpokládáme rovinu z = planeZ (protože Z je nahoru)
         // Zrcadlíme pozici přes rovinu Z
-        float dist = 2.0f * (originalPos.z - planeZ);
+        const float dist = 2.0f * (originalPos.z - planeZ);
         camera->setPosition({originalPos.x, originalPos.y, originalPos.z - dist});
         
         // Zrcadlíme front vektor: X a Y zůstávají, Z se obrací
@@ -86,30 +80,13 @@ namespace Renderer {
         // Změna winding order kvůli zrcadlení
         glFrontFace(GL_CW);
 
-        for (auto &node : nodes3d) {
-            // Vykreslíme vše kromě podlahy (PlaneMesh)
-            // Kontrola jména a typu
-            if (node.node->getMesh()) {
-                if (node.node->getMesh()->getMesh() && node.node->getMesh()->getMesh()->getName() == "PlaneMesh") {
-                    continue;
-                }
-                if (dynamic_pointer_cast<PlaneMesh>(node.node->getMesh())) {
-                    continue;
-                }
-            }
-            meshNode3DRenderer->setRootNode(node.node);
-            meshNode3DRenderer->render3D(dt, frameId);
-        }
-
         // Vykreslíme ostatní renderery (např. oheň)
         for (auto &entry : renderers) {
             if (entry.renderer.get() == this) continue;
             // Nechceme zrcadlit SkyboxRenderer v této fázi
             if (dynamic_pointer_cast<SkyboxRenderer>(entry.renderer)) continue;
-            // Nechceme zrcadlit SceneRenderer, protože nody už jsme vykreslili ručně v předchozím kroku (s filtrováním podlahy)
-            if (dynamic_pointer_cast<Scenes::SceneRenderer>(entry.renderer)) continue;
-            
-            entry.renderer->beforeRender();
+
+            entry.renderer->beforeRender(reflection);
             entry.renderer->render3D(dt, frameId);
             entry.renderer->afterRender();
         }
@@ -123,13 +100,15 @@ namespace Renderer {
         camera->setUp(originalUp);
     }
 
-    void PlanarReflectionRenderer::beforeRender() {}
+    void PlanarReflectionRenderer::beforeRender(const MODE mode) {
+        this->mode = mode;
+    }
 
     void PlanarReflectionRenderer::afterRender() {}
 
     void PlanarReflectionRenderer::renderShadowMap() {}
 
-    void PlanarReflectionRenderer::setPlaneZ(float z) {
+    void PlanarReflectionRenderer::setPlaneZ(const float z) {
         planeZ = z;
     }
 }

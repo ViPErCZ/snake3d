@@ -28,10 +28,11 @@ namespace Renderer {
         }
     }
 
-    void SkyboxRenderer::beforeRender() {
+    void SkyboxRenderer::beforeRender(const MODE mode) {
         glDepthMask(GL_FALSE);
         glDisable(GL_BLEND);
         glDepthFunc(GL_LEQUAL);
+        this->mode = mode;
     }
 
     void SkyboxRenderer::afterRender() {

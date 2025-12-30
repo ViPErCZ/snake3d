@@ -46,6 +46,10 @@ namespace Model {
 
         void animationResume(const string &name) const;
 
+        void disableMirroring();
+
+        [[nodiscard]] bool isIncludeInMirroring() const;
+
     protected:
         shared_ptr<MeshNode3D> deepCopy() const;
 
@@ -58,6 +62,7 @@ namespace Model {
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;
+        bool includeMirroring = true;
         int childrenChangedSignalCycles = 0;
         string animation;
         uint64_t lastUpdatedFrame;

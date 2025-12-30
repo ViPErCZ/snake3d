@@ -53,10 +53,11 @@ namespace Renderer {
 
     }
 
-    void RainDropRenderer::beforeRender() {
+    void RainDropRenderer::beforeRender(MODE mode) {
+        this->mode = mode;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        auto currentFrame = (float)glfwGetTime();
+        const auto currentFrame = static_cast<float>(glfwGetTime());
         if (currentFrame > lastFrame) {
             lastFrame = currentFrame;
         }

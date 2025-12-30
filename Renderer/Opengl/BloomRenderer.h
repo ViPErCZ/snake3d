@@ -12,7 +12,7 @@ namespace Renderer {
     class BloomRenderer final : public BaseRenderer {
     public:
         explicit BloomRenderer(const shared_ptr<ResourceManager> &resManager, int width, int height);
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void render3D(float dt, uint64_t frameId) override;
         void renderShadowMap() override;

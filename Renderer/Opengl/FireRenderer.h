@@ -16,7 +16,7 @@ namespace Renderer {
         FireRenderer(Camera *camera, const glm::mat4 &projection, ResourceManager *resManager);
         ~FireRenderer() override;
         void render3D(float dt, uint64_t frameId) override;
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
         void renderShadowMap() override;
     protected:

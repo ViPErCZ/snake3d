@@ -25,7 +25,7 @@ namespace Renderer {
 
         void render3D(float dt, uint64_t frameId) override;
 
-        void beforeRender() override;
+        void beforeRender(MODE mode) override;
 
         void afterRender() override;
 

@@ -116,9 +116,10 @@ void Renderer::BloomRenderer::renderQuad() {
     glBindVertexArray(0);
 }
 
-void Renderer::BloomRenderer::beforeRender() {
+void Renderer::BloomRenderer::beforeRender(const MODE mode) {
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    this->mode = mode;
 }
 
 void Renderer::BloomRenderer::renderShadowMap() {}
