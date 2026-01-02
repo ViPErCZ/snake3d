@@ -30,7 +30,6 @@ namespace Model {
         float drag = 0.0f; // Odpor vzduchu/skla (pro zastavení kapek)
         glm::vec2 turbulence = {0.0f, 0.0f}; // Náhodný pohyb do stran
 
-        // Vzhled
         float lifeMin = 1.0f;
         float lifeMax = 2.0f;
         float sizeMin = 0.01f;
@@ -39,7 +38,6 @@ namespace Model {
         glm::vec4 colorEnd = {1.0f, 1.0f, 1.0f, 0.0f};
         std::string texture;
 
-        // Logika
         int spawnMode = 0; // 0 = Point, 1 = Rectangle (Top/Screen)
     };
 
@@ -83,8 +81,11 @@ namespace Model {
         float timeAccum = 0.0f;
         bool firstFrame = true;
         float timeOffset = 0.0f;
-        float aspectRatio = 1.77f;
+        float aspectRatio = 1.6f;
         shared_ptr<ParticleProcessMaterial> material;
+        shared_ptr<ShaderManager> update_shader;
+        shared_ptr<ShaderManager> render_shader;
+        shared_ptr<ShaderManager> render_texture_shader;
     };
 }
 

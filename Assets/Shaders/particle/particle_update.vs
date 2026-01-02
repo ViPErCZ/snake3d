@@ -46,7 +46,7 @@ uniform vec2 u_emitterSize;
 uniform float u_drag;
 uniform int u_spawnMode;
 
-uniform bool u_is2D = false;
+uniform bool u_is2D;
 
 out vec3 outPos;
 out vec3 outVel;

@@ -138,10 +138,10 @@ namespace Material {
 
         void set_emitter_pos(const glm::vec3 &emitter_pos);
 
-        virtual void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
+        virtual void bind(shared_ptr<ShaderManager> shader, const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
                           const glm::mat4 &model, bool shadows) const = 0;
 
-        virtual void update(int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
+        virtual void update(shared_ptr<ShaderManager> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
 
     protected:
         float lifeMin = 1.0f;

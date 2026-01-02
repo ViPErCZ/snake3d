@@ -7,6 +7,9 @@ namespace Model {
         const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
         : MeshNode3D(contextState, mesh, resourceManager), resourceManager(resourceManager),
           maxParticles(maxParticles), VAO{}, particleVBO{}, camera(camera), material(material) {
+        update_shader = resourceManager->getShader("particle_update");
+        render_shader = resourceManager->getShader("particle_3d_render");
+        render_texture_shader = resourceManager->getShader("particle_3d_render_tex");
         initBuffers();
     }
 
@@ -24,7 +27,7 @@ namespace Model {
                 if (material->get_spawn_shape() == 1) {
                     material->set_emitter_pos(camera->getPosition());
                 }
-                material->update(maxParticles, timeAccum, timeOffset, stepDt);
+                material->update(update_shader, maxParticles, timeAccum, timeOffset, stepDt);
                 frameIndex++;
             } else {
                 throw std::invalid_argument("GPUParticle Process Material missing.");
@@ -71,7 +74,8 @@ namespace Model {
         contextState->setDepthWrite(mesh->getDepthWrite());
 
         if (material) {
-            material->bind(camera->getPosition(), camera->getViewMatrix(), projection, finalTransform, shadows);
+            const auto shader = !material->get_texture().empty() ? render_texture_shader : render_shader;
+            material->bind(shader, camera->getPosition(), camera->getViewMatrix(), projection, finalTransform, shadows);
         } else {
             throw std::invalid_argument("GPUParticle Process Material missing.");
         }

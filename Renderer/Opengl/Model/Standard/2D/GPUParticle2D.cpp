@@ -6,7 +6,9 @@ namespace Model {
         const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,
         const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
         : MeshNode2D(contextState, mesh, resourceManager), maxParticles(maxParticles), material(material) {
-
+        update_shader = resourceManager->getShader("particle_update_2d");
+        render_shader = resourceManager->getShader("particle_render_2d");
+        render_texture_shader = resourceManager->getShader("particle_render_2d_tex");
         initBuffers();
         setPreset(Preset::RainOnGlass);
     }
@@ -21,28 +23,33 @@ namespace Model {
         lastUpdatedFrame = frameId;
 
         // Transform Feedback update
-        const auto shader = resourceManager->getShader("particle_update_2d");
-        shader->use();
+        update_shader->use();
 
         const int src = frameIndex % 2;
         const int dst = (frameIndex + 1) % 2;
 
-        shader->setFloat("u_dt", dt);
-        shader->setFloat("u_timeAccum", timeAccum);
+        update_shader->setFloat("u_dt", dt);
+        update_shader->setFloat("u_timeAccum", timeAccum);
 
         // Params pass
-        shader->setVec2("u_emitterPos", params.emitterPos);
-        shader->setVec2("u_emitterSize", params.emitterSize);
-        shader->setVec2("u_gravity", params.gravity);
-        shader->setVec2("u_velMin", params.velocityMin);
-        shader->setVec2("u_velMax", params.velocityMax);
-        shader->setFloat("u_drag", params.drag);
-        shader->setVec2("u_turbulence", params.turbulence);
+        update_shader->setVec2("u_emitterPos", params.emitterPos);
+        update_shader->setVec2("u_emitterSize", params.emitterSize);
+        update_shader->setVec2("u_gravity", params.gravity);
+        update_shader->setVec2("u_velMin", params.velocityMin);
+        update_shader->setVec2("u_velMax", params.velocityMax);
+        update_shader->setFloat("u_drag", params.drag);
+        update_shader->setVec2("u_turbulence", params.turbulence);
 
-        shader->setFloat("u_lifeMin", params.lifeMin);
-        shader->setFloat("u_lifeMax", params.lifeMax);
-        shader->setInt("u_spawnMode", params.spawnMode);
-        shader->setBool("u_is2D", true);
+        update_shader->setFloat("u_lifeMin", params.lifeMin);
+        update_shader->setFloat("u_lifeMax", params.lifeMax);
+        update_shader->setInt("u_spawnMode", params.spawnMode);
+        update_shader->setBool("u_is2D", true);
+
+        // if (material) {
+        //     material->update(update_shader, maxParticles, timeAccum, timeOffset, dt);
+        // } else {
+        //     throw std::invalid_argument("GPUParticle Process Material missing.");
+        // }
 
         // Transform Feedback
         glEnable(GL_RASTERIZER_DISCARD);
@@ -70,7 +77,7 @@ namespace Model {
         contextState->setDepthWrite(mesh->getDepthWrite());
 
         const bool useTexture = !params.texture.empty();
-        const auto shader = resourceManager->getShader(useTexture ? "particle_render_2d_tex" : "particle_render_2d");
+        const auto shader = useTexture ? render_texture_shader : render_shader;
         shader->use();
 
         shader->setFloat("u_aspectRatio", aspectRatio);
@@ -88,6 +95,13 @@ namespace Model {
             auto tex = resourceManager->getTexture(params.texture);
             if (tex) tex->bind(1);
         }
+
+        // if (material) {
+        //     const auto shader = !material->get_texture().empty() ? render_texture_shader : render_shader;
+        //     material->bind(shader, camera->getPosition(), camera->getViewMatrix(), glm::mat4(1.0f), glm::mat4(1.0f), false);
+        // } else {
+        //     throw std::invalid_argument("GPUParticle Process Material missing.");
+        // }
 
         mesh->bind();
 
@@ -172,10 +186,9 @@ namespace Model {
     void GPUParticle2D::initBuffers() {
         std::vector<GPUParticle2DStruct> initial(maxParticles);
         for (int i = 0; i < maxParticles; i++) {
-            // Začínají mimo obrazovku nebo na random místě
             initial[i].position = glm::vec3(-2.0f, -2.0f, 0.0f);
             initial[i].velocity = glm::vec3(0.0f);
-            initial[i].life = 0.0f; // Mrtvé
+            initial[i].life = 0.0f;
             initial[i].seed = static_cast<float>(random()) / static_cast<float>(RAND_MAX);
         }
 
@@ -185,9 +198,8 @@ namespace Model {
         for (int i = 0; i < 2; i++) {
             glBindVertexArray(VAO[i]);
             glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
-            glBufferData(GL_ARRAY_BUFFER, maxParticles * sizeof(GPUParticle2DStruct), initial.data(), GL_DYNAMIC_COPY);
+            glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizei>(maxParticles * sizeof(GPUParticle2DStruct)), initial.data(), GL_DYNAMIC_COPY);
 
-            // Nastavení pro Transform Feedback (čtení v update shaderu)
             // Layout: 0=Pos, 1=Vel, 2=Life, 3=Seed
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,sizeof(GPUParticle2DStruct),

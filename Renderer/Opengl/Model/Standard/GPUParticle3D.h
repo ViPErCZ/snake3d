@@ -20,18 +20,6 @@ namespace Model {
         float seed;
     };
 
-    struct ParticleInstance {
-        glm::mat4 model;
-        glm::vec4 color;
-    };
-
-    struct ParticleStateOut {
-        glm::vec3 position;
-        glm::vec3 velocity;
-        float life;
-        float seed;
-    };
-
     class GPUParticle3D : public MeshNode3D {
     public:
         GPUParticle3D(const shared_ptr<ParticleProcessMaterial> &material,
@@ -65,6 +53,9 @@ namespace Model {
 
         shared_ptr<Camera> camera;
         shared_ptr<ParticleProcessMaterial> material;
+        shared_ptr<ShaderManager> update_shader;
+        shared_ptr<ShaderManager> render_shader;
+        shared_ptr<ShaderManager> render_texture_shader;
     };
 } // Model
 
