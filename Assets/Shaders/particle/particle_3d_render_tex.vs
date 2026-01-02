@@ -58,8 +58,6 @@ void main() {
         vec3 stretchDir = normalize(iVel);
         float speed = length(iVel);
         vec3 offset = (camRight * aPos.x * s) + (stretchDir * aPos.z * (s + speed * u_stretch));
-
-        // OPRAVA: I déšť musí reagovat na 'model' matici, aby fungovalo setPosition!
         finalWorldPos = (model * vec4(iPos + offset, 1.0)).xyz;
     }
     else if (u_mode == 2) {
@@ -69,12 +67,10 @@ void main() {
         mat3 rotation = rotateAxis(randomAxis, angle);
 
         vec3 localPos = rotation * (aPos * s);
-        // OPRAVA: Jen vypočítáme světovou pozici
         finalWorldPos = (model * vec4(iPos + localPos, 1.0)).xyz;
     }
     else {
         // --- BILLBOARD (Exploze, Oheň) ---
-        // Střed částice transformovaný do světa
         vec3 worldCenter = (model * vec4(iPos, 1.0)).xyz;
 
         float sx = s;
@@ -84,6 +80,5 @@ void main() {
         finalWorldPos = worldCenter + offset;
     }
 
-    // JEDINÝ zápis do gl_Position na konci
     gl_Position = projection * view * vec4(finalWorldPos, 1.0);
 }

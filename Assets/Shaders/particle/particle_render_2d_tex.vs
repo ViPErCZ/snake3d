@@ -2,15 +2,15 @@
 
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aUV;
-layout (location = 3) in vec2 iPos;
-layout (location = 4) in vec2 iVel;
+layout (location = 3) in vec3 iPos;
+layout (location = 4) in vec3 iVel;
 layout (location = 5) in float iLife;
 layout (location = 6) in float iSeed;
 
-uniform float u_time;
 uniform float u_aspectRatio;
 uniform float u_sizeMin;
 uniform float u_sizeMax;
+uniform float u_lifeMax;
 
 out vec2 vUV;
 out vec2 vScreenUV;
@@ -32,12 +32,13 @@ void main() {
         scale *= headBoost;
     }
 
-    vec2 vertexPos = iPos + ((aPos + offsetPos) * scale * vec2(1.0, u_aspectRatio));
+    vec2 vertexPos = iPos.xy + ((aPos + offsetPos) * scale * vec2(1.0, u_aspectRatio));
     gl_Position = vec4(vertexPos, 0.0, 1.0);
 
     vScreenUV = vertexPos * 0.5 + 0.5;
-    vVelocity = iVel;
+    vVelocity = iVel.xy;
 
     vUV = aUV;
-    vAlpha = smoothstep(0.0, 0.2, iLife);
+    float lifeNorm = clamp(iLife / u_lifeMax, 0.0, 1.0);
+    vAlpha = smoothstep(0.0, 0.2, lifeNorm);
 }

@@ -2,9 +2,10 @@
 
 namespace Model {
 
-    GPUParticle2D::GPUParticle2D(const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,
+    GPUParticle2D::GPUParticle2D(const shared_ptr<ParticleProcessMaterial> &material,
+        const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,
         const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
-        : MeshNode2D(contextState, mesh, resourceManager), maxParticles(maxParticles) {
+        : MeshNode2D(contextState, mesh, resourceManager), maxParticles(maxParticles), material(material) {
 
         initBuffers();
         setPreset(Preset::RainOnGlass);
@@ -27,8 +28,7 @@ namespace Model {
         const int dst = (frameIndex + 1) % 2;
 
         shader->setFloat("u_dt", dt);
-        shader->setFloat("u_time", timeAccum);
-        shader->setFloat("u_seed_iter", static_cast<float>(frameId % 1000) / 1000.0f);
+        shader->setFloat("u_timeAccum", timeAccum);
 
         // Params pass
         shader->setVec2("u_emitterPos", params.emitterPos);
@@ -36,12 +36,13 @@ namespace Model {
         shader->setVec2("u_gravity", params.gravity);
         shader->setVec2("u_velMin", params.velocityMin);
         shader->setVec2("u_velMax", params.velocityMax);
-        shader->setFloat("u_drag", params.drag);             // Důležité pro sklo!
-        shader->setFloat("u_turbulence", params.turbulence);
+        shader->setFloat("u_drag", params.drag);
+        shader->setVec2("u_turbulence", params.turbulence);
 
         shader->setFloat("u_lifeMin", params.lifeMin);
         shader->setFloat("u_lifeMax", params.lifeMax);
         shader->setInt("u_spawnMode", params.spawnMode);
+        shader->setBool("u_is2D", true);
 
         // Transform Feedback
         glEnable(GL_RASTERIZER_DISCARD);
@@ -64,15 +65,6 @@ namespace Model {
 
     void GPUParticle2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const {
-        // glDisable(GL_DEPTH_TEST);
-        // glEnable(GL_BLEND);
-        //
-        // if (currentPreset == Preset::MagicFire) {
-        //     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        // } else {
-        //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // }
-
         contextState->setBlendingMode(mesh->getBlending());
         contextState->setDepthTest(mesh->getDepthTest());
         contextState->setDepthWrite(mesh->getDepthWrite());
@@ -81,14 +73,13 @@ namespace Model {
         const auto shader = resourceManager->getShader(useTexture ? "particle_render_2d_tex" : "particle_render_2d");
         shader->use();
 
-        shader->setFloat("u_aspectRatio", /* aspectRatio */ 1.77f);
+        shader->setFloat("u_aspectRatio", aspectRatio);
         shader->setVec4("u_colorStart", params.colorStart);
         shader->setVec4("u_colorEnd", params.colorEnd);
         shader->setFloat("u_sizeMin", params.sizeMin);
         shader->setFloat("u_sizeMax", params.sizeMax);
-        shader->setFloat("u_time", timeAccum);
+        shader->setFloat("u_lifeMax", params.lifeMax);
 
-        // Textura jednotka 0: SCÉNA (pozadí)
         resourceManager->getTexture("SceneTexture")->bind();
         shader->setInt("uSceneTexture", 0);
 
@@ -98,26 +89,20 @@ namespace Model {
             if (tex) tex->bind(1);
         }
 
-        // Bind Quad Mesh (Předpokládám, že máš sdílený quad v manageru)
-        // Pokud ne, můžeš ho vytvořit lokálně nebo použít glDrawArrays bez bufferu (shader trick)
         mesh->bind();
 
         const int src = frameIndex % 2;
         glBindBuffer(GL_ARRAY_BUFFER, VBO[src]);
 
-        // Instancing Attribute Setup
-        // Předpokládám, že Mesh má základní vertex data na lokacích 0, 1, 2...
-        // My přidáme instanced data na vyšší lokace (např. 3, 4, 5, 6)
-
-        // 1. Position (vec2) -> Location 3
+        // 1. Position (vec3) -> Location 3
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
             reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, position)));
         glVertexAttribDivisor(3, 1);
 
-        // 2. Velocity (vec2) -> Location 4 (pro motion blur nebo orientaci)
+        // 2. Velocity (vec3) -> Location 4 (pro motion blur nebo orientaci)
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
             reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, velocity)));
         glVertexAttribDivisor(4, 1);
 
@@ -157,8 +142,8 @@ namespace Model {
                 params.spawnMode = 1;
                 params.emitterSize = {2.0f, 2.0f}; // -1..1 pokrytí
                 params.gravity = {0.0f, -0.5f}; // Padá dolů
-                params.drag = 2.0f;
-                params.turbulence = 0.2f;
+                params.drag = 0.5f;
+                params.turbulence = glm::vec2(1.0f, 0.0f);
 
                 params.lifeMin = 2.0f; params.lifeMax = 5.0f;
                 params.sizeMin = 0.009f; params.sizeMax = 0.03f;
@@ -167,7 +152,7 @@ namespace Model {
                 params.texture = "drop_normal.png";
 
                 params.velocityMin = {0.0f, -0.1f};
-                params.velocityMax = {0.0f, -0.8f}; // Některé jedou rychle
+                params.velocityMax = {0.0f, -0.8f};
                 break;
 
             case Preset::MagicFire:
@@ -188,8 +173,8 @@ namespace Model {
         std::vector<GPUParticle2DStruct> initial(maxParticles);
         for (int i = 0; i < maxParticles; i++) {
             // Začínají mimo obrazovku nebo na random místě
-            initial[i].position = glm::vec2(-2.0f, -2.0f);
-            initial[i].velocity = glm::vec2(0.0f);
+            initial[i].position = glm::vec3(-2.0f, -2.0f, 0.0f);
+            initial[i].velocity = glm::vec3(0.0f);
             initial[i].life = 0.0f; // Mrtvé
             initial[i].seed = static_cast<float>(random()) / static_cast<float>(RAND_MAX);
         }
@@ -205,16 +190,21 @@ namespace Model {
             // Nastavení pro Transform Feedback (čtení v update shaderu)
             // Layout: 0=Pos, 1=Vel, 2=Life, 3=Seed
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct), static_cast<void *>(nullptr));
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,sizeof(GPUParticle2DStruct),
+                reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, position))
+            );
 
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct), reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, velocity)));
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
+                                  reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, velocity)));
 
             glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct), reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, life)));
+            glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
+                                  reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, life)));
 
             glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct), reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, seed)));
+            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle2DStruct),
+                                  reinterpret_cast<void *>(offsetof(GPUParticle2DStruct, seed)));
         }
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);

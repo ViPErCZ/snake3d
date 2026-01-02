@@ -17,7 +17,7 @@ namespace Material {
         void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection, const glm::mat4 &model,
                   bool shadows) const override;
 
-        void update(const glm::vec3 &posView, int maxParticles, float timeAccum, float timeOffset, float stepDt) override;
+        void update(int maxParticles, float timeAccum, float timeOffset, float stepDt) override;
 
     private:
         shared_ptr<ShaderManager> update_shader;

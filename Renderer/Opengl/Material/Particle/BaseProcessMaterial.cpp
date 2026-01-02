@@ -220,4 +220,12 @@ namespace Material {
     void BaseProcessMaterial::set_mode(const ParticleMode mode) {
         this->mode = mode;
     }
+
+    glm::vec3 BaseProcessMaterial::get_emitter_pos() const {
+        return emitterPos;
+    }
+
+    void BaseProcessMaterial::set_emitter_pos(const glm::vec3 &emitter_pos) {
+        emitterPos = emitter_pos;
+    }
 } // Material

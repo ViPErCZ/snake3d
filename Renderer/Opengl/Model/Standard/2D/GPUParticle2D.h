@@ -5,14 +5,14 @@
 
 #include "../../../../../Manager/ResourceManager.h"
 #include "MeshNode2D.h"
+#include "../../../Material/Particle/ParticleProcessMaterial.h"
 
 using namespace std;
 
 namespace Model {
-
     struct GPUParticle2DStruct {
-        glm::vec2 position;
-        glm::vec2 velocity;
+        glm::vec3 position;
+        glm::vec3 velocity;
         float life;
         float seed;
     };
@@ -27,8 +27,8 @@ namespace Model {
         glm::vec2 gravity = {0.0f, -1.0f};
         glm::vec2 velocityMin = {0.0f, 0.0f};
         glm::vec2 velocityMax = {0.0f, 0.0f};
-        float drag = 0.0f;       // Odpor vzduchu/skla (pro zastavení kapek)
-        float turbulence = 0.0f; // Náhodný pohyb do stran
+        float drag = 0.0f; // Odpor vzduchu/skla (pro zastavení kapek)
+        glm::vec2 turbulence = {0.0f, 0.0f}; // Náhodný pohyb do stran
 
         // Vzhled
         float lifeMin = 1.0f;
@@ -47,17 +47,22 @@ namespace Model {
     public:
         enum class Preset { RainOnGlass, MagicFire, Snow2D, Custom };
 
-        explicit GPUParticle2D(const shared_ptr<ContextState> &contextState,
-            const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
+        explicit GPUParticle2D(const shared_ptr<ParticleProcessMaterial> &material,
+            const shared_ptr<ContextState> &contextState,
+                               const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager,
+                               int maxParticles);
 
         ~GPUParticle2D() override;
 
         void update(float dt, uint64_t frameId) override;
+
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
-                    const glm::mat4 &parentTransform) const override; // aspectRatio pro zachování čtvercovosti
+                    const glm::mat4 &parentTransform) const override;
 
         void setPreset(Preset preset);
-        ParticleParams2D& getParams() { return params; }
+
+        ParticleParams2D &getParams() { return params; }
+        void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
 
     private:
         void initBuffers();
@@ -77,6 +82,9 @@ namespace Model {
         uint64_t lastUpdatedFrame = 0;
         float timeAccum = 0.0f;
         bool firstFrame = true;
+        float timeOffset = 0.0f;
+        float aspectRatio = 1.77f;
+        shared_ptr<ParticleProcessMaterial> material;
     };
 }
 

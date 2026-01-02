@@ -55,8 +55,9 @@ namespace Scenes {
     }
 
     void WeatherScene::initRainDrop() {
+        const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
         const auto quad2D = make_shared<QuadNode2D>(0.9, 1.2);
-        const auto rainDrop2D = make_shared<GPUParticle2D>(contextState, quad2D, resourceManager, 5);
+        const auto rainDrop2D = make_shared<GPUParticle2D>(material, contextState, quad2D, resourceManager, 5);
         rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
 
         addMeshNode2D(rainDrop2D, 1);

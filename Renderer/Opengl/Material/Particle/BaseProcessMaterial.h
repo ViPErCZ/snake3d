@@ -134,10 +134,14 @@ namespace Material {
 
         void set_mode(ParticleMode mode);
 
+        [[nodiscard]] glm::vec3 get_emitter_pos() const;
+
+        void set_emitter_pos(const glm::vec3 &emitter_pos);
+
         virtual void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
                           const glm::mat4 &model, bool shadows) const = 0;
 
-        virtual void update(const glm::vec3 &posView, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
+        virtual void update(int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
 
     protected:
         float lifeMin = 1.0f;
@@ -153,6 +157,7 @@ namespace Material {
         glm::vec3 gravity = {0.0f, -0.4f, 0.0f};
 
         // kruhovy emitor
+        glm::vec3 emitterPos = {0.0f, 0.0f, 0.0f};
         float emitterRadius = 0.05f;
         float emitterYOffset = 0.0f;
 

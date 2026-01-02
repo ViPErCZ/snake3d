@@ -435,7 +435,7 @@ void App::Init() {
         "particle_update_2d",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
-                "Assets/Shaders/particle/particle_update_2d.vs"
+                "Assets/Shaders/particle/particle_update.vs"
                 ))
     );
     resourceManager->addShader(

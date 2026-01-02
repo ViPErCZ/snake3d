@@ -32,12 +32,13 @@ namespace Material {
         }
     }
 
-    void ParticleProcessMaterial::update(const glm::vec3 &posView, const int maxParticles, const float timeAccum,
+    void ParticleProcessMaterial::update(const int maxParticles, const float timeAccum,
                                          const float timeOffset, const float stepDt) {
         update_shader->use();
         update_shader->setFloat("u_dt", stepDt);
+        update_shader->setBool("u_is2D", false);
         update_shader->setFloat("u_timeAccum", timeAccum + timeOffset);
-        update_shader->setVec3("u_emitterPos", spawnShape == 1 ? posView : glm::vec3(0.0f));
+        update_shader->setVec3("u_emitterPos", emitterPos);
 
         update_shader->setInt("u_spawnShape", spawnShape);
         update_shader->setInt("u_respawnMode", respawnMode);
@@ -46,7 +47,7 @@ namespace Material {
         update_shader->setFloat("u_maxRadius", maxRadius);
         update_shader->setFloat("u_spawnHeight", spawnHeight);
 
-        update_shader->setInt("u_mode", mode);
+        // update_shader->setInt("u_mode", mode);
         update_shader->setFloat("u_lifeMin", lifeMin);
         update_shader->setFloat("u_lifeMax", lifeMax);
         update_shader->setFloat("u_sizeMin", sizeMin);

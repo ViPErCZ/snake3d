@@ -5,6 +5,16 @@ layout(location = 1) in vec3 inVel;
 layout(location = 2) in float inLife;
 layout(location = 3) in float inSeed;
 
+// UNIFORM BUFFER (Material data z C++)
+//layout (std140) uniform ParticleData {
+//    vec4 u_emitterPos;      // xyz = center, w = spawnShape (0=Point, 1=Box, 2=Sphere)
+//    vec4 u_emitterSize;     // xyz = rozměry (pro 2D nech z=0), w = unused
+//    vec4 u_gravity;         // xyz = vector, w = drag
+//    vec4 u_velRange;        // x=minSpd, y=maxSpd, z=turbulence, w=stickiness
+//    vec4 u_lifeParams;      // x=minLife, y=maxLife
+//    vec4 u_randoms;         // x=time, y=dt
+//};
+
 uniform float u_dt;
 uniform vec3  u_emitterPos;
 uniform float u_timeAccum;
@@ -31,6 +41,13 @@ uniform vec3  u_gravity;
 uniform float u_burstInterval = 3.0;
 uniform float u_spawnWindow = 0.1;
 
+// 2D
+uniform vec2 u_emitterSize;
+uniform float u_drag;
+uniform int u_spawnMode;
+
+uniform bool u_is2D = false;
+
 out vec3 outPos;
 out vec3 outVel;
 out float outLife;
@@ -40,111 +57,36 @@ float rand(float n) {
     return fract(sin(n) * 43758.5453123);
 }
 
-vec3 spawnRing(float seed, float minR, float maxR) {
-    float a = rand(seed) * 6.2831853;
-    float r = sqrt(mix(minR * minR, maxR * maxR, rand(seed * 1.37)));
-    return vec3(cos(a) * r, sin(a) * r, 0.0);
-}
+struct OutputData {
+    vec3 outPos;
+    vec3 outVel;
+    float outLife;
+    float outSeed;
+};
+
+#include "particle_update_3d.vs"
+#include "particle_update_2d.vs"
+
+OutputData particle_update_3d(vec3 inPos, vec3 inVel, float inLife, float inSeed);
+OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed);
 
 void main() {
-    vec3 pos = inPos;
-    vec3 vel = inVel;
-    float life = inLife;
-    bool respawn = false;
+    OutputData data;
+    data.outPos = inPos;
+    data.outVel = inVel;
+    data.outLife = inLife;
+    data.outSeed = inSeed;
 
-    if (life <= 0.0) {
-        respawn = true;
+    if (u_is2D) {
+        data = particle_update_2d(inPos, inVel, inLife, inSeed);
+    } else {
+        data = particle_update_3d(inPos, inVel, inLife, inSeed);
     }
 
-    if (length(vel) < 0.001 && length(u_gravity) > 0.001) {
-        respawn = true;
-    }
-
-    // SPECIÁLNÍ LOGIKA PRO ČEKÁNÍ EXPLOZE
-    if (u_spawnShape == 2 && respawn) {
-        float cycleTime = mod(u_timeAccum, u_burstInterval);
-        if (cycleTime > u_spawnWindow) {
-            outPos = u_emitterPos; outVel = vec3(0.0); outLife = -1.0; outSeed = inSeed;
-            gl_Position = vec4(0.0);
-            return;
-        }
-    }
-
-    // 2. FYZIKA
-    if (!respawn) {
-        if (u_turbulence.x > 0.0) {
-            float sway = sin(u_timeAccum * u_turbulence.y + inSeed) * u_turbulence.x;
-            pos.x += sway * u_dt;
-            pos.y += cos(u_timeAccum * (u_turbulence.y * 0.8) + inSeed) * (u_turbulence.x * 0.5) * u_dt;
-        }
-
-        if (u_spawnShape == 2) vel *= pow(0.8, u_dt);
-
-        vel += u_gravity * u_dt;
-        pos += vel * u_dt;
-
-        if (u_respawnMode == 1) {
-            float floorLevel = u_emitterPos.z - u_spawnHeight;
-            if (pos.z < floorLevel) {
-                pos.z += u_spawnHeight * 1.5;
-                vec3 offset = spawnRing(inSeed + u_timeAccum, 0.0, u_maxRadius * 0.2);
-                pos.x += offset.x;
-                pos.y += offset.y;
-            }
-
-            float dist = distance(pos.xy, u_emitterPos.xy);
-            if (dist > u_maxRadius * 1.2 || (dist < u_minRadius && pos.z < u_emitterPos.z)) {
-                respawn = true;
-            }
-
-            life = u_lifeMax;
-        } else {
-            life -= u_dt;
-        }
-    }
-
-    // 3. SPAWN / RESPAWN
-    if (respawn) {
-        float r0 = rand(inSeed + u_timeAccum);
-        float r1 = rand(inSeed * 1.45 + u_dt);
-        float r2 = rand(inSeed * 2.11);
-
-        if (u_spawnShape == 1) {
-            vec3 ring = spawnRing(inSeed + u_timeAccum, u_minRadius, u_maxRadius);
-            pos.x = u_emitterPos.x + ring.x;
-            pos.y = u_emitterPos.y + ring.y;
-            pos.z = u_emitterPos.z + mix(-u_spawnHeight * 0.5, u_spawnHeight, r2);
-
-            vel = vec3(
-            mix(u_velMin.x, u_velMax.x, r0),
-            mix(u_velMin.y, u_velMax.y, r1),
-            mix(u_velMin.z, u_velMax.z, r2)
-            );
-            life = u_lifeMax;
-        }
-        else if (u_spawnShape == 2) {
-            float theta = r0 * 6.2831853;
-            float phi = r1 * 3.14159 * 0.6;
-            float sinPhi = sin(phi);
-            vec3 dir = normalize(vec3(sinPhi * cos(theta), sinPhi * sin(theta), cos(phi)));
-            pos = u_emitterPos + dir * (u_emitterRadius * r2);
-            vel = dir * mix(u_velMin.x, u_velMax.x, r2);
-            life = mix(u_lifeMin, u_lifeMax, r0);
-        }
-        else {
-            float ang = r0 * 6.2831853;
-            float rad = sqrt(r1);
-            vec2 disk = vec2(cos(ang), sin(ang)) * rad;
-            pos = u_emitterPos + vec3(disk.x * u_emitterRadius, disk.y * u_emitterRadius, u_emitterYOffset);
-            vel = mix(u_velMin, u_velMax, vec3(r0, r1, r2));
-            life = mix(u_lifeMin, u_lifeMax, r2);
-        }
-    }
-
-    outPos = pos;
-    outVel = vel;
-    outLife = life;
-    outSeed = inSeed;
+    outPos  = data.outPos;
+    outVel  = data.outVel;
+    outLife = data.outLife;
+    outSeed = data.outSeed;
 
     gl_Position = vec4(0.0);
 }

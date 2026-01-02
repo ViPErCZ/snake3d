@@ -21,7 +21,10 @@ namespace Model {
             const int dst = (frameIndex + 1) % 2;
 
             if (material) {
-                material->update(camera->getPosition(), maxParticles, timeAccum, timeOffset, stepDt);
+                if (material->get_spawn_shape() == 1) {
+                    material->set_emitter_pos(camera->getPosition());
+                }
+                material->update(maxParticles, timeAccum, timeOffset, stepDt);
                 frameIndex++;
             } else {
                 throw std::invalid_argument("GPUParticle Process Material missing.");
