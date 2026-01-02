@@ -11,7 +11,7 @@
 namespace Model {
     class RadarMeshNode2D final : public MeshNode2D {
     public:
-        RadarMeshNode2D(const shared_ptr<QuadNode2D> &mesh,
+        RadarMeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<QuadNode2D> &mesh,
             const shared_ptr<ResourceManager> &resourceManager);
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,

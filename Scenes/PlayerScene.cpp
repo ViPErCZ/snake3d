@@ -41,7 +41,7 @@ namespace Scenes {
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
-        snake = make_shared<SnakeMeshNode3D>(pacmanMesh, resourceManager);
+        snake = make_shared<SnakeMeshNode3D>(contextState, pacmanMesh, resourceManager);
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
         snake->respawn();

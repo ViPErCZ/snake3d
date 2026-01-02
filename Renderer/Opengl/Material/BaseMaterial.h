@@ -3,24 +3,16 @@
 
 #include <memory>
 
-#include "../../../Tools/Blending.h"
+#include "Interface/BlendingInterface.h"
 
-using namespace Tools;
 using namespace std;
 
 namespace Material {
-    class BaseMaterial {
+    class BaseMaterial : public BlendingInterface {
     public:
-        virtual ~BaseMaterial() = default;
+        ~BaseMaterial() override = default;
 
         [[nodiscard]] virtual shared_ptr<BaseMaterial> clone() const = 0;
-
-        void setBlending(Blending blending);
-
-        [[nodiscard]] Blending getBlending() const;
-
-    protected:
-        Blending blending = Blending::Opaque;
     };
 } // Material
 

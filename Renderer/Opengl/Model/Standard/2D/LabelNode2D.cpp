@@ -18,7 +18,7 @@ namespace Model {
         mesh = std::make_shared<TextMesh>();
         mesh->update(this->text, settings->getFont());
         textureId = settings->getFont()->getAtlasTextureId();
-
+        blending = Blending::Text;
     }
 
     void LabelNode2D::setText(const string &text) {
@@ -31,9 +31,6 @@ namespace Model {
                              const glm::mat4 &parentTransform) const {
 
         const glm::mat4 model = translate(parentTransform, glm::vec3(align.x, align.y, 0.0f));
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->bind(

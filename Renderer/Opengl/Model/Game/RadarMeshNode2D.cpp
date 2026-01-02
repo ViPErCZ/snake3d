@@ -3,9 +3,9 @@
 #include <ranges>
 
 namespace Model {
-    RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<QuadNode2D> &mesh,
+    RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<QuadNode2D> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager)
-        : MeshNode2D(mesh, resourceManager) {
+        : MeshNode2D(contextState, mesh, resourceManager) {
     }
 
     void RadarMeshNode2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, const float dt,
@@ -57,7 +57,7 @@ namespace Model {
     }
 
     void RadarMeshNode2D::addItem(const shared_ptr<MeshNode3D> &item, const glm::vec3 &color, const std::string &name) {
-        const auto radarItem = make_shared<RadarItem>(resourceManager, item, color, name);
+        const auto radarItem = make_shared<RadarItem>(contextState, resourceManager, item, color, name);
         radarItem->getRadarItem()->setVisible(item->isVisible());
         items.emplace(name, radarItem);
         addNode(radarItem->getRadarItem(), name);
@@ -65,7 +65,7 @@ namespace Model {
 
         for (const auto &child: item->getChildren()) {
             const std::string itemName = name + "-" + std::to_string(index++);
-            const auto subRadarItem = make_shared<RadarItem>(resourceManager, child, color, itemName);
+            const auto subRadarItem = make_shared<RadarItem>(contextState, resourceManager, child, color, itemName);
             items.emplace(itemName, subRadarItem);
 
             addNode(subRadarItem->getRadarItem(), itemName);

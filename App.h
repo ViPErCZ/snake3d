@@ -75,6 +75,7 @@ private:
     std::atomic<bool> scanning = false;
     shared_ptr<MainScene> mainScene;
     shared_ptr<PreloaderScene> preloaderScene;
+    shared_ptr<ContextState> contextState;
 };
 
 #endif //SNAKE3_APP_H

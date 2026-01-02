@@ -6,9 +6,9 @@
 #include "../Standard/SphereMesh.h"
 
 namespace Model {
-    SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<StandardMesh> &mesh,
-                                     const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(
-        mesh, resourceManager) {
+    SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
+                                     const shared_ptr<ResourceManager> &resourceManager)
+        : MeshNode3D(contextState, mesh, resourceManager) {
         timerUniform = make_shared<TimerUniform>(true);
         if (resourceManager) {
             const auto shader = resourceManager->getShader("basicShader");
@@ -63,7 +63,7 @@ namespace Model {
 
         const auto sphere = createTileNode();
 
-        const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
+        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
@@ -73,7 +73,7 @@ namespace Model {
         tile->y = y;
         addNode(tile);
 
-        const auto tile2 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
+        const auto tile2 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
         if (directionalLight) {
             tile2->setDirectionalLight(directionalLight);
         }
@@ -83,7 +83,7 @@ namespace Model {
         tile2->y = y;
         addNode(tile2);
 
-        const auto tile3 = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
+        const auto tile3 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
@@ -153,7 +153,7 @@ namespace Model {
             }
         }
 
-        const auto tile = make_shared<SnakeMeshNode3D>(sphere, resourceManager);
+        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }

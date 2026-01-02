@@ -6,6 +6,7 @@
 #include "Blending.h"
 #include "Capabilities.h"
 #include "BlendFactor.h"
+#include "DepthFunc.h"
 
 using namespace std;
 
@@ -18,12 +19,18 @@ namespace Tools {
         void disable(Capabilities func) noexcept;
         void enable(Capabilities func) noexcept;
         void setBlendingMode(Blending blending) noexcept;
+        void setDepthTest(bool depthTest);
+        void setDepthWrite(bool depthWrite);
         void setBlendFunc(BlendFactor src, BlendFactor dst) noexcept;
+        void setDepthFunc(DepthFunc func) noexcept;
+        void setDepthMask(DepthMask mask) noexcept;
     protected:
         void init() noexcept;
         unordered_map<Capabilities, bool> capability_map;
         BlendFactor src_factor {BlendFactor::None};
         BlendFactor dst_factor {BlendFactor::Zero};
+        DepthFunc depth_func {DepthFunc::Less};
+        DepthMask depth_mask {DepthMask::True};
     };
 } // Tools
 

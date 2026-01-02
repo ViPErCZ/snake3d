@@ -1,0 +1,28 @@
+#ifndef SNAKE3_WEATHERSCENE_H
+#define SNAKE3_WEATHERSCENE_H
+
+#include <memory>
+
+#include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include "../Renderer/Opengl/Scene/Scene.h"
+
+using namespace std;
+
+namespace Scenes {
+    class WeatherScene final : public Scene {
+    public:
+        WeatherScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+                   const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+
+        void init(int priority) override;
+    protected:
+        void initRain();
+        void initRainDrop();
+        void initSnow();
+        void initExplosion();
+
+        shared_ptr<QuadMesh3D> quad;
+    };
+} // Scenes
+
+#endif //SNAKE3_WEATHERSCENE_H

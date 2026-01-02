@@ -3,14 +3,18 @@
 #include <ranges>
 
 namespace Model {
-    MeshNode2D::MeshNode2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager)
-        : mesh(mesh), resourceManager(resourceManager), transformDetached(false){
+    MeshNode2D::MeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,
+        const shared_ptr<ResourceManager> &resourceManager)
+        : contextState(contextState), mesh(mesh), resourceManager(resourceManager), transformDetached(false){
     }
 
     void MeshNode2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, const float dt,
                             const glm::mat4 &parentTransform) const {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            contextState->setBlendingMode(mesh->getBlending());
+            contextState->setDepthTest(mesh->getDepthTest());
+            contextState->setDepthWrite(mesh->getDepthWrite());
             mesh->render(camera, ortho, 1, finalTransform);
 
             for (const auto &snd: children | views::values) {

@@ -45,7 +45,6 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
-        Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
         Renderer/Opengl/Material/PlanarReflectionMaterial.h
@@ -154,6 +153,17 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Standard/GPUParticle3D.h
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.cpp
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.h
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h
+        Renderer/Opengl/Material/Interface/BlendingInterface.cpp
+        Renderer/Opengl/Material/Interface/BlendingInterface.h
+        Tools/DepthFunc.h
+        Scenes/TorchScene.cpp
+        Scenes/TorchScene.h
+        Scenes/WeatherScene.cpp
+        Scenes/WeatherScene.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -225,7 +235,6 @@ set(APP_SOURCES
         Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
-        Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
         Renderer/Opengl/Material/PlanarReflectionMaterial.h
@@ -332,6 +341,17 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/GPUParticle3D.h
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.cpp
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.h
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h
+        Renderer/Opengl/Material/Interface/BlendingInterface.cpp
+        Renderer/Opengl/Material/Interface/BlendingInterface.h
+        Tools/DepthFunc.h
+        Scenes/TorchScene.cpp
+        Scenes/TorchScene.h
+        Scenes/WeatherScene.cpp
+        Scenes/WeatherScene.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -348,7 +368,6 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Node3DRenderer.h
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
-        Renderer/Opengl/Material/BaseMaterial.cpp
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
@@ -455,6 +474,17 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/GPUParticle3D.h
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.cpp
         Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/BaseProcessMaterial.h
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.cpp
+        Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h
+        Renderer/Opengl/Material/Interface/BlendingInterface.cpp
+        Renderer/Opengl/Material/Interface/BlendingInterface.h
+        Tools/DepthFunc.h
+        Scenes/TorchScene.cpp
+        Scenes/TorchScene.h
+        Scenes/WeatherScene.cpp
+        Scenes/WeatherScene.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

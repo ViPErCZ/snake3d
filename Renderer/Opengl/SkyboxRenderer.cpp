@@ -14,8 +14,7 @@ namespace Renderer {
             shader->use();
             shader->setInt("skybox", 0);
 
-            glm::mat4 view = camera->getViewMatrix();
-            view = glm::mat4(glm::mat3(camera->getViewMatrix())); // remove translation from the view matrix
+            const auto view = glm::mat4(glm::mat3(camera->getViewMatrix()));
             shader->setMat4("view", view);
             shader->setVec3("viewPos", camera->getPosition());
             shader->setMat4("projection", projection);

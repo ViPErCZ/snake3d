@@ -41,6 +41,10 @@ namespace Scenes {
 
         void initCoinScene();
 
+        void initTorchScene();
+
+        void initWeatherScene();
+
         void initSkybox();
 
         void initPlane();

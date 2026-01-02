@@ -12,7 +12,8 @@ using namespace Tools;
 namespace Model {
     class MeshNode3D : public enable_shared_from_this<MeshNode3D>, public Transform, public Visibility, public Vector3i {
     public:
-        explicit MeshNode3D(const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
+        explicit MeshNode3D(const shared_ptr<ContextState> &contextState,
+            const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
         ~MeshNode3D() override = default;
         shared_ptr<StandardMesh> getMesh() const;
@@ -36,8 +37,6 @@ namespace Model {
 
         bool hasChildrenChangedSignal() const;
 
-        void setBlending(Blending blending);
-
         void animationStart(const string &name, bool loop = true);
 
         void animationStop(const string &name) const;
@@ -46,9 +45,9 @@ namespace Model {
 
         void animationResume(const string &name) const;
 
-        void disableMirroring();
+        void disablePlanarReflection();
 
-        [[nodiscard]] bool isIncludeInMirroring() const;
+        [[nodiscard]] bool isIncludeInPlanarReflection() const;
 
     protected:
         shared_ptr<MeshNode3D> deepCopy() const;
@@ -62,7 +61,7 @@ namespace Model {
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;
-        bool includeMirroring = true;
+        bool includePlanarReflection = true;
         int childrenChangedSignalCycles = 0;
         string animation;
         uint64_t lastUpdatedFrame;

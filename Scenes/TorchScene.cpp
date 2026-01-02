@@ -1,0 +1,144 @@
+#include "TorchScene.h"
+
+#include <glm/gtc/random.hpp>
+
+#include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+
+namespace Scenes {
+    TorchScene::TorchScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height)
+        : Scene(rendererManager, camera, projection, rm, width, height) {
+    }
+
+    void TorchScene::init(const int priority) {
+        Scene::init(priority);
+
+        quad = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
+        quad->setBlending(Blending::AlphaAdditive);
+        quad->setDepthWrite(false);
+
+        initTorch();
+    }
+
+    void TorchScene::initTorch() {
+        const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
+        torch->fromMesh(resourceManager->getModel("torch"));
+
+        const auto directionalLight = make_shared<DirectionalLight>();
+        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        directionalLight->setDirection({1, 1.0, -3});
+        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        directionalLight->setSpecular({.091f, .091f, .091f});
+        const auto torchAlbedo = resourceManager->getTexture("torch.png");
+        const auto torchNormal = resourceManager->getTexture("torch_normal.png");
+        const auto torchMaterial = make_shared<StandardMaterial>(
+            resourceManager->getShader("basicShader"),
+            resourceManager->getShader("shadowDepthShader")
+        );
+        torchMaterial->setAlbedo(torchAlbedo);
+        torchMaterial->setNormal(torchNormal);
+        torchMaterial->setNormalEnabled(true);
+        torchMaterial->setDirectionalLight(directionalLight);
+        torchMaterial->setBlending(Blending::Opaque);
+        torch->setMaterial(torchMaterial);
+
+        const auto torchNode = make_shared<MeshNode3D>(contextState, torch, resourceManager);
+        const auto torchNode2 = make_shared<MeshNode3D>(contextState, torch, resourceManager);
+        const auto torchNode3 = make_shared<MeshNode3D>(contextState, torch, resourceManager);
+        const auto torchNode4 = make_shared<MeshNode3D>(contextState, torch, resourceManager);
+
+        torchNode->setRotationX(90);
+        torchNode2->setRotationX(90);
+        torchNode3->setRotationX(90);
+        torchNode4->setRotationX(90);
+        torchNode->setScale({0.2, 0.2, 0.2});
+        torchNode2->setScale({0.2, 0.2, 0.2});
+        torchNode3->setScale({0.2, 0.2, 0.2});
+        torchNode4->setScale({0.2, 0.2, 0.2});
+        torchNode->setPosition({-5.07928, -5.47677, -4.98698});
+        torchNode2->setPosition({15.2239, -5.47677, -4.98698});
+        torchNode3->setPosition({15.2753, 15.4487, -4.98698});
+        torchNode4->setPosition({-5.07928, 15.4487, -4.98698});
+
+        const auto smoke = initSmoke();
+        torchNode->addNode(smoke);
+        torchNode2->addNode(smoke);
+        torchNode3->addNode(smoke);
+        torchNode4->addNode(smoke);
+
+        const auto fire = initFire();
+        torchNode->addNode(fire);
+        torchNode2->addNode(fire);
+        torchNode3->addNode(fire);
+        torchNode4->addNode(fire);
+
+        addMeshNode3D(torchNode, 1);
+        addMeshNode3D(torchNode2, 1);
+        addMeshNode3D(torchNode3, 1);
+        addMeshNode3D(torchNode4, 1);
+    }
+
+    shared_ptr<GPUParticle3D> TorchScene::initFire() {
+        const auto gravity = glm::vec3(
+            glm::linearRand(-0.005f, 0.005f),
+            glm::linearRand(0.01f, 0.001f),
+            glm::linearRand(0.005f, 0.009f)
+        );
+
+        const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
+        material->set_texture("fire.png");
+        material->set_mode(Stretched);
+
+        material->set_life_min(0.5f);
+        material->set_life_max(1.0f);
+        material->set_size_min(0.008f);
+        material->set_size_max(0.042f);
+        material->set_stretch(0.105f);
+        material->set_vel_min({-0.005f, 0.000f, 0.100f});
+        material->set_vel_max({ 0.005f, 0.010f, 0.200f});
+        material->set_gravity(gravity);
+        material->set_emitter_radius(0.03f);
+        material->set_emitter_y_offset(0.24f);
+        material->set_color_start({6.0f, 3.5f, 1.0f, 1.0f});
+        material->set_color_end({7.0f, 4.5f, 1.5f, 0.0f});
+        material->set_min_radius(0.05f);
+        material->set_spawn_per_frame(0.6f);
+
+        const auto fire = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 1000);
+        fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
+        fire->setScale({2.2, 2.2, 2.2});
+        fire->setRotationX(-90);
+
+        return fire;
+    }
+
+    shared_ptr<GPUParticle3D> TorchScene::initSmoke() {
+        const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
+        material->set_texture("smoke.png");
+        material->set_mode(Stretched);
+
+        material->set_life_min(2.0f);
+        material->set_life_max(0.5f);
+        material->set_size_min(0.08f);
+        material->set_size_max(0.042f);
+        material->set_stretch(0.15f);
+        material->set_vel_min({-0.005f, 0.000f, 0.100f});
+        material->set_vel_max({ 0.005f, 0.010f, 0.200f});
+        material->set_gravity(glm::vec3(0.0f, -0.05f, 0.0f));
+        material->set_emitter_radius(0.03f);
+        material->set_emitter_y_offset(0.24f);
+        material->set_color_start({0.4f, 0.4f, 0.4f, 0.8f});
+        material->set_color_end({0.2f, 0.2f, 0.2f, 0.0f});
+        material->set_min_radius(0.05f);
+        material->set_spawn_per_frame(0.6f);
+
+        const auto smoke = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 10);
+        smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
+        smoke->setScale({2.0, 2.0, 2.0});
+        smoke->setRotationX(-90);
+
+        return smoke;
+    }
+} // Scenes

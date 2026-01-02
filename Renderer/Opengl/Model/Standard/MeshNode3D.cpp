@@ -1,10 +1,10 @@
 #include "MeshNode3D.h"
 
 namespace Model {
-    MeshNode3D::MeshNode3D(const shared_ptr<StandardMesh> &mesh,
+    MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
-        : mesh(mesh), resourceManager(resourceManager), transformDetached(false), childrenChangedSignal(false), lastUpdatedFrame(0) {
-        contextState = make_shared<ContextState>();
+        : contextState(contextState), mesh(mesh), resourceManager(resourceManager), transformDetached(false),
+          childrenChangedSignal(false), lastUpdatedFrame(0) {
     }
 
     shared_ptr<StandardMesh> MeshNode3D::getMesh() const {
@@ -26,6 +26,8 @@ namespace Model {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
             contextState->setBlendingMode(mesh->getBlending());
+            contextState->setDepthTest(mesh->getDepthTest());
+            contextState->setDepthWrite(mesh->getDepthWrite());
             mesh->render(camera, projection, 1, finalTransform, shadows);
 
             for (auto &node: children) {
@@ -115,17 +117,17 @@ namespace Model {
         mesh->animationResume(name);
     }
 
-    void MeshNode3D::disableMirroring() {
-        includeMirroring = false;
+    void MeshNode3D::disablePlanarReflection() {
+        includePlanarReflection = false;
     }
 
-    bool MeshNode3D::isIncludeInMirroring() const {
-        return includeMirroring;
+    bool MeshNode3D::isIncludeInPlanarReflection() const {
+        return includePlanarReflection;
     }
 
     std::shared_ptr<MeshNode3D> MeshNode3D::deepCopy() const {
         auto copyMesh = std::make_shared<StandardMesh>(*mesh);
-        auto copyNode = std::make_shared<MeshNode3D>(copyMesh, resourceManager);
+        auto copyNode = std::make_shared<MeshNode3D>(contextState, copyMesh, resourceManager);
 
         copyNode->setPosition(this->getPosition());
         copyNode->setScale(this->getScale());

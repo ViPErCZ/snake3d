@@ -21,6 +21,13 @@ namespace Tools {
          * color.rgb + background.rgb
          */
         Additive,
+        
+        /**
+         * Mix colors with alpha addition
+         *
+         * color.rgb + background.rgba
+         */
+        AlphaAdditive,
 
         /**
          * Mix colors with multiplication

@@ -4,8 +4,9 @@
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 
 namespace Manager {
-    LevelManager::LevelManager(const int level, const int live, const shared_ptr<ResourceManager> &resourceManager)
-        : level(level), live(live), eatCounter(0), resourceManager(resourceManager) {
+    LevelManager::LevelManager(const shared_ptr<ContextState> &contextState,
+        const int level, const int live, const shared_ptr<ResourceManager> &resourceManager)
+        : level(level), live(live), eatCounter(0), resourceManager(resourceManager), contextState(contextState) {
     }
 
     void LevelManager::setLevel(const int level) {
@@ -25,7 +26,6 @@ namespace Manager {
     }
 
     shared_ptr<MeshNode3D> LevelManager::createLevel(int level) {
-        // const auto geometry = make_shared<BaseItem>(BaseItem());
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
@@ -44,7 +44,7 @@ namespace Manager {
             boxMesh->setMaterial(boxMaterial);
         }
 
-        const auto boxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
+        const auto boxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
         boxNode3D->setPosition({0.0, 0.0, -23.0});
         boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
         boxNode3D->setTransformDetached(true);
@@ -72,7 +72,7 @@ namespace Manager {
                             boxNode3D->y = (y) * 32;
                             isFirst = false;
                         } else {
-                            const auto childBoxNode3D = make_shared<MeshNode3D>(boxMesh, resourceManager);
+                            const auto childBoxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
                             childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
                             childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
                             childBoxNode3D->x = (x) * 32;

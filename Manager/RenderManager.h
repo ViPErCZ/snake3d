@@ -19,11 +19,14 @@ namespace Manager {
 
     class RenderManager final {
     public:
-        RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
+        RenderManager(shared_ptr<ContextState> &contextState,
+                      const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
                       const glm::mat4 &projection,
                       int width, int height);
 
         ~RenderManager() = default;
+
+        [[nodiscard]] shared_ptr<ContextState> getContextState() const;
 
         void initBloom();
 
@@ -61,7 +64,7 @@ namespace Manager {
 
         void reset();
 
-        [[nodiscard]] const vector<RendererEntry>& getRenderers() const;
+        [[nodiscard]] const vector<RendererEntry> &getRenderers() const;
 
     protected:
         void updateShadows();
@@ -74,6 +77,7 @@ namespace Manager {
         unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
+        shared_ptr<ContextState> contextState;
         glm::mat4 projection{};
         int width;
         int height;

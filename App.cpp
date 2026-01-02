@@ -20,8 +20,9 @@ App::App(const shared_ptr<Camera> &camera, const int width, const int height) : 
         0.1f,
         1000.0f
     );
+    contextState = make_shared<ContextState>();
 
-    rendererManager = make_shared<RenderManager>(camera, resourceManager, projection, width, height);
+    rendererManager = make_shared<RenderManager>(contextState, camera, resourceManager, projection, width, height);
     rendererManager->setWidth(width);
     rendererManager->setHeight(height);
     mainScene = make_unique<MainScene>(rendererManager, camera, projection, resourceManager, width, height);
@@ -35,7 +36,7 @@ App::~App() {
 }
 
 void App::initScene() {
-    mainScene->init(0);
+    mainScene->init(100);
     //const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
 
     auto basicShader = resourceManager->getShader("basicShader");
@@ -365,14 +366,14 @@ void App::initScene() {
 void App::Init() {
     InitResourceManager();
 
-    resourceManager->addShader(
-        "bloom",
-        std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader(
-                "Assets/Shaders/bloom/bloom.vs",
-                "Assets/Shaders/bloom/bloom.fs"
-                ))
-    );
+    // resourceManager->addShader(
+    //     "bloom",
+    //     std::make_shared<ShaderManager>(
+    //         ShaderLoader::loadShader(
+    //             "Assets/Shaders/bloom/bloom.vs",
+    //             "Assets/Shaders/bloom/bloom.fs"
+    //             ))
+    // );
 
     resourceManager->addShader("blur",
         std::make_shared<ShaderManager>(
@@ -438,11 +439,11 @@ void App::Init() {
                 ))
     );
     resourceManager->addShader(
-        "instanced_mesh",
+        "particle_3d_render",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
-                "Assets/Shaders/particle/instanced_mesh.vs",
-                "Assets/Shaders/particle/instanced_mesh.fs"
+                "Assets/Shaders/particle/particle_3d_render.vs",
+                "Assets/Shaders/particle/particle_3d_render.fs"
                 ))
     );
     resourceManager->addShader(
@@ -454,11 +455,11 @@ void App::Init() {
                 ))
     );
     resourceManager->addShader(
-        "instanced_texture",
+        "particle_3d_render_tex",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
-                "Assets/Shaders/particle/instanced_texture.vs",
-                "Assets/Shaders/particle/instanced_texture.fs"
+                "Assets/Shaders/particle/particle_3d_render_tex.vs",
+                "Assets/Shaders/particle/particle_3d_render_tex.fs"
             ))
     );
     resourceManager->addShader(
@@ -481,9 +482,6 @@ void App::Init() {
     resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
         std::cout << "Model pacman ready!" << std::endl;
     });
-    // resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "skeleton.glb", "skeleton", []() {
-    //     std::cout << "Model skeleton ready!" << std::endl;
-    // });
     resourceManager->loadAsyncModel<Mesh>(assets_dir / "Cube.obj", "cube", []() {
         std::cout << "Model cube ready!" << std::endl;
     });

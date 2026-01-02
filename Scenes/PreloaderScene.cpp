@@ -13,7 +13,6 @@ namespace Scenes {
 
         const auto preLoader = initPreloader();
         camera->setStickyPoint(preLoader);
-        // meshNode3d.push_back(preLoader);
         addMeshNode3D(preLoader);
     }
 
@@ -21,6 +20,6 @@ namespace Scenes {
         auto shader = resourceManager->getShader("preloadShader");
         auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
 
-        return make_shared<MeshNode3D>(make_shared<SpinnerMesh>(shader), resourceManager);
+        return make_shared<MeshNode3D>(contextState, make_shared<SpinnerMesh>(shader), resourceManager);
     }
 } // Scenes

@@ -45,6 +45,7 @@ namespace Scenes {
         shared_ptr<RenderManager> rendererManager;
         unique_ptr<KeyboardManager> keyboardManager;
         shared_ptr<Camera> camera;
+        shared_ptr<ContextState> contextState;
         glm::mat4 projection;
         vector<shared_ptr<Scene>> nodes;
         weak_ptr<Scene> parent;

@@ -49,7 +49,17 @@ namespace Model {
 
         [[nodiscard]] const shared_ptr<AnimationPlayer> &getAnimationPlayer() const;
 
+        void setBlending(Blending blending);
+
+        void setDepthTest(bool depthTest);
+
+        void setDepthWrite(bool depthWrite);
+
         [[nodiscard]] Blending getBlending() const;
+
+        [[nodiscard]] bool getDepthTest() const;
+
+        [[nodiscard]] bool getDepthWrite() const;
 
         void animationPlay(const string &name, bool loop = true);
 
@@ -67,6 +77,8 @@ namespace Model {
         glm::vec3 localMin;
         glm::vec3 localMax;
         Blending blending = Blending::Opaque;
+        bool depthTest = true;
+        bool depthWrite = true;
         string animation;
     };
 } // Model

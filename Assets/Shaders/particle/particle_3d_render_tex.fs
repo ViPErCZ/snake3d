@@ -6,7 +6,6 @@ out vec4 FragColor;
 
 uniform sampler2D uTexture0;
 uniform float u_colorSensitivity;
-uniform int u_mode;
 
 void main() {
     vec4 tex = texture(uTexture0, vTex);

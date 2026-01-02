@@ -29,8 +29,19 @@ namespace Model {
 
         [[nodiscard]] shared_ptr<Mesh2D> getMesh() const;
 
-        virtual void update(float dt) {
-        };
+        virtual void update(float dt) {};
+
+        void setBlending(Blending blending);
+
+        void setDepthTest(bool depthTest);
+
+        void setDepthWrite(bool depthWrite);
+
+        [[nodiscard]] Blending getBlending() const;
+
+        [[nodiscard]] bool getDepthTest() const;
+
+        [[nodiscard]] bool getDepthWrite() const;
 
         void bind() const;
 
@@ -42,6 +53,9 @@ namespace Model {
         shared_ptr<ShaderManager> baseShader;
         unsigned int textureId = 0;
         glm::vec3 color;
+        Blending blending = Blending::Opaque;
+        bool depthTest = true;
+        bool depthWrite = true;
     };
 } // Model
 

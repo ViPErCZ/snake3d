@@ -151,6 +151,26 @@ namespace Model {
         return animationPlayer;
     }
 
+    void StandardMesh::setBlending(const Blending blending) {
+        this->blending = blending;
+    }
+
+    void StandardMesh::setDepthTest(const bool depthTest) {
+        this->depthTest = depthTest;
+    }
+
+    bool StandardMesh::getDepthTest() const {
+        return depthTest;
+    }
+
+    void StandardMesh::setDepthWrite(const bool depthWrite) {
+        this->depthWrite = depthWrite;
+    }
+
+    bool StandardMesh::getDepthWrite() const {
+        return depthWrite;
+    }
+
     Blending StandardMesh::getBlending() const {
         if (material) {
             return material->getBlending();

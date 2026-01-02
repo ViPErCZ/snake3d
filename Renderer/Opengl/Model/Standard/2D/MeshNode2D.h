@@ -8,6 +8,7 @@
 #include "../../../../../ItemsDto/Visibility.h"
 #include "../../../../../Manager/Camera.h"
 #include "../../../../../Manager/ResourceManager.h"
+#include "../../../../../Tools/ContextState.h"
 
 using namespace std;
 using namespace Manager;
@@ -15,7 +16,8 @@ using namespace Manager;
 namespace Model {
     class MeshNode2D : public enable_shared_from_this<MeshNode2D>, public Transform, public Visibility, public Vector3i {
     public:
-        explicit MeshNode2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);
+        explicit MeshNode2D(const shared_ptr<ContextState> &contextState,
+            const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
         virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const;
@@ -29,6 +31,7 @@ namespace Model {
         [[nodiscard]] const map<std::string, shared_ptr<MeshNode2D> > &getChildren() const;
 
     protected:
+        shared_ptr<ContextState> contextState;
         shared_ptr<BaseNode2D> mesh;
         weak_ptr<MeshNode2D> parent;
         map<std::string, shared_ptr<MeshNode2D> > children;

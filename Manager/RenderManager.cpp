@@ -1,13 +1,17 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
-                                 const glm::mat4 &projection, const int width, const int height) : camera(camera),
-        resourceManager(resourceManager), width(width), projection(projection), height(height), shadows(false),
-        bloom(false), reflections(false), fog(false) {
+    RenderManager::RenderManager(shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
+            const shared_ptr<ResourceManager> &resourceManager, const glm::mat4 &projection, const int width, const int height)
+        : contextState(contextState), resourceManager(resourceManager), camera(camera), projection(projection), width(width), height(height),
+          shadows(false), bloom(false), reflections(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
+    }
+
+    shared_ptr<ContextState> RenderManager::getContextState() const {
+        return contextState;
     }
 
     void RenderManager::initBloom() {
@@ -19,7 +23,7 @@ namespace Manager {
     }
 
     void RenderManager::initReflection() {
-        planarReflectionRenderer = make_unique<PlanarReflectionRenderer>(resourceManager, camera, projection, width, height);
+        planarReflectionRenderer = make_unique<PlanarReflectionRenderer>(contextState, resourceManager, camera, projection, width, height);
         planarReflectionRenderer->updateRenderers(renderers);
     }
 

@@ -134,10 +134,8 @@ void main() {
         else {
             float ang = r0 * 6.2831853;
             float rad = sqrt(r1);
-            float rx = u_emitterRadiusX > 0.0 ? u_emitterRadiusX : u_emitterRadius;
-            float rz = u_emitterRadiusZ > 0.0 ? u_emitterRadiusZ : u_emitterRadius;
             vec2 disk = vec2(cos(ang), sin(ang)) * rad;
-            pos = u_emitterPos + vec3(disk.x * rx, disk.y * rz, u_emitterYOffset);
+            pos = u_emitterPos + vec3(disk.x * u_emitterRadius, disk.y * u_emitterRadius, u_emitterYOffset);
             vel = mix(u_velMin, u_velMax, vec3(r0, r1, r2));
             life = mix(u_lifeMin, u_lifeMax, r2);
         }

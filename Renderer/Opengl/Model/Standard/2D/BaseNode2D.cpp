@@ -44,6 +44,30 @@ namespace Model {
         }
     }
 
+    void BaseNode2D::setBlending(const Blending blending) {
+        this->blending = blending;
+    }
+
+    void BaseNode2D::setDepthTest(const bool depthTest) {
+        this->depthTest = depthTest;
+    }
+
+    bool BaseNode2D::getDepthTest() const {
+        return depthTest;
+    }
+
+    void BaseNode2D::setDepthWrite(const bool depthWrite) {
+        this->depthWrite = depthWrite;
+    }
+
+    bool BaseNode2D::getDepthWrite() const {
+        return depthWrite;
+    }
+
+    Blending BaseNode2D::getBlending() const {
+        return blending;
+    }
+
     void BaseNode2D::bind() const {
         mesh->bind();
     }

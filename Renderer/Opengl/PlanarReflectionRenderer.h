@@ -15,7 +15,8 @@ using namespace Manager;
 namespace Renderer {
     class PlanarReflectionRenderer final : public BaseRenderer {
     public:
-        PlanarReflectionRenderer(const shared_ptr<ResourceManager> &resManager, 
+        PlanarReflectionRenderer(const shared_ptr<ContextState> &contextState,
+                                 const shared_ptr<ResourceManager> &resManager,
                                  const shared_ptr<Camera> &camera, 
                                  const glm::mat4 &projection,
                                  int width, int height);
@@ -29,6 +30,7 @@ namespace Renderer {
         void setPlaneZ(float z);
 
     protected:
+        shared_ptr<ContextState> contextState;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         glm::mat4 projection;

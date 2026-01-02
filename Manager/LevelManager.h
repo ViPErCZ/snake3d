@@ -17,7 +17,7 @@ namespace Manager {
 
     class LevelManager {
     public:
-        LevelManager(int level, int live, const shared_ptr<ResourceManager> &resourceManager);
+        LevelManager(const shared_ptr<ContextState> &contextState, int level, int live, const shared_ptr<ResourceManager> &resourceManager);
         void setLevel(int level);
         void setLive(int live);
         shared_ptr<MeshNode3D> createLevel(int level);
@@ -31,6 +31,7 @@ namespace Manager {
         int live;
         int eatCounter;
         shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ContextState> contextState;
     };
 
 } // Manager

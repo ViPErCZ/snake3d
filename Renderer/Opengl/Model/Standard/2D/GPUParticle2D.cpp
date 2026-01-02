@@ -2,9 +2,9 @@
 
 namespace Model {
 
-    GPUParticle2D::GPUParticle2D(const shared_ptr<BaseNode2D> &mesh,
+    GPUParticle2D::GPUParticle2D(const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,
         const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
-        : MeshNode2D(mesh, resourceManager), maxParticles(maxParticles) {
+        : MeshNode2D(contextState, mesh, resourceManager), maxParticles(maxParticles) {
 
         initBuffers();
         setPreset(Preset::RainOnGlass);
@@ -64,14 +64,18 @@ namespace Model {
 
     void GPUParticle2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
+        // glDisable(GL_DEPTH_TEST);
+        // glEnable(GL_BLEND);
+        //
+        // if (currentPreset == Preset::MagicFire) {
+        //     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        // } else {
+        //     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // }
 
-        if (currentPreset == Preset::MagicFire) {
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        } else {
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }
+        contextState->setBlendingMode(mesh->getBlending());
+        contextState->setDepthTest(mesh->getDepthTest());
+        contextState->setDepthWrite(mesh->getDepthWrite());
 
         const bool useTexture = !params.texture.empty();
         const auto shader = resourceManager->getShader(useTexture ? "particle_render_2d_tex" : "particle_render_2d");

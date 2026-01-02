@@ -27,7 +27,7 @@ namespace Scenes {
         const auto coinMesh = make_shared<ArrayMesh>(shader);
         coinMesh->fromMesh(resourceManager->getModel("coin"));
 
-        coin = make_shared<CoinMeshNode3D>(coinMesh, resourceManager);
+        coin = make_shared<CoinMeshNode3D>(contextState, coinMesh, resourceManager);
         coin->setPosition({-69.0, -69, -70.0f});
         coin->setScale({0.013888889, 0.013888889, 0.013888889});
         coin->setRotationX(90);
@@ -97,7 +97,7 @@ namespace Scenes {
         coinMesh2->fromMesh(resourceManager->getModel("coin"));
         coinMesh2->setAnimationPlayer(coinAnimation2);
         coinMesh2->setMaterial(coinMaterial);
-        removeCoin = make_shared<CoinMeshNode3D>(coinMesh2, resourceManager);
+        removeCoin = make_shared<CoinMeshNode3D>(contextState, coinMesh2, resourceManager);
         removeCoin->setPosition({-69.0, -69, -70.0f});
         removeCoin->setScale({0.013888889, 0.013888889, 0.013888889});
         removeCoin->setRotationX(90);

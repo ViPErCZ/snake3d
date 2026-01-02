@@ -4,10 +4,11 @@ namespace Scenes {
     Scene::Scene(const shared_ptr<RenderManager> &rendererManager,
                  const shared_ptr<Camera> &camera, const glm::mat4 &projection,
                  const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : resourceManager(rm), rendererManager(rendererManager), camera(camera), projection(projection),
-          width(width), height(height) {
+        : resourceManager(rm), rendererManager(rendererManager), camera(camera),
+          projection(projection), width(width), height(height) {
         keyboardManager = make_unique<KeyboardManager>();
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
+        contextState = rendererManager->getContextState();
     }
 
     void Scene::init(const int priority) {

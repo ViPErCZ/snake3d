@@ -5,13 +5,13 @@
 #include "../Standard/2D/QuadNode2D.h"
 
 namespace Model {
-    RadarItem::RadarItem(const shared_ptr<ResourceManager> &resourceManager,
+    RadarItem::RadarItem(const shared_ptr<ContextState> &contextState, const shared_ptr<ResourceManager> &resourceManager,
         const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, std::string name)
         : mesh(mesh), changedSize(false), name(std::move(name)),
             color(color) {
         const auto quad = make_shared<QuadNode2D>(4, 4, resourceManager->getShader("basic2d"));
         quad->setColor(color);
-        radarItem = make_shared<MeshNode2D>(quad, resourceManager);
+        radarItem = make_shared<MeshNode2D>(contextState, quad, resourceManager);
         radarItem->setVisible(mesh->isVisible());
     }
 

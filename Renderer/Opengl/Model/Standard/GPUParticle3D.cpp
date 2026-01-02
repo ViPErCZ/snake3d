@@ -1,14 +1,13 @@
 #include "GPUParticle3D.h"
 
 namespace Model {
-    GPUParticle3D::GPUParticle3D(const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh,
-                                 const shared_ptr<ResourceManager> &resourceManager,
-                                 const int maxParticles)
-        : MeshNode3D(mesh, resourceManager), resourceManager(resourceManager), maxParticles(maxParticles), VAO{},
-          particleVBO{}, camera(camera) {
+    GPUParticle3D::GPUParticle3D(const shared_ptr<ParticleProcessMaterial> &material,
+        const shared_ptr<ContextState> &contextState,
+        const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh,
+        const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
+        : MeshNode3D(contextState, mesh, resourceManager), resourceManager(resourceManager),
+          maxParticles(maxParticles), VAO{}, particleVBO{}, camera(camera), material(material) {
         initBuffers();
-        setPreset(Preset::Fire);
-        setRenderMode(RenderMode::Color);
     }
 
     void GPUParticle3D::update(const float dt, const uint64_t frameId) {
@@ -20,32 +19,13 @@ namespace Model {
         auto runTfStep = [&](const float stepDt) {
             const int src = frameIndex % 2;
             const int dst = (frameIndex + 1) % 2;
-            const auto shader = resourceManager->getShader("particle_update");
-            shader->use();
-            shader->setFloat("u_dt", stepDt);
-            shader->setFloat("u_timeAccum", timeAccum + particleParams.timeOffset);
-            shader->setVec3("u_emitterPos", (particleParams.spawnShape == 1) ? camera->getPosition() : glm::vec3(0.0f));
 
-            shader->setInt("u_spawnShape", particleParams.spawnShape);
-            shader->setInt("u_respawnMode", particleParams.respawnMode);
-            shader->setVec2("u_turbulence", particleParams.turbulence);
-            shader->setFloat("u_minRadius", particleParams.minRadius);
-            shader->setFloat("u_maxRadius", particleParams.maxRadius);
-            shader->setFloat("u_spawnHeight", particleParams.spawnHeight);
-
-            shader->setInt("u_mode", particleParams.mode);
-            shader->setFloat("u_lifeMin", particleParams.lifeMin);
-            shader->setFloat("u_lifeMax", particleParams.lifeMax);
-            shader->setFloat("u_sizeMin", particleParams.sizeMin);
-            shader->setFloat("u_sizeMax", particleParams.sizeMax);
-            shader->setVec3("u_velMin", particleParams.velMin);
-            shader->setVec3("u_velMax", particleParams.velMax);
-            shader->setVec3("u_gravity", particleParams.gravity);
-            shader->setFloat("u_emitterRadius", particleParams.emitterRadius);
-            shader->setFloat("u_emitterRadiusX", particleParams.emitterRadiusX);
-            shader->setFloat("u_emitterRadiusZ", particleParams.emitterRadiusZ);
-            shader->setFloat("u_emitterYOffset", particleParams.emitterYOffset);
-            shader->setFloat("u_spawnPerFrame", particleParams.spawnPerFrame);
+            if (material) {
+                material->update(camera->getPosition(), maxParticles, timeAccum, timeOffset, stepDt);
+                frameIndex++;
+            } else {
+                throw std::invalid_argument("GPUParticle Process Material missing.");
+            }
 
             glEnable(GL_RASTERIZER_DISCARD);
             glBindVertexArray(VAO[src]);
@@ -54,13 +34,11 @@ namespace Model {
             glDrawArrays(GL_POINTS, 0, maxParticles);
             glEndTransformFeedback();
             glDisable(GL_RASTERIZER_DISCARD);
-
-            frameIndex++;
         };
 
-        if (firstFrame && particleParams.smoothStart) {
-            const int substeps = std::max(1, particleParams.warmupSubsteps);
-            const float totalWarmup = std::max(0.0f, particleParams.warmupTime);
+        if (firstFrame && material->is_smooth_start()) {
+            const int substeps = std::max(1, material->get_warmup_substeps());
+            const float totalWarmup = std::max(0.0f, material->get_warmup_time());
             const float subDt = (substeps > 0 && totalWarmup > 0.0f) ? (totalWarmup / static_cast<float>(substeps)) : 0.0f;
 
             for (int i = 0; i < substeps; ++i) {
@@ -73,7 +51,7 @@ namespace Model {
 
         float usedDt = dt;
         if (firstFrame) {
-            usedDt = std::min(dt, particleParams.firstFrameClamp);
+            usedDt = std::min(dt, material->get_first_frame_clamp());
             firstFrame = false;
         }
 
@@ -82,35 +60,17 @@ namespace Model {
     }
 
     void GPUParticle3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
-                    const glm::mat4 &parentTransform, bool shadows) {
+                    const glm::mat4 &parentTransform, const bool shadows) {
 
-        glDepthMask(GL_FALSE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        const bool useTexture = (renderMode == RenderMode::Textured) && !particleParams.texture.empty();
-        const auto shader = resourceManager->getShader(useTexture ? "instanced_texture" : "instanced_mesh");
-        shader->use();
-        shader->setMat4("view", camera->getViewMatrix());
-        shader->setMat4("projection", projection);
-        if (currentPreset != Preset::Rain && currentPreset != Preset::Snow) {
-            shader->setMat4("model", parentTransform * this->getModelMatrix());
+        const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+        contextState->setBlendingMode(mesh->getBlending());
+        contextState->setDepthTest(mesh->getDepthTest());
+        contextState->setDepthWrite(mesh->getDepthWrite());
+
+        if (material) {
+            material->bind(camera->getPosition(), camera->getViewMatrix(), projection, finalTransform, shadows);
         } else {
-            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-            shader->setMat4("model", glm::mat4(1.0f));
-        }
-        shader->setInt("u_mode", particleParams.mode);
-        shader->setFloat("u_lifeMin", particleParams.lifeMin);
-        shader->setFloat("u_lifeMax", particleParams.lifeMax);
-        shader->setFloat("u_sizeMin", particleParams.sizeMin);
-        shader->setFloat("u_sizeMax", particleParams.sizeMax);
-        shader->setFloat("u_stretch", particleParams.stretch);
-        shader->setVec4("u_colorStart", particleParams.colorStart);
-        shader->setVec4("u_colorEnd", particleParams.colorEnd);
-        shader->setFloat("u_colorSensitivity", particleParams.colorSensitivity);
-        if (useTexture) {
-            shader->setInt("uTexture0", 0);
-            resourceManager->getTexture(particleParams.texture)->bind();
+            throw std::invalid_argument("GPUParticle Process Material missing.");
         }
 
         mesh->bind();
@@ -119,19 +79,19 @@ namespace Model {
         glBindBuffer(GL_ARRAY_BUFFER, particleVBO[src]);
         // iPos @location 4
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), (void*)offsetof(GPUParticle, position));
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), reinterpret_cast<void *>(offsetof(GPUParticle, position)));
         glVertexAttribDivisor(4, 1);
         // iVel @location 5
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), (void*)offsetof(GPUParticle, velocity));
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), reinterpret_cast<void *>(offsetof(GPUParticle, velocity)));
         glVertexAttribDivisor(5, 1);
         // iLife @location 6
         glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), (void*)offsetof(GPUParticle, life));
+        glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), reinterpret_cast<void *>(offsetof(GPUParticle, life)));
         glVertexAttribDivisor(6, 1);
         // iSeed @location 7
         glEnableVertexAttribArray(7);
-        glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), (void*)offsetof(GPUParticle, seed));
+        glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, sizeof(GPUParticle), reinterpret_cast<void *>(offsetof(GPUParticle, seed)));
         glVertexAttribDivisor(7, 1);
 
         glDrawElementsInstanced(
@@ -141,10 +101,6 @@ namespace Model {
             nullptr,
             maxParticles
         );
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
-        glDisable(GL_BLEND);
     }
 
     void GPUParticle3D::initBuffers() {
@@ -154,7 +110,7 @@ namespace Model {
             initial[i].velocity = glm::vec3(0.0f);
             initial[i].seed = static_cast<float>(i) * 17.123f;
 
-            const float maxL = particleParams.lifeMax > 0 ? particleParams.lifeMax : 2.0f;
+            const float maxL = material->get_life_max() > 0 ? material->get_life_max() : 2.0f;
             initial[i].life = static_cast<float>(random()) / static_cast<float>(RAND_MAX) * maxL;
         }
 
@@ -170,7 +126,6 @@ namespace Model {
                          initial.data(),
                          GL_DYNAMIC_COPY);
 
-            // TF atributy (inPos, inVel, inLife, inSeed)
             glEnableVertexAttribArray(0); // inPos
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
                                   sizeof(GPUParticle),
@@ -196,119 +151,5 @@ namespace Model {
 
         // Unbind VAO
         glBindVertexArray(0);
-    }
-
-    void GPUParticle3D::setPreset(const Preset preset) {
-        currentPreset = preset;
-        particleParams.spawnShape = 0; // Local
-        particleParams.respawnMode = 0; // Die
-        particleParams.turbulence = {0.0f, 0.0f};
-        particleParams.minRadius = 0.0f;
-
-        switch (preset) {
-            case Preset::Fire: {
-                particleParams.lifeMin = 1.4f; particleParams.lifeMax = 1.6f;
-                particleParams.sizeMin = 0.006f; particleParams.sizeMax = 0.020f;
-                particleParams.stretch = 0.32f;
-                particleParams.velMin = {-0.005f, 0.000f, 0.100f};
-                particleParams.velMax = { 0.005f, 0.010f, 0.200f};
-                particleParams.gravity = {0.0f, 0.0f, -0.15f};
-                particleParams.emitterRadius = 0.015f;
-                particleParams.emitterYOffset = 0.046f;
-                particleParams.colorStart = {6.0f, 3.5f, 1.0f, 1.0f};
-                particleParams.colorEnd   = {7.0f, 4.5f, 1.5f, 0.0f};
-                particleParams.mode = Stretched;
-                particleParams.minRadius = 0.05f;
-                break;
-            }
-            case Preset::Smoke: {
-                particleParams.lifeMin = 2.0f; particleParams.lifeMax = 4.0f;
-                particleParams.sizeMin = 0.05f; particleParams.sizeMax = 0.2f;
-                particleParams.velMin = {-0.05f, 0.2f, -0.05f};
-                particleParams.velMax = { 0.05f, 0.6f,  0.05f};
-                particleParams.gravity = {0.0f, -0.05f, 0.0f};
-                particleParams.emitterRadius = 0.08f;
-                particleParams.colorStart = {0.4f, 0.4f, 0.4f, 0.8f};
-                particleParams.colorEnd   = {0.2f, 0.2f, 0.2f, 0.0f};
-                particleParams.mode = Stretched;
-                particleParams.minRadius = 0.05f;
-                break;
-            }
-            case Preset::Rain: {
-                particleParams.lifeMin = 1.0f;
-                particleParams.lifeMax = 1.8f;
-                particleParams.sizeMin = 0.012f;
-                particleParams.sizeMax = 0.012f;
-                particleParams.stretch = 0.05f;
-                particleParams.stretch = 0.003f;
-                particleParams.velMin = { -0.2f, -0.2f, -15.0f };
-                particleParams.velMax = {  0.2f,  0.2f, -25.0f };
-                particleParams.gravity = { 0.0f, 0.0f, -2.8f };
-                particleParams.emitterRadius = 25.0f;
-                particleParams.emitterYOffset = 15.0f;
-                particleParams.colorStart = { 0.25f, 0.35f, 0.8f, 0.45f };
-                particleParams.colorEnd   = { 0.25f, 0.35f, 0.8f, 0.45f };
-                particleParams.colorSensitivity = 26.0f;
-                particleParams.mode = Billboard;
-                particleParams.spawnShape = 1;
-                particleParams.respawnMode = 1;
-                particleParams.turbulence = {0.0f, 0.0f};
-
-                particleParams.minRadius = 3.0f;
-                particleParams.maxRadius = 30.0f;
-                particleParams.spawnHeight = 25.0f;
-                break;
-            }
-            case Preset::Snow: {
-                particleParams.lifeMin = 1.0f;
-                particleParams.lifeMax = 12.0f;
-                particleParams.sizeMin = 0.04f;
-                particleParams.sizeMax = 0.12f;
-                particleParams.stretch = 0.0f;
-                particleParams.velMin = { -1.5f, -1.5f, -0.8f };
-                particleParams.velMax = {  1.5f,  1.5f, -1.8f };
-                particleParams.gravity = { 0.0f, 0.0f, -0.5f };
-                particleParams.emitterRadius = 30.0f;
-                particleParams.emitterYOffset = 10.0f;
-                particleParams.colorStart = { 1.0f, 1.0f, 1.0f, 1.0f };
-                particleParams.colorEnd   = { 1.0f, 1.0f, 1.0f, 0.0f };
-                particleParams.colorSensitivity = 2.0f;
-                particleParams.spawnPerFrame = 0;
-                particleParams.mode = Billboard;
-                particleParams.spawnShape = 1;
-                particleParams.respawnMode = 1;
-                particleParams.turbulence = {0.5f, 0.8f};
-
-                particleParams.minRadius = 4.0f;
-                particleParams.maxRadius = 25.0f;
-                particleParams.spawnHeight = 20.0f;
-                break;
-            }
-            case Preset::Explosion: {
-                particleParams.lifeMin = 0.1f;
-                particleParams.lifeMax = 0.6f;
-
-                particleParams.sizeMax = 0.01f;
-                particleParams.sizeMin = 0.002f;
-                particleParams.stretch = 0.0f;
-
-                particleParams.velMin = { 0.5f, 0.0f, 0.0f };
-                particleParams.velMax = { 1.3f, 0.0f, 0.0f };
-                particleParams.gravity = {0.0f, 0.0f, -0.9f};
-
-                particleParams.emitterRadius = 0.05f;
-
-                particleParams.colorStart = {8.0f, 4.0f, 1.0f, 1.0f};
-                particleParams.colorEnd   = {0.1f, 0.1f, 0.1f, 0.0f};
-
-                particleParams.mode = Billboard;
-                particleParams.spawnShape = 2;
-                particleParams.respawnMode = 0;
-                break;
-            }
-            case Preset::Custom:
-            default:
-                break;
-        }
     }
 } // Model

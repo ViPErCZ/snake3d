@@ -9,7 +9,7 @@
 namespace Model {
     class RadarItem {
     public:
-        RadarItem(const shared_ptr<ResourceManager> &resourceManager,
+        RadarItem(const shared_ptr<ContextState> &contextState, const shared_ptr<ResourceManager> &resourceManager,
             const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, std::string name);
         void update();
         shared_ptr<MeshNode2D> getRadarItem();

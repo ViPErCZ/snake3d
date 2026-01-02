@@ -3,7 +3,6 @@
 
 #include "../App.h"
 #include <catch2/catch_all.hpp>
-#include <cstdint>
 #include <Renderer/Opengl/Model/Standard/ArrayMesh.h>
 
 using namespace Handler;
@@ -11,11 +10,12 @@ using namespace Manager;
 
 TEST_CASE( "Checking if field is empty to place food..." ) {
 
+    const auto contextState = make_shared<ContextState>();
     const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(nullptr));
-    const auto eat = make_shared<CoinMeshNode3D>(coinMesh, nullptr);
-    const auto levelManager = make_shared<LevelManager>(1, MAX_LIVES, nullptr);
+    const auto eat = make_shared<CoinMeshNode3D>(contextState, coinMesh, nullptr);
+    const auto levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, nullptr);
     const auto levelBoxes = levelManager->createLevel(2);
-    const auto snake = make_shared<SnakeMeshNode3D>(coinMesh, nullptr);
+    const auto snake = make_shared<SnakeMeshNode3D>(contextState, coinMesh, nullptr);
     snake->respawn();
     const auto eatLocation = new EatLocationHandler(levelBoxes, snake, eat);
 

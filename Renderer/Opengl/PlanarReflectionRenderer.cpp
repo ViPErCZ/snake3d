@@ -6,12 +6,13 @@
 #include "SkyboxRenderer.h"
 
 namespace Renderer {
-    PlanarReflectionRenderer::PlanarReflectionRenderer(const shared_ptr<ResourceManager> &resManager,
-                                                       const shared_ptr<Camera> &camera,
-                                                       const glm::mat4 &projection,
-                                                       const int width, const int height)
-        : resourceManager(resManager), camera(camera), projection(projection), width(width), height(height) {
-
+    PlanarReflectionRenderer::PlanarReflectionRenderer(
+            const shared_ptr<ContextState> &contextState,
+            const shared_ptr<ResourceManager> &resManager,
+            const shared_ptr<Camera> &camera,
+            const glm::mat4 &projection,
+            const int width, const int height)
+            : contextState(contextState), resourceManager(resManager), camera(camera), projection(projection), width(width), height(height) {
         // Framebuffer setup
         glGenFramebuffers(1, &reflectionFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
@@ -52,12 +53,12 @@ namespace Renderer {
         glm::vec3 originalPos = camera->getPosition();
         const glm::vec3 originalFront = camera->getFront();
         const glm::vec3 originalUp = camera->getUp();
-        
+
         // Předpokládáme rovinu z = planeZ (protože Z je nahoru)
         // Zrcadlíme pozici přes rovinu Z
         const float dist = 2.0f * (originalPos.z - planeZ);
         camera->setPosition({originalPos.x, originalPos.y, originalPos.z - dist});
-        
+
         // Zrcadlíme front vektor: X a Y zůstávají, Z se obrací
         glm::vec3 reflectedFront = originalFront;
         reflectedFront.z = -reflectedFront.z;
@@ -81,9 +82,8 @@ namespace Renderer {
         glFrontFace(GL_CW);
 
         // Vykreslíme ostatní renderery (např. oheň)
-        for (auto &entry : renderers) {
+        for (auto &entry: renderers) {
             if (entry.renderer.get() == this) continue;
-            // Nechceme zrcadlit SkyboxRenderer v této fázi
             if (dynamic_pointer_cast<SkyboxRenderer>(entry.renderer)) continue;
 
             entry.renderer->beforeRender(reflection);
@@ -91,10 +91,12 @@ namespace Renderer {
             entry.renderer->afterRender();
         }
 
+        contextState->setDepthTest(true);
+        contextState->setDepthWrite(true);
         glFrontFace(GL_CCW);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // Obnovení původní kamery
+        // Camera restore
         camera->setPosition(originalPos);
         camera->setFront(originalFront);
         camera->setUp(originalUp);
@@ -104,9 +106,11 @@ namespace Renderer {
         this->mode = mode;
     }
 
-    void PlanarReflectionRenderer::afterRender() {}
+    void PlanarReflectionRenderer::afterRender() {
+    }
 
-    void PlanarReflectionRenderer::renderShadowMap() {}
+    void PlanarReflectionRenderer::renderShadowMap() {
+    }
 
     void PlanarReflectionRenderer::setPlaneZ(const float z) {
         planeZ = z;

@@ -2,6 +2,7 @@
 #define SNAKE3_GPUPARTICLE2D_H
 
 #include <memory>
+
 #include "../../../../../Manager/ResourceManager.h"
 #include "MeshNode2D.h"
 
@@ -46,8 +47,10 @@ namespace Model {
     public:
         enum class Preset { RainOnGlass, MagicFire, Snow2D, Custom };
 
-        explicit GPUParticle2D(const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
-        ~GPUParticle2D();
+        explicit GPUParticle2D(const shared_ptr<ContextState> &contextState,
+            const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
+
+        ~GPUParticle2D() override;
 
         void update(float dt, uint64_t frameId) override;
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,

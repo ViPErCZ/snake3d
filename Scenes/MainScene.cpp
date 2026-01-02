@@ -3,6 +3,8 @@
 #include <glm/gtc/random.hpp>
 
 #include "PlayerScene.h"
+#include "TorchScene.h"
+#include "WeatherScene.h"
 #include "../Resource/ShaderLoader.h"
 #include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
@@ -10,10 +12,7 @@
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "../Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
-#include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
@@ -33,6 +32,8 @@ namespace Scenes {
         initPlayerScene();
         initBarriersScene();
         initCoinScene();
+        initTorchScene();
+        initWeatherScene();
 
         initSkybox();
         initPlane();
@@ -42,148 +43,6 @@ namespace Scenes {
 
         buildStartMoveCallback();
         buildEatenUpCallback();
-
-        // GPU Particle TEST
-        // ===========================
-        const auto quad = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
-        const auto quad2 = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
-        const auto fire = make_shared<GPUParticle3D>(camera, quad, resourceManager, 1000);
-        const auto smoke = make_shared<GPUParticle3D>(camera, quad, resourceManager, 10);
-        const auto rain = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
-        const auto snow = make_shared<GPUParticle3D>(camera, quad, resourceManager, 6000);
-        const auto explosion = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
-        const auto explosion2 = make_shared<GPUParticle3D>(camera, quad, resourceManager, 500);
-
-        const auto quad2D = make_shared<QuadNode2D>(0.9, 1.2);
-        const auto rainDrop2D = make_shared<GPUParticle2D>(quad2D, resourceManager, 5);
-
-        rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
-
-        fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
-        explosion->setPosition(glm::vec3(0.0, 0.6, 0.0));
-        explosion2->setPosition(glm::vec3(2.0, 0.6, 0.0));
-        smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
-        fire->setScale({2.2, 2.2, 2.2});
-        smoke->setScale({2.0, 2.0, 2.0});
-        fire->setRotationX(-90);
-        smoke->setRotationX(-90);
-
-        fire->setPreset(GPUParticle3D::Preset::Fire);
-        smoke->setPreset(GPUParticle3D::Preset::Smoke);
-        rain->setPreset(GPUParticle3D::Preset::Rain);
-        snow->setPreset(GPUParticle3D::Preset::Snow);
-        explosion->setPreset(GPUParticle3D::Preset::Explosion);
-        explosion2->setPreset(GPUParticle3D::Preset::Explosion);
-        auto fp = fire->getParams();
-        fp.lifeMin = 0.5f;
-        fp.lifeMax = 1.0f;
-        fp.sizeMin = 0.008f;
-        fp.sizeMax = 0.042f;
-        fp.velMin  = glm::vec3(-0.005f, 0.000f, 0.100f);
-        fp.velMax  = glm::vec3( 0.005f, 0.010f, 0.200f);
-        fp.gravity = glm::vec3(glm::linearRand(-0.005f, 0.005f), glm::linearRand(0.01f, 0.001f), glm::linearRand(0.005f, 0.009f));
-        fp.emitterRadius = 0.03f;
-        fp.emitterRadiusX = 0.03f;
-        fp.emitterRadiusZ = 0.0f;
-        fp.emitterYOffset = 0.24f;
-        fp.spawnPerFrame = 0.6f;
-        fp.stretch = 0.105f;
-        fp.colorStart = glm::vec4(6.0f, 3.5f, 1.0f, 1.0f);
-        fp.colorEnd = glm::vec4(7.0f, 4.5f, 1.5f, 0.0f);
-        fp.texture = "fire.png";
-        fire->setParams(fp);
-        fire->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        auto sp = smoke->getParams();
-        sp.lifeMax = 0.5f;
-        sp.sizeMin = 0.08f;
-        sp.sizeMax = 0.042f;
-        sp.emitterRadius = 0.03f;
-        sp.emitterRadiusX = 0.03f;
-        sp.emitterRadiusZ = 0.0f;
-        sp.emitterYOffset = 0.24f;
-        sp.velMin  = glm::vec3(-0.005f, 0.000f, 0.100f);
-        sp.velMax  = glm::vec3( 0.005f, 0.010f, 0.200f);
-        sp.texture = "smoke.png";
-        smoke->setParams(sp);
-        smoke->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        auto rp = rain->getParams();
-        rp.texture = "rain.png";
-        rain->setParams(rp);
-        rain->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        auto snowParams = snow->getParams();
-        snowParams.texture = "snow.png";
-        snow->setParams(snowParams);
-        snow->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        auto explosionParams = explosion->getParams();
-        explosionParams.texture = "explosion.png";
-        explosion->setParams(explosionParams);
-        explosion->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        explosionParams = explosion2->getParams();
-        explosionParams.texture = "explosion.png";
-        explosionParams.timeOffset = 0.2f;
-        explosion2->setParams(explosionParams);
-        explosion2->setRenderMode(GPUParticle3D::RenderMode::Textured);
-
-        const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
-        torch->fromMesh(resourceManager->getModel("torch"));
-        const auto torchNode = make_shared<MeshNode3D>(torch, resourceManager);
-        const auto torchNode2 = make_shared<MeshNode3D>(torch, resourceManager);
-        const auto torchNode3 = make_shared<MeshNode3D>(torch, resourceManager);
-        const auto torchNode4 = make_shared<MeshNode3D>(torch, resourceManager);
-        torchNode->setRotationX(90);
-        torchNode2->setRotationX(90);
-        torchNode3->setRotationX(90);
-        torchNode4->setRotationX(90);
-        torchNode->setScale({0.2, 0.2, 0.2});
-        torchNode2->setScale({0.2, 0.2, 0.2});
-        torchNode3->setScale({0.2, 0.2, 0.2});
-        torchNode4->setScale({0.2, 0.2, 0.2});
-        torchNode->setPosition({-5.07928, -5.47677, -4.98698});
-        torchNode2->setPosition({15.2239, -5.47677, -4.98698});
-        torchNode3->setPosition({15.2753, 15.4487, -4.98698});
-        torchNode4->setPosition({-5.07928, 15.4487, -4.98698});
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.091f, .091f, .091f});
-        const auto torchAlbedo = resourceManager->getTexture("torch.png");
-        const auto torchNormal = resourceManager->getTexture("torch_normal.png");
-        const auto torchMaterial = make_shared<StandardMaterial>(resourceManager->getShader("basicShader"), resourceManager->getShader("shadowDepthShader"));
-        torchMaterial->setAlbedo(torchAlbedo);
-        torchMaterial->setNormal(torchNormal);
-        torchMaterial->setNormalEnabled(true);
-        torchMaterial->setDirectionalLight(directionalLight);
-        torchMaterial->setBlending(Blending::Translucent);
-        torch->setMaterial(torchMaterial);
-
-
-        torchNode->addNode(smoke);
-        torchNode2->addNode(smoke);
-        torchNode3->addNode(smoke);
-        torchNode4->addNode(smoke);
-        torchNode->addNode(fire);
-        torchNode2->addNode(fire);
-        torchNode3->addNode(fire);
-        torchNode4->addNode(fire);
-
-        addMeshNode3D(torchNode, 1);
-        addMeshNode3D(torchNode2, 1);
-        addMeshNode3D(torchNode3, 1);
-        addMeshNode3D(torchNode4, 1);
-        addMeshNode3D(rain, 1);
-        // addMeshNode3D(snow, 1);
-        addMeshNode3D(explosion, 1);
-        addMeshNode3D(explosion2, 1);
-        addMeshNode2D(rainDrop2D, 1);
-
-        positionHandler->addItem(torchNode4);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -263,17 +122,17 @@ namespace Scenes {
 
         auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
-        const auto node3d = make_shared<MeshNode3D>(planeMesh, resourceManager);
-        node3d->disableMirroring();
+        const auto node3d = make_shared<MeshNode3D>(contextState, planeMesh, resourceManager);
+        node3d->disablePlanarReflection();
         node3d->setRotationX(90);
         node3d->setPosition({1.0, 1.0, -1.0});
 
-        addMeshNode3D(node3d, 101);
+        addMeshNode3D(node3d, 200);
     }
 
     void MainScene::initPlayerScene() {
         playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
-        playerScene->init(0);
+        playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
         snakeMoveHandler->setCollisionDetector(collisionDetector);
         addNode(playerScene);
@@ -281,17 +140,29 @@ namespace Scenes {
 
     void MainScene::initBarriersScene() {
         barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
-        barriersScene->init(1);
+        barriersScene->init(3);
         levelManager = barriersScene->getLevelManager();
         addNode(barriersScene);
     }
 
     void MainScene::initCoinScene() {
         coinScene = make_shared<CoinScene>(rendererManager, camera, projection, resourceManager, width, height);
-        coinScene->init(1);
+        coinScene->init(4);
         addNode(coinScene);
 
         collisionDetector->addStaticItem(coinScene->getCoin());
+    }
+
+    void MainScene::initTorchScene() {
+        const auto torchScene = make_shared<TorchScene>(rendererManager, camera, projection, resourceManager, width, height);
+        torchScene->init(1);
+        addNode(torchScene);
+    }
+
+    void MainScene::initWeatherScene() {
+        const auto weatherScene = make_shared<WeatherScene>(rendererManager, camera, projection, resourceManager, width, height);
+        weatherScene->init(0);
+        addNode(weatherScene);
     }
 
     void MainScene::initEatManager() {
@@ -332,7 +203,7 @@ namespace Scenes {
         radarNode = make_shared<QuadNode2D>(220, 220, nullptr);
         radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         radarNode->setMaterial(radarExpansionIn);
-        radarMeshNode = make_shared<RadarMeshNode2D>(radarNode, resourceManager);
+        radarMeshNode = make_shared<RadarMeshNode2D>(contextState, radarNode, resourceManager);
         radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
         radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
         radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
@@ -359,7 +230,7 @@ namespace Scenes {
         });
 
         label->setMaterial(shaderMaterial);
-        helpText = make_shared<MeshNode2D>(label, resourceManager);
+        helpText = make_shared<MeshNode2D>(contextState, label, resourceManager);
 
         tilesCounterText = make_shared<LabelNode2D>("", shader, settings);
         fadeInUniform = make_shared<FadeInUniform>();
@@ -369,7 +240,7 @@ namespace Scenes {
         shaderMaterial2->addUniform("textTexture", 0);
 
         tilesCounterText->setMaterial(shaderMaterial2);
-        tilesCounterNode = make_shared<MeshNode2D>(tilesCounterText, resourceManager);
+        tilesCounterNode = make_shared<MeshNode2D>(contextState, tilesCounterText, resourceManager);
         tilesCounterNode->setVisible(false);
 
         addMeshNode2D(helpText);

@@ -43,7 +43,7 @@ namespace Renderer {
     }
 
     void Node3DRenderer::renderScene() const {
-        if (mode == reflection && !rootNode->isIncludeInMirroring()) {
+        if (mode == reflection && !rootNode->isIncludeInPlanarReflection()) {
             return;
         }
 
