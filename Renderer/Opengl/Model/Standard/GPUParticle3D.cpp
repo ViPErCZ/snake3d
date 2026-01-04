@@ -5,12 +5,17 @@ namespace Model {
         const shared_ptr<ContextState> &contextState,
         const shared_ptr<Camera> &camera, const shared_ptr<StandardMesh> &mesh,
         const shared_ptr<ResourceManager> &resourceManager, const int maxParticles)
-        : MeshNode3D(contextState, mesh, resourceManager), resourceManager(resourceManager),
-          maxParticles(maxParticles), VAO{}, particleVBO{}, camera(camera), material(material) {
+        : MeshNode3D(contextState, mesh, resourceManager), VAO{},
+          particleVBO{}, maxParticles(maxParticles), resourceManager(resourceManager), camera(camera), material(material) {
         update_shader = resourceManager->getShader("particle_update");
         render_shader = resourceManager->getShader("particle_3d_render");
         render_texture_shader = resourceManager->getShader("particle_3d_render_tex");
         initBuffers();
+    }
+
+    GPUParticle3D::~GPUParticle3D() {
+        glDeleteVertexArrays(2, VAO);
+        glDeleteBuffers(2, particleVBO);
     }
 
     void GPUParticle3D::update(const float dt, const uint64_t frameId) {
@@ -75,7 +80,10 @@ namespace Model {
 
         if (material) {
             const auto shader = !material->get_texture().empty() ? render_texture_shader : render_shader;
-            material->bind(shader, camera->getPosition(), camera->getViewMatrix(), projection, finalTransform, shadows);
+            material->bind(shader);
+            shader->setMat4("view", camera->getViewMatrix());
+            shader->setMat4("projection", projection);
+            shader->setMat4("model", material->get_mode() == Billboard ? glm::mat4(1.0f) : finalTransform);
         } else {
             throw std::invalid_argument("GPUParticle Process Material missing.");
         }

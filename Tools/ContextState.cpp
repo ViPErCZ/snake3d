@@ -5,46 +5,28 @@ namespace Tools {
         init();
     }
 
-
-
     void ContextState::setBlendingMode(const Blending blending) noexcept {
         switch (blending) {
             case Blending::Opaque:
-                // this->enable(Capabilities::DepthTest);
-                // this->setDepthFunc(DepthFunc::Less);
-                // this->setDepthMask(DepthMask::True);
                 this->disable(Capabilities::Blending);
                 break;
             case Blending::Additive:
-                // this->enable(Capabilities::DepthTest);
-                // this->setDepthFunc(DepthFunc::Less);
-                // this->setDepthMask(DepthMask::False);
                 this->enable(Capabilities::Blending);
                 this->setBlendFunc(BlendFactor::One, BlendFactor::One);
                 break;
             case Blending::Modulate:
-                // this->enable(Capabilities::DepthTest);
-                // this->setDepthFunc(DepthFunc::Less);
-                // this->setDepthMask(DepthMask::False);
                 this->enable(Capabilities::Blending);
                 this->setBlendFunc(BlendFactor::DstColor, BlendFactor::Zero);
                 break;
             case Blending::Translucent:
-                // this->enable(Capabilities::DepthTest);
-                // this->setDepthFunc(DepthFunc::Less);
-                // this->setDepthMask(DepthMask::True);
                 this->enable(Capabilities::Blending);
                 this->setBlendFunc(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
                 break;
             case Blending::AlphaAdditive:
-                // this->enable(Capabilities::DepthTest);
-                // this->setDepthFunc(DepthFunc::Less);
-                // this->setDepthMask(DepthMask::False);
                 this->enable(Capabilities::Blending);
                 this->setBlendFunc(BlendFactor::SrcAlpha, BlendFactor::One);
                 break;
             case Blending::Text:
-                // this->disable(Capabilities::DepthTest);
                 this->enable(Capabilities::Blending);
                 this->setBlendFunc(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
                 break;
@@ -65,39 +47,39 @@ namespace Tools {
     }
 
     void ContextState::disable(Capabilities func) noexcept {
-        // if (capability_map[func]) {
-        glDisable(static_cast<GLenum>(func));
-        capability_map[func] = false;
-        // }
+        if (capability_map[func]) {
+            glDisable(static_cast<GLenum>(func));
+            capability_map[func] = false;
+        }
     }
 
     void ContextState::enable(Capabilities func) noexcept {
-        // if (!capability_map[func]) { // TODO: un-comment, when all render method use context_state
-        glEnable(static_cast<GLenum>(func));
-        capability_map[func] = true;
-        // }
+        if (!capability_map[func]) {
+            glEnable(static_cast<GLenum>(func));
+            capability_map[func] = true;
+        }
     }
 
     void ContextState::setBlendFunc(const BlendFactor src, const BlendFactor dst) noexcept {
-        // if (src_factor != src || dst_factor != dst) { // TODO: un-comment, when all render method use context_state
+        if (src_factor != src || dst_factor != dst) {
             src_factor = src;
             dst_factor = dst;
             glBlendFunc(static_cast<GLenum>(src_factor), static_cast<GLenum>(dst_factor));
-        // }
+        }
     }
 
     void ContextState::setDepthFunc(DepthFunc func) noexcept {
-        // if (depth_func != func) {
+        if (depth_func != func) {
             glDepthFunc(static_cast<GLenum>(func));
             depth_func = func;
-        // }
+        }
     }
 
     void ContextState::setDepthMask(DepthMask mask) noexcept {
-        // if (depth_mask != mask) {
+        if (depth_mask != mask) {
             glDepthMask(static_cast<GLenum>(mask));
             depth_mask = mask;
-        // }
+        }
     }
 
     void ContextState::init() noexcept {

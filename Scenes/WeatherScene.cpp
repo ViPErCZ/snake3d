@@ -57,7 +57,6 @@ namespace Scenes {
     void WeatherScene::initRainDrop() {
         const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
         material->set_texture("drop_normal.png");
-        material->set_mode(Billboard);
         material->set_spawn_shape(1);
         material->set_respawn_mode(1);
         material->set_turbulence({1.0f, 0.0f});
@@ -73,10 +72,10 @@ namespace Scenes {
         material->set_color_sensitivity(1.0f);
         material->set_drag(0.5f);
         material->set_emitter_size({0.9f, 1.2f});
+        material->set_spawn_per_frame(1.0f);
 
         const auto quad2D = make_shared<QuadNode2D>(0.9, 1.2);
         const auto rainDrop2D = make_shared<GPUParticle2D>(material, contextState, quad2D, resourceManager, 5);
-        rainDrop2D->setPreset(GPUParticle2D::Preset::RainOnGlass);
 
         addMeshNode2D(rainDrop2D, 1);
     }
@@ -91,18 +90,18 @@ namespace Scenes {
         material->set_min_radius(4.0f);
         material->set_max_radius(25.0f);
         material->set_spawn_height(20.0f);
-        material->set_color_start({1.0f, 1.0f, 1.0f, 1.0f});
-        material->set_color_end({1.0f, 1.0f, 1.0f, 0.0f});
+        material->set_color_start({0.8f, 0.9f, 1.0f, 0.3f});
+        material->set_color_end({0.8f, 0.9f, 1.0f, 0.0f});
         material->set_color_sensitivity(2.0f);
-        material->set_gravity({0.0f, 0.0f, -0.5f});
+        material->set_gravity({0.0f, -0.5f, 0.0f});
         material->set_emitter_radius(30.0f);
         material->set_emitter_y_offset(10.0f);
         material->set_vel_min({-1.5f, -1.5f, -0.8f});
         material->set_vel_max({1.5f, 1.5f, -1.8f});
         material->set_life_min(1.0f);
-        material->set_life_max(12.0f);
-        material->set_size_min(0.04f);
-        material->set_size_max(0.12f);
+        material->set_life_max(5.0f);
+        material->set_size_min(0.009f);
+        material->set_size_max(0.03f);
         material->set_stretch(0.0f);
         material->set_spawn_per_frame(0);
 

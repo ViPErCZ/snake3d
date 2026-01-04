@@ -38,6 +38,7 @@ namespace Model {
         shared_ptr<ResourceManager> resourceManager;
         int depth = 0;
         bool transformDetached;
+        uint64_t lastUpdatedFrame = 0;
     };
 } // Model
 

@@ -47,6 +47,8 @@ namespace Manager {
         template<typename T>
         void setUniformArray(const std::string &name, const std::vector<T> &values) const = delete;
 
+        void setUniformBlock(const std::string &name, GLuint blockBinding) const;
+
         void setUniform(const std::string& name, const UniformValue& value) const;
         [[nodiscard]] GLuint getId() const;
     protected:

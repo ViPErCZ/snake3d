@@ -1,17 +1,20 @@
 #include "ParticleProcessMaterial.h"
 
 namespace Material {
-    ParticleProcessMaterial::ParticleProcessMaterial(const shared_ptr<ResourceManager> &resource_manager)
-        : BaseProcessMaterial(resource_manager) {
+    ParticleProcessMaterial::~ParticleProcessMaterial() {
+        glDeleteBuffers(1, &uboID);
     }
 
-    void ParticleProcessMaterial::bind(const shared_ptr<ShaderManager> shader, const glm::vec3 &posView,
-                                       const glm::mat4 &view, const glm::mat4 &projection,
-                                       const glm::mat4 &model, bool shadows) const {
+    ParticleProcessMaterial::ParticleProcessMaterial(const shared_ptr<ResourceManager> &resource_manager)
+        : BaseProcessMaterial(resource_manager) {
+        glGenBuffers(1, &uboID);
+        glBindBuffer(GL_UNIFORM_BUFFER, uboID);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(ParticleDataGPU), nullptr, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboID);
+    }
+
+    void ParticleProcessMaterial::bind(const shared_ptr<ShaderManager> shader) const {
         shader->use();
-        shader->setMat4("view", view);
-        shader->setMat4("projection", projection);
-        shader->setMat4("model", mode == Billboard ? glm::mat4(1.0f) : model);
         shader->setInt("u_mode", mode);
         shader->setFloat("u_lifeMin", lifeMin);
         shader->setFloat("u_lifeMax", lifeMax);
@@ -21,6 +24,7 @@ namespace Material {
         shader->setVec4("u_colorStart", colorStart);
         shader->setVec4("u_colorEnd", colorEnd);
         shader->setFloat("u_colorSensitivity", colorSensitivity);
+
         if (!texture.empty()) {
             shader->setInt("uTexture0", 0);
             resourceManager->getTexture(texture)->bind();
@@ -28,30 +32,52 @@ namespace Material {
     }
 
     void ParticleProcessMaterial::update(const shared_ptr<ShaderManager> shader, const int maxParticles,
-                                         const float timeAccum,
-                                         const float timeOffset, const float stepDt) {
+                                         const float timeAccum, const float timeOffset, const float stepDt) {
+        const ParticleDataGPU gpuData = prepareUniformData();
+
+        glBindBuffer(GL_UNIFORM_BUFFER, uboID);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ParticleDataGPU), &gpuData);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboID);
+
         shader->use();
+        shader->setUniformBlock("ParticleParams", 0);
         shader->setFloat("u_dt", stepDt);
-        shader->setBool("u_is2D", false);
         shader->setFloat("u_timeAccum", timeAccum + timeOffset);
-        shader->setVec3("u_emitterPos", emitterPos);
-
-        shader->setInt("u_spawnShape", spawnShape);
-        shader->setInt("u_respawnMode", respawnMode);
-        shader->setVec2("u_turbulence", turbulence);
-        shader->setFloat("u_minRadius", minRadius);
-        shader->setFloat("u_maxRadius", maxRadius);
-        shader->setFloat("u_spawnHeight", spawnHeight);
-
-        shader->setFloat("u_lifeMin", lifeMin);
-        shader->setFloat("u_lifeMax", lifeMax);
-        shader->setFloat("u_sizeMin", sizeMin);
-        shader->setFloat("u_sizeMax", sizeMax);
-        shader->setVec3("u_velMin", velMin);
-        shader->setVec3("u_velMax", velMax);
-        shader->setVec3("u_gravity", gravity);
-        shader->setFloat("u_emitterRadius", emitterRadius);
-        shader->setFloat("u_emitterYOffset", emitterYOffset);
         shader->setFloat("u_spawnPerFrame", spawnPerFrame);
+    }
+
+    ParticleProcessMaterial::ParticleDataGPU ParticleProcessMaterial::prepareUniformData() const {
+        ParticleDataGPU data{};
+
+        // 1. Life & Size (bez stretch)
+        data.u_lifeSizeStretch = glm::vec4(lifeMin, lifeMax, sizeMin, sizeMax);
+
+        // 2. Velocity Min + Stretch (packed)
+        data.u_velMinStretch = glm::vec4(velMin, stretch);
+
+        // 3. Velocity Max + Drag (packed)
+        data.u_velMaxDrag = glm::vec4(velMax, drag);
+
+        // 4. Gravity + colorSensitivity
+        data.u_gravity = glm::vec4(gravity, colorSensitivity);
+
+        // 5. Emitter Pos + Shape (Shape přetypujeme na float)
+        data.u_emitterPosShape = glm::vec4(emitterPos, static_cast<float>(spawnShape));
+
+        // 6. Emitter Size + Radius + Offset
+        data.u_emitterSizeRadius = glm::vec4(emitterSize, emitterRadius, emitterYOffset);
+
+        // 7. Spawn Area Settings
+        data.u_spawnArea = glm::vec4(minRadius, maxRadius, spawnHeight, spawnPerFrame);
+
+        // 8. Turbulence + Time + RespawnMode
+        data.u_turbulenceTime = glm::vec4(turbulence, timeOffset, static_cast<float>(respawnMode));
+
+        // 9. Colors
+        data.u_colorStart = colorStart;
+        data.u_colorEnd = colorEnd;
+
+        return data;
     }
 } // Material

@@ -15,7 +15,7 @@ OutputData particle_update_3d(vec3 inPos, vec3 inVel, float inLife, float inSeed
         respawn = true;
     }
 
-    if (length(vel) < 0.001 && length(u_gravity) > 0.001) {
+    if (length(vel) < 0.001 && length(u_gravityVec3) > 0.001) {
         respawn = true;
     }
 
@@ -43,7 +43,7 @@ OutputData particle_update_3d(vec3 inPos, vec3 inVel, float inLife, float inSeed
 
         if (u_spawnShape == 2) vel *= pow(0.8, u_dt);
 
-        vel += u_gravity * u_dt;
+        vel += u_gravityVec3 * u_dt;
         pos += vel * u_dt;
 
         if (u_respawnMode == 1) {

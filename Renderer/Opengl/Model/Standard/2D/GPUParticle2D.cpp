@@ -10,7 +10,6 @@ namespace Model {
         render_shader = resourceManager->getShader("particle_render_2d");
         render_texture_shader = resourceManager->getShader("particle_render_2d_tex");
         initBuffers();
-        setPreset(Preset::RainOnGlass);
     }
 
     GPUParticle2D::~GPUParticle2D() {
@@ -29,26 +28,13 @@ namespace Model {
 
         update_shader->setFloat("u_dt", dt);
         update_shader->setFloat("u_timeAccum", timeAccum);
-
-        // Params pass
-        update_shader->setVec2("u_emitterPos", params.emitterPos);
-        update_shader->setVec2("u_emitterSize", params.emitterSize);
-        update_shader->setVec2("u_gravity", params.gravity);
-        update_shader->setVec2("u_velMin", params.velocityMin);
-        update_shader->setVec2("u_velMax", params.velocityMax);
-        update_shader->setFloat("u_drag", params.drag);
-        update_shader->setVec2("u_turbulence", params.turbulence);
-
-        update_shader->setFloat("u_lifeMin", params.lifeMin);
-        update_shader->setFloat("u_lifeMax", params.lifeMax);
-        update_shader->setInt("u_respawnMode", params.spawnMode);
         update_shader->setBool("u_is2D", true);
 
-        // if (material) {
-        //     material->update(update_shader, maxParticles, timeAccum, timeOffset, dt);
-        // } else {
-        //     throw std::invalid_argument("GPUParticle Process Material missing.");
-        // }
+        if (material) {
+            material->update(update_shader, maxParticles, timeAccum, timeOffset, dt);
+        } else {
+            throw std::invalid_argument("GPUParticle Process Material missing.");
+        }
 
         // Transform Feedback
         glEnable(GL_RASTERIZER_DISCARD);
@@ -75,32 +61,15 @@ namespace Model {
         contextState->setDepthTest(mesh->getDepthTest());
         contextState->setDepthWrite(mesh->getDepthWrite());
 
-        const bool useTexture = !params.texture.empty();
-        const auto shader = useTexture ? render_texture_shader : render_shader;
-        shader->use();
-
-        shader->setFloat("u_aspectRatio", aspectRatio);
-        shader->setVec4("u_colorStart", params.colorStart);
-        shader->setVec4("u_colorEnd", params.colorEnd);
-        shader->setFloat("u_sizeMin", params.sizeMin);
-        shader->setFloat("u_sizeMax", params.sizeMax);
-        shader->setFloat("u_lifeMax", params.lifeMax);
-
-        resourceManager->getTexture("SceneTexture")->bind();
-        shader->setInt("uSceneTexture", 0);
-
-        if (useTexture) {
-            shader->setInt("uNormalTexture", 1);
-            auto tex = resourceManager->getTexture(params.texture);
-            if (tex) tex->bind(1);
+        if (material) {
+            const auto shader = !material->get_texture().empty() ? render_texture_shader : render_shader;
+            material->bind(shader);
+            shader->setFloat("u_aspectRatio", aspectRatio);
+            resourceManager->getTexture("SceneTexture")->bind(1);
+            shader->setInt("uSceneTexture", 1);
+        } else {
+            throw std::invalid_argument("GPUParticle Process Material missing.");
         }
-
-        // if (material) {
-        //     const auto shader = !material->get_texture().empty() ? render_texture_shader : render_shader;
-        //     material->bind(shader, camera->getPosition(), camera->getViewMatrix(), glm::mat4(1.0f), glm::mat4(1.0f), false);
-        // } else {
-        //     throw std::invalid_argument("GPUParticle Process Material missing.");
-        // }
 
         mesh->bind();
 
@@ -143,33 +112,6 @@ namespace Model {
 
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-    }
-
-    void GPUParticle2D::setPreset(const Preset preset) {
-        currentPreset = preset;
-        // Reset params
-        params = ParticleParams2D();
-
-        switch (preset) {
-            case Preset::RainOnGlass:
-                params.spawnMode = 1;
-                params.emitterSize = {2.0f, 2.0f}; // -1..1 pokrytí
-                params.gravity = {0.0f, -0.5f}; // Padá dolů
-                params.drag = 0.5f;
-                params.turbulence = glm::vec2(1.0f, 0.0f);
-
-                params.lifeMin = 2.0f; params.lifeMax = 5.0f;
-                params.sizeMin = 0.009f; params.sizeMax = 0.03f;
-                params.colorStart = {0.8f, 0.9f, 1.0f, 0.3f};
-                params.colorEnd = {0.8f, 0.9f, 1.0f, 0.0f};
-                params.texture = "drop_normal.png";
-
-                params.velocityMin = {0.0f, -0.1f};
-                params.velocityMax = {0.0f, -0.8f};
-                break;
-
-            default: break;
-        }
     }
 
     void GPUParticle2D::initBuffers() {

@@ -7,6 +7,7 @@ layout (location = 4) in vec3 iVel;
 layout (location = 5) in float iLife;
 layout (location = 6) in float iSeed;
 
+uniform int   u_mode;
 uniform float u_aspectRatio;
 uniform float u_sizeMin;
 uniform float u_sizeMax;
@@ -33,7 +34,6 @@ void main() {
     }
 
     vec2 vertexPos = iPos.xy + ((aPos + offsetPos) * scale * vec2(1.0, u_aspectRatio));
-    gl_Position = vec4(vertexPos, 0.0, 1.0);
 
     vScreenUV = vertexPos * 0.5 + 0.5;
     vVelocity = iVel.xy;
@@ -41,4 +41,6 @@ void main() {
     vUV = aUV;
     float lifeNorm = clamp(iLife / u_lifeMax, 0.0, 1.0);
     vAlpha = smoothstep(0.0, 0.2, lifeNorm);
+
+    gl_Position = vec4(vertexPos, 0.0, 1.0);
 }

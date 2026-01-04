@@ -43,7 +43,7 @@ OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed
     }
     else {
         // --- FYZIKA POHYBU ---
-        vel += u_gravity.xy * u_dt;
+        vel += u_gravityVec3.xy * u_dt;
         vel *= (1.0 - min(u_dt * u_drag, 1.0));
         float currentSpeed = length(vel);
         float slideChance = rand(u_timeAccum * 10.0 + inSeed);

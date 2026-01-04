@@ -146,8 +146,7 @@ namespace Material {
 
         void set_drag(float drag);
 
-        virtual void bind(shared_ptr<ShaderManager> shader, const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                          const glm::mat4 &model, bool shadows) const = 0;
+        virtual void bind(shared_ptr<ShaderManager> shader) const = 0;
 
         virtual void update(shared_ptr<ShaderManager> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
 

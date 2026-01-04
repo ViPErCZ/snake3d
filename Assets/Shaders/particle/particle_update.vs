@@ -5,47 +5,45 @@ layout(location = 1) in vec3 inVel;
 layout(location = 2) in float inLife;
 layout(location = 3) in float inSeed;
 
-// UNIFORM BUFFER (Material data z C++)
-//layout (std140) uniform ParticleData {
-//    vec4 u_emitterPos;      // xyz = center, w = spawnShape (0=Point, 1=Box, 2=Sphere)
-//    vec4 u_emitterSize;     // xyz = rozměry (pro 2D nech z=0), w = unused
-//    vec4 u_gravity;         // xyz = vector, w = drag
-//    vec4 u_velRange;        // x=minSpd, y=maxSpd, z=turbulence, w=stickiness
-//    vec4 u_lifeParams;      // x=minLife, y=maxLife
-//    vec4 u_randoms;         // x=time, y=dt
-//};
+// UNIFORM BUFFER
+layout (std140) uniform ParticleParams {
+    vec4 u_lifeSizeStretch;    // x=minLife, y=maxLife, z=minSize, w=maxSize
+    vec4 u_velMinStretch;      // xyz=velMin, w=stretch
+    vec4 u_velMaxDrag;         // xyz=velMax, w=drag
+    vec4 u_gravity;            // xyz=gravity, w=colorSensitivity
+    vec4 u_emitterPosShape;    // xyz=pos, w=spawnShape (0,1,2)
+    vec4 u_emitterSizeRadius;  // xy=size, z=radius, w=yOffset
+    vec4 u_spawnArea;          // x=minRad, y=maxRad, z=height, w=spawnPerFrame
+    vec4 u_turbulenceTime;     // xy=turb, z=timeOffset, w=respawnMode
+    vec4 u_colorStart;
+    vec4 u_colorEnd;
+};
 
 uniform float u_dt;
-uniform vec3  u_emitterPos;
 uniform float u_timeAccum;
-
-uniform int   u_spawnShape;
-uniform int   u_respawnMode;
-
-uniform vec2  u_turbulence;
-uniform float u_minRadius;
-uniform float u_maxRadius;
-uniform float u_spawnHeight;
-
-uniform float u_emitterRadius;
-uniform float u_emitterRadiusX;
-uniform float u_emitterRadiusZ;
-uniform float u_emitterYOffset;
-
-uniform float u_lifeMin;
-uniform float u_lifeMax;
-uniform vec3  u_velMin;
-uniform vec3  u_velMax;
-uniform vec3  u_gravity;
-
 uniform float u_burstInterval = 3.0;
 uniform float u_spawnWindow = 0.1;
-
-// 2D
-uniform vec2 u_emitterSize;
-uniform float u_drag;
-
 uniform bool u_is2D;
+
+#define u_lifeMin       u_lifeSizeStretch.x
+#define u_lifeMax       u_lifeSizeStretch.y
+#define u_minRadius     u_spawnArea.x
+#define u_maxRadius     u_spawnArea.y
+#define u_spawnHeight   u_spawnArea.z
+
+#define u_velMin        u_velMinStretch.xyz
+#define u_velMax        u_velMaxDrag.xyz
+#define u_drag          u_velMaxDrag.w
+#define u_gravityVec3   u_gravity.xyz
+
+#define u_emitterPos    u_emitterPosShape.xyz
+#define u_emitterSize   u_emitterSizeRadius.xy
+#define u_emitterRadius u_emitterSizeRadius.z
+#define u_emitterYOffset u_emitterSizeRadius.w
+
+#define u_turbulence    u_turbulenceTime.xy
+#define u_spawnShape    int(u_emitterPosShape.w + 0.1)
+#define u_respawnMode   int(u_turbulenceTime.w + 0.1)
 
 out vec3 outPos;
 out vec3 outVel;
@@ -65,9 +63,6 @@ struct OutputData {
 
 #include "particle_update_3d.vs"
 #include "particle_update_2d.vs"
-
-OutputData particle_update_3d(vec3 inPos, vec3 inVel, float inLife, float inSeed);
-OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed);
 
 void main() {
     OutputData data;

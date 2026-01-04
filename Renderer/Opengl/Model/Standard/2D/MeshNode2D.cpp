@@ -28,6 +28,11 @@ namespace Model {
     }
 
     void MeshNode2D::update(const float dt, const uint64_t frameId) {
+        if (lastUpdatedFrame == frameId) {
+            return;
+        }
+
+        lastUpdatedFrame = frameId;
         mesh->update(dt);
         for (const auto &snd: children | views::values) {
             snd->update(dt, frameId);

@@ -26,6 +26,8 @@ namespace Model {
             const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
             const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
 
+        ~GPUParticle3D() override;
+
         void update(float dt, uint64_t frameId) override;
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,

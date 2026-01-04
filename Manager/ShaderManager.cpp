@@ -169,6 +169,16 @@ namespace Manager {
         );
     }
 
+    void ShaderManager::setUniformBlock(const std::string &name, const GLuint blockBinding) const {
+        const GLuint blockIndex = glGetUniformBlockIndex(id, name.c_str());
+        if (blockIndex != GL_INVALID_INDEX) {
+            glUniformBlockBinding(id, blockIndex, blockBinding);
+            return;
+        }
+
+        std::cerr << "Uniform block index " << name << " not found in shader\n";
+    }
+
     void ShaderManager::setUniform(const std::string &name, const UniformValue &value) const {
         GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) {

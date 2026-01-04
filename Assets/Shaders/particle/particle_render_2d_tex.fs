@@ -8,14 +8,14 @@ in float vAlpha;
 out vec4 FragColor;
 
 uniform sampler2D uSceneTexture;
-uniform sampler2D uNormalTexture;
+uniform sampler2D uTexture0;
 
 void main() {
     float speed = length(vVelocity);
 
     vec2 trailUV = vUV;
     float refractionStrength = 0.04;
-    vec4 normalData = texture(uNormalTexture, trailUV);
+    vec4 normalData = texture(uTexture0, trailUV);
     float shapeAlpha = normalData.a;
 
     if (shapeAlpha < 0.01) discard;
