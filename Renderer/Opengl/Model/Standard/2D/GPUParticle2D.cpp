@@ -22,7 +22,6 @@ namespace Model {
         if (lastUpdatedFrame == frameId) return;
         lastUpdatedFrame = frameId;
 
-        // Transform Feedback update
         update_shader->use();
 
         const int src = frameIndex % 2;
@@ -42,7 +41,7 @@ namespace Model {
 
         update_shader->setFloat("u_lifeMin", params.lifeMin);
         update_shader->setFloat("u_lifeMax", params.lifeMax);
-        update_shader->setInt("u_spawnMode", params.spawnMode);
+        update_shader->setInt("u_respawnMode", params.spawnMode);
         update_shader->setBool("u_is2D", true);
 
         // if (material) {
@@ -167,16 +166,6 @@ namespace Model {
 
                 params.velocityMin = {0.0f, -0.1f};
                 params.velocityMax = {0.0f, -0.8f};
-                break;
-
-            case Preset::MagicFire:
-                params.spawnMode = 0; // Point
-                params.emitterPos = {0.0f, -0.8f}; // Dole uprostřed
-                params.gravity = {0.0f, 0.8f}; // Stoupá
-                params.lifeMin = 0.5f; params.lifeMax = 1.2f;
-                params.colorStart = {1.0f, 0.5f, 0.1f, 1.0f};
-                params.colorEnd = {0.2f, 0.0f, 0.0f, 0.0f};
-                params.sizeMin = 0.1f; params.sizeMax = 0.0f;
                 break;
 
             default: break;

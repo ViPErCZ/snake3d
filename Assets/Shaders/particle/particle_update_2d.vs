@@ -20,12 +20,12 @@ OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed
         newLife = mix(u_lifeMin, u_lifeMax, rnd3);
 
         // Reset pozice
-        if (u_spawnMode == 1) {
+        if (u_respawnMode == 1) {
             // Spawn nahoře (déšť přicházející shora)
             pos.x = (rnd1 * 2.0 - 1.0) * (u_emitterSize.x / 2.0) + u_emitterPos.x;
             pos.y = 1.1;
         }
-        else if (u_spawnMode == 2) {
+        else if (u_respawnMode == 2) {
             // Celá obrazovka (pro počáteční naplnění nebo statický šum)
             pos.x = (rnd1 * 2.0 - 1.0) * (u_emitterSize.x / 2.0) + u_emitterPos.x;
             pos.y = (rnd2 * 2.0 - 1.0) * (u_emitterSize.y / 2.0) + u_emitterPos.y;

@@ -36,9 +36,6 @@ namespace Model {
     private:
         void initBuffers();
 
-        shared_ptr<ResourceManager> resourceManager;
-        int maxParticles;
-
         GLuint VAO[2];
         GLuint meshVAO{};
         GLuint particleVBO[2];
@@ -46,11 +43,13 @@ namespace Model {
         GLuint particleInstanceVBO{};
         GLuint stateTFVBO[2]{};
 
+        int maxParticles;
         int frameIndex = 0;
         bool firstFrame = true;
         float timeAccum = 0.0f;
         float timeOffset = 0.0f;
 
+        shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         shared_ptr<ParticleProcessMaterial> material;
         shared_ptr<ShaderManager> update_shader;

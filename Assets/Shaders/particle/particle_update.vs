@@ -44,7 +44,6 @@ uniform float u_spawnWindow = 0.1;
 // 2D
 uniform vec2 u_emitterSize;
 uniform float u_drag;
-uniform int u_spawnMode;
 
 uniform bool u_is2D;
 

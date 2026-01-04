@@ -138,6 +138,14 @@ namespace Material {
 
         void set_emitter_pos(const glm::vec3 &emitter_pos);
 
+        [[nodiscard]] glm::vec2 get_emitter_size() const;
+
+        void set_emitter_size(const glm::vec2 &emitter_size);
+
+        [[nodiscard]] float get_drag() const;
+
+        void set_drag(float drag);
+
         virtual void bind(shared_ptr<ShaderManager> shader, const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
                           const glm::mat4 &model, bool shadows) const = 0;
 
@@ -148,7 +156,6 @@ namespace Material {
         float lifeMax = 2.0f;
         float sizeMin = 0.02f;
         float sizeMax = 0.08f;
-
         float stretch = 0.15f;
 
         // rychlost a gravitace
@@ -158,13 +165,13 @@ namespace Material {
 
         // kruhovy emitor
         glm::vec3 emitterPos = {0.0f, 0.0f, 0.0f};
+        glm::vec2 emitterSize = {0.0f, 0.0f};
         float emitterRadius = 0.05f;
         float emitterYOffset = 0.0f;
 
         // barvy
         glm::vec4 colorStart = {1.0f, 1.0f, 1.0f, 1.0f};
         glm::vec4 colorEnd = {1.0f, 1.0f, 1.0f, 0.0f};
-
 
         float spawnPerFrame = 1.0f;
         bool smoothStart = true;
@@ -180,6 +187,7 @@ namespace Material {
         float maxRadius = 1.0f; // vnejsi polomer (area)
         float spawnHeight = 10.0f; // vyska sloupce
         float timeOffset = 0.0f;
+        float drag = 0.0f;
 
         std::string texture;
         ParticleMode mode = Billboard;

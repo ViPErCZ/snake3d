@@ -43,7 +43,6 @@ namespace Material {
         shader->setFloat("u_maxRadius", maxRadius);
         shader->setFloat("u_spawnHeight", spawnHeight);
 
-        // shader->setInt("u_mode", mode);
         shader->setFloat("u_lifeMin", lifeMin);
         shader->setFloat("u_lifeMax", lifeMax);
         shader->setFloat("u_sizeMin", sizeMin);

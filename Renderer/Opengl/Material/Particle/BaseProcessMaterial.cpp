@@ -228,4 +228,20 @@ namespace Material {
     void BaseProcessMaterial::set_emitter_pos(const glm::vec3 &emitter_pos) {
         emitterPos = emitter_pos;
     }
+
+    glm::vec2 BaseProcessMaterial::get_emitter_size() const {
+        return emitterSize;
+    }
+
+    void BaseProcessMaterial::set_emitter_size(const glm::vec2 &emitter_size) {
+        emitterSize = emitter_size;
+    }
+
+    float BaseProcessMaterial::get_drag() const {
+        return drag;
+    }
+
+    void BaseProcessMaterial::set_drag(const float drag) {
+        this->drag = drag;
+    }
 } // Material

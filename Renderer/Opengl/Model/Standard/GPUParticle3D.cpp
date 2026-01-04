@@ -129,7 +129,7 @@ namespace Model {
             glBindVertexArray(VAO[i]);
             glBindBuffer(GL_ARRAY_BUFFER, particleVBO[i]);
             glBufferData(GL_ARRAY_BUFFER,
-                         static_cast<long>(maxParticles * sizeof(GPUParticle)),
+                         static_cast<GLsizei>(maxParticles * sizeof(GPUParticle)),
                          initial.data(),
                          GL_DYNAMIC_COPY);
 

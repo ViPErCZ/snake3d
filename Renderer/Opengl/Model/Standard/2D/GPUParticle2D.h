@@ -65,8 +65,6 @@ namespace Model {
     private:
         void initBuffers();
 
-        int maxParticles;
-
         // OpenGL handles
         GLuint VAO[2]{};
         GLuint VBO[2]{}; // Position, Vel, Life, Seed
@@ -82,6 +80,8 @@ namespace Model {
         bool firstFrame = true;
         float timeOffset = 0.0f;
         float aspectRatio = 1.6f;
+        int maxParticles;
+
         shared_ptr<ParticleProcessMaterial> material;
         shared_ptr<ShaderManager> update_shader;
         shared_ptr<ShaderManager> render_shader;
