@@ -25,7 +25,7 @@ namespace Manager {
         return live;
     }
 
-    shared_ptr<MeshNode3D> LevelManager::createLevel(int level) {
+    shared_ptr<MeshNode3D> LevelManager::createLevel(int level, shared_ptr<DirectionalLight> &directionalLight) {
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
@@ -40,6 +40,7 @@ namespace Manager {
             boxMaterial->setAlbedo(brickWall);
             boxMaterial->setNormal(brickWallNormal);
             boxMaterial->setSpecular(brickWallSpecular);
+            boxMaterial->setDirectionalLight(directionalLight);
 
             boxMesh->setMaterial(boxMaterial);
         }

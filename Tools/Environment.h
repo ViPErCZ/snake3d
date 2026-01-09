@@ -24,7 +24,7 @@ namespace Tools {
     public:
         Environment();
 
-        ~Environment();
+        ~Environment() = default;
 
         [[nodiscard]] AmbientLight getAmbientLight() const;
     };

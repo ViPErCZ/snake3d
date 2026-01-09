@@ -17,7 +17,11 @@ namespace Scenes {
     public:
         virtual ~Scene();
 
-        explicit Scene(const shared_ptr<RenderManager> &rendererManager,
+        explicit Scene(
+            const shared_ptr<DirectionalLight> &directionalLight,
+            const vector<shared_ptr<SpotLight> > &spotLights,
+            const vector<shared_ptr<PointLight> > &pointLights,
+            const shared_ptr<RenderManager> &rendererManager,
             const shared_ptr<Camera> &camera, const glm::mat4 &projection,
             const shared_ptr<ResourceManager> &rm, int width, int height);
 
@@ -36,10 +40,17 @@ namespace Scenes {
         
         vector<RendererEntry3D> getAllMeshNodes3D() const;
 
+        void setEnvironment(const shared_ptr<Environment> &environment) {
+            this->environment = environment;
+        }
+
     protected:
         vector<RendererEntry3D> meshNode3d;
         vector<RendererEntry2D> meshNode2d;
+        shared_ptr<Environment> environment;
         shared_ptr<DirectionalLight> directionalLight;
+        vector<shared_ptr<SpotLight> > spotLights;
+        vector<shared_ptr<PointLight> > pointLights;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<SceneRenderer> sceneRenderer;
         shared_ptr<RenderManager> rendererManager;

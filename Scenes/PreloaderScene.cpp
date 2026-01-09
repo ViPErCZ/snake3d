@@ -3,9 +3,13 @@
 #include "../Renderer/Opengl/Model/SpinnerMesh.h"
 
 namespace Scenes {
-    PreloaderScene::PreloaderScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+    PreloaderScene::PreloaderScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void PreloaderScene::init(const int priority) {

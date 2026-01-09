@@ -3,9 +3,13 @@
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 
 namespace Scenes {
-    CoinScene::CoinScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+    CoinScene::CoinScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void CoinScene::init(const int priority) {
@@ -33,12 +37,12 @@ namespace Scenes {
         coin->setRotationX(90);
         coin->setVisible(false);
 
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.091f, .091f, .091f});
+        // const auto directionalLight = make_shared<DirectionalLight>();
+        // directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        // directionalLight->setDirection({1, 1.0, -3});
+        // directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        // directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        // directionalLight->setSpecular({.091f, .091f, .091f});
 
         const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
@@ -51,6 +55,12 @@ namespace Scenes {
         coinMaterial->setNormalEnabled(true);
         coinMaterial->setDirectionalLight(directionalLight);
         coinMaterial->setBlending(Blending::Translucent);
+        for (auto &spotLight : spotLights) {
+            coinMaterial->addSpotLight(spotLight);
+
+            // u indexu 5 vytvorit objekt co bude drzet pozici a direction
+            // takovou jako vlastni lampicku
+        }
 
         coinMesh->setMaterial(coinMaterial);
 
@@ -108,8 +118,6 @@ namespace Scenes {
             player->reset("eatenUp");
         });
 
-        // meshNode3d.push_back(coin);
-        // meshNode3d.push_back(removeCoin);
         addMeshNode3D(coin);
         addMeshNode3D(removeCoin);
     }

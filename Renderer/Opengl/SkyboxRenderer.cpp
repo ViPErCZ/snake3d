@@ -15,9 +15,11 @@ namespace Renderer {
             shader->setInt("skybox", 0);
 
             const auto view = glm::mat4(glm::mat3(camera->getViewMatrix()));
+            const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), {1.0, 0.0, 0.0});
             shader->setMat4("view", view);
             shader->setVec3("viewPos", camera->getPosition());
             shader->setMat4("projection", projection);
+            shader->setMat4("model", model);
 
             // skybox cube
             mesh->bind();

@@ -9,7 +9,7 @@
 #include "../../../Lights/SpotLight.h"
 #include "../../../Manager/ShaderManager.h"
 #include "../../../Manager/TextureManager.h"
-#include "../../../Tools/Blending.h"
+#include "../../../Tools/Timer.h"
 #include "../../../Tools/WorldEnvironment.h"
 
 using namespace Manager;
@@ -98,6 +98,7 @@ namespace Material {
         void bindShadowModel(const glm::mat4 &model) const;
 
     protected:
+        shared_ptr<Timer> timer;
         shared_ptr<TextureManager> albedo;
         shared_ptr<TextureManager> normal;
         shared_ptr<TextureManager> specular;

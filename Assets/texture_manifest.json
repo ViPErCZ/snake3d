@@ -1,10 +1,5 @@
 [
   {
-    "name": "Skeleton_Body.png",
-    "path": "Albedo/Skeleton_Body.png",
-    "category": "Albedo"
-  },
-  {
     "name": "brickwall.jpg",
     "path": "Albedo/box/brickwall.jpg",
     "category": "Albedo"
@@ -127,11 +122,6 @@
   {
     "name": "Coin_Gold_rough.png",
     "path": "Others/Coin_Gold_rough.png",
-    "category": "Others"
-  },
-  {
-    "name": "Skeleton_Body_ORM.png",
-    "path": "Others/Skeleton_Body_ORM.png",
     "category": "Others"
   },
   {

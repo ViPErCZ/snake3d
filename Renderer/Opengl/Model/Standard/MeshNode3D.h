@@ -30,6 +30,8 @@ namespace Model {
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
 
         virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
+        
+        virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
 
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
@@ -58,6 +60,7 @@ namespace Model {
         vector<shared_ptr<MeshNode3D> > children;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<DirectionalLight> directionalLight;
+        vector<shared_ptr<SpotLight> > spotLights;
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;

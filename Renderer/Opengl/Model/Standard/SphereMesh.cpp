@@ -10,7 +10,7 @@ namespace Model {
         std::vector<Vertex> vertices;
         std::vector<GLuint> indices;
 
-        auto addVertex = [&](glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color = {1.0f, 1.0f, 1.0f}) {
+        auto addVertex = [&](const glm::vec3 pos, const glm::vec3 normal, const glm::vec2 uv, const glm::vec3 color = {1.0f, 1.0f, 1.0f}) {
             Vertex v{};
             v.position = pos;
             v.normal = normal;

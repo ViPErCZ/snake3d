@@ -72,7 +72,7 @@ namespace Model {
         }
 
         mesh->bind();
-        glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
+        glDrawElements(static_cast<GLenum>(drawElement), static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
         if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->unbind();

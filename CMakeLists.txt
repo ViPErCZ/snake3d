@@ -164,6 +164,13 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
+        Renderer/Opengl/Model/Debug/LightNode3D.cpp
+        Renderer/Opengl/Model/Debug/LightNode3D.h
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
+        Tools/DrawElement.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -352,6 +359,13 @@ set(APP_SOURCES
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
+        Renderer/Opengl/Model/Debug/LightNode3D.cpp
+        Renderer/Opengl/Model/Debug/LightNode3D.h
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
+        Tools/DrawElement.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -485,6 +499,13 @@ add_library(snake3d_lib ${APP_SOURCES}
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
+        Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
+        Renderer/Opengl/Model/Debug/LightNode3D.cpp
+        Renderer/Opengl/Model/Debug/LightNode3D.h
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
+        Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
+        Tools/DrawElement.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

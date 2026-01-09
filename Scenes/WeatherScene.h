@@ -11,8 +11,12 @@ using namespace std;
 namespace Scenes {
     class WeatherScene final : public Scene {
     public:
-        WeatherScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-                   const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+        WeatherScene(
+            const shared_ptr<DirectionalLight> &directionalLight,
+            const vector<shared_ptr<SpotLight> > &spotLights,
+            const vector<shared_ptr<PointLight> > &pointLights,
+            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
     protected:

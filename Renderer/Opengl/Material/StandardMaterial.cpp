@@ -4,6 +4,7 @@ Material::StandardMaterial::StandardMaterial(shared_ptr<ShaderManager> baseShade
                                              shared_ptr<ShaderManager> shadowDepthShader,
                                              const shared_ptr<WorldEnvironment> &worldEnv)
     : shader(std::move(baseShader)), shadowDepthShader(std::move(shadowDepthShader)), worldEnvironment(worldEnv) {
+    timer = make_shared<Timer>(true);
 };
 
 Material::StandardMaterial::~StandardMaterial() = default;
@@ -41,6 +42,7 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setBool("iblEnabled", false);
     shader->setBool("pbrEnabled", false);
     shader->setBool("overrideColorMesh", false);
+    shader->setBool("hasAlbedoTexture", false);
     shader->setFloat("ambientLightColorIntensity", ambientLightColorIntensity);
     shader->setBool("fogEnable", false);
     shader->setVec2("uvScale", UVScale);
@@ -55,11 +57,12 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     shader->setInt("aoMap", 7);
     shader->setFloat("alpha", alpha);
     shader->setBool("reflectionEnable", false);
+    shader->setFloat("uTime", static_cast<float>(timer->getNow()));
 
     if (shadowsEnabled && shadows) {
         shader->setBool("shadowsEnable", true);
-        if (shadow.get() && shadow.get()->hasTexture()) {
-            shadow.get()->bindArr(3, 0);
+        if (shadow && shadow->hasTexture()) {
+            shadow->bindArr(3, 0);
         }
     }
 
@@ -111,46 +114,49 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     // -----------------------------------------------
     // END SPOT LIGHT
 
-    if (albedo && albedo.get()->hasTexture()) {
+    if (albedo && albedo->hasTexture()) {
         shader->setBool("useMaterial", false);
-        albedo.get()->bind(0);
+        shader->setBool("hasAlbedoTexture", true);
+        albedo->bind(0);
     } else {
         shader->setBool("useMaterial", true);
     }
-    const bool shaderNormal = normal_enabled && normal && normal.get()->hasTexture();
+    const bool shaderNormal = normal_enabled && normal && normal->hasTexture();
     shader->setBool("normalMapEnabled", shaderNormal);
     if (shaderNormal) {
-        normal.get()->bind(1);
+        normal->bind(1);
     }
 
-    if (specular && specular.get()->hasTexture()) {
-        specular.get()->bind(2);
+    if (specular && specular->hasTexture()) {
+        specular->bind(2);
         shader->setBool("specularMapEnabled", true);
     } else {
         shader->setBool("specularMapEnabled", false);
     }
 
-    if (metalness && metalness.get()->hasTexture()) {
+    if (metalness && metalness->hasTexture()) {
         shader->setInt("metalness", 4);
         shader->setBool("pbrEnabled", true);
-        metalness.get()->bind(4);
+        metalness->bind(4);
     }
 
-    if (roughness && roughness.get()->hasTexture()) {
+    if (roughness && roughness->hasTexture()) {
         shader->setInt("roughness", 5);
         shader->setBool("pbrEnabled", true);
-        roughness.get()->bind(5);
+        roughness->bind(5);
     }
 
-    if (aoMap && aoMap.get()->hasTexture()) {
+    if (aoMap && aoMap->hasTexture()) {
         shader->setInt("aoMap", 7);
-        aoMap.get()->bind(7);
+        aoMap->bind(7);
     }
 
-    if (environmentMap && environmentMap.get()->hasTexture()) {
+    if (environmentMap && environmentMap->hasTexture()) {
         shader->setBool("iblEnabled", true);
-        environmentMap.get()->cubeBind(6);
+        environmentMap->cubeBind(6);
     }
+
+    timer->update();
 }
 
 void Material::StandardMaterial::bindShadow(const glm::mat4 &model) const {
@@ -160,28 +166,28 @@ void Material::StandardMaterial::bindShadow(const glm::mat4 &model) const {
 
 void Material::StandardMaterial::unbind() const {
     if (albedo) {
-        albedo.get()->unbind(0);
+        albedo->unbind(0);
     }
     if (normal_enabled) {
-        normal.get()->unbind(1);
+        normal->unbind(1);
     }
     if (specular) {
-        specular.get()->unbind(2);
+        specular->unbind(2);
     }
     if (shadow) {
-        shadow.get()->unbind(3);
+        shadow->unbind(3);
     }
     if (metalness) {
-        metalness.get()->unbind(4);
+        metalness->unbind(4);
     }
     if (roughness) {
-        roughness.get()->unbind(5);
+        roughness->unbind(5);
     }
     if (environmentMap) {
-        environmentMap.get()->unbind(6);
+        environmentMap->unbind(6);
     }
     if (aoMap) {
-        aoMap.get()->unbind(7);
+        aoMap->unbind(7);
     }
 }
 

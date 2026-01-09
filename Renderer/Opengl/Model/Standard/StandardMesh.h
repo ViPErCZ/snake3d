@@ -5,12 +5,14 @@
 #include "../Utils/Mesh.h"
 #include "../../Material/StandardMaterial.h"
 #include "../../../../Manager/ShaderManager.h"
+#include "../../../../Tools/DrawElement.h"
 #include "../../../../Manager/Camera.h"
 #include "Animation/AnimationPlayer.h"
 
 using namespace ModelUtils;
 using namespace Material;
 using namespace Animations;
+using namespace Tools;
 using namespace std;
 
 namespace Model {
@@ -80,6 +82,7 @@ namespace Model {
         bool depthTest = true;
         bool depthWrite = true;
         string animation;
+        DrawElement drawElement = DrawElement::Triangles;
     };
 } // Model
 

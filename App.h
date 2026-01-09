@@ -56,7 +56,7 @@ private:
         std::string path;
         std::string category;
     };
-    unique_ptr<LevelManager> levelManager;
+    shared_ptr<Environment> environment;
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
     shared_ptr<RainDropRenderer> rainDropRenderer{};

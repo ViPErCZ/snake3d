@@ -1,14 +1,12 @@
 #ifndef SNAKE3_SKYBOXRENDERER_H
 #define SNAKE3_SKYBOXRENDERER_H
 
-#include <map>
 #include <glm/glm.hpp>
 #include "BaseRenderer.h"
 #include "../../ItemsDto/Cube.h"
 #include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"
 #include "../../Manager/ResourceManager.h"
-#include <vector>
 
 using namespace std;
 using namespace Manager;

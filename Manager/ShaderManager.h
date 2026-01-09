@@ -31,6 +31,7 @@ namespace Manager {
         void setBool(const string &name, bool value) const;
         void setInt(const string &name, int value) const;
         void setFloat(const string &name, float value) const;
+        void setDouble(const string &name, double value) const;
         void setFloatArr(const string &name, const vector<GLfloat> &floats) const;
         void setVec2(const string &name, const glm::vec2 &value) const;
         void setVec2(const string &name, float x, float y) const;

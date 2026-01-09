@@ -19,7 +19,7 @@ namespace Manager {
 
     class RenderManager final {
     public:
-        RenderManager(shared_ptr<ContextState> &contextState,
+        RenderManager(const shared_ptr<ContextState> &contextState,
                       const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
                       const glm::mat4 &projection,
                       int width, int height);
@@ -66,6 +66,8 @@ namespace Manager {
 
         [[nodiscard]] const vector<RendererEntry> &getRenderers() const;
 
+        void updateDirectionalLight(const shared_ptr<DirectionalLight> & light);
+
     protected:
         void updateShadows();
 
@@ -75,6 +77,7 @@ namespace Manager {
         unique_ptr<DepthMapRenderer> depthMapRenderer;
         unique_ptr<BloomRenderer> bloomRenderer;
         unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
+        shared_ptr<DirectionalLight> directionalLight;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         shared_ptr<ContextState> contextState;

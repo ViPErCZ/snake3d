@@ -6,9 +6,13 @@
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 namespace Scenes {
-    WeatherScene::WeatherScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera, const glm::mat4 &projection,
+    WeatherScene::WeatherScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera, const glm::mat4 &projection,
         const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void WeatherScene::init(const int priority) {
@@ -19,10 +23,10 @@ namespace Scenes {
         quad->setDepthTest(false);
         quad->setDepthWrite(false);
 
-        initRain();
-        initRainDrop();
-        // initSnow();
-        initExplosion();
+        //initRain();
+        //initRainDrop();
+        initSnow();
+        //initExplosion();
     }
 
     void WeatherScene::initRain() {
@@ -90,18 +94,18 @@ namespace Scenes {
         material->set_min_radius(4.0f);
         material->set_max_radius(25.0f);
         material->set_spawn_height(20.0f);
-        material->set_color_start({0.8f, 0.9f, 1.0f, 0.3f});
-        material->set_color_end({0.8f, 0.9f, 1.0f, 0.0f});
+        material->set_color_start({1.0f, 1.0f, 1.0f, 1.0f});
+        material->set_color_end({1.0f, 1.0f, 1.0f, 0.0f});
         material->set_color_sensitivity(2.0f);
-        material->set_gravity({0.0f, -0.5f, 0.0f});
+        material->set_gravity({0.0f, 0.0f, -0.5f});
         material->set_emitter_radius(30.0f);
         material->set_emitter_y_offset(10.0f);
         material->set_vel_min({-1.5f, -1.5f, -0.8f});
         material->set_vel_max({1.5f, 1.5f, -1.8f});
         material->set_life_min(1.0f);
         material->set_life_max(5.0f);
-        material->set_size_min(0.009f);
-        material->set_size_max(0.03f);
+        material->set_size_min(0.04f);
+        material->set_size_max(0.12f);
         material->set_stretch(0.0f);
         material->set_spawn_per_frame(0);
 

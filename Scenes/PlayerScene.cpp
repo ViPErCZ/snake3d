@@ -2,10 +2,13 @@
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
 namespace Scenes {
-
-    PlayerScene::PlayerScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-            : Scene(rendererManager, camera, projection, rm, width, height) {
+    PlayerScene::PlayerScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void PlayerScene::init(const int priority) {
@@ -28,9 +31,8 @@ namespace Scenes {
         const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader, "KostraAction");
 
         const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
         directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        directionalLight->setAmbient({0.2f, 0.2f, 0.2f});
         directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
         directionalLight->setSpecular({.091f, .091f, .091f});
 
@@ -38,17 +40,20 @@ namespace Scenes {
         material->setShadow(resourceManager->getTexture("depth"));
         material->setNormalEnabled(true);
         material->setDirectionalLight(directionalLight);
+        for (auto &spotLight : spotLights) {
+            material->addSpotLight(spotLight);
+        }
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
         snake = make_shared<SnakeMeshNode3D>(contextState, pacmanMesh, resourceManager);
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
+        snake->setSpotLights(spotLights);
         snake->respawn();
 
         camera->setStickyPoint(snake);
 
-        // meshNode3d.push_back(snake);
         addMeshNode3D(snake);
     }
 

@@ -51,6 +51,10 @@ namespace Manager {
         glUniform1f(glGetUniformLocation(id, name.c_str()), value);
     }
 
+    void ShaderManager::setDouble(const string &name, double value) const {
+        glUniform1d(glGetUniformLocation(id, name.c_str()), value);
+    }
+
     void ShaderManager::setFloatArr(const string &name, const vector<GLfloat> &floats) const {
         glUniform1fv(glGetUniformLocation(id, name.c_str()), static_cast<GLsizei>(floats.size()), floats.data());
     }

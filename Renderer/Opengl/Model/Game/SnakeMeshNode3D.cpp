@@ -14,9 +14,9 @@ namespace Model {
             const auto shader = resourceManager->getShader("basicShader");
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
             tileMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-            headMaterial = mesh->getMaterial();
             tileMaterial->setColor({0.88, 0.05, 0.05});
             tileMaterial->setShadow(resourceManager->getTexture("depth"));
+            headMaterial = mesh->getMaterial();
 
             timer = std::make_unique<Timer>(false);
             const auto respawnShader = resourceManager->getShader("respawnShader");
@@ -35,7 +35,7 @@ namespace Model {
             headRespawnMaterial->addUniform("u_Delay", 0.1f);
             headRespawnMaterial->addUniform("u_FloatParameter", 0.1f);
 
-            const auto textureUniform = make_shared<TextureUniform>(11, this->resourceManager->getTexture("fast_noise.bmp"));
+            const auto textureUniform = make_shared<TextureUniform>(11, resourceManager->getTexture("fast_noise.bmp"));
             respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
             respawnMaterial->addUniform("u_Time", timerUniform);
             respawnMaterial->addUniform("useBones", false);
@@ -67,6 +67,7 @@ namespace Model {
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
+        tile->setSpotLights(spotLights);
         tile->setPosition({21, -3, -23});
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 32;
@@ -77,6 +78,7 @@ namespace Model {
         if (directionalLight) {
             tile2->setDirectionalLight(directionalLight);
         }
+        tile2->setSpotLights(spotLights);
         tile2->setScale({0.041667f, 0.041667f, 0.041667f});
         tile2->setPosition({19, -3, -23});
         tile2->x = x - 64;
@@ -87,6 +89,7 @@ namespace Model {
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
+        tile3->setSpotLights(spotLights);
         tile3->setScale({0.041667f, 0.041667f, 0.041667f});
         tile3->setPosition({17, -3, -23});
         tile3->x = x - 96;
@@ -100,6 +103,14 @@ namespace Model {
         respawnMaterial->setDirectionalLight(directionalLight);
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setDirectionalLight(directional_light);
+        }
+    }
+
+    void SnakeMeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
+        MeshNode3D::setSpotLights(spot_light);
+        for (auto &spotLight : spotLights) {
+            tileMaterial->addSpotLight(spotLight);
+            respawnMaterial->addSpotLight(spotLight);
         }
     }
 

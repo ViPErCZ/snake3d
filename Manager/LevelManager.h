@@ -20,7 +20,7 @@ namespace Manager {
         LevelManager(const shared_ptr<ContextState> &contextState, int level, int live, const shared_ptr<ResourceManager> &resourceManager);
         void setLevel(int level);
         void setLive(int live);
-        shared_ptr<MeshNode3D> createLevel(int level);
+        shared_ptr<MeshNode3D> createLevel(int level, shared_ptr<DirectionalLight> &directionalLight);
         [[nodiscard]] int getLevel() const;
         [[nodiscard]] int getLive() const;
         [[nodiscard]] int getEatCounter() const;

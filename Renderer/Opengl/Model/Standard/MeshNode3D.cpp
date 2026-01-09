@@ -82,6 +82,10 @@ namespace Model {
         directionalLight = directional_light;
     }
 
+    void MeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
+        spotLights = spot_light;
+    }
+
     void MeshNode3D::setTransformDetached(const bool transform_detached, const bool recursive) {
         transformDetached = transform_detached;
 

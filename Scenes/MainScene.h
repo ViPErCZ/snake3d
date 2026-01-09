@@ -24,7 +24,11 @@ using namespace std;
 namespace Scenes {
     class MainScene final : public Scene {
     public:
-        explicit MainScene(const shared_ptr<RenderManager> &rendererManager,
+        explicit MainScene(
+            const shared_ptr<DirectionalLight> &directionalLight,
+            const vector<shared_ptr<SpotLight> > &spotLights,
+            const vector<shared_ptr<PointLight> > &pointLights,
+            const shared_ptr<RenderManager> &rendererManager,
             const shared_ptr<Camera> &camera, const glm::mat4 &projection,
             const shared_ptr<ResourceManager> &rm, int width, int height);
 
@@ -59,7 +63,7 @@ namespace Scenes {
 
         void buildStartMoveCallback() const;
 
-        void buildCrashCallback() const;
+        void buildCrashCallback();
 
         shared_ptr<PlayerScene> playerScene;
         shared_ptr<CoinScene> coinScene;
@@ -81,7 +85,7 @@ namespace Scenes {
         shared_ptr<RadarMeshNode2D> radarMeshNode;
         shared_ptr<PositionHandler> positionHandler;
         shared_ptr<PlanarReflectionMaterial> planeMaterial;
-        shared_ptr<DirectionalLight> planeMaterialDirLight;
+        // shared_ptr<DirectionalLight> planeMaterialDirLight;
         glm::mat4 ortho{};
     };
 } // Scenes

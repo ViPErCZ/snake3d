@@ -10,17 +10,82 @@
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
+#include "../Renderer/Opengl/Material/Uniform/TextureUniform.h"
+#include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 namespace Scenes {
-    MainScene::MainScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+    MainScene::MainScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
+
+        constexpr auto spotAmbientColor = glm::vec3(0.5f, 0.5f, 0.5f);
+        constexpr auto spotSpecularColor = glm::vec3(0.1f, 0.1f, 0.1f);
+        const auto spotLight = make_shared<SpotLight>();
+        spotLight->setPosition({-1.7521, -0.75, -1.5f});
+        spotLight->setDirection({0.0, -1.0, 0.0f});
+        spotLight->setAmbient(spotAmbientColor);
+        spotLight->setDiffuse({0.0f, 0.0f, 0.0f});
+        spotLight->setSpecular(spotSpecularColor);
+        spotLight->setCutOff(12.5);
+        spotLight->setOuterCutOff(17.5);
+        spotLight->setPulse(true);
+
+        const auto spotLight2 = make_shared<SpotLight>();
+        spotLight2->setPosition({3.67, 2.81, -1.5f});
+        spotLight2->setDirection({1.9, 3.0, 0.0f});
+        spotLight2->setAmbient(spotAmbientColor);
+        spotLight2->setDiffuse({0.0f, 0.0f, 0.0f});
+        spotLight2->setSpecular(spotSpecularColor);
+        spotLight2->setCutOff(12.5);
+        spotLight2->setOuterCutOff(17.5);
+        spotLight2->setPulse(true);
+
+        const auto spotLight3 = make_shared<SpotLight>();
+        spotLight3->setPosition({-1.7521, 2.81, -1.5f});
+        spotLight3->setDirection({0.0, 3.0, 0.0f});
+        spotLight3->setAmbient(spotAmbientColor);
+        spotLight3->setDiffuse({0.0f, 0.0f, 0.0f});
+        spotLight3->setSpecular(spotSpecularColor);
+        spotLight3->setCutOff(12.5);
+        spotLight3->setOuterCutOff(17.5);
+        spotLight3->setPulse(true);
+
+        const auto spotLight4 = make_shared<SpotLight>();
+        spotLight4->setPosition({3.67, -0.75, -1.5f});
+        spotLight4->setDirection({2.0f, -1.0, 0.0f});
+        spotLight4->setAmbient(spotAmbientColor);
+        spotLight4->setDiffuse({0.0f, 0.0f, 0.0f});
+        spotLight4->setSpecular(spotSpecularColor);
+        spotLight4->setCutOff(12.5);
+        spotLight4->setOuterCutOff(17.5);
+        spotLight4->setPulse(true);
+
+        const auto spotLight5 = make_shared<SpotLight>();
+        spotLight5->setPosition({1.93, 0.43, -1.5f});
+        spotLight5->setDirection({1.93f, 0.43, 0.0f});
+        spotLight5->setAmbient(glm::vec3(0.88, 0.00, 0.09));
+        spotLight5->setDiffuse({0.0f, 0.0f, 0.0f});
+        spotLight5->setSpecular({0.0f, 0.0f, 0.0f});
+        spotLight5->setCutOff(7.5);
+        spotLight5->setOuterCutOff(13.5);
+        spotLight5->setPulse(true);
+
+        this->spotLights.push_back(spotLight);
+        this->spotLights.push_back(spotLight2);
+        this->spotLights.push_back(spotLight3);
+        this->spotLights.push_back(spotLight4);
+        this->spotLights.push_back(spotLight5);
     }
 
     void MainScene::init(const int priority) {
@@ -43,6 +108,18 @@ namespace Scenes {
 
         buildStartMoveCallback();
         buildEatenUpCallback();
+
+        // DEBUG
+        // ====================
+        const auto shader = resourceManager->getShader("arrowGizmo");
+        const auto dirLightNode = make_shared<DirectionalLightNode3D>(contextState, shader, resourceManager);
+        dirLightNode->setDirectionalLight(directionalLight);
+        addMeshNode3D(dirLightNode);
+
+        positionHandler->addItem(directionalLight);
+        for (auto &spotLight : spotLights) {
+            positionHandler->addItem(spotLight);
+        }
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -56,30 +133,31 @@ namespace Scenes {
                 rendererManager->toggleBloom();
                 break;
             case GLFW_KEY_F2:
-                rendererManager->toggleReflections();
-                planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
-                if (rendererManager->isReflectionsEnabled()) {
-                    planeMaterialDirLight->setAmbient({0.7f, 0.7f, 0.7f});
-                } else {
-                    planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
+                if (planeMaterial) {
+                    rendererManager->toggleReflections();
+                    planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
                 }
                 break;
             case GLFW_KEY_F:
                 rendererManager->toggleFog();
                 break;
             case GLFW_KEY_M:
-                playerScene->getSnake()->respawn();
+                if (playerScene) {
+                    playerScene->getSnake()->respawn();
+                }
                 break;
             case GLFW_KEY_R:
-                if (radarMeshNode->isVisible()) {
-                    radarNode->setMaterial(radarExpansionOut);
-                    radarFadeOutUniform->start();
-                    radarMeshNode->hideItems();
-                } else {
-                    radarFadeOutUniform->setAlpha(1.0);
-                    radarMeshNode->setVisible(true);
-                    radarNode->setMaterial(radarExpansionIn);
-                    radarFadeInUniform->start();
+                if (radarMeshNode) {
+                    if (radarMeshNode->isVisible()) {
+                        radarNode->setMaterial(radarExpansionOut);
+                        radarFadeOutUniform->start();
+                        radarMeshNode->hideItems();
+                    } else {
+                        radarFadeOutUniform->setAlpha(1.0);
+                        radarMeshNode->setVisible(true);
+                        radarNode->setMaterial(radarExpansionIn);
+                        radarFadeInUniform->start();
+                    }
                 }
                 break;
             default:
@@ -88,9 +166,16 @@ namespace Scenes {
     }
 
     void MainScene::initSkybox() {
+        auto basicShader = resourceManager->getShader("skyboxShader");
         const auto skybox = make_shared<Cube>();
+        const auto skybox2 = make_shared<BoxMesh>(basicShader, 100, 100, 100);
+        // udelat shader material
+        //const auto textureUniform = make_shared<TextureUniform>(11, resourceManager->getTexture("skybox"));
+        //respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
+        // udelat skyboxNode + pretizit renderer
         const auto skyboxRenderer = make_shared<SkyboxRenderer>(skybox, camera, projection, resourceManager);
         rendererManager->addRenderer(skyboxRenderer, 1000);
+        //addMeshNode3D(skybox2);
     }
 
     void MainScene::initPlane() {
@@ -104,14 +189,14 @@ namespace Scenes {
         planeMaterial->setReflectionTexture(resourceManager->getTexture("PlanarReflectionTexture"));
         planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
 
-        planeMaterialDirLight = make_shared<DirectionalLight>();
-        planeMaterialDirLight->setPosition({0.0f, 7.0f, 11.0f});
-        planeMaterialDirLight->setDirection({1, 1.0, -3});
-        planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
-        planeMaterialDirLight->setDiffuse({0.0f, 0.0f, 0.0f});
-        planeMaterialDirLight->setSpecular({.091f, .091f, .091f});
+        // planeMaterialDirLight = make_shared<DirectionalLight>();
+        // planeMaterialDirLight->setPosition({0.0f, 7.0f, 11.0f});
+        // planeMaterialDirLight->setDirection({1, 1.0, -3});
+        // planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
+        // planeMaterialDirLight->setDiffuse({0.0f, 0.0f, 0.0f});
+        // planeMaterialDirLight->setSpecular({.091f, .091f, .091f});
 
-        planeMaterial->setDirectionalLight(planeMaterialDirLight);
+        planeMaterial->setDirectionalLight(directionalLight);
         planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         planeMaterial->setShadow(shadowMap);
         planeMaterial->setNormalEnabled(true);
@@ -119,6 +204,10 @@ namespace Scenes {
         planeMaterial->setNormal(gamefieldNormal);
         planeMaterial->setSpecular(gamefieldSpecular);
         planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
+
+        for (auto &spotLight : spotLights) {
+            planeMaterial->addSpotLight(spotLight);
+        }
 
         auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
@@ -131,7 +220,7 @@ namespace Scenes {
     }
 
     void MainScene::initPlayerScene() {
-        playerScene = make_shared<PlayerScene>(rendererManager, camera, projection, resourceManager, width, height);
+        playerScene = make_shared<PlayerScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
         snakeMoveHandler->setCollisionDetector(collisionDetector);
@@ -139,14 +228,14 @@ namespace Scenes {
     }
 
     void MainScene::initBarriersScene() {
-        barriersScene = make_shared<BarriersScene>(rendererManager, camera, projection, resourceManager, width, height);
+        barriersScene = make_shared<BarriersScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         barriersScene->init(3);
         levelManager = barriersScene->getLevelManager();
         addNode(barriersScene);
     }
 
     void MainScene::initCoinScene() {
-        coinScene = make_shared<CoinScene>(rendererManager, camera, projection, resourceManager, width, height);
+        coinScene = make_shared<CoinScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         coinScene->init(4);
         addNode(coinScene);
 
@@ -154,13 +243,13 @@ namespace Scenes {
     }
 
     void MainScene::initTorchScene() {
-        const auto torchScene = make_shared<TorchScene>(rendererManager, camera, projection, resourceManager, width, height);
+        const auto torchScene = make_shared<TorchScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         torchScene->init(1);
         addNode(torchScene);
     }
 
     void MainScene::initWeatherScene() {
-        const auto weatherScene = make_shared<WeatherScene>(rendererManager, camera, projection, resourceManager, width, height);
+        const auto weatherScene = make_shared<WeatherScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         weatherScene->init(0);
         addNode(weatherScene);
     }
@@ -315,7 +404,7 @@ namespace Scenes {
         });
     }
 
-    void MainScene::buildCrashCallback() const {
+    void MainScene::buildCrashCallback() {
         snakeMoveHandler->setCrashCallback([this]() {
             if (this->levelManager) {
                 playerScene->getSnake()->respawn();
@@ -336,7 +425,7 @@ namespace Scenes {
                 coinScene->getCoin()->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
-                    this->levelManager->createLevel(1);
+                    this->levelManager->createLevel(1, directionalLight);
                     fadeOutUniform->setAlpha(1.0f);
                     this->levelManager->setLive(3);
                     cout << "crash callback call" << endl;

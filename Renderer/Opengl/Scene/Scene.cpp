@@ -1,11 +1,27 @@
 #include "Scene.h"
 
 namespace Scenes {
-    Scene::Scene(const shared_ptr<RenderManager> &rendererManager,
-                 const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-                 const shared_ptr<ResourceManager> &rm, const int width, const int height)
+    Scene::Scene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager,
+        const shared_ptr<Camera> &camera, const glm::mat4 &projection,
+        const shared_ptr<ResourceManager> &rm, const int width, const int height)
         : resourceManager(rm), rendererManager(rendererManager), camera(camera),
           projection(projection), width(width), height(height) {
+        this->directionalLight = directionalLight;
+        if (directionalLight == nullptr) {
+            this->directionalLight = make_shared<DirectionalLight>();
+            this->directionalLight->setPosition({0.0f, 0.0f, 0.0f});
+            this->directionalLight->setDirection({-0.410001, -0.92, 0.84});
+            this->directionalLight->setAmbient({0.07f, 0.07f, 0.07f});
+            this->directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
+            this->directionalLight->setSpecular({.091f, .091f, .091f});
+        }
+
+        this->spotLights = spotLights;
+        this->pointLights = pointLights;
         keyboardManager = make_unique<KeyboardManager>();
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
         contextState = rendererManager->getContextState();
@@ -13,6 +29,7 @@ namespace Scenes {
 
     void Scene::init(const int priority) {
         rendererManager->addRenderer(sceneRenderer, priority);
+        rendererManager->updateDirectionalLight(directionalLight);
     }
 
     Scene::~Scene() {

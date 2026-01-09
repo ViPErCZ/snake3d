@@ -73,6 +73,14 @@ namespace Lights {
         outerCutOff = outer_cut_off;
     }
 
+    bool SpotLight::isPulse() const {
+        return pulse;
+    }
+
+    void SpotLight::setPulse(const bool pulse) {
+        this->pulse = pulse;
+    }
+
     void SpotLight::bind(const ShaderManager *shader, const int index = 0) const {
         shader->use();
         const string name = "spotLight[" + std::to_string(index) + "]";
@@ -84,6 +92,7 @@ namespace Lights {
         shader->setFloat(name + ".constant", constant);
         shader->setFloat(name + ".linear", linear);
         shader->setFloat(name + ".quadratic", quadratic);
+        shader->setBool(name + ".pulse", pulse);
         shader->setFloat(name + ".cutOff", glm::cos(glm::radians(cutOff)));
         shader->setFloat(name + ".outerCutOff", glm::cos(glm::radians(outerCutOff)));
     }

@@ -48,21 +48,23 @@ struct SpotLight {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    bool pulse;
 };
 
-#define NR_POINT_LIGHTS 16
+#define NR_POINT_LIGHTS 160
 
 uniform DirLight dirLight;
 uniform MaterialDirLight materialDirLight;
 uniform PointLight pointLight[NR_POINT_LIGHTS];
 uniform SpotLight spotLight[NR_POINT_LIGHTS];
 uniform Material material;
-uniform float uTime = 1;
 uniform int numPointLights = 0;
 uniform int numSpotLights = 0;
 uniform bool useMaterial = false;
 uniform bool normalMapEnabled = false;
 uniform bool specularMapEnabled = false;
+uniform bool hasAlbedoTexture = false;
 uniform samplerCube environmentMap;
 uniform bool iblEnabled = false;
 uniform float uShadowAmbientDarken = 0.85; // how much to darken ambient in shadow (0..1)
@@ -74,7 +76,7 @@ vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, ve
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float roughness, float metalness, vec3 F0);
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer);
 vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 float DistributionGGX(vec3 N, vec3 H, float roughness);
@@ -253,9 +255,31 @@ vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir
     return color;
 }
 
-// calculates the color when using a spot light.
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+float computePulse(float timer)
 {
+    // ==== Pulzování ====
+    float pulse = 0.7f
+    + 0.1f * sin(timer * 0.7f)
+    + 0.05f * sin(timer * 1.3f + 1.1f)
+    + 0.03f * sin(timer * 2.1f + 2.4f);
+
+    // Výsledná intenzita mezi 0.6 – 0.9, s velmi plynulými změnami
+    return clamp(pulse, 0.6f, 0.9f);
+}
+
+// calculates the color when using a spot light.
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer)
+{
+    float currentCutOff = light.cutOff;
+    float currentOuterCutOff = light.outerCutOff;
+
+    if (light.pulse) {
+        float baseAngle = acos(light.cutOff);
+        float baseOuterAngle = acos(light.outerCutOff);
+        float angleDelta = radians(0.5) * sin(timer * 3.5);
+        currentCutOff = cos(baseAngle + angleDelta);
+        currentOuterCutOff = cos(baseOuterAngle + angleDelta);
+    }
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -268,17 +292,26 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // spotlight intensity
     float theta = dot(lightDir, normalize(-light.direction));
 
-    float offset = 0.03 * sin(uTime * 2.3 + fragPos.x * 10.0) + 0.02 * sin(uTime * 1.7 + fragPos.y * 12.0);
+    //float offset = 0.03 * sin(timer * 2.3 + fragPos.x * 10.0) + 0.02 * sin(timer * 1.7 + fragPos.y * 12.0);
 
-    float epsilon = light.cutOff - light.outerCutOff;
-    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    float epsilon = currentCutOff - currentOuterCutOff;
+    float intensity = clamp((theta - currentOuterCutOff) / epsilon, 0.0, 1.0);
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.ambient, TexCoords));
+    vec3 ambient = light.ambient * (hasAlbedoTexture ? vec3(texture(material.ambient, TexCoords)) : materialColor);
     vec3 diffuse = light.diffuse * diff;
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 specular = light.specular * spec;
+    if (specularMapEnabled) {
+        specular = specular * vec3(texture(material.specular, TexCoords));
+    }
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
+
+    if (light.pulse) {
+        float pulse = computePulse(timer);
+        ambient *= pulse;
+        diffuse *= pulse;
+    }
 
     return (ambient + diffuse + specular);
 }

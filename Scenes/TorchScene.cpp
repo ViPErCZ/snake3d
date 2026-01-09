@@ -6,9 +6,13 @@
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
 namespace Scenes {
-    TorchScene::TorchScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+    TorchScene::TorchScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+        const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void TorchScene::init(const int priority) {
@@ -25,12 +29,12 @@ namespace Scenes {
         const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
         torch->fromMesh(resourceManager->getModel("torch"));
 
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        directionalLight->setDirection({1, 1.0, -3});
-        directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-        directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        directionalLight->setSpecular({.091f, .091f, .091f});
+        // const auto directionalLight = make_shared<DirectionalLight>();
+        // directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+        // directionalLight->setDirection({1, 1.0, -3});
+        // directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+        // directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+        // directionalLight->setSpecular({.091f, .091f, .091f});
         const auto torchAlbedo = resourceManager->getTexture("torch.png");
         const auto torchNormal = resourceManager->getTexture("torch_normal.png");
         const auto torchMaterial = make_shared<StandardMaterial>(
@@ -42,6 +46,11 @@ namespace Scenes {
         torchMaterial->setNormalEnabled(true);
         torchMaterial->setDirectionalLight(directionalLight);
         torchMaterial->setBlending(Blending::Opaque);
+
+        for (auto &spotLight : spotLights) {
+            torchMaterial->addSpotLight(spotLight);
+        }
+
         torch->setMaterial(torchMaterial);
 
         const auto torchNode = make_shared<MeshNode3D>(contextState, torch, resourceManager);

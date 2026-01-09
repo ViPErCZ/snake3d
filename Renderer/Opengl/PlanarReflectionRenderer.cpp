@@ -54,7 +54,6 @@ namespace Renderer {
         const glm::vec3 originalFront = camera->getFront();
         const glm::vec3 originalUp = camera->getUp();
 
-        // Předpokládáme rovinu z = planeZ (protože Z je nahoru)
         // Zrcadlíme pozici přes rovinu Z
         const float dist = 2.0f * (originalPos.z - planeZ);
         camera->setPosition({originalPos.x, originalPos.y, originalPos.z - dist});
@@ -64,18 +63,13 @@ namespace Renderer {
         reflectedFront.z = -reflectedFront.z;
         camera->setFront(reflectedFront);
 
-        // U zrcadla se UP vektor chová specificky. 
-        // Pokud chceme, aby odraz vypadal přirozeně, musíme zachovat orientaci,
-        // ale zrcadlit pozici a směr pohledu.
-        // Pro Z jako UP: front.z se obrací, up.z se také obrací.
-        // Tím se ale změní handness souřadného systému.
         glm::vec3 reflectedUp = originalUp;
         reflectedUp.z = -reflectedUp.z;
         camera->setUp(reflectedUp);
 
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
         glViewport(0, 0, width, height);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Černé pozadí
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Změna winding order kvůli zrcadlení

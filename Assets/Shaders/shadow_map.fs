@@ -7,6 +7,7 @@ in VS_OUT {
     vec2 TexCoords;
 } fs_in;
 
+uniform float uTime = 1;
 uniform sampler2D specularMap;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
@@ -80,7 +81,7 @@ void main()
         vec3 result = vec3(0);
 
         for(int i = 0; i < numSpotLights; i++) {
-           result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir);
+           result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir, ambient, uTime);
         }
 
         FragColor = vec4(result + lightColor / 4 + specular, 1.0);

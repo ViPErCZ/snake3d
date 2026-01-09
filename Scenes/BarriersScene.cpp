@@ -2,9 +2,13 @@
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 
 namespace Scenes {
-    BarriersScene::BarriersScene(const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
+    BarriersScene::BarriersScene(
+        const shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights,
+        const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void BarriersScene::init(const int priority) {
@@ -26,12 +30,12 @@ namespace Scenes {
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
 
-        const auto directionalLight = make_shared<DirectionalLight>();
-        directionalLight->setPosition({0.0f, 7.0f, 110.0f});
-        directionalLight->setDirection({0, 1.0, -3});
-        directionalLight->setAmbient({0.1f, 0.1f, 0.1f});
-        directionalLight->setDiffuse({0.005f, 0.005f, 0.005f});
-        directionalLight->setSpecular({.01f, .01f, .01f});
+        // const auto directionalLight = make_shared<DirectionalLight>();
+        // directionalLight->setPosition({0.0f, 7.0f, 110.0f});
+        // directionalLight->setDirection({0, 1.0, -3});
+        // directionalLight->setAmbient({0.1f, 0.1f, 0.1f});
+        // directionalLight->setDiffuse({0.005f, 0.005f, 0.005f});
+        // directionalLight->setSpecular({.01f, .01f, .01f});
 
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
@@ -44,6 +48,10 @@ namespace Scenes {
         boxMaterial->setColor({1.0, 1.0, 1.0});
         boxMaterial->setAmbientLightColorIntensity(0.1);
         boxMaterial->setDirectionalLight(directionalLight);
+
+        for (auto &spotLight : spotLights) {
+            boxMaterial->addSpotLight(spotLight);
+        }
 
         boxMesh->setMaterial(boxMaterial);
 
@@ -80,8 +88,8 @@ namespace Scenes {
 
     void BarriersScene::initLevelManager() {
         levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, resourceManager);
-        levelManager->createLevel(START_LEVEL);
-        levelBoxes = levelManager->createLevel(START_LEVEL);
+        // levelManager->createLevel(START_LEVEL);
+        levelBoxes = levelManager->createLevel(START_LEVEL, directionalLight);
         addMeshNode3D(levelBoxes, 3001);
     }
 } // Scenes

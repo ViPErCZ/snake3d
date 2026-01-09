@@ -14,7 +14,8 @@ TEST_CASE( "Checking if field is empty to place food..." ) {
     const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(nullptr));
     const auto eat = make_shared<CoinMeshNode3D>(contextState, coinMesh, nullptr);
     const auto levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, nullptr);
-    const auto levelBoxes = levelManager->createLevel(2);
+    auto light = make_shared<DirectionalLight>();
+    const auto levelBoxes = levelManager->createLevel(2, light);
     const auto snake = make_shared<SnakeMeshNode3D>(contextState, coinMesh, nullptr);
     snake->respawn();
     const auto eatLocation = new EatLocationHandler(levelBoxes, snake, eat);

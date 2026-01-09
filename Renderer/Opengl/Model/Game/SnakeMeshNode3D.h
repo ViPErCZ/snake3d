@@ -34,6 +34,8 @@ namespace Model {
 
         void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override;
 
+        void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light) override;
+
         void setDirection(eDIRECTION direction);
 
         void addTile(eDIRECTION direction);

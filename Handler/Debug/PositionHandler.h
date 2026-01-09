@@ -7,9 +7,11 @@
 #include "../../Manager/Camera.h"
 #include "../BaseKeydownHandle.h"
 #include "../../ItemsDto/BaseItem.h"
+#include "../../Lights/DirectionalLight.h"
 
 using namespace ItemsDto;
 using namespace Manager;
+using namespace Lights;
 
 namespace Handler {
 

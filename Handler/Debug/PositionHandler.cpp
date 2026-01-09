@@ -1,5 +1,7 @@
 #include "PositionHandler.h"
 
+#include "../../Lights/DirectionalLight.h"
+
 namespace Handler {
     PositionHandler::PositionHandler(const shared_ptr<Camera> &camera): camera(camera), enabled(false) {
         cameraOriginalStickyPoint = camera->getStickyPoint();
@@ -27,7 +29,15 @@ namespace Handler {
             case GLFW_KEY_RIGHT:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.x += 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.x += 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.x += 0.01f;
+                        }
                     } else {
                         pos.x += 0.0001f;
                     }
@@ -37,7 +47,15 @@ namespace Handler {
             case GLFW_KEY_LEFT:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.x -= 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.x -= 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.x -= 0.01f;
+                        }
                     } else {
                         pos.x -= 0.0001f;
                     }
@@ -47,7 +65,15 @@ namespace Handler {
             case GLFW_KEY_UP:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.y += 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.y += 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.y += 0.01f;
+                        }
                     } else {
                         pos.y += 0.0001f;
                     }
@@ -57,7 +83,15 @@ namespace Handler {
             case GLFW_KEY_DOWN:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.y -= 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.y -= 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.y -= 0.01f;
+                        }
                     } else {
                         pos.y -= 0.0001f;
                     }
@@ -67,9 +101,25 @@ namespace Handler {
             case GLFW_KEY_PAGE_UP:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.z += 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.z += 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.z += 0.01f;
+                        }
                     } else {
-                        pos.z += 0.0001f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.z += 0.0001f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.z += 0.0001f;
+                        }
                     }
                     activeItem->setPosition(pos);
                 }
@@ -77,9 +127,27 @@ namespace Handler {
             case GLFW_KEY_PAGE_DOWN:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        pos.z -= 0.01f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                glm::vec3 direction = directLight->getDirection();
+                                direction.z -= 0.01f;
+                                directLight->setDirection(direction);
+                            }
+                        } else {
+                            pos.z -= 0.01f;
+                        }
                     } else {
-                        pos.z -= 0.0001f;
+                        if (mods & GLFW_MOD_CONTROL) {
+                            if (mods & GLFW_MOD_CONTROL) {
+                                if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                                    glm::vec3 direction = directLight->getDirection();
+                                    direction.z -= 0.0001f;
+                                    directLight->setDirection(direction);
+                                }
+                            }
+                        } else {
+                            pos.z -= 0.0001f;
+                        }
                     }
                     activeItem->setPosition(pos);
                 }
@@ -124,6 +192,9 @@ namespace Handler {
                 cout << "Rotation X: " << rotationX << endl;
                 cout << "Rotation Y: " << rotationY << endl;
                 cout << "Rotation Z: " << rotationZ << endl;
+                if (shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    cout << "Direction: " << light->getDirection().x << ", " << light->getDirection().y << ", " << light->getDirection().z << endl;
+                }
                 break;
             default:
                 break;

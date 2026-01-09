@@ -18,32 +18,19 @@ namespace Renderer {
     public:
         DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager);
 
-        ~DepthMapRenderer();
+        ~DepthMapRenderer() = default;
 
         void render(float dt) const;
 
         void beforeRender(int index) const;
 
-        void afterRender();
-
-        void renderQuad();
+        void afterRender() = delete;
 
         void renderShadowMap();
 
         void bind(int index, const glm::mat4 &lightSpaceMatrix) const;
 
-        std::vector<glm::mat4> computeLightSpaceMatrix(
-            shared_ptr<DirectionalLight> &light, glm::vec3 lightTarget,
-            glm::vec3 sceneMin,
-            glm::vec3 sceneMax
-        );
-
-        std::vector<glm::mat4> computeLightSpaceMatrixForPlane(
-            shared_ptr<DirectionalLight> &light,
-            const glm::vec3 &planeCenter,
-            float planeWidth,
-            float planeHeight
-        );
+        std::vector<glm::mat4> computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light);
 
     protected:
         ResourceManager *resourceManager;
@@ -55,11 +42,9 @@ namespace Renderer {
         std::vector<glm::mat4> lightSpaceMatrices;
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
-        glm::vec3 lightPos{};
         float cascadeSplits[NUM_CASCADES] = {0.1f, 0.3f, 1.0f};
 
         [[nodiscard]] std::vector<glm::vec3> getFrustumCornersWorldSpace(
-            const glm::mat4 &proj, const glm::mat4 &view,
             float nearPlane,
             float farPlane
         ) const;

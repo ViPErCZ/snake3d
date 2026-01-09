@@ -18,6 +18,8 @@ in mat3 TBN;
 in mat4 viewMatrix;
 in vec4 clipSpacePos;
 
+uniform float uTime = 1;
+
 uniform vec3 viewPos;
 uniform vec3 ambientLightColor = vec3(1.0, 1.0, 1.0);
 uniform float ambientLightColorIntensity = 1.0;
@@ -98,7 +100,7 @@ void main()
 
     for(int i = 0; i < numSpotLights; i++)
     {
-       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir);
+       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime);
     }
 
 //     if (shadowsEnable) {

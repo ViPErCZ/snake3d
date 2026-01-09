@@ -57,6 +57,10 @@ namespace Lights {
 
         void setOuterCutOff(float outer_cut_off);
 
+        [[nodiscard]] bool isPulse() const;
+
+        void setPulse(bool pulse);
+
         void bind(const ShaderManager *shader, int index) const;
     };
 } // Lights

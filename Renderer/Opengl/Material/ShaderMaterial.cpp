@@ -36,6 +36,28 @@ namespace Material {
             shader->setBool("directionLightEnable", true);
         }
 
+        // POINT LIGHT
+        // --------------------------------
+        shader->setInt("numPointLights", static_cast<int>(pointLights.size()));
+        int index = 0;
+        for (const auto &pointLight: pointLights) {
+            pointLight->bind(shader.get(), index);
+            index++;
+        }
+        // --------------------------------
+        // END POINT LIGHT
+
+        // SPOT LIGHT
+        // --------------------------------
+        shader->setInt("numSpotLights", static_cast<int>(spotLights.size()));
+        index = 0;
+        for (const auto &spotLight: spotLights) {
+            spotLight->bind(shader.get(), index);
+            index++;
+        }
+        // -----------------------------------------------
+        // END SPOT LIGHT
+
         for (auto& [name, value] : uniforms) {
             std::visit([&]<typename T0>(T0&& arg) {
                 using T = std::decay_t<T0>;

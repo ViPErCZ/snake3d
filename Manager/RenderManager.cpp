@@ -1,9 +1,9 @@
 #include "RenderManager.h"
 
 namespace Manager {
-    RenderManager::RenderManager(shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
+    RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
             const shared_ptr<ResourceManager> &resourceManager, const glm::mat4 &projection, const int width, const int height)
-        : contextState(contextState), resourceManager(resourceManager), camera(camera), projection(projection), width(width), height(height),
+        : resourceManager(resourceManager), camera(camera), contextState(contextState), projection(projection), width(width), height(height),
           shadows(false), bloom(false), reflections(false), fog(false) {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
@@ -76,14 +76,16 @@ namespace Manager {
             sceneMin -= glm::vec3(padding);
             sceneMax += glm::vec3(padding);
 
-            constexpr glm::vec3 centerScene = {0, 0, 0}; //(sceneMin + sceneMax) / 2.0f;
+            // constexpr glm::vec3 centerScene = {0, 0.0f, 0.0f}; //(sceneMin + sceneMax) / 2.0f;
 
-            // TODO: dirLight dodelat object a dosadit do render manageru
-            auto light = make_shared<DirectionalLight>(DirectionalLight());
-            light->setPosition({0.0f, 7.0f, 11.0f});
-            light->setDirection({1, 1.0, -3});
+            shared_ptr<DirectionalLight> light = directionalLight;
+            if (directionalLight == nullptr) {
+                light = make_shared<DirectionalLight>();
+                light->setPosition({0.0f, 7.0f, 11.0f});
+                light->setDirection({1, 1.0, -3});
+            }
             //const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrixForPlane(light, centerScene, 14, 14);
-            const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, centerScene, sceneMin, sceneMax);
+            const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light);
             int index = 0;
 
             for (auto & matrix : lightSpacesMatrix) {
@@ -105,7 +107,7 @@ namespace Manager {
                 glViewport(0, 0, width, height);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 depthMapRenderer->render(dt);
-                depthMapRenderer->afterRender();
+                // depthMapRenderer->afterRender();
 
                 index++;
             }
@@ -202,6 +204,10 @@ namespace Manager {
 
     const vector<RendererEntry>& RenderManager::getRenderers() const {
         return renderers;
+    }
+
+    void RenderManager::updateDirectionalLight(const shared_ptr<DirectionalLight> &light) {
+        directionalLight = light;
     }
 
     void RenderManager::updateFog() {
