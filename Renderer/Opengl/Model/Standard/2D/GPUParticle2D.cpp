@@ -109,9 +109,6 @@ namespace Model {
         glDisableVertexAttribArray(4);
         glDisableVertexAttribArray(5);
         glDisableVertexAttribArray(6);
-
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
     }
 
     void GPUParticle2D::initBuffers() {

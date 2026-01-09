@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "Model/Standard/PlaneMesh.h"
-#include "SkyboxRenderer.h"
 
 namespace Renderer {
     PlanarReflectionRenderer::PlanarReflectionRenderer(
@@ -78,7 +77,6 @@ namespace Renderer {
         // Vykreslíme ostatní renderery (např. oheň)
         for (auto &entry: renderers) {
             if (entry.renderer.get() == this) continue;
-            if (dynamic_pointer_cast<SkyboxRenderer>(entry.renderer)) continue;
 
             entry.renderer->beforeRender(reflection);
             entry.renderer->render3D(dt, frameId);

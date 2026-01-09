@@ -16,11 +16,14 @@ namespace Model {
             for (const auto &snd: children | views::values) {
                 snd->render(camera, ortho, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
             }
-            glEnable(GL_BLEND);
-            //glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            contextState->setBlendingMode(mesh->getBlending());
+            contextState->setDepthTest(mesh->getDepthTest());
+            contextState->setDepthWrite(mesh->getDepthWrite());
+            // glEnable(GL_BLEND);
+            //glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_DST_COLOR); - no
+            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             mesh->render(camera, ortho, 1, finalTransform);
-            glDisable(GL_BLEND);
+            // glDisable(GL_BLEND);
         } else if (transformDetached) {
             for (const auto &snd: children | views::values) {
                 snd->render(camera, ortho, dt, glm::mat4(1.0f));

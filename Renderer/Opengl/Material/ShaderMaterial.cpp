@@ -19,7 +19,7 @@ namespace Material {
     void ShaderMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
         const glm::mat4 &model, const bool shadows) const {
         shader->use();
-        if (shader->hasUniform("view")) {
+        if (shader->hasUniform("view") && uniforms.contains("view") == false) {
             shader->setMat4("view", view);
         }
         shader->setMat4("projection", projection);

@@ -287,9 +287,6 @@ void App::Init() {
     resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
         std::cout << "Model pacman ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "Cube.obj", "cube", []() {
-        std::cout << "Model cube ready!" << std::endl;
-    });
     resourceManager->loadAsyncModel<Mesh>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });

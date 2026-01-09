@@ -18,7 +18,7 @@ add_custom_target(copy_assets ALL
         COMMENT "Cleaning and copying Assets folder"
 )
 
-add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h ItemsDto/Cube.cpp ItemsDto/Cube.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/SkyboxRenderer.cpp Renderer/Opengl/SkyboxRenderer.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
+add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
         Particle/FireParticleSystem.cpp
         Particle/FireParticleSystem.h
         Particle/SmokeParticleSystem.cpp
@@ -171,6 +171,10 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
         Tools/DrawElement.h
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.cpp
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.h
+        Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
+        Renderer/Opengl/Material/Uniform/CallbackUniform.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -194,7 +198,6 @@ FetchContent_MakeAvailable(catch2)
 # POZNÁMKA: Hlavičkové soubory (.h) se sem nepíšou!
 set(APP_SOURCES
         ItemsDto/BaseItem.cpp
-        ItemsDto/Cube.cpp
         Manager/ResourceManager.cpp
         Manager/RenderManager.cpp
         Manager/KeyboardManager.cpp
@@ -366,6 +369,10 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
         Tools/DrawElement.h
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.cpp
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.h
+        Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
+        Renderer/Opengl/Material/Uniform/CallbackUniform.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -506,6 +513,10 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.cpp
         Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h
         Tools/DrawElement.h
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.cpp
+        Renderer/Opengl/Model/Standard/SkyboxNode3D.h
+        Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
+        Renderer/Opengl/Material/Uniform/CallbackUniform.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

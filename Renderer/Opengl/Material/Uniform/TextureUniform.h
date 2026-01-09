@@ -11,7 +11,7 @@ using namespace std;
 namespace Uniform {
     class TextureUniform final : public IUniform {
     public:
-        TextureUniform(int index, const shared_ptr<TextureManager> &texture);
+        TextureUniform(int index, const shared_ptr<TextureManager> &texture, bool use_cube = false);
 
         void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
 
@@ -20,6 +20,7 @@ namespace Uniform {
     protected:
         shared_ptr<TextureManager> texture;
         int index;
+        bool cube;
     };
 } // Uniform
 

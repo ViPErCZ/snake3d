@@ -6,16 +6,14 @@
 #include "TorchScene.h"
 #include "WeatherScene.h"
 #include "../Resource/ShaderLoader.h"
-#include "../Renderer/Opengl/SkyboxRenderer.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
-#include "../Renderer/Opengl/Material/Uniform/TextureUniform.h"
 #include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
+#include "../Renderer/Opengl/Model/Standard/SkyboxNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
@@ -166,16 +164,8 @@ namespace Scenes {
     }
 
     void MainScene::initSkybox() {
-        auto basicShader = resourceManager->getShader("skyboxShader");
-        const auto skybox = make_shared<Cube>();
-        const auto skybox2 = make_shared<BoxMesh>(basicShader, 100, 100, 100);
-        // udelat shader material
-        //const auto textureUniform = make_shared<TextureUniform>(11, resourceManager->getTexture("skybox"));
-        //respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
-        // udelat skyboxNode + pretizit renderer
-        const auto skyboxRenderer = make_shared<SkyboxRenderer>(skybox, camera, projection, resourceManager);
-        rendererManager->addRenderer(skyboxRenderer, 1000);
-        //addMeshNode3D(skybox2);
+        const auto skyboxNode = make_shared<SkyboxNode3D>(contextState, resourceManager, camera);
+        addMeshNode3D(skyboxNode, 1000);
     }
 
     void MainScene::initPlane() {
@@ -188,13 +178,6 @@ namespace Scenes {
         planeMaterial = make_shared<PlanarReflectionMaterial>(basicShader, shadowDepthShader);
         planeMaterial->setReflectionTexture(resourceManager->getTexture("PlanarReflectionTexture"));
         planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
-
-        // planeMaterialDirLight = make_shared<DirectionalLight>();
-        // planeMaterialDirLight->setPosition({0.0f, 7.0f, 11.0f});
-        // planeMaterialDirLight->setDirection({1, 1.0, -3});
-        // planeMaterialDirLight->setAmbient({0.07f, 0.07f, 0.07f});
-        // planeMaterialDirLight->setDiffuse({0.0f, 0.0f, 0.0f});
-        // planeMaterialDirLight->setSpecular({.091f, .091f, .091f});
 
         planeMaterial->setDirectionalLight(directionalLight);
         planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));

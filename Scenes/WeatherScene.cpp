@@ -24,9 +24,9 @@ namespace Scenes {
         quad->setDepthWrite(false);
 
         //initRain();
-        //initRainDrop();
+        initRainDrop();
         initSnow();
-        //initExplosion();
+        initExplosion();
     }
 
     void WeatherScene::initRain() {

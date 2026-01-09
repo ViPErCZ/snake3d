@@ -23,7 +23,6 @@ OutputData particle_update_3d(vec3 inPos, vec3 inVel, float inLife, float inSeed
     if (u_spawnShape == 2 && respawn) {
         float cycleTime = mod(u_timeAccum, u_burstInterval);
         if (cycleTime > u_spawnWindow) {
-            outPos = u_emitterPos; outVel = vec3(0.0); outLife = -1.0; outSeed = inSeed;
             data.outPos = inPos;
             data.outVel = inVel;
             data.outLife = inLife;

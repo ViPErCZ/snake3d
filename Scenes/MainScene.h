@@ -85,7 +85,6 @@ namespace Scenes {
         shared_ptr<RadarMeshNode2D> radarMeshNode;
         shared_ptr<PositionHandler> positionHandler;
         shared_ptr<PlanarReflectionMaterial> planeMaterial;
-        // shared_ptr<DirectionalLight> planeMaterialDirLight;
         glm::mat4 ortho{};
     };
 } // Scenes

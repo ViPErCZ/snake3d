@@ -1,12 +1,16 @@
 #include "TextureUniform.h"
 
 namespace Uniform {
-    TextureUniform::TextureUniform(const int index, const shared_ptr<TextureManager> &texture) : texture(texture),
-        index(index) {
+    TextureUniform::TextureUniform(const int index, const shared_ptr<TextureManager> &texture, const bool use_cube)
+        : texture(texture), index(index), cube(use_cube) {
     }
 
     void TextureUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
-        texture->bind(index, 0);
+        if (cube) {
+            texture->cubeBind(index);
+        } else {
+            texture->bind(index, 0);
+        }
         shader->setUniform(name, index);
     }
 
