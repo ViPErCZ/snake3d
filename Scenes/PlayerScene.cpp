@@ -40,9 +40,8 @@ namespace Scenes {
         material->setShadow(resourceManager->getTexture("depth"));
         material->setNormalEnabled(true);
         material->setDirectionalLight(directionalLight);
-        for (auto &spotLight : spotLights) {
-            material->addSpotLight(spotLight);
-        }
+        material->setSpotLights(spotLights);
+        material->setPointLights(pointLights);
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
@@ -50,6 +49,7 @@ namespace Scenes {
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
         snake->setSpotLights(spotLights);
+        snake->setPointLights(pointLights);
         snake->respawn();
 
         camera->setStickyPoint(snake);

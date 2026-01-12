@@ -19,7 +19,6 @@ in mat4 viewMatrix;
 in vec4 clipSpacePos;
 
 uniform float uTime = 1;
-
 uniform vec3 viewPos;
 uniform vec3 ambientLightColor = vec3(1.0, 1.0, 1.0);
 uniform float ambientLightColorIntensity = 1.0;
@@ -92,9 +91,9 @@ void main()
     for(int i = 0; i < numPointLights; i++)
     {
         if (pbrEnabled) {
-            final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir, roughness, metalness, F0);
+            final += CalcPointLightPBR(pointLight[i], Normal, fragPos, viewDir, roughness, metalness, F0);
         } else {
-            final += CalcPointLight(pointLight[i], normal, fragPos, viewDir);
+            final += CalcPointLight(pointLight[i], Normal, fragPos, viewDir, ambient);
         }
     }
 
@@ -102,26 +101,6 @@ void main()
     {
        final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime);
     }
-
-//     if (shadowsEnable) {
-//         vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
-//         float viewDepth = -fragPosView.z;
-//         int cascadeIndex = int(GetCascadeIndex(viewDepth));
-//
-//         if(cascadeIndex == 0)
-//             shadow = ShadowCalculation2(fragPos, worldNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix0);
-//         else if(cascadeIndex == 1)
-//             shadow = ShadowCalculation2(fragPos, worldNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix1);
-//         else
-//             shadow = ShadowCalculation2(fragPos, worldNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix2);
-// //         float shadow = ShadowCalculation(fragPos, shadowMap0, lightSpaceMatrix0);
-//
-//
-//         vec3 colors[3] = vec3[3](vec3(1,0,0), vec3(0,1,0), vec3(0,0,1));
-//         vec3 debugColor = vec3(viewDepth, 0, 0);
-//
-//         final = final * pow(1.0 - shadow, 1.2);
-//     }
 
     if (pbrEnabled == false) {
         final /= 1;
@@ -142,7 +121,7 @@ void main()
     gColor = FragColor;
     float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
-    if (brightness > 1.0) { // Práh jasu pro bloom
+    if (brightness > 1.0) {
        BrightColor = FragColor;
     } else {
        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);

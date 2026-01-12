@@ -219,6 +219,14 @@ void Material::StandardMaterial::addPointLight(const shared_ptr<PointLight> &poi
     pointLights.push_back(point_light);
 }
 
+void Material::StandardMaterial::setSpotLights(const vector<shared_ptr<SpotLight>> &spotLights) {
+    this->spotLights = spotLights;
+}
+
+void Material::StandardMaterial::setPointLights(const vector<shared_ptr<PointLight>> &pointLights) {
+    this->pointLights = pointLights;
+}
+
 void Material::StandardMaterial::setShininess(const float shininess) {
     this->shininess = shininess;
 }

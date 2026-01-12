@@ -29,14 +29,6 @@ namespace Scenes {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
-
-        // const auto directionalLight = make_shared<DirectionalLight>();
-        // directionalLight->setPosition({0.0f, 7.0f, 110.0f});
-        // directionalLight->setDirection({0, 1.0, -3});
-        // directionalLight->setAmbient({0.1f, 0.1f, 0.1f});
-        // directionalLight->setDiffuse({0.005f, 0.005f, 0.005f});
-        // directionalLight->setSpecular({.01f, .01f, .01f});
-
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
         const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
@@ -48,10 +40,8 @@ namespace Scenes {
         boxMaterial->setColor({1.0, 1.0, 1.0});
         boxMaterial->setAmbientLightColorIntensity(0.1);
         boxMaterial->setDirectionalLight(directionalLight);
-
-        for (auto &spotLight : spotLights) {
-            boxMaterial->addSpotLight(spotLight);
-        }
+        boxMaterial->setSpotLights(spotLights);
+        boxMaterial->setPointLights(pointLights);
 
         boxMesh->setMaterial(boxMaterial);
 
@@ -89,7 +79,7 @@ namespace Scenes {
     void BarriersScene::initLevelManager() {
         levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, resourceManager);
         // levelManager->createLevel(START_LEVEL);
-        levelBoxes = levelManager->createLevel(START_LEVEL, directionalLight);
+        levelBoxes = levelManager->createLevel(START_LEVEL, directionalLight, spotLights, pointLights);
         addMeshNode3D(levelBoxes, 3001);
     }
 } // Scenes

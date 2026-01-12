@@ -65,6 +65,10 @@ namespace Material {
 
         void addPointLight(const shared_ptr<PointLight> &point_light);
 
+        void setSpotLights(const vector<shared_ptr<SpotLight> > &spotLights);
+
+        void setPointLights(const vector<shared_ptr<PointLight> > &pointLights);
+
         void setShininess(float shininess);
 
         [[nodiscard]] shared_ptr<TextureManager> getRoughness() const;

@@ -72,18 +72,39 @@ namespace Scenes {
         const auto spotLight5 = make_shared<SpotLight>();
         spotLight5->setPosition({1.93, 0.43, -1.5f});
         spotLight5->setDirection({1.93f, 0.43, 0.0f});
-        spotLight5->setAmbient(glm::vec3(0.88, 0.00, 0.09));
+        spotLight5->setAmbient(glm::vec3(0.9, 0.0, 0.0));
         spotLight5->setDiffuse({0.0f, 0.0f, 0.0f});
         spotLight5->setSpecular({0.0f, 0.0f, 0.0f});
         spotLight5->setCutOff(7.5);
         spotLight5->setOuterCutOff(13.5);
         spotLight5->setPulse(true);
 
+        const auto pointLight1 = make_shared<PointLight>();
+        pointLight1->setPosition({-0.15, 1.2218, -0.656399});
+        pointLight1->setAmbient({0.1f, 0.1f, 0.1f});
+        pointLight1->setDiffuse({0.0f, 0.0f, 1.10f});
+        pointLight1->setSpecular({0.0f, 0.0f, 0.0f});
+        pointLight1->setConstant(1.0f);
+        pointLight1->setLinear(0.7f);
+        pointLight1->setQuadratic(20.8f);
+
+        const auto pointLight2 = make_shared<PointLight>();
+        pointLight2->setPosition({2.15, 1.2218, -0.656399});
+        pointLight2->setAmbient({0.1f, 0.0f, 0.0f});
+        pointLight2->setDiffuse({0.88f, 0.0f, 0.00f});
+        pointLight2->setSpecular({0.0f, 0.0f, 0.0f});
+        pointLight2->setConstant(1.0f);
+        pointLight2->setLinear(0.7f);
+        pointLight2->setQuadratic(20.8f);
+
         this->spotLights.push_back(spotLight);
         this->spotLights.push_back(spotLight2);
         this->spotLights.push_back(spotLight3);
         this->spotLights.push_back(spotLight4);
         this->spotLights.push_back(spotLight5);
+
+        this->pointLights.push_back(pointLight1);
+        this->pointLights.push_back(pointLight2);
     }
 
     void MainScene::init(const int priority) {
@@ -117,6 +138,9 @@ namespace Scenes {
         positionHandler->addItem(directionalLight);
         for (auto &spotLight : spotLights) {
             positionHandler->addItem(spotLight);
+        }
+        for (auto &pointLight : pointLights) {
+            positionHandler->addItem(pointLight);
         }
     }
 
@@ -187,10 +211,8 @@ namespace Scenes {
         planeMaterial->setNormal(gamefieldNormal);
         planeMaterial->setSpecular(gamefieldSpecular);
         planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
-
-        for (auto &spotLight : spotLights) {
-            planeMaterial->addSpotLight(spotLight);
-        }
+        planeMaterial->setSpotLights(spotLights);
+        planeMaterial->setPointLights(pointLights);
 
         auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
@@ -276,6 +298,7 @@ namespace Scenes {
         radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         radarNode->setMaterial(radarExpansionIn);
         radarMeshNode = make_shared<RadarMeshNode2D>(contextState, radarNode, resourceManager);
+        radarNode->setBlending(Blending::Translucent);
         radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
         radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
         radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
@@ -408,7 +431,7 @@ namespace Scenes {
                 coinScene->getCoin()->setVisible(false);
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
-                    this->levelManager->createLevel(1, directionalLight);
+                    this->levelManager->createLevel(1, directionalLight, spotLights, pointLights);
                     fadeOutUniform->setAlpha(1.0f);
                     this->levelManager->setLive(3);
                     cout << "crash callback call" << endl;

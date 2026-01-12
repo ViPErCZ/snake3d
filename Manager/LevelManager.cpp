@@ -25,7 +25,10 @@ namespace Manager {
         return live;
     }
 
-    shared_ptr<MeshNode3D> LevelManager::createLevel(int level, shared_ptr<DirectionalLight> &directionalLight) {
+    shared_ptr<MeshNode3D> LevelManager::createLevel(int level,
+        shared_ptr<DirectionalLight> &directionalLight,
+        const vector<shared_ptr<SpotLight> > &spotLights,
+        const vector<shared_ptr<PointLight> > &pointLights) {
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
@@ -41,7 +44,8 @@ namespace Manager {
             boxMaterial->setNormal(brickWallNormal);
             boxMaterial->setSpecular(brickWallSpecular);
             boxMaterial->setDirectionalLight(directionalLight);
-
+            boxMaterial->setSpotLights(spotLights);
+            boxMaterial->setPointLights(pointLights);
             boxMesh->setMaterial(boxMaterial);
         }
 
@@ -72,14 +76,14 @@ namespace Manager {
                             boxNode3D->x = (x) * 32;
                             boxNode3D->y = (y) * 32;
                             isFirst = false;
-                        } else {
-                            const auto childBoxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
-                            childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
-                            childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
-                            childBoxNode3D->x = (x) * 32;
-                            childBoxNode3D->y = (y) * 32;
-                            boxNode3D->addNode(childBoxNode3D);
+                            continue;
                         }
+                        const auto childBoxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
+                        childBoxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
+                        childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
+                        childBoxNode3D->x = (x) * 32;
+                        childBoxNode3D->y = (y) * 32;
+                        boxNode3D->addNode(childBoxNode3D);
                     }
 
                     x++;

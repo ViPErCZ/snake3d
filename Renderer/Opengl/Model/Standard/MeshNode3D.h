@@ -35,6 +35,8 @@ namespace Model {
         
         virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
 
+        virtual void setPointLights(const vector<shared_ptr<PointLight> > &point_light);
+
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
         void make_unique();
@@ -63,6 +65,7 @@ namespace Model {
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<DirectionalLight> directionalLight;
         vector<shared_ptr<SpotLight> > spotLights;
+        vector<shared_ptr<PointLight> > pointLights;
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;

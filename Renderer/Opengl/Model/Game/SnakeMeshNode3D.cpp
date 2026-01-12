@@ -68,6 +68,7 @@ namespace Model {
             tile->setDirectionalLight(directionalLight);
         }
         tile->setSpotLights(spotLights);
+        tile->setPointLights(pointLights);
         tile->setPosition({21, -3, -23});
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 32;
@@ -79,6 +80,7 @@ namespace Model {
             tile2->setDirectionalLight(directionalLight);
         }
         tile2->setSpotLights(spotLights);
+        tile2->setPointLights(pointLights);
         tile2->setScale({0.041667f, 0.041667f, 0.041667f});
         tile2->setPosition({19, -3, -23});
         tile2->x = x - 64;
@@ -89,6 +91,7 @@ namespace Model {
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
+        tile3->setPointLights(pointLights);
         tile3->setSpotLights(spotLights);
         tile3->setScale({0.041667f, 0.041667f, 0.041667f});
         tile3->setPosition({17, -3, -23});
@@ -108,9 +111,19 @@ namespace Model {
 
     void SnakeMeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
         MeshNode3D::setSpotLights(spot_light);
-        for (auto &spotLight : spotLights) {
-            tileMaterial->addSpotLight(spotLight);
-            respawnMaterial->addSpotLight(spotLight);
+        tileMaterial->setSpotLights(spotLights);
+        respawnMaterial->setSpotLights(spotLights);
+        for (auto &child: children) {
+            reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setSpotLights(spot_light);
+        }
+    }
+
+    void SnakeMeshNode3D::setPointLights(const vector<shared_ptr<PointLight>> &point_light) {
+        MeshNode3D::setPointLights(point_light);
+        tileMaterial->setPointLights(point_light);
+        respawnMaterial->setPointLights(point_light);
+        for (auto &child: children) {
+            reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setPointLights(point_light);
         }
     }
 
@@ -168,6 +181,8 @@ namespace Model {
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
+        tile->setSpotLights(spotLights);
+        tile->setPointLights(pointLights);
         tile->setPosition(pos);
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = (*PrevIter)->x;
