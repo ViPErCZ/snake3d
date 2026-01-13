@@ -102,8 +102,10 @@ namespace Model {
 
     void SnakeMeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
         directionalLight = directional_light;
-        tileMaterial->setDirectionalLight(directional_light);
-        respawnMaterial->setDirectionalLight(directionalLight);
+        if (resourceManager) {
+            tileMaterial->setDirectionalLight(directional_light);
+            respawnMaterial->setDirectionalLight(directionalLight);
+        }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setDirectionalLight(directional_light);
         }
@@ -111,8 +113,10 @@ namespace Model {
 
     void SnakeMeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
         MeshNode3D::setSpotLights(spot_light);
-        tileMaterial->setSpotLights(spotLights);
-        respawnMaterial->setSpotLights(spotLights);
+        if (resourceManager) {
+            tileMaterial->setSpotLights(spotLights);
+            respawnMaterial->setSpotLights(spotLights);
+        }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setSpotLights(spot_light);
         }
@@ -120,8 +124,10 @@ namespace Model {
 
     void SnakeMeshNode3D::setPointLights(const vector<shared_ptr<PointLight>> &point_light) {
         MeshNode3D::setPointLights(point_light);
-        tileMaterial->setPointLights(point_light);
-        respawnMaterial->setPointLights(point_light);
+        if (resourceManager) {
+            tileMaterial->setPointLights(point_light);
+            respawnMaterial->setPointLights(point_light);
+        }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setPointLights(point_light);
         }
