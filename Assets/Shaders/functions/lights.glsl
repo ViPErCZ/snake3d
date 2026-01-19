@@ -209,9 +209,8 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 
     vec3 albedo = hasAlbedoTexture ? vec3(texture(material.ambient, TexCoords)) : materialColor;
-    albedo /= 5;
     vec3 ambient = light.ambient * albedo;
-    vec3 diffuse = light.diffuse * diff;
+    vec3 diffuse = light.diffuse * diff * albedo;
     vec3 specular = useMaterial ? light.specular * spec : light.specular * spec * vec3(texture(material.specular, TexCoords));
 
     return (ambient + diffuse + specular) * attenuation;

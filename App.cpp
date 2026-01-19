@@ -293,6 +293,9 @@ void App::Init() {
     resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.obj", "torch", []() {
         std::cout << "Model torch ready!" << std::endl;
     });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "streetlamp.glb", "streetlamp", []() {
+        std::cout << "Model street lamp ready!" << std::endl;
+    });
 }
 
 void App::run() {

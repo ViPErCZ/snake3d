@@ -27,6 +27,10 @@ namespace ModelUtils {
         return vertices;
     }
 
+    const vector<TextureInfo> & Mesh::getTextures() const {
+        return textures;
+    }
+
     void Mesh::bind() {
         initialize();
         vao->bind();

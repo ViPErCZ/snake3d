@@ -16,8 +16,8 @@ namespace Resource {
 
     class ObjModelLoader {
     public:
-        static shared_ptr<Mesh> loadObj(const fs::path& path);
-        static shared_ptr<Mesh> loadObjFromStr(const fs::path& path, const string& str);
+        static vector<shared_ptr<Mesh>> loadObj(const fs::path& path);
+        static vector<shared_ptr<Mesh>> loadObjFromStr(const fs::path& path, const string& str);
     };
 
 } // Resource

@@ -12,7 +12,7 @@ TEST_CASE( "Checking if field is empty to place food..." ) {
 
     const auto contextState = make_shared<ContextState>();
     const auto coinMesh = make_shared<ArrayMesh>(ArrayMesh(nullptr));
-    const auto eat = make_shared<CoinMeshNode3D>(contextState, coinMesh, nullptr);
+    const auto eat = make_shared<CoinMeshNode3D>(nullptr, contextState, coinMesh, nullptr);
     const auto levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, nullptr);
     auto light = make_shared<DirectionalLight>();
     auto spotLights = vector<shared_ptr<SpotLight> >{};

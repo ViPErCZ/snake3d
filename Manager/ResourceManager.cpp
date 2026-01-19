@@ -184,7 +184,15 @@ namespace Manager {
             pending.pop();
 
             // Nahrání do GPU atd. zde:
-            addModel(p.name, p.model);
+            if (p.model.size() == 1) {
+                addModel(p.name, p.model[0]);
+            } else {
+                int i = 0;
+                for (auto &m : p.model) {
+                    addModel(p.name + "_" + std::to_string(i), m); // add container model ???? napr meshnoder3d s modelama?
+                    i++;
+                }
+            }
 
             if (p.onReady) p.onReady();
         }

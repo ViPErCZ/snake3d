@@ -1,13 +1,31 @@
 #ifndef SNAKE3_VBO_H
 #define SNAKE3_VBO_H
 
+#include <memory>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <string>
 
+#include "../../../../Manager/TextureManager.h"
+
+using namespace Manager;
 using namespace std;
 
 namespace ModelUtils {
+
+    enum class TextureType {
+        Diffuse,  // Barva (Albedo)
+        Specular, // Lesk (nebo Metallic/Roughness v PBR)
+        Normal,   // Bump mapa
+        Emissive  // Záře
+    };
+
+    struct TextureInfo {
+        std::string path;  // Cesta k souboru nebo klíč pro embedded texturu
+        TextureType type;
+        shared_ptr<TextureManager> texture;
+    };
 
     // Structure to standardize the vertices used in the meshes
     struct Vertex

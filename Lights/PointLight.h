@@ -3,13 +3,14 @@
 
 #include <glm/vec3.hpp>
 #include "../ItemsDto/Transform.h"
+#include "../ItemsDto/Visibility.h"
 #include "../Manager/ShaderManager.h"
 
 using namespace Node3D;
 using namespace Manager;
 
 namespace Lights {
-    class PointLight : public Transform {
+    class PointLight : public Transform, public Visibility {
         glm::vec3 ambient = {};
         glm::vec3 diffuse = {};
         glm::vec3 specular = {};

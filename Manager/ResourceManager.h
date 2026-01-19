@@ -61,7 +61,7 @@ namespace Manager {
             threads.emplace_back([this, path, name, onReady]() {
                 try {
                     if constexpr (std::is_same_v<T, Mesh>) {
-                        loader->enqueue(path, [this, name, onReady](const std::shared_ptr<Mesh> &model) {
+                        loader->enqueue(path, [this, name, onReady](const std::vector<std::shared_ptr<Mesh>> &model) {
                             {
                                 std::lock_guard guard(pendingMutex);
                                 pending.push({name, model, onReady});
@@ -112,7 +112,7 @@ namespace Manager {
 
         struct PendingItem {
             std::string name;
-            std::shared_ptr<Mesh> model;
+            std::vector<std::shared_ptr<Mesh>> model;
             std::function<void()> onReady;
         };
 

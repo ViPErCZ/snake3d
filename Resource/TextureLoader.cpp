@@ -3,6 +3,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <fstream>
+#include <iostream>
+#include <GL/glew.h>
 
 #include "../Thirdparty/stbimage/stb_image.h"
 
@@ -52,12 +54,16 @@ namespace Resource {
     }
 
     unsigned int TextureLoader::bindFromBuffer(const vector<unsigned char> &buffer, const bool isAlbedo) {
+        return bindFromBuffer(buffer.data(), buffer.size(), isAlbedo);
+    }
+
+    unsigned int TextureLoader::bindFromBuffer(const void *buffer, const unsigned int length, const bool isAlbedo) {
         unsigned int textureID;
         int widthImg, heightImg, numColCh;
         glGenTextures(1, &textureID);
         unsigned char* data = stbi_load_from_memory(
-            buffer.data(),
-            static_cast<int>(buffer.size()),
+            static_cast<const unsigned char*>(buffer),
+            static_cast<int>(length),
             &widthImg,
             &heightImg,
             &numColCh,
@@ -102,13 +108,7 @@ namespace Resource {
     }
 
     vector<unsigned char> TextureLoader::loadTextureToBuffer(const fs::path &path) {
-        // std::ifstream file(path, std::ios::binary | std::ios::ate);
-        // const std::streamsize size = file.tellg();
-        // file.seekg(0, std::ios::beg);
-
         std::vector<unsigned char> out;
-        // file.read(reinterpret_cast<char*>(buffer.data()), size);
-
         namespace fs = std::filesystem;
         std::error_code ec;
 

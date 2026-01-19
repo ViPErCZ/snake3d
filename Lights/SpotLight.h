@@ -2,13 +2,14 @@
 #define SNAKE3_SPOTLIGHT_H
 
 #include "../ItemsDto/Transform.h"
+#include "../ItemsDto/Visibility.h"
 #include "../Manager/ShaderManager.h"
 
 using namespace Node3D;
 using namespace Manager;
 
 namespace Lights {
-    class SpotLight : public Transform {
+    class SpotLight : public Transform, public Visibility {
         glm::vec3 direction = {};
         glm::vec3 ambient = {};
         glm::vec3 diffuse = {};

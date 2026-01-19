@@ -94,23 +94,27 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
 
     // POINT LIGHT
     // --------------------------------
-    shader->setInt("numPointLights", static_cast<int>(pointLights.size()));
     int index = 0;
     for (const auto &pointLight: pointLights) {
-        pointLight->bind(shader.get(), index);
-        index++;
+        if (pointLight->isVisible()) {
+            pointLight->bind(shader.get(), index);
+            index++;
+        }
     }
+    shader->setInt("numPointLights", index);
     // --------------------------------
     // END POINT LIGHT
 
     // SPOT LIGHT
     // --------------------------------
-    shader->setInt("numSpotLights", static_cast<int>(spotLights.size()));
     index = 0;
     for (const auto &spotLight: spotLights) {
-        spotLight->bind(shader.get(), index);
-        index++;
+        if (spotLight->isVisible()) {
+            spotLight->bind(shader.get(), index);
+            index++;
+        }
     }
+    shader->setInt("numSpotLights", index);
     // -----------------------------------------------
     // END SPOT LIGHT
 

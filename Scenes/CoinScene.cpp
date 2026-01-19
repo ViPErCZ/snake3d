@@ -31,18 +31,11 @@ namespace Scenes {
         const auto coinMesh = make_shared<ArrayMesh>(shader);
         coinMesh->fromMesh(resourceManager->getModel("coin"));
 
-        coin = make_shared<CoinMeshNode3D>(contextState, coinMesh, resourceManager);
+        coin = make_shared<CoinMeshNode3D>(spotLights[4], contextState, coinMesh, resourceManager);
         coin->setPosition({-69.0, -69, -70.0f});
         coin->setScale({0.013888889, 0.013888889, 0.013888889});
         coin->setRotationX(90);
         coin->setVisible(false);
-
-        // const auto directionalLight = make_shared<DirectionalLight>();
-        // directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-        // directionalLight->setDirection({1, 1.0, -3});
-        // directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-        // directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-        // directionalLight->setSpecular({.091f, .091f, .091f});
 
         const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
@@ -55,9 +48,11 @@ namespace Scenes {
         coinMaterial->setNormalEnabled(true);
         coinMaterial->setDirectionalLight(directionalLight);
         coinMaterial->setBlending(Blending::Translucent);
+
+        int index = 0;
         for (auto &spotLight : spotLights) {
             coinMaterial->addSpotLight(spotLight);
-
+            index++;
             // u indexu 5 vytvorit objekt co bude drzet pozici a direction
             // takovou jako vlastni lampicku
         }
@@ -107,7 +102,7 @@ namespace Scenes {
         coinMesh2->fromMesh(resourceManager->getModel("coin"));
         coinMesh2->setAnimationPlayer(coinAnimation2);
         coinMesh2->setMaterial(coinMaterial);
-        removeCoin = make_shared<CoinMeshNode3D>(contextState, coinMesh2, resourceManager);
+        removeCoin = make_shared<CoinMeshNode3D>(nullptr, contextState, coinMesh2, resourceManager);
         removeCoin->setPosition({-69.0, -69, -70.0f});
         removeCoin->setScale({0.013888889, 0.013888889, 0.013888889});
         removeCoin->setRotationX(90);
