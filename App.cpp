@@ -71,30 +71,30 @@ void App::initScene() {
     auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
     auto environmentMap = resourceManager->getTexture("skybox");
 
-    const auto directionalLight = make_shared<DirectionalLight>();
-    directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-    directionalLight->setDirection({1, 1.0, -3});
-    directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-    directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-    directionalLight->setSpecular({.091f, .091f, .091f});
+    // const auto directionalLight = make_shared<DirectionalLight>();
+    // directionalLight->setPosition({0.0f, 7.0f, 11.0f});
+    // directionalLight->setDirection({1, 1.0, -3});
+    // directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
+    // directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
+    // directionalLight->setSpecular({.091f, .091f, .091f});
 
-    const auto spotLight = make_shared<SpotLight>();
-    spotLight->setPosition({0.0f, 0.5f, 0.2f});
-    spotLight->setDirection({0.0f, 0.0f, 0.0f});
-    spotLight->setAmbient({1.0f, 1.0f, 1.0f});
-    spotLight->setDiffuse({0.0f, 0.0f, 0.0f});
-    spotLight->setSpecular({1.0f, 1.0f, 1.0f});
-    spotLight->setCutOff(12.5);
-    spotLight->setOuterCutOff(17.5);
-
-    const auto pointLight = make_shared<PointLight>();
-    pointLight->setPosition({-0.9f, 1.1f, 0.2f});
-    pointLight->setAmbient(glm::vec3(0.6f));
-    // pointLight->setDiffuse({0.198f, 0.459f, 0.94f});
-    pointLight->setDiffuse(glm::vec3(0.0f));
-    pointLight->setSpecular(glm::vec3(0.0f));
-    pointLight->setConstant(0.0005f);
-    pointLight->setLinear(0.8f);
+    // const auto spotLight = make_shared<SpotLight>();
+    // spotLight->setPosition({0.0f, 0.5f, 0.2f});
+    // spotLight->setDirection({0.0f, 0.0f, 0.0f});
+    // spotLight->setAmbient({1.0f, 1.0f, 1.0f});
+    // spotLight->setDiffuse({0.0f, 0.0f, 0.0f});
+    // spotLight->setSpecular({1.0f, 1.0f, 1.0f});
+    // spotLight->setCutOff(12.5);
+    // spotLight->setOuterCutOff(17.5);
+    //
+    // const auto pointLight = make_shared<PointLight>();
+    // pointLight->setPosition({-0.9f, 1.1f, 0.2f});
+    // pointLight->setAmbient(glm::vec3(0.6f));
+    // // pointLight->setDiffuse({0.198f, 0.459f, 0.94f});
+    // pointLight->setDiffuse(glm::vec3(0.0f));
+    // pointLight->setSpecular(glm::vec3(0.0f));
+    // pointLight->setConstant(0.0005f);
+    // pointLight->setLinear(0.8f);
 
     planeMaterial->setColor({0.88, 0.05, 0.05});
     // planeMaterial->setColor({1, 1, 1});
@@ -127,9 +127,9 @@ void App::initScene() {
     coinMaterial->setNormalEnabled(true);
     boxMaterial->setNormalEnabled(true);
     // planeMaterial->setSpecular(gamefieldSpecular);
-    planeMaterial->setDirectionalLight(directionalLight);
-    coinMaterial->setDirectionalLight(directionalLight);
-    boxMaterial->setDirectionalLight(directionalLight);
+    // planeMaterial->setDirectionalLight(directionalLight);
+    // coinMaterial->setDirectionalLight(directionalLight);
+    // boxMaterial->setDirectionalLight(directionalLight);
     // planeMaterial->addSpotLight(spotLight);
     // planeMaterial->addPointLight(pointLight);
     // coinMaterial->addPointLight(pointLight);
@@ -290,11 +290,14 @@ void App::Init() {
     resourceManager->loadAsyncModel<Mesh>(assets_dir / "Coin.obj", "coin", []() {
         std::cout << "Model coin ready!" << std::endl;
     });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.obj", "torch", []() {
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.glb", "torch", []() {
         std::cout << "Model torch ready!" << std::endl;
     });
     resourceManager->loadAsyncModel<Mesh>(assets_dir / "streetlamp.glb", "streetlamp", []() {
         std::cout << "Model street lamp ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "barrel.glb", "barrel", []() {
+        std::cout << "Model barrel ready!" << std::endl;
     });
 }
 

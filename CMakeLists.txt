@@ -175,6 +175,13 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/Standard/SkyboxNode3D.h
         Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
         Renderer/Opengl/Material/Uniform/CallbackUniform.h
+        Renderer/Opengl/Model/Game/StreetLampNode3D.cpp
+        Renderer/Opengl/Model/Game/StreetLampNode3D.h
+        Physic/Shape.h
+        Physic/BoxShape.cpp
+        Physic/BoxShape.h
+        Renderer/Opengl/Model/Game/BarrelNode3D.cpp
+        Renderer/Opengl/Model/Game/BarrelNode3D.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -373,6 +380,13 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/SkyboxNode3D.h
         Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
         Renderer/Opengl/Material/Uniform/CallbackUniform.h
+        Renderer/Opengl/Model/Game/StreetLampNode3D.cpp
+        Renderer/Opengl/Model/Game/StreetLampNode3D.h
+        Physic/Shape.h
+        Physic/BoxShape.cpp
+        Physic/BoxShape.h
+        Renderer/Opengl/Model/Game/BarrelNode3D.cpp
+        Renderer/Opengl/Model/Game/BarrelNode3D.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -517,6 +531,13 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/SkyboxNode3D.h
         Renderer/Opengl/Material/Uniform/CallbackUniform.cpp
         Renderer/Opengl/Material/Uniform/CallbackUniform.h
+        Renderer/Opengl/Model/Game/StreetLampNode3D.cpp
+        Renderer/Opengl/Model/Game/StreetLampNode3D.h
+        Physic/Shape.h
+        Physic/BoxShape.cpp
+        Physic/BoxShape.h
+        Renderer/Opengl/Model/Game/BarrelNode3D.cpp
+        Renderer/Opengl/Model/Game/BarrelNode3D.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

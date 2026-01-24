@@ -18,7 +18,8 @@ namespace ModelUtils {
         Diffuse,  // Barva (Albedo)
         Specular, // Lesk (nebo Metallic/Roughness v PBR)
         Normal,   // Bump mapa
-        Emissive  // Záře
+        Emissive,  // Záře
+        MetalRough
     };
 
     struct TextureInfo {

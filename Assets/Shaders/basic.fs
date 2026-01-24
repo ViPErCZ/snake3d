@@ -27,7 +27,7 @@ uniform bool shadowsEnable = false;
 uniform bool pbrEnabled = false;
 uniform bool overrideColorMesh = false;
 uniform sampler2D metalness;
-uniform sampler2D roughness;
+uniform sampler2D roughnessMap;
 
 #include "functions/fog.glsl"
 #include "functions/lights.glsl"
@@ -45,29 +45,67 @@ void main()
         albedoTexture = vec4(ambientLightColor, 1.0);
     }
 
-    float metalness = pbrEnabled ? texture(metalness, TexCoords).r : 0.0;
-    float roughness = pbrEnabled ? texture(roughness, TexCoords).r : 0.5;
+    //float metalness = pbrEnabled ? texture(metalness, TexCoords).r : 0.0;
+    //float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).r : 0.5;
 
+    float metalness = pbrEnabled ? texture(metalness, TexCoords).b : 0.0;
+    float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).g : 0.5;
     vec3 F0 = vec3(0.04);
-    F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
+
+    if (pbrEnabled) {
+        roughness = clamp(roughness, 0.05, 1.0);
+        metalness = clamp(metalness, 0.0, 1.0);
+        F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
+    }
 
     vec3 normal = Normal;
     if (normalMapEnabled) {
-       vec3 tangentNormal = texture(material.diffuse, TexCoords).xyz;
+       vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
        tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
-       normal = tangentNormal;
+       normal = TBN * tangentNormal;
     }
 
     vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
-    vec3 ambient = useMaterial ? color : ambientColor * color;
     vec3 viewDir = normalize(camPos - fragPos);
+    vec3 ambient = vec3(0.0);
+
+    if (pbrEnabled) {
+        // A) PBR Ambient (IBL)
+        vec3 kS = fresnelSchlick(max(dot(normal, viewDir), 0.0), F0);
+        vec3 kD = 1.0 - kS;
+        kD *= 1.0 - metalness;
+
+        vec3 irradiance = vec3(0.03);
+        vec3 reflections = vec3(0.0);
+
+        if (iblEnabled) {
+            irradiance = CalcIBLDiffuse(normal);
+            vec3 R = reflect(-viewDir, normal);
+            reflections = CalcIBLSpecular(R, roughness, F0) * kS;
+        } else {
+             irradiance = ambientLightColor * 0.1;
+        }
+
+        vec3 diffusePart = irradiance * albedoTexture.rgb;
+
+        // Ambient Occlusion
+        float ao = texture(material.aoMap, TexCoords).r;
+        if (ao < 0.01) ao = 1.0;
+
+        // Výsledný ambient scény
+        ambient = (kD * diffusePart + reflections) * ao * ambientLightColorIntensity;
+
+    } else {
+        vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
+        ambient = useMaterial ? color : ambientLightColor * ambientLightColorIntensity * color;
+    }
+
     vec3 final = ambient;
 
     if (directionLightEnable) {
         if (pbrEnabled) {
-            final += CalcDirLightPBR(dirLight, fragPos, normal, viewDir, ambientColor, roughness, metalness, F0);
+            final += CalcDirLightPBR(dirLight, normal, fragPos, viewDir, ambient, roughness, metalness, F0);
         } else {
-
             if (shadowsEnable) {
                 vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
                 float viewDepth = -fragPosView.z;
@@ -76,34 +114,35 @@ void main()
 
                 if (cascadeIndex == 0) {
                     shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix0);
-//                     shadow = ShadowCalculation(fragPos, cascadeIndex, lightSpaceMatrix0);
                 } else if (cascadeIndex == 1)
                     shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix1);
                 else
                     shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix2);
-        //         float shadow = ShadowCalculation(fragPos, shadowMap0, lightSpaceMatrix0);
             }
 
             final = CalcDirLight(dirLight, normal, viewDir, ambient, shadow);
         }
     }
 
-    for(int i = 0; i < numPointLights; i++)
-    {
-        if (pbrEnabled) {
-            final += CalcPointLightPBR(pointLight[i], Normal, fragPos, viewDir, roughness, metalness, F0);
-        } else {
-            final += CalcPointLight(pointLight[i], Normal, fragPos, viewDir, ambient);
+    vec3 lightAlbedo = vec3(texture(material.ambient, TexCoords));
+    vec3 lightSpecular = vec3(texture(material.specular, TexCoords));
+
+    if (pbrEnabled) {
+        for(int i = 0; i < numPointLights; i++)
+        {
+            final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir,
+                                 ambient, roughness, metalness, F0);
+        }
+    } else {
+        for(int i = 0; i < numPointLights; i++)
+        {
+            final += CalcPointLight(pointLight[i], normal, fragPos, viewDir, ambient, lightAlbedo, lightSpecular);
         }
     }
 
     for(int i = 0; i < numSpotLights; i++)
     {
-       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime);
-    }
-
-    if (pbrEnabled == false) {
-        final /= 1;
+       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
     }
 
     if (fogEnable) {

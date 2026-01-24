@@ -15,7 +15,6 @@ namespace Resource {
                                                   const TextureType typeName, const aiScene *scene) {
         std::vector<TextureInfo> textures;
 
-        // Projdeme všechny textury daného typu v materiálu
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
@@ -27,10 +26,17 @@ namespace Resource {
             // Pokud cesta začíná hvězdičkou (např. "*0", "*1"), znamená to,
             // že textura je EMBEDDED (zabalená) přímo v binárním souboru.
             const aiTexture *embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
+            unsigned int dataSize = 0;
+            if (embeddedTexture->mHeight == 0) {
+                dataSize = embeddedTexture->mWidth;
+            } else {
+                dataSize = embeddedTexture->mWidth * embeddedTexture->mHeight * 4; // 4 bajty na pixel (BGRA)
+            }
             if (embeddedTexture) {
                 // Zde musíš texturu načíst z paměti (viz vysvětlení pod kódem)
-                texture.texture = std::make_shared<TextureManager>(
-                    TextureLoader::bindFromBuffer(embeddedTexture->pcData, embeddedTexture->mWidth));
+                // texture.texture = std::make_shared<TextureManager>(
+                //     TextureLoader::bindFromBuffer(embeddedTexture->pcData, embeddedTexture->mWidth));
+                texture.texture = std::make_shared<TextureManager>(embeddedTexture->pcData, dataSize);
                 std::cout << "Nalezen embedded texture: " << str.C_Str() << std::endl;
             } else {
                 // Textura je externí soubor na disku
@@ -97,9 +103,20 @@ namespace Resource {
                 std::vector<TextureInfo> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TextureType::Normal, scene);
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-                // c) EMISSIVE (Tvoje žárovka!)
+                // c) EMISSIVE
                 std::vector<TextureInfo> emissiveMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, TextureType::Emissive, scene);
                 textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
+
+                // d) REFLEXION
+                std::vector<TextureInfo> pbrMaps = loadMaterialTextures(material, aiTextureType_METALNESS, TextureType::MetalRough, scene);
+
+                // 2. Pokud nic nenašel (což je u GLTF běžné), zkusíme UNKNOWN
+                if (pbrMaps.empty()) {
+                    // V GLTF je MetalRoughness textura často mapovaná jako UNKNOWN_0
+                    pbrMaps = loadMaterialTextures(material, aiTextureType_UNKNOWN, TextureType::MetalRough, scene);
+                }
+
+                textures.insert(textures.end(), pbrMaps.begin(), pbrMaps.end());
 
                 // aiColor3D color(0.f, 0.f, 0.f);
                 // if (material->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS) {

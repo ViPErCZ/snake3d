@@ -78,6 +78,8 @@ void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 
     } else if (color) {
         shader->setVec3("ambientLightColor", *color.get());
         shader->setBool("overrideColorMesh", true);
+    } else {
+        shader->setVec3("ambientLightColor", {1.0f, 1.0f, 1.0f});
     }
 
     shader->setFloat("material.shininess", shininess);

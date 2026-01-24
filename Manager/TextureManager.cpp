@@ -1,9 +1,16 @@
 #include <GL/glew.h>
 #include "TextureManager.h"
 
+#include "../Resource/TextureLoader.h"
+
 namespace Manager {
     TextureManager::TextureManager(const unsigned int id) {
         textures.push_back(id);
+    }
+
+    TextureManager::TextureManager(const aiTexel *buffer, const unsigned int size) {
+        this->buffer.resize(size);
+        std::memcpy(this->buffer.data(), buffer, size);
     }
 
     TextureManager::~TextureManager() {
@@ -28,6 +35,13 @@ namespace Manager {
         for (auto texture: textures) {
             unbind(index);
             index++;
+        }
+    }
+
+    void TextureManager::lazyLoad(const bool isAlbedo = true) {
+        if (textures.empty()) {
+            addTexture(Resource::TextureLoader::bindFromBuffer(buffer, isAlbedo));
+            buffer.clear();
         }
     }
 

@@ -189,7 +189,8 @@ namespace Manager {
             } else {
                 int i = 0;
                 for (auto &m : p.model) {
-                    addModel(p.name + "_" + std::to_string(i), m); // add container model ???? napr meshnoder3d s modelama?
+                    addModel(p.name + "_" + std::to_string(i), m);
+                    // m->
                     i++;
                 }
             }

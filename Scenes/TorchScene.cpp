@@ -2,9 +2,11 @@
 
 #include <glm/gtc/random.hpp>
 
+#include "../Handler/Debug/PositionHandler.h"
+#include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
+#include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
-#include "../Resource/TextureLoader.h"
 
 namespace Scenes {
     TorchScene::TorchScene(
@@ -25,54 +27,17 @@ namespace Scenes {
 
         initTorch();
 
-        const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto streetLampMesh1 = make_shared<ArrayMesh>(shader);
-        streetLampMesh1->fromMesh(resourceManager->getModel("streetlamp_0"));
-        const auto streetLampMesh2 = make_shared<ArrayMesh>(shader);
-        streetLampMesh2->fromMesh(resourceManager->getModel("streetlamp_1"));
-        streetLampMesh2->setDepthWrite(false);
-        const auto streetLampMesh3 = make_shared<ArrayMesh>(shader);
-        streetLampMesh3->fromMesh(resourceManager->getModel("streetlamp_2"));
-        const auto streetLamp = make_shared<MeshNode3D>(contextState, streetLampMesh1, resourceManager);
-        const auto streetLamp2 = make_shared<MeshNode3D>(contextState, streetLampMesh2, resourceManager);
-        const auto streetLamp3 = make_shared<MeshNode3D>(contextState, streetLampMesh3, resourceManager);
-        streetLamp->setPosition({0.0,  0.0f, -7.2f});
-        streetLamp->setScale({0.13888889, 0.13888889, 0.13888889});
-        streetLamp->setRotationX(90);
-        streetLamp2->addNode(streetLamp3);
-        streetLamp->addNode(streetLamp2);
-
-        const auto streetLampMaterial = make_shared<StandardMaterial>(shader, shadowsShader);
-        streetLampMaterial->setNormalEnabled(true);
-        streetLampMaterial->setDirectionalLight(directionalLight);
-        streetLampMaterial->setBlending(Blending::Opaque);
-        streetLampMaterial->setShadow(resourceManager->getTexture("depth"));
-        streetLampMaterial->setAlbedo(streetLampMesh1->getMesh()->getTextures()[0].texture);
-        streetLampMaterial->setNormal(streetLampMesh1->getMesh()->getTextures()[1].texture);
-        streetLampMaterial->setPointLights(pointLights);
-        streetLampMesh1->setMaterial(streetLampMaterial);
-
-        const auto streetLampMaterial2 = make_shared<StandardMaterial>(shader, shadowsShader);
-        streetLampMaterial2->setDirectionalLight(directionalLight);
-        streetLampMaterial2->setBlending(Blending::Additive);
-        streetLampMaterial2->setNormalEnabled(true);
-        streetLampMaterial2->setShadow(resourceManager->getTexture("depth"));
-        streetLampMaterial2->setAlbedo(streetLampMesh2->getMesh()->getTextures()[0].texture);
-        streetLampMaterial2->setNormal(streetLampMesh2->getMesh()->getTextures()[1].texture);
-        streetLampMaterial2->setPointLights(pointLights);
-        streetLampMesh2->setMaterial(streetLampMaterial2);
-
-        const auto streetLampMaterial3 = make_shared<StandardMaterial>(shader, shadowsShader);
-        streetLampMaterial3->setDirectionalLight(directionalLight);
-        streetLampMaterial3->setBlending(Blending::Opaque);
-        streetLampMaterial3->setNormalEnabled(true);
-        streetLampMaterial3->setColor({0.98 * 200, 0.99 * 200, 0.007 * 200});
-        streetLampMaterial3->setNormal(streetLampMesh3->getMesh()->getTextures()[1].texture);
-        streetLampMaterial3->setPointLights(pointLights);
-        streetLampMesh3->setMaterial(streetLampMaterial3);
-
+        const auto streetLamp = make_shared<StreetLampNode3D>(contextState, resourceManager);
+        streetLamp->setDirectionalLight(directionalLight);
+        streetLamp->setPointLights(pointLights);
+        streetLamp->init();
         addMeshNode3D(streetLamp);
+
+        const auto barrel = make_shared<BarrelNode3D>(contextState, resourceManager);
+        barrel->setDirectionalLight(directionalLight);
+        barrel->setPointLights(pointLights);
+        barrel->init();
+        addMeshNode3D(barrel);
     }
 
     void TorchScene::initTorch() {
@@ -110,10 +75,10 @@ namespace Scenes {
         torchNode2->setScale({0.2, 0.2, 0.2});
         torchNode3->setScale({0.2, 0.2, 0.2});
         torchNode4->setScale({0.2, 0.2, 0.2});
-        torchNode->setPosition({-5.07928, -5.47677, -4.98698});
-        torchNode2->setPosition({15.2239, -5.47677, -4.98698});
-        torchNode3->setPosition({15.2753, 15.4487, -4.98698});
-        torchNode4->setPosition({-5.07928, 15.4487, -4.98698});
+        torchNode->setPosition({-5.07928, -5.47677, -3.48698});
+        torchNode2->setPosition({15.2239, -5.47677, -3.48698});
+        torchNode3->setPosition({15.2753, 15.4487, -3.48698});
+        torchNode4->setPosition({-5.07928, 15.4487, -3.48698});
 
         const auto smoke = initSmoke();
         torchNode->addNode(smoke);
@@ -160,7 +125,7 @@ namespace Scenes {
         material->set_spawn_per_frame(0.6f);
 
         const auto fire = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 1000);
-        fire->setPosition(glm::vec3(0.0, 0.6, 0.0));
+        fire->setPosition(glm::vec3(0.0, -0.1, 0.0));
         fire->setScale({2.2, 2.2, 2.2});
         fire->setRotationX(-90);
 
@@ -188,7 +153,7 @@ namespace Scenes {
         material->set_spawn_per_frame(0.6f);
 
         const auto smoke = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 10);
-        smoke->setPosition(glm::vec3(0.0, 0.783, 0.0));
+        smoke->setPosition(glm::vec3(0.0, 0.067, 0.0));
         smoke->setScale({2.0, 2.0, 2.0});
         smoke->setRotationX(-90);
 

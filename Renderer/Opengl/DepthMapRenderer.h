@@ -30,7 +30,7 @@ namespace Renderer {
 
         void bind(int index, const glm::mat4 &lightSpaceMatrix) const;
 
-        std::vector<glm::mat4> computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light);
+        std::vector<glm::mat4> computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light);
 
     protected:
         ResourceManager *resourceManager;

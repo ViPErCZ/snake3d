@@ -53,21 +53,20 @@ namespace Renderer {
     }
 
     void DepthMapRenderer::render(float dt) const {
-        // TODO: toto je tu jen proto, ze to nastavi lightPos, ale jeste vice dulezite lightSpaceMatrix
         shader->use();
 
         int index = 0;
         constexpr int NUM_CASCADES = 3;
         float cascadeEnds[NUM_CASCADES];
 
-        float lambda = 0.95f;
-        float nearClip = 0.1f;
-        float farClip = 1000.0f;
+        const float lambda = 0.95f;
+        const float nearClip = 0.1f;
+        const float farClip = 1000.0f;
 
         for (int i = 0; i < NUM_CASCADES; i++) {
-            float p = static_cast<float>(i + 1) / static_cast<float>(NUM_CASCADES);
-            float logSplit = nearClip * std::pow(farClip / nearClip, p);
-            float linSplit = nearClip + (farClip - nearClip) * p;
+            const float p = static_cast<float>(i + 1) / static_cast<float>(NUM_CASCADES);
+            const float logSplit = nearClip * std::pow(farClip / nearClip, p);
+            const float linSplit = nearClip + (farClip - nearClip) * p;
             cascadeEnds[i] = lambda * logSplit + (1.0f - lambda) * linSplit;
         }
 
@@ -96,18 +95,18 @@ namespace Renderer {
         simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
-    std::vector<glm::mat4> DepthMapRenderer::computeLightSpaceMatrix(shared_ptr<DirectionalLight> &light) {
+    std::vector<glm::mat4> DepthMapRenderer::computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light) {
         lightSpaceMatrices.clear();
         lightSpaceMatrices.resize(NUM_CASCADES);
 
-        glm::vec3 lightDir = glm::normalize(light->getDirection());
+        const glm::vec3 lightDir = glm::normalize(light->getDirection());
 
         for (int i = 0; i < NUM_CASCADES; ++i) {
-            float cameraFar = 80.0f;
-            float cameraNear = 0.1f;
+            constexpr float cameraFar = 80.0f;
+            constexpr float cameraNear = 0.1f;
 
-            float cascadeNear = (i == 0) ? cameraNear : cameraNear + cascadeSplits[i - 1] * (cameraFar - cameraNear);
-            float cascadeFar = cameraNear + cascadeSplits[i] * (cameraFar - cameraNear);
+            const float cascadeNear = (i == 0) ? cameraNear : cameraNear + cascadeSplits[i - 1] * (cameraFar - cameraNear);
+            const float cascadeFar = cameraNear + cascadeSplits[i] * (cameraFar - cameraNear);
 
             auto frustumCorners = getFrustumCornersWorldSpace(cascadeNear, cascadeFar);
 
@@ -138,7 +137,7 @@ namespace Renderer {
                 maxZ = std::max(maxZ, trf.z);
             }
 
-            float zMargin = 50.0f;
+            constexpr float zMargin = 50.0f;
             minZ -= zMargin;
             maxZ += zMargin;
 
@@ -151,24 +150,24 @@ namespace Renderer {
     }
 
     std::vector<glm::vec3> DepthMapRenderer::getFrustumCornersWorldSpace(
-        float nearPlane,
-        float farPlane
+        const float nearPlane,
+        const float farPlane
     ) const {
-        const float aspect = static_cast<float>(1920) / 1080;
-        float fov = glm::radians(camera->getZoom());
-        float tanHalfFov = tanf(fov * 0.5f);
+        constexpr float aspect = static_cast<float>(1920) / 1080;
+        const float fov = glm::radians(camera->getZoom());
+        const float tanHalfFov = tanf(fov * 0.5f);
 
         std::vector<glm::vec3> corners(8);
 
-        float nh = nearPlane * tanHalfFov;
-        float nw = nh * aspect;
-        float fh = farPlane * tanHalfFov;
-        float fw = fh * aspect;
+        const float nh = nearPlane * tanHalfFov;
+        const float nw = nh * aspect;
+        const float fh = farPlane * tanHalfFov;
+        const float fw = fh * aspect;
 
-        glm::vec3 nc = camera->getPosition() + camera->getFront() * nearPlane;
-        glm::vec3 fc = camera->getPosition() + camera->getFront() * farPlane;
-        glm::vec3 camUp = camera->getUp();
-        glm::vec3 camRight = camera->getRight();
+        const glm::vec3 nc = camera->getPosition() + camera->getFront() * nearPlane;
+        const glm::vec3 fc = camera->getPosition() + camera->getFront() * farPlane;
+        const glm::vec3 camUp = camera->getUp();
+        const glm::vec3 camRight = camera->getRight();
 
         // near plane
         corners[0] = nc + camUp * nh - camRight * nw;

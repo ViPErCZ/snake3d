@@ -14,10 +14,11 @@ namespace Scenes {
         if (directionalLight == nullptr) {
             this->directionalLight = make_shared<DirectionalLight>();
             this->directionalLight->setPosition({0.0f, 0.0f, 0.0f});
-            this->directionalLight->setDirection({-0.410001, -0.92, 0.84});
+            this->directionalLight->setDirection({-0.410001, -0.82, 0.84});
             this->directionalLight->setAmbient({0.07f, 0.07f, 0.07f});
-            this->directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
-            this->directionalLight->setSpecular({.091f, .091f, .091f});
+            //this->directionalLight->setDiffuse({0.0f, 0.0f, 0.0f});
+            this->directionalLight->setDiffuse({0.01f, 0.01f, 0.01f});
+            this->directionalLight->setSpecular({.051f, .051f, .051f});
         }
 
         this->spotLights = spotLights;

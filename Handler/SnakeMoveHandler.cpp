@@ -128,7 +128,7 @@ namespace Handler {
 
         const double now = glfwGetTime();
 
-        if (now - next_time >= 0.005) {
+        if (now - next_time >= 0.00005) {
             if (changeCallback) {
                 if (changeCallback(snakeMeshNode)) {
                     changeCallback = nullptr;

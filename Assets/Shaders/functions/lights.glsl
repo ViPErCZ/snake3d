@@ -52,7 +52,7 @@ struct SpotLight {
     bool pulse;
 };
 
-#define NR_POINT_LIGHTS 160
+#define NR_POINT_LIGHTS 8
 
 uniform DirLight dirLight;
 uniform MaterialDirLight materialDirLight;
@@ -75,7 +75,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
 vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor);
-vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float roughness, float metalness, vec3 F0);
+vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer);
 vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
@@ -104,9 +104,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
     }
 
     vec3 diffuse = light.diffuse * diff;
-//    if (normalMapEnabled) {
-//        diffuse *= vec3(texture(material.diffuse, TexCoords));
-//    }
+    if (normalMapEnabled) {
+        diffuse *= vec3(texture(material.diffuse, TexCoords));
+    }
     vec3 specular = light.specular * spec;
     if (specularMapEnabled) {
         specular *= vec3(texture(material.specular, TexCoords));
@@ -124,8 +124,6 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
     vec3 ambientGray = vec3(luminance);
     vec3 ambientAdjusted = mix(ambientDark, ambientGray, shadowAmount * clamp(uShadowDesaturateStrength, 0.0, 1.0));
 
-    //(ambientAdjusted + (1.0 - shadow) * (diffuse + specular) * ambient);
-
     return ambientAdjusted + (diffuse + specular) * (1.0 - shadow);
 }
 
@@ -139,45 +137,30 @@ vec3 CalcDirLightPBR(
     float metalness,
     vec3 F0
     ) {
-    // normalizace
     vec3 N = normalize(normal);
     vec3 V = normalize(viewDir);
-    vec3 L = normalize(light.position - fragPos);
+    vec3 L = normalize(-light.direction);
     vec3 H = normalize(V + L);
 
     float NdotL = max(dot(N, L), 0.0);
 
-    // PBR výpočty
+    // PBR Cook-Torrance
     float NDF = DistributionGGX(N, H, roughness);
     float G   = GeometrySmith(N, V, L, roughness);
     vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-    vec3 albedo = texture(material.ambient, TexCoords).rgb;
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * NdotL + 0.0001;
+    vec3 specular = numerator / denominator;
 
     vec3 kS = F;
-    vec3 kD = (vec3(1.0) - kS) * (1.0 - metalness);
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metalness;
 
-    vec3 diffuse = kD * albedo / 3.14159265;
-    vec3 specular = (NDF * G * F) / max(4.0 * max(dot(N, V), 0.0) * NdotL, 0.001);
+    vec3 albedo = texture(material.ambient, TexCoords).rgb;
 
-    // ambientní složka + fallback spekulár pro kov
-    vec3 ambient = ambientColor * albedo;
-    ambient += F0 * metalness * 0.5; // fallback: kov vždy trochu odráží, i bez IBL
-    float ao = texture(material.aoMap, TexCoords).r;
-    ambient *= ao;
-
-    // přímé světlo
-    vec3 color = ambient + (diffuse + specular) * light.diffuse * NdotL;
-
-    // IBL, pokud je povoleno a environment mapy jsou dostupné
-    if (iblEnabled) {
-        vec3 R = reflect(-V, N);
-        vec3 iblDiffuse  = CalcIBLDiffuse(N) * kD * albedo;
-        vec3 iblSpecular = CalcIBLSpecular(R, roughness, F0);
-        color += iblDiffuse + iblSpecular;
-    }
-
-    return color;
+    // Výsledek je jen Diffuse + Specular od SLUNCE
+    return (kD * albedo / 3.14159265 + specular) * light.diffuse * NdotL;
 }
 
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient)
@@ -196,7 +179,7 @@ vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec
 }
 
 // calculates the color when using a point light.
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor)
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, vec3 albedoColor, vec3 specularColor)
 {
     vec3 N = normalize(normal);
     vec3 lightDir = normalize(light.position - fragPos);
@@ -206,54 +189,50 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     float spec = pow(max(dot(normalize(viewDir), reflectDir), 0.0), material.shininess);
 
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+    distance = max(distance, 0.1);
+    float ld = (light.constant + light.linear * distance + light.quadratic * distance * distance);
+    ld = max(ld, 0.1);
+    float attenuation = 1.0 / ld;
 
-    vec3 albedo = hasAlbedoTexture ? vec3(texture(material.ambient, TexCoords)) : materialColor;
+    vec3 albedo = hasAlbedoTexture ? albedoColor : materialColor;
     vec3 ambient = light.ambient * albedo;
     vec3 diffuse = light.diffuse * diff * albedo;
-    vec3 specular = useMaterial ? light.specular * spec : light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 specular = useMaterial ? light.specular * spec : light.specular * spec * specularColor;
 
     return (ambient + diffuse + specular) * attenuation;
 }
 
-vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float roughness, float metalness, vec3 F0)
+vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0)
 {
-    vec3 N = normalize(normal);
-    vec3 V = normalize(viewDir);
+    roughness = max(roughness, 0.05);
+
     vec3 L = normalize(light.position - fragPos);
-    vec3 H = normalize(V + L);
+    vec3 H = normalize(viewDir + L);
 
-    float NdotL = max(dot(N, L), 0.0);
-
-    // PBR Fresnel, NDF, Geometry
-    float NDF = DistributionGGX(N, H, roughness);
-    float G   = GeometrySmith(N, V, L, roughness);
-    vec3 F    = fresnelSchlick(max(dot(N, V), 0.0), F0);
-
-    // kS/kD
-    vec3 kS = F;
-    vec3 kD = (vec3(1.0) - kS) * (1.0 - metalness);
-
-    // Albedo
-    vec3 albedo = texture(material.ambient, TexCoords).rgb;
-
-    // Difuse a specular
-    vec3 diffuse  = kD * albedo / 3.14159265;
-    vec3 specular = (NDF * G * F) / max(4.0 * max(dot(N, V), 0.0) * NdotL, 0.001) + F0 * metalness * 0.1;
-
-    // Attenuace
+    // Ochrana distance (proti crashi)
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+    distance = max(distance, 0.05);
+    float ld = (light.constant + light.linear * distance + light.quadratic * distance * distance);
+    ld = max(ld, 0.05);
 
-    vec3 ambient = albedo * 0.03; // malé neutrální ambientní světlo
-    float ao = texture(material.aoMap, TexCoords).r;
-    ambient *= ao;
+    float attenuation = 1.0 / ld;
+    vec3 radiance = light.diffuse * attenuation;
 
-    // Kombinace světla
-    vec3 color = ambient + (diffuse + specular) * light.diffuse * NdotL;
-    color *= attenuation;
+    float NDF = DistributionGGX(normal, H, roughness);
+    float G   = GeometrySmith(normal, viewDir, L, roughness);
+    vec3 F    = fresnelSchlick(max(dot(H, viewDir), 0.0), F0);
 
-    return color;
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metalness;
+
+    float NdotL = max(dot(normal, L), 0.001);
+
+    return (kD * albedo / 3.14159265 + specular) * radiance * NdotL;
 }
 
 float computePulse(float timer)
@@ -269,7 +248,7 @@ float computePulse(float timer)
 }
 
 // calculates the color when using a spot light.
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer)
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer, vec3 albedoColor, vec3 specularColor)
 {
     float currentCutOff = light.cutOff;
     float currentOuterCutOff = light.outerCutOff;
@@ -298,11 +277,11 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     float epsilon = currentCutOff - currentOuterCutOff;
     float intensity = clamp((theta - currentOuterCutOff) / epsilon, 0.0, 1.0);
     // combine results
-    vec3 ambient = light.ambient * (hasAlbedoTexture ? vec3(texture(material.ambient, TexCoords)) : materialColor);
+    vec3 ambient = light.ambient * (hasAlbedoTexture ? albedoColor : materialColor);
     vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec;
     if (specularMapEnabled) {
-        specular = specular * vec3(texture(material.specular, TexCoords));
+        specular = specular * specularColor;
     }
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
@@ -360,27 +339,25 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
-    float a = roughness*roughness;
-    float a2 = a*a;
+    float a = roughness * roughness;
+    float a2 = a * a;
     float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
+    float NdotH2 = NdotH * NdotH;
 
     float nom   = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = 3.141592 * denom * denom;
-
-    return nom / denom;
+    denom = 3.14159265 * denom * denom;
+    return nom / max(denom, 0.000001);
 }
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
+    float k = (r * r) / 8.0;
 
     float nom   = NdotV;
     float denom = NdotV * (1.0 - k) + k;
-
-    return nom / denom;
+    return nom / max(denom, 0.000001); // Ochrana
 }
 
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
@@ -396,7 +373,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 vec3 CalcIBLSpecular(vec3 R, float roughness, vec3 F0) {
     vec3 prefilteredColor;
     if (iblEnabled) {
-        prefilteredColor = textureLod(environmentMap, R, roughness * 4.0).rgb;
+        return textureLod(environmentMap, R, roughness * 4.0).rgb;
     }  else {
         prefilteredColor = F0 * vec3(0) * 0.3;
     }

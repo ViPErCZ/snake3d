@@ -37,7 +37,6 @@ namespace Scenes {
         boxMaterial->setAlbedo(brickWall);
         boxMaterial->setNormal(brickWallNormal);
         boxMaterial->setSpecular(brickWallSpecular);
-        boxMaterial->setColor({1.0, 1.0, 1.0});
         boxMaterial->setAmbientLightColorIntensity(0.1);
         boxMaterial->setDirectionalLight(directionalLight);
         boxMaterial->setSpotLights(spotLights);

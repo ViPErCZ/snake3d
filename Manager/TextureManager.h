@@ -2,6 +2,7 @@
 #define SNAKE3_TEXTUREMANAGER_H
 
 #include <vector>
+#include <assimp/texture.h>
 
 using namespace std;
 
@@ -11,7 +12,9 @@ namespace Manager {
         explicit TextureManager() = default;
 
         explicit TextureManager(unsigned int id);
-        
+
+        explicit TextureManager(const aiTexel *buffer, unsigned int size);
+
         ~TextureManager();
 
         void addTexture(unsigned int id);
@@ -28,10 +31,13 @@ namespace Manager {
 
         void unbind() const;
 
+        void lazyLoad(bool isAlbedo);
+
         [[nodiscard]] bool hasTexture() const;
 
     protected:
         vector<unsigned int> textures;
+        vector<unsigned char> buffer;
     };
 } // Manager
 

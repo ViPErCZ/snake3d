@@ -168,9 +168,10 @@ namespace Scenes {
         pointLight1->setPosition({-0.03, 0.201801, -0.656399});
         pointLight1->setAmbient({0.05f, 0.05f, 0.05f});
         pointLight1->setDiffuse({1.0f, 0.95f, 0.8f});
-        pointLight1->setSpecular({1.0f, 1.0f, 1.0f});
+        pointLight1->setSpecular({0.01f, 0.01f, 0.01f});
         pointLight1->setConstant(1.0f);
-        pointLight1->setLinear(10.09f);
+        pointLight1->setLinear(8.09f);
+        pointLight1->setQuadratic(0.032f);
 
         const auto pointLight2 = make_shared<PointLight>();
         pointLight2->setPosition({2.15, 1.2218, -0.656399});
