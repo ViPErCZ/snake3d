@@ -74,14 +74,14 @@ namespace Scenes {
 
     void Scene::addMeshNode3D(shared_ptr<MeshNode3D> node, const int priority) {
         meshNode3d.push_back({std::move(node), priority});
-        stable_sort(meshNode3d.begin(), meshNode3d.end(),
-                     [](auto &a, auto &b) { return a.priority > b.priority; });
+        ranges::stable_sort(meshNode3d,
+                            [](auto &a, auto &b) { return a.priority > b.priority; });
     }
 
     void Scene::addMeshNode2D(shared_ptr<MeshNode2D> node, const int priority) {
         meshNode2d.push_back({std::move(node), priority});
-        stable_sort(meshNode2d.begin(), meshNode2d.end(),
-                     [](auto &a, auto &b) { return a.priority > b.priority; });
+        ranges::stable_sort(meshNode2d,
+                            [](auto &a, auto &b) { return a.priority > b.priority; });
     }
 
     vector<RendererEntry3D> Scene::getAllMeshNodes3D() const {

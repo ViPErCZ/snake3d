@@ -27,24 +27,17 @@ namespace Physic {
 
         static AABB CalculateAABB(const glm::mat4& modelMatrix, const glm::vec3& localHalfExtents) {
 
-            // 1. Střed (pozice) je jasný - 4. sloupec matice
             const auto center = glm::vec3(modelMatrix[3]);
 
-            // 2. Trik: Získáme "Right", "Up", "Forward" vektory z matice
-            // A rovnou si vezmeme jejich absolutní hodnoty.
-            // Tím ignorujeme směr (jestli míří doleva nebo doprava) a zajímá nás jen "jak moc zabírají místa".
             const glm::vec3 right   = glm::abs(glm::vec3(modelMatrix[0]));
             const glm::vec3 up      = glm::abs(glm::vec3(modelMatrix[1]));
             const glm::vec3 forward = glm::abs(glm::vec3(modelMatrix[2]));
 
-            // 3. Nové HalfExtents pro AABB
-            // Promítneme lokální rozměry do světových os
             const glm::vec3 newHalfExtents =
                   right   * localHalfExtents.x
                 + up      * localHalfExtents.y
                 + forward * localHalfExtents.z;
 
-            // 4. Výsledek
             return { center - newHalfExtents, center + newHalfExtents };
         }
     };

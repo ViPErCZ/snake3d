@@ -55,7 +55,7 @@ namespace Scenes {
 
         const auto rain = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 6000);
 
-        // addMeshNode3D(rain);
+        addMeshNode3D(rain);
     }
 
     void WeatherScene::initRainDrop() {
@@ -81,7 +81,7 @@ namespace Scenes {
         const auto quad2D = make_shared<QuadNode2D>(0.9, 1.2);
         const auto rainDrop2D = make_shared<GPUParticle2D>(material, contextState, quad2D, resourceManager, 5);
 
-        // addMeshNode2D(rainDrop2D, 1);
+        addMeshNode2D(rainDrop2D, 1);
     }
 
     void WeatherScene::initSnow() {
@@ -111,7 +111,7 @@ namespace Scenes {
 
         const auto snow = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 6000);
 
-        // addMeshNode3D(snow);
+        addMeshNode3D(snow);
     }
 
     void WeatherScene::initExplosion() {
@@ -139,7 +139,7 @@ namespace Scenes {
         explosion2->setPosition(glm::vec3(2.0, 0.6, 0.0));
         explosion2->setTimeOffset(0.2f);
 
-        // addMeshNode3D(explosion1);
-        // addMeshNode3D(explosion2);
+        addMeshNode3D(explosion1);
+        addMeshNode3D(explosion2);
     }
 } // Scenes
