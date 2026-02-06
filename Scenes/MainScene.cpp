@@ -31,8 +31,6 @@ namespace Scenes {
     void MainScene::init(const int priority) {
         Scene::init(priority);
 
-        positionHandler = make_shared<PositionHandler>(camera);
-        keyboardManager->addEventHandler(positionHandler);
         collisionDetector = make_shared<CollisionDetector>();
         initLights();
         initPlayerScene();
@@ -57,12 +55,14 @@ namespace Scenes {
         dirLightNode->setDirectionalLight(directionalLight);
         addMeshNode3D(dirLightNode);
 
-        positionHandler->addItem(directionalLight);
-        for (auto &spotLight : spotLights) {
-            positionHandler->addItem(spotLight);
-        }
-        for (auto &pointLight : pointLights) {
-            positionHandler->addItem(pointLight);
+        if (positionHandler != nullptr) {
+            // positionHandler->addItem(directionalLight);
+            // for (auto &spotLight : spotLights) {
+            //     positionHandler->addItem(spotLight);
+            // }
+            // for (auto &pointLight : pointLights) {
+            //     positionHandler->addItem(pointLight);
+            // }
         }
     }
 

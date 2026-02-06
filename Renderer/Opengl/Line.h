@@ -1,35 +1,32 @@
 #include "../../stdafx.h"
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
-using namespace glm;
 
 class Line {
     int shaderProgram;
-    unsigned int VBO, VAO;
+    unsigned int VBO{}, VAO{};
     vector<float> vertices;
-    vec3 startPoint;
-    vec3 endPoint;
-    mat4 MVP;
-    vec3 lineColor;
+    glm::vec3 startPoint{};
+    glm::vec3 endPoint{};
+    glm::mat4 MVP{};
+    glm::vec3 lineColor{};
 public:
-    Line(vec3 start, vec3 end) {
+    Line(glm::vec3 start, glm::vec3 end) {
 
         startPoint = start;
         endPoint = end;
-        lineColor = vec3(1,1,1);
-        MVP = mat4(1.0f);
+        lineColor = glm::vec3(1,1,1);
+        MVP = glm::mat4(1.0f);
 
-        const char *vertexShaderSource = "#version 330 core\n"
+        const auto vertexShaderSource = "#version 330 core\n"
                                          "layout (location = 0) in vec3 aPos;\n"
                                          "uniform mat4 MVP;\n"
                                          "void main()\n"
                                          "{\n"
                                          "   gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
                                          "}\0";
-        const char *fragmentShaderSource = "#version 330 core\n"
+        const auto fragmentShaderSource = "#version 330 core\n"
                                            "out vec4 FragColor;\n"
                                            "uniform vec3 color;\n"
                                            "void main()\n"
@@ -39,13 +36,13 @@ public:
 
         // vertex baseShader
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShader);
         // check for baseShader compile errors
 
         // fragment baseShader
-        int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+        const int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
         glCompileShader(fragmentShader);
         // check for baseShader compile errors
 
@@ -72,7 +69,7 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
         glEnableVertexAttribArray(0);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -80,28 +77,24 @@ public:
 
     }
 
-    int setMVP(mat4 mvp) {
+    void setMVP(const glm::mat4 &mvp) {
         MVP = mvp;
-        return 1;
     }
 
-    int setColor(vec3 color) {
+    void setColor(const glm::vec3 color) {
         lineColor = color;
-        return 1;
     }
 
-    int draw() {
+    void draw() {
         glUseProgram(shaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MVP"), 1, GL_FALSE, &MVP[0][0]);
         glUniform3fv(glGetUniformLocation(shaderProgram, "color"), 1, &lineColor[0]);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINES, 0, 2);
-        return 1;
     }
 
     ~Line() {
-
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
         glDeleteProgram(shaderProgram);

@@ -182,6 +182,14 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Physic/BoxShape.h
         Renderer/Opengl/Model/Game/BarrelNode3D.cpp
         Renderer/Opengl/Model/Game/BarrelNode3D.h
+        Renderer/Opengl/Model/Collision/CollisionShape3D.cpp
+        Renderer/Opengl/Model/Collision/CollisionShape3D.h
+        Physic/CollisionCheck.h
+        Physic/CollisionSystem3D.cpp
+        Physic/CollisionSystem3D.h
+        Physic/CollisionCheck.cpp
+        Physic/Algorithms/CollisionAlgorithms.cpp
+        Physic/Algorithms/CollisionAlgorithms.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -387,6 +395,14 @@ set(APP_SOURCES
         Physic/BoxShape.h
         Renderer/Opengl/Model/Game/BarrelNode3D.cpp
         Renderer/Opengl/Model/Game/BarrelNode3D.h
+        Renderer/Opengl/Model/Collision/CollisionShape3D.cpp
+        Renderer/Opengl/Model/Collision/CollisionShape3D.h
+        Physic/CollisionCheck.h
+        Physic/CollisionSystem3D.cpp
+        Physic/CollisionSystem3D.h
+        Physic/CollisionCheck.cpp
+        Physic/Algorithms/CollisionAlgorithms.cpp
+        Physic/Algorithms/CollisionAlgorithms.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -538,6 +554,14 @@ add_library(snake3d_lib ${APP_SOURCES}
         Physic/BoxShape.h
         Renderer/Opengl/Model/Game/BarrelNode3D.cpp
         Renderer/Opengl/Model/Game/BarrelNode3D.h
+        Renderer/Opengl/Model/Collision/CollisionShape3D.cpp
+        Renderer/Opengl/Model/Collision/CollisionShape3D.h
+        Physic/CollisionCheck.h
+        Physic/CollisionSystem3D.cpp
+        Physic/CollisionSystem3D.h
+        Physic/CollisionCheck.cpp
+        Physic/Algorithms/CollisionAlgorithms.cpp
+        Physic/Algorithms/CollisionAlgorithms.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

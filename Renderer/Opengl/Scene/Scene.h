@@ -4,9 +4,11 @@
 #include <memory>
 #include <vector>
 #include "SceneRenderer.h"
+#include "../../../Handler/Debug/PositionHandler.h"
 #include "../../../Manager/KeyboardManager.h"
 #include "../../../Manager/RenderManager.h"
 #include "../../../Manager/ResourceManager.h"
+#include "../../../Physic/CollisionSystem3D.h"
 
 using namespace std;
 using namespace Model;
@@ -57,6 +59,8 @@ namespace Scenes {
         unique_ptr<KeyboardManager> keyboardManager;
         shared_ptr<Camera> camera;
         shared_ptr<ContextState> contextState;
+        shared_ptr<PositionHandler> positionHandler;
+        shared_ptr<CollisionSystem3D> collisionSystem;
         glm::mat4 projection;
         vector<shared_ptr<Scene>> nodes;
         weak_ptr<Scene> parent;

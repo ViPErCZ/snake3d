@@ -3,6 +3,8 @@
 #include <glm/gtc/random.hpp>
 
 #include "../Handler/Debug/PositionHandler.h"
+#include "../Physic/BoxShape.h"
+#include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
@@ -37,6 +39,7 @@ namespace Scenes {
         barrel->setDirectionalLight(directionalLight);
         barrel->setPointLights(pointLights);
         barrel->init();
+
         addMeshNode3D(barrel);
     }
 
@@ -92,10 +95,33 @@ namespace Scenes {
         torchNode3->addNode(fire);
         torchNode4->addNode(fire);
 
+        const auto boxShape = make_shared<BoxShape>(glm::vec3(1, 2, 1));
+        const auto boxShape2 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
+        const auto boxShape3 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
+        const auto boxShape4 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape2);
+        const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape3);
+        const auto shape4 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape4);
+        shape->setPosition(glm::vec3(0, -0.5f, 0));
+        shape2->setPosition(glm::vec3(0, -0.5f, 0));
+        shape3->setPosition(glm::vec3(0, -0.5f, 0));
+        shape4->setPosition(glm::vec3(0, -0.5f, 0));
+        torchNode->addNode(shape);
+        torchNode2->addNode(shape2);
+        torchNode3->addNode(shape3);
+        torchNode4->addNode(shape4);
+        collisionSystem->addCollider(torchNode);
+        collisionSystem->addCollider(torchNode2);
+        collisionSystem->addCollider(torchNode3);
+        collisionSystem->addCollider(torchNode4);
+
         addMeshNode3D(torchNode, 1);
         addMeshNode3D(torchNode2, 1);
         addMeshNode3D(torchNode3, 1);
         addMeshNode3D(torchNode4, 1);
+
+        positionHandler->addItem(torchNode);
     }
 
     shared_ptr<GPUParticle3D> TorchScene::initFire() {

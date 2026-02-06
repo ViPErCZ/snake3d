@@ -31,6 +31,8 @@ namespace Model {
 
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
 
+        [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getCollisionShapes() const;
+
         virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
         
         virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
@@ -62,6 +64,7 @@ namespace Model {
         shared_ptr<StandardMesh> mesh;
         weak_ptr<MeshNode3D> parent;
         vector<shared_ptr<MeshNode3D> > children;
+        vector<shared_ptr<MeshNode3D> > collisionShapes;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<DirectionalLight> directionalLight;
         vector<shared_ptr<SpotLight> > spotLights;

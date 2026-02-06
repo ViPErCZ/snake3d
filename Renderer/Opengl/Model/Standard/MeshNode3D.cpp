@@ -1,5 +1,7 @@
 #include "MeshNode3D.h"
 
+#include "../Collision/CollisionShape3D.h"
+
 namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
@@ -19,6 +21,10 @@ namespace Model {
         }
         children.push_back(node);
         childrenChangedSignal = true;
+
+        if (const auto collisionShape = std::dynamic_pointer_cast<CollisionShape::CollisionShape3D>(node)) {
+            collisionShapes.push_back(node);
+        }
     }
 
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
@@ -28,7 +34,9 @@ namespace Model {
             contextState->setBlendingMode(mesh->getBlending());
             contextState->setDepthTest(mesh->getDepthTest());
             contextState->setDepthWrite(mesh->getDepthWrite());
-            mesh->render(camera, projection, 1, finalTransform, shadows);
+            if (mesh != nullptr) {
+                mesh->render(camera, projection, 1, finalTransform, shadows);
+            }
 
             for (auto &node: children) {
                 node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform, shadows);
@@ -47,7 +55,9 @@ namespace Model {
 
         lastUpdatedFrame = frameId;
 
-        mesh->update(dt);
+        if (mesh != nullptr) {
+            mesh->update(dt);
+        }
         for (const auto &node: children) {
             node->update(dt, frameId);
         }
@@ -63,7 +73,9 @@ namespace Model {
                                    const glm::mat4 &parentTransform) const {
         if (visible) {
             const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
-            mesh->renderShadowMap(camera, projection, dt, finalTransform);
+            if (mesh != nullptr) {
+                mesh->renderShadowMap(camera, projection, dt, finalTransform);
+            }
             for (const auto &node: children) {
                 node->renderShadows(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
             }
@@ -76,6 +88,10 @@ namespace Model {
 
     const vector<shared_ptr<MeshNode3D>> &MeshNode3D::getChildren() const {
         return children;
+    }
+
+    const vector<shared_ptr<MeshNode3D>> & MeshNode3D::getCollisionShapes() const {
+        return collisionShapes;
     }
 
     void MeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
@@ -100,7 +116,7 @@ namespace Model {
         }
     }
 
-    void MeshNode3D::animationStart(const string &name, bool loop) {
+    void MeshNode3D::animationStart(const string &name, const bool loop) {
         try {
             animation = name;
             mesh->animationPlay(name, loop);

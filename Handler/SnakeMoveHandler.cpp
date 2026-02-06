@@ -4,6 +4,11 @@ namespace Handler {
     SnakeMoveHandler::SnakeMoveHandler(const shared_ptr<SnakeMeshNode3D> &snake_mesh_node)
         : snakeMeshNode(snake_mesh_node), eatenUpCallbackCalled(false) {
         stop = false;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
+        constexpr double stepsPerTile = static_cast<double>(CUBE_SIZE) / static_cast<double>(VIRTUAL_MOVE);
+        constexpr double tilesPerSecond = 3.5;
+        moveInterval = 1.0 / (tilesPerSecond * stepsPerTile);
     }
 
     SnakeMoveHandler::~SnakeMoveHandler() = default;
@@ -122,13 +127,20 @@ namespace Handler {
     }
 
     void SnakeMoveHandler::onDefaultHandler() {
+        const double now = glfwGetTime();
+        const double deltaTime = now - lastTime;
+        lastTime = now;
+
         if (stop) {
             return;
         }
 
-        const double now = glfwGetTime();
+        moveAccumulator += deltaTime;
 
-        if (now - next_time >= 0.00005) {
+        // Zpracovávej kroky v pevném intervalu odvozeném od požadované rychlosti (dlaždice/s)
+        while (moveAccumulator >= moveInterval) {
+            moveAccumulator -= moveInterval;
+
             if (changeCallback) {
                 if (changeCallback(snakeMeshNode)) {
                     changeCallback = nullptr;
@@ -137,6 +149,7 @@ namespace Handler {
 
             if (snakeMeshNode->getDirection() == SnakeMeshNode3D::NONE || snakeMeshNode->getDirection() ==
                 SnakeMeshNode3D::STOP) {
+                moveAccumulator = 0; // Resetujeme akumulátor, pokud se had zastavil nebo ještě nevyjel
                 return;
             }
 
@@ -155,13 +168,8 @@ namespace Handler {
 
             moveTile(snakeMeshNode);
 
-            next_time = now;
-
-            //
             // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
             if (collisionDetector && snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
-                 // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
-                 // pokud ano, tak checkneme kolizi s jidlem
                  const bool l_allowed = isChangeDirectionAllowed();
                  if (l_allowed && collisionDetector->detectWithStaticItem(snakeMeshNode)) {
                      cout << "Head position(eaten): " << snakeMeshNode->getPosition().x << ", " << snakeMeshNode->getPosition().y << endl;
@@ -172,16 +180,6 @@ namespace Handler {
                          changeCallback = nullptr;
                      }
                  }
-            //
-            //     if (collisionDetector->perimeterDetect(snakeHead->tile)
-            //         || collisionDetector->barrierCollision(snakeHead->tile)
-            //         || CollisionDetector::intoHimSelf(snake)
-            //     ) {
-            //         if (crashCallback) {
-            //             crashCallback(); // doslo k narazu
-            //         }
-            //         changeCallback = nullptr;
-            //     }
             }
         }
     }

@@ -38,7 +38,9 @@ namespace Handler {
         [[nodiscard]] bool isNewDirectionCorrect(unsigned int direction) const;
         shared_ptr<SnakeMeshNode3D> snakeMeshNode;
         shared_ptr<CollisionDetector> collisionDetector{};
-        double next_time{};
+        double lastTime{};
+        double moveAccumulator{};
+        double moveInterval = 0.1; // Výchozí interval pohybu (např. 10 kroků za sekundu)
         bool stop;
         bool eatenUpCallbackCalled;
         std::function<bool(shared_ptr<SnakeMeshNode3D>)> changeCallback;

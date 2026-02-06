@@ -23,12 +23,15 @@ namespace Scenes {
 
         this->spotLights = spotLights;
         this->pointLights = pointLights;
+        collisionSystem = make_shared<CollisionSystem3D>();
         keyboardManager = make_unique<KeyboardManager>();
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
         contextState = rendererManager->getContextState();
     }
 
     void Scene::init(const int priority) {
+        positionHandler = make_shared<PositionHandler>(camera);
+        keyboardManager->addEventHandler(positionHandler);
         rendererManager->addRenderer(sceneRenderer, priority);
         rendererManager->updateDirectionalLight(directionalLight);
     }
@@ -39,6 +42,7 @@ namespace Scenes {
 
     void Scene::update() {
         keyboardManager->runDefault();
+        collisionSystem->update();
         sceneRenderer->update(meshNode3d, meshNode2d);
         for (const auto &node: nodes) {
             node->update();

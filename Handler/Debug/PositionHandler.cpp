@@ -36,7 +36,7 @@ namespace Handler {
                                 directLight->setDirection(direction);
                             }
                         } else {
-                            pos.x += 0.01f;
+                            pos.x += 0.1f;  // * SCALE
                         }
                     } else {
                         pos.x += 0.0001f;
@@ -54,7 +54,7 @@ namespace Handler {
                                 directLight->setDirection(direction);
                             }
                         } else {
-                            pos.x -= 0.01f;
+                            pos.x -= 0.1f; // * SCALE
                         }
                     } else {
                         pos.x -= 0.0001f;
@@ -72,7 +72,7 @@ namespace Handler {
                                 directLight->setDirection(direction);
                             }
                         } else {
-                            pos.y += 0.01f;
+                            pos.y += 0.1f;
                         }
                     } else {
                         pos.y += 0.0001f;
@@ -90,7 +90,7 @@ namespace Handler {
                                 directLight->setDirection(direction);
                             }
                         } else {
-                            pos.y -= 0.01f;
+                            pos.y -= 0.1f;
                         }
                     } else {
                         pos.y -= 0.0001f;
