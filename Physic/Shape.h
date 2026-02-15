@@ -6,7 +6,6 @@
 
 #include "../ItemsDto/Transform.h"
 #include "../Manager/Camera.h"
-#include "../Renderer/Opengl/Line.h"
 
 using namespace Manager;
 using namespace Node3D;
@@ -14,8 +13,7 @@ using namespace Node3D;
 namespace Physic {
 
     enum class ShapeType {
-        Sphere,
-        Box
+        Box, Sphere,
     };
 
     struct AABB {
@@ -66,29 +64,6 @@ namespace Physic {
             corners[7] = glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z); // min-max-max
 
             return corners;
-        }
-
-        static void DrawAABB(const AABB& aabb, glm::mat4 mvp, glm::vec3 color) {
-            auto corners = GetAABBCorners(aabb);
-
-            // Definice párů indexů, které tvoří čáry
-            int indices[] = {
-                0,1, 1,2, 2,3, 3,0, // Spodek
-                4,5, 5,6, 6,7, 7,4, // Vršek
-                0,4, 1,5, 2,6, 3,7  // Sloupky
-            };
-
-            // Vykreslení 12 čar
-            for (int i = 0; i < 24; i += 2) {
-                glm::vec3 start = corners[indices[i]];
-                glm::vec3 end   = corners[indices[i+1]];
-
-                // Tvoje funkce pro vykreslení čáry ve 3D
-                Line line(start, end);
-                line.setColor(color);
-                line.setMVP(mvp);
-                line.draw();
-            }
         }
 
     private:

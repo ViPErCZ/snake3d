@@ -1,0 +1,42 @@
+#include "SphereShape.h"
+
+#include "../Renderer/Opengl/Model/Standard/SphereMesh.h"
+
+namespace Physic {
+    SphereShape::SphereShape(const shared_ptr<ResourceManager> &resourceManager,
+        const shared_ptr<ContextState> &contextState, const float radius) : radius(radius) {
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
+        // material
+        material = make_shared<StandardMaterial>(shader, shadowsShader);
+        material->setNormalEnabled(false);
+        material->setAlpha(0.2);
+        material->setBlending(Blending::Translucent);
+        auto sphereMesh = make_shared<SphereMesh>(shader, 1.0f);
+        sphereMesh->setMaterial(material);
+        meshNode = make_shared<MeshNode3D>(contextState, sphereMesh, resourceManager);
+    }
+
+    SphereShape::SphereWorldData SphereShape::BuildSphere(const glm::mat4 &modelMatrix) const {
+        SphereWorldData data{};
+        data.center = glm::vec3(modelMatrix[3]);
+
+        const auto scale = glm::vec3(
+            glm::length(glm::vec3(modelMatrix[0])),
+            glm::length(glm::vec3(modelMatrix[1])),
+            glm::length(glm::vec3(modelMatrix[2]))
+        );
+        data.radius = radius * glm::max(scale.x, glm::max(scale.y, scale.z));
+
+        return data;
+    }
+
+    void SphereShape::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) {
+        const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
+        material->setColor(color);
+
+        meshNode->setScale(glm::vec3(this->getRadius()));
+        meshNode->setPosition(glm::vec3(0.0f));
+        meshNode->render(camera, projection, 0.0f, t, false);
+    }
+} // Physic

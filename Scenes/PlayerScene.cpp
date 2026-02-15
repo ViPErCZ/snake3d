@@ -1,4 +1,7 @@
 #include "PlayerScene.h"
+
+#include "../Physic/BoxShape.h"
+#include "../Physic/SphereShape.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
 namespace Scenes {
@@ -45,7 +48,7 @@ namespace Scenes {
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
-        snake = make_shared<SnakeMeshNode3D>(contextState, pacmanMesh, resourceManager);
+        snake = make_shared<SnakeMeshNode3D>(contextState, pacmanMesh, resourceManager, collisionSystem);
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
         snake->setSpotLights(spotLights);
@@ -54,7 +57,14 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
+        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,1.5f);
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+
+        //snake->addNode(shape);
+        snake->setCollisionShape(shape);
+
         addMeshNode3D(snake);
+        collisionSystem->addCollider(snake);
     }
 
     void PlayerScene::initSnakeMoveHandler() {

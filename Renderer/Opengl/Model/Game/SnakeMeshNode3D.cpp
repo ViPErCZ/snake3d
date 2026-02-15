@@ -1,5 +1,6 @@
 #include "SnakeMeshNode3D.h"
 
+#include "../../../../Physic/BoxShape.h"
 #include "../../Material/Uniform/TextureUniform.h"
 #include "../../Material/Uniform/TimerUniform.h"
 #include "../Standard/AnimationArrayMesh.h"
@@ -7,8 +8,8 @@
 
 namespace Model {
     SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
-                                     const shared_ptr<ResourceManager> &resourceManager)
-        : MeshNode3D(contextState, mesh, resourceManager) {
+                                     const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<CollisionSystem3D> &collisionSystem)
+        : MeshNode3D(contextState, mesh, resourceManager), collisionSystem(collisionSystem) {
         timerUniform = make_shared<TimerUniform>(true);
         if (resourceManager) {
             const auto shader = resourceManager->getShader("basicShader");
@@ -50,6 +51,11 @@ namespace Model {
 
     void SnakeMeshNode3D::respawn() {
         respawned = false;
+
+        for (const auto &child: children) {
+            collisionSystem->removeCollider(child);
+        }
+
         children.clear();
         timerUniform->start();
         transformDetached = true;
@@ -63,7 +69,7 @@ namespace Model {
 
         const auto sphere = createTileNode();
 
-        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
+        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
@@ -73,9 +79,15 @@ namespace Model {
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = x - 32;
         tile->y = y;
+
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        tile->setCollisionShape(shape);
+        collisionSystem->addCollider(tile);
+
         addNode(tile);
 
-        const auto tile2 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
+        const auto tile2 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
         if (directionalLight) {
             tile2->setDirectionalLight(directionalLight);
         }
@@ -85,9 +97,15 @@ namespace Model {
         tile2->setPosition({19, -3, -23});
         tile2->x = x - 64;
         tile2->y = y;
+
+        const auto boxShape2 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
+        const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape2);
+        tile2->setCollisionShape(shape2);
+        collisionSystem->addCollider(tile2);
+
         addNode(tile2);
 
-        const auto tile3 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
+        const auto tile3 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
@@ -97,6 +115,12 @@ namespace Model {
         tile3->setPosition({17, -3, -23});
         tile3->x = x - 96;
         tile3->y = y;
+
+        const auto boxShape3 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
+        const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape3);
+        tile3->setCollisionShape(shape3);
+        collisionSystem->addCollider(tile3);
+
         addNode(tile3);
     }
 
@@ -183,7 +207,7 @@ namespace Model {
             }
         }
 
-        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager);
+        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
@@ -201,18 +225,25 @@ namespace Model {
         return direction;
     }
 
-    void SnakeMeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+    void SnakeMeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
         const glm::mat4 &parentTransform, const bool shadows) {
         if (timerUniform->getElapsed() > 0.5f) {
             timerUniform->stop();
             mesh->setMaterial(headMaterial);
             for (auto &child: children) {
-                reinterpret_pointer_cast<SnakeMeshNode3D>(child)->stopRespawn();
+                if (const auto tile = dynamic_pointer_cast<SnakeMeshNode3D>(child)) {
+                    tile->stopRespawn();
+                }
             }
             respawned = true;
         }
 
         MeshNode3D::render(camera, projection, dt, parentTransform, shadows);
+
+        if (!collisionShapes.empty()) {
+            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            collisionShapes.begin()->get()->render(camera, projection, dt, finalTransform, shadows);
+        }
     }
 
     void SnakeMeshNode3D::stopRespawn() {
@@ -222,5 +253,10 @@ namespace Model {
 
     bool SnakeMeshNode3D::isReady() const {
         return respawned;
+    }
+
+    void SnakeMeshNode3D::setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape) {
+        collisionShapes.clear();
+        collisionShapes.push_back(collisionShape);
     }
 } // Model

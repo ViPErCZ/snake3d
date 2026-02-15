@@ -46,6 +46,8 @@ namespace Scenes {
             this->environment = environment;
         }
 
+        void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
+
     protected:
         vector<RendererEntry3D> meshNode3d;
         vector<RendererEntry2D> meshNode2d;

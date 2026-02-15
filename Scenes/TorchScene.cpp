@@ -40,6 +40,15 @@ namespace Scenes {
         barrel->setPointLights(pointLights);
         barrel->init();
 
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.6, 1.7, 0.6));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+
+        barrel->addNode(shape);
+
+        if (collisionSystem != nullptr) {
+            collisionSystem->addCollider(barrel);
+        }
+
         addMeshNode3D(barrel);
     }
 
@@ -95,10 +104,10 @@ namespace Scenes {
         torchNode3->addNode(fire);
         torchNode4->addNode(fire);
 
-        const auto boxShape = make_shared<BoxShape>(glm::vec3(1, 2, 1));
-        const auto boxShape2 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
-        const auto boxShape3 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
-        const auto boxShape4 = make_shared<BoxShape>(glm::vec3(1, 2, 1));
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.88, 1.9, 0.9));
+        const auto boxShape2 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.88, 1.9, 0.9));
+        const auto boxShape3 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1, 2, 1));
+        const auto boxShape4 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1, 2, 1));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape2);
         const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape3);
@@ -107,10 +116,10 @@ namespace Scenes {
         shape2->setPosition(glm::vec3(0, -0.5f, 0));
         shape3->setPosition(glm::vec3(0, -0.5f, 0));
         shape4->setPosition(glm::vec3(0, -0.5f, 0));
-        torchNode->addNode(shape);
-        torchNode2->addNode(shape2);
-        torchNode3->addNode(shape3);
-        torchNode4->addNode(shape4);
+        //torchNode->addNode(shape);
+        //torchNode2->addNode(shape2);
+        //torchNode3->addNode(shape3);
+        //torchNode4->addNode(shape4);
         collisionSystem->addCollider(torchNode);
         collisionSystem->addCollider(torchNode2);
         collisionSystem->addCollider(torchNode3);

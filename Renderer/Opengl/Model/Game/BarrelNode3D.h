@@ -1,5 +1,6 @@
 #ifndef SNAKE3_BARRELNODE3D_H
 #define SNAKE3_BARRELNODE3D_H
+
 #include "../Standard/MeshNode3D.h"
 
 namespace Model {

@@ -23,7 +23,7 @@ namespace Scenes {
 
         this->spotLights = spotLights;
         this->pointLights = pointLights;
-        collisionSystem = make_shared<CollisionSystem3D>();
+
         keyboardManager = make_unique<KeyboardManager>();
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
         contextState = rendererManager->getContextState();
@@ -42,7 +42,9 @@ namespace Scenes {
 
     void Scene::update() {
         keyboardManager->runDefault();
-        collisionSystem->update();
+        if (collisionSystem != nullptr) {
+            collisionSystem->update();
+        }
         sceneRenderer->update(meshNode3d, meshNode2d);
         for (const auto &node: nodes) {
             node->update();
@@ -95,5 +97,9 @@ namespace Scenes {
             allNodes.insert(allNodes.end(), childNodes.begin(), childNodes.end());
         }
         return allNodes;
+    }
+
+    void Scene::setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem) {
+        this->collisionSystem = collisionSystem;
     }
 } // Scene

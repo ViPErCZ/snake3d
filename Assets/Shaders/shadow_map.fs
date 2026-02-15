@@ -80,9 +80,9 @@ void main()
         vec3 norm = normalize(fs_in.Normal);
         vec3 result = vec3(0);
 
-        for(int i = 0; i < numSpotLights; i++) {
-           result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir, ambient, uTime);
-        }
+//         for(int i = 0; i < numSpotLights; i++) {
+//            result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir, ambient, uTime);
+//         }
 
         FragColor = vec4(result + lightColor / 4 + specular, 1.0);
     }

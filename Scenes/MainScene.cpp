@@ -26,6 +26,7 @@ namespace Scenes {
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
         : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
+        collisionSystem = make_shared<CollisionSystem3D>();
     }
 
     void MainScene::init(const int priority) {
@@ -231,6 +232,7 @@ namespace Scenes {
 
     void MainScene::initPlayerScene() {
         playerScene = make_shared<PlayerScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        playerScene->setCollisionSystem(collisionSystem);
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
         snakeMoveHandler->setCollisionDetector(collisionDetector);
@@ -254,6 +256,7 @@ namespace Scenes {
 
     void MainScene::initTorchScene() {
         const auto torchScene = make_shared<TorchScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        torchScene->setCollisionSystem(collisionSystem);
         torchScene->init(1);
         addNode(torchScene);
     }

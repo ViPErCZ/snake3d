@@ -1,6 +1,7 @@
 #ifndef SNAKE3_SNAKEMESHNODE3D_H
 #define SNAKE3_SNAKEMESHNODE3D_H
 
+#include "../../../../Physic/Algorithms/CollisionAlgorithms.h"
 #include "../../../../Tools/Timer.h"
 #include "../../Material/ShaderMaterial.h"
 #include "../../Material/Uniform/TimerUniform.h"
@@ -9,6 +10,7 @@
 
 using namespace Tools;
 using namespace Uniform;
+using namespace Physic;
 using namespace std;
 
 namespace Model {
@@ -27,8 +29,11 @@ namespace Model {
 
         using MeshNode3D::MeshNode3D;
 
-        explicit SnakeMeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
-                                 const shared_ptr<ResourceManager> &resourceManager);
+        explicit SnakeMeshNode3D(const shared_ptr<ContextState> &contextState,
+                                 const shared_ptr<StandardMesh> &mesh,
+                                 const shared_ptr<ResourceManager> &resourceManager,
+                                 const shared_ptr<CollisionSystem3D> &collisionSystem
+                                 );
 
         void respawn();
 
@@ -49,6 +54,8 @@ namespace Model {
 
         bool isReady() const;
 
+        void setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape);
+
     private:
         void stopRespawn();
         unique_ptr<Timer> timer;
@@ -58,6 +65,7 @@ namespace Model {
         shared_ptr<ShaderMaterial> respawnMaterial;
         shared_ptr<ShaderMaterial> headRespawnMaterial;
         shared_ptr<TimerUniform> timerUniform;
+        shared_ptr<CollisionSystem3D> collisionSystem;
         eDIRECTION direction = NONE;
         bool respawned = false;
     };

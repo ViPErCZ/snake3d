@@ -4,6 +4,10 @@
 #include "Shape.h"
 #include <vector>
 
+#include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
+
+using namespace Model;
+
 namespace Physic {
     class BoxShape : public Shape {
         struct OBB {
@@ -13,20 +17,29 @@ namespace Physic {
         };
 
     public:
-        explicit BoxShape(glm::vec3 boxSize = glm::vec3(1.0f));
+        explicit BoxShape(
+            const shared_ptr<ResourceManager> &resourceManager,
+            const shared_ptr<ContextState> &contextState,
+            glm::vec3 boxSize = glm::vec3(1.0f)
+        );
 
         ShapeType getType() override { return ShapeType::Box; }
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
 
-        OBB BuildOBB(const glm::mat4 &modelMatrix);
+        [[nodiscard]] OBB BuildOBB(const glm::mat4 &modelMatrix) const;
 
-        AABB calculateAABB(const glm::mat4& modelMatrix) override;
+        AABB calculateAABB(const glm::mat4 &modelMatrix) override;
+
+        [[nodiscard]] const shared_ptr<MeshNode3D> &getMeshNode() const { return meshNode; }
 
     private:
-        std::vector<glm::vec3> GetOBBCorners(const OBB &obb) const;
 
         glm::vec3 size;
+
+        shared_ptr<MeshNode3D> meshNode;
+
+        shared_ptr<StandardMaterial> material;
     };
 } // Physic
 
