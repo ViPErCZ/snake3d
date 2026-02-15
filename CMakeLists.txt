@@ -192,6 +192,20 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
+        Physic/CapsuleShape.cpp
+        Physic/CapsuleShape.h
+        Physic/CylinderShape.cpp
+        Physic/CylinderShape.h
+        Handler/Debug/ManipulatorHandler.cpp
+        Handler/Debug/ManipulatorHandler.h
+        Handler/Debug/RotationHandler.cpp
+        Handler/Debug/RotationHandler.h
+        Handler/Debug/ScaleHandler.cpp
+        Handler/Debug/ScaleHandler.h
+        Handler/Debug/DirectionalLightDirectionHandler.cpp
+        Handler/Debug/DirectionalLightDirectionHandler.h
+        Handler/Debug/CollisionShapeHandler.cpp
+        Handler/Debug/CollisionShapeHandler.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -407,6 +421,20 @@ set(APP_SOURCES
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
+        Physic/CapsuleShape.cpp
+        Physic/CapsuleShape.h
+        Physic/CylinderShape.cpp
+        Physic/CylinderShape.h
+        Handler/Debug/ManipulatorHandler.cpp
+        Handler/Debug/ManipulatorHandler.h
+        Handler/Debug/RotationHandler.cpp
+        Handler/Debug/RotationHandler.h
+        Handler/Debug/ScaleHandler.cpp
+        Handler/Debug/ScaleHandler.h
+        Handler/Debug/DirectionalLightDirectionHandler.cpp
+        Handler/Debug/DirectionalLightDirectionHandler.h
+        Handler/Debug/CollisionShapeHandler.cpp
+        Handler/Debug/CollisionShapeHandler.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -568,6 +596,20 @@ add_library(snake3d_lib ${APP_SOURCES}
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
+        Physic/CapsuleShape.cpp
+        Physic/CapsuleShape.h
+        Physic/CylinderShape.cpp
+        Physic/CylinderShape.h
+        Handler/Debug/ManipulatorHandler.cpp
+        Handler/Debug/ManipulatorHandler.h
+        Handler/Debug/RotationHandler.cpp
+        Handler/Debug/RotationHandler.h
+        Handler/Debug/ScaleHandler.cpp
+        Handler/Debug/ScaleHandler.h
+        Handler/Debug/DirectionalLightDirectionHandler.cpp
+        Handler/Debug/DirectionalLightDirectionHandler.h
+        Handler/Debug/CollisionShapeHandler.cpp
+        Handler/Debug/CollisionShapeHandler.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

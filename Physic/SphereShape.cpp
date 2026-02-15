@@ -12,14 +12,16 @@ namespace Physic {
         material->setNormalEnabled(false);
         material->setAlpha(0.2);
         material->setBlending(Blending::Translucent);
-        auto sphereMesh = make_shared<SphereMesh>(shader, 1.0f);
+        // SphereMesh default radius is 0.5, we want to match our radius
+        auto sphereMesh = make_shared<SphereMesh>(shader, radius * 2.0f, radius);
         sphereMesh->setMaterial(material);
         meshNode = make_shared<MeshNode3D>(contextState, sphereMesh, resourceManager);
     }
 
     SphereShape::SphereWorldData SphereShape::BuildSphere(const glm::mat4 &modelMatrix) const {
         SphereWorldData data{};
-        data.center = glm::vec3(modelMatrix[3]);
+        // V S*T*R matici je světová pozice ovlivněna škálováním.
+        data.center = glm::vec3(modelMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
         const auto scale = glm::vec3(
             glm::length(glm::vec3(modelMatrix[0])),
@@ -35,7 +37,7 @@ namespace Physic {
         const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
         material->setColor(color);
 
-        meshNode->setScale(glm::vec3(this->getRadius()));
+        meshNode->setScale(glm::vec3(1.0f));
         meshNode->setPosition(glm::vec3(0.0f));
         meshNode->render(camera, projection, 0.0f, t, false);
     }

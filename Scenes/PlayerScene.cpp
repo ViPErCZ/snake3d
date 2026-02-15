@@ -57,10 +57,9 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
-        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,1.5f);
+        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
 
-        //snake->addNode(shape);
         snake->setCollisionShape(shape);
 
         addMeshNode3D(snake);

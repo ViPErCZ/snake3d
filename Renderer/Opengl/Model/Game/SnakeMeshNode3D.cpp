@@ -1,6 +1,9 @@
 #include "SnakeMeshNode3D.h"
 
 #include "../../../../Physic/BoxShape.h"
+#include "../../../../Physic/SphereShape.h"
+#include "../../../../Physic/CapsuleShape.h"
+#include "../../../../Physic/CylinderShape.h"
 #include "../../Material/Uniform/TextureUniform.h"
 #include "../../Material/Uniform/TimerUniform.h"
 #include "../Standard/AnimationArrayMesh.h"
@@ -80,8 +83,8 @@ namespace Model {
         tile->x = x - 32;
         tile->y = y;
 
-        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
-        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
         tile->setCollisionShape(shape);
         collisionSystem->addCollider(tile);
 
@@ -98,8 +101,8 @@ namespace Model {
         tile2->x = x - 64;
         tile2->y = y;
 
-        const auto boxShape2 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
-        const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape2);
+        const auto sphereShape2 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape2);
         tile2->setCollisionShape(shape2);
         collisionSystem->addCollider(tile2);
 
@@ -116,12 +119,50 @@ namespace Model {
         tile3->x = x - 96;
         tile3->y = y;
 
-        const auto boxShape3 = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(1.3, 1.3, 1.3));
-        const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape3);
+        const auto sphereShape3 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape3);
         tile3->setCollisionShape(shape3);
         collisionSystem->addCollider(tile3);
 
         addNode(tile3);
+
+        const auto tile4 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        if (directionalLight) {
+            tile4->setDirectionalLight(directionalLight);
+        }
+        tile4->setPointLights(pointLights);
+        tile4->setSpotLights(spotLights);
+        tile4->setScale({0.041667f, 0.041667f, 0.041667f});
+        tile4->setPosition({15, -3, -23});
+        tile4->x = x - 128;
+        tile4->y = y;
+
+        const auto capsuleShape = make_shared<CapsuleShape>(resourceManager, contextState, 0.8f, 2.5f);
+        const auto shape4 = make_shared<CollisionShape3D>(contextState, resourceManager, capsuleShape);
+        shape4->setRotationX(90.0f);
+        tile4->setCollisionShape(shape4);
+        collisionSystem->addCollider(tile4);
+
+        addNode(tile4);
+
+        const auto tile5 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        if (directionalLight) {
+            tile5->setDirectionalLight(directionalLight);
+        }
+        tile5->setPointLights(pointLights);
+        tile5->setSpotLights(spotLights);
+        tile5->setScale({0.041667f, 0.041667f, 0.041667f});
+        tile5->setPosition({13, -3, -23});
+        tile5->x = x - 160;
+        tile5->y = y;
+
+        const auto cylinderShape = make_shared<CylinderShape>(resourceManager, contextState, 0.8f, 2.5f);
+        const auto shape5 = make_shared<CollisionShape3D>(contextState, resourceManager, cylinderShape);
+        shape5->setRotationX(90.0f);
+        tile5->setCollisionShape(shape5);
+        collisionSystem->addCollider(tile5);
+
+        addNode(tile5);
     }
 
     void SnakeMeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
@@ -217,6 +258,11 @@ namespace Model {
         tile->setScale({0.041667f, 0.041667f, 0.041667f});
         tile->x = (*PrevIter)->x;
         tile->y = (*PrevIter)->y;
+
+        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+        tile->setCollisionShape(shape);
+        collisionSystem->addCollider(tile);
 
         addNode(tile);
     }

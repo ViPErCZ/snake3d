@@ -4,6 +4,7 @@
 
 #include "../Handler/Debug/PositionHandler.h"
 #include "../Physic/BoxShape.h"
+#include "../Physic/CylinderShape.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
@@ -40,10 +41,11 @@ namespace Scenes {
         barrel->setPointLights(pointLights);
         barrel->init();
 
-        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.6, 1.7, 0.6));
-        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        const auto shape = make_shared<CylinderShape>(resourceManager, contextState, 0.3f, 0.90f);
+        const auto collisionShape = make_shared<CollisionShape3D>(contextState, resourceManager, shape);
+        collisionShape->setPosition(glm::vec3(0, 0.40f, 0));
 
-        barrel->addNode(shape);
+        barrel->addNode(collisionShape);
 
         if (collisionSystem != nullptr) {
             collisionSystem->addCollider(barrel);

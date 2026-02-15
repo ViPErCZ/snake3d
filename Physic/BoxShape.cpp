@@ -12,7 +12,8 @@ namespace Physic {
         material->setNormalEnabled(false);
         material->setAlpha(0.2);
         material->setBlending(Blending::Translucent);
-        auto boxMesh = make_shared<BoxMesh>(shader, 1.0f, 1.0f, 1.0f);
+        // BoxMesh size is already width/height/depth
+        auto boxMesh = make_shared<BoxMesh>(shader, size.x, size.y, size.z);
         boxMesh->setMaterial(material);
         meshNode = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
     }
@@ -21,7 +22,7 @@ namespace Physic {
         const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
         material->setColor(color);
 
-        meshNode->setScale(this->size);
+        meshNode->setScale(glm::vec3(1.0f));
         meshNode->setPosition(glm::vec3(0.0f));
         meshNode->render(camera, projection, 0.0f, t, false);
     }
@@ -29,23 +30,22 @@ namespace Physic {
     BoxShape::OBB BoxShape::BuildOBB(const glm::mat4 &modelMatrix) const {
         OBB obb{};
 
-        obb.center = glm::vec3(modelMatrix[3]);
+        obb.center = glm::vec3(modelMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        const auto right = glm::vec3(modelMatrix[0]);
-        const auto up = glm::vec3(modelMatrix[1]);
-        const auto forward = glm::vec3(modelMatrix[2]);
+        // Osy v S*T*R jsou v prvních třech sloupcích, ale jsou škálované.
+        obb.axes[0] = glm::normalize(glm::vec3(modelMatrix[0]));
+        obb.axes[1] = glm::normalize(glm::vec3(modelMatrix[1]));
+        obb.axes[2] = glm::normalize(glm::vec3(modelMatrix[2]));
 
-        const float scaleX = glm::length(right);
-        const float scaleY = glm::length(up);
-        const float scaleZ = glm::length(forward);
+        const auto scale = glm::vec3(
+            glm::length(glm::vec3(modelMatrix[0])),
+            glm::length(glm::vec3(modelMatrix[1])),
+            glm::length(glm::vec3(modelMatrix[2]))
+        );
 
-        obb.axes[0] = (scaleX > 0.0001f) ? right / scaleX : glm::vec3(1, 0, 0);
-        obb.axes[1] = (scaleY > 0.0001f) ? up / scaleY : glm::vec3(0, 1, 0);
-        obb.axes[2] = (scaleZ > 0.0001f) ? forward / scaleZ : glm::vec3(0, 0, 1);
-
-        obb.halfExtents.x = (this->size.x * 0.5f) * scaleX;
-        obb.halfExtents.y = (this->size.y * 0.5f) * scaleY;
-        obb.halfExtents.z = (this->size.z * 0.5f) * scaleZ;
+        obb.halfExtents.x = (this->size.x * 0.5f) * scale.x;
+        obb.halfExtents.y = (this->size.y * 0.5f) * scale.y;
+        obb.halfExtents.z = (this->size.z * 0.5f) * scale.z;
 
         return obb;
     }

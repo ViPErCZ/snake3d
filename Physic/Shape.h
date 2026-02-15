@@ -13,7 +13,7 @@ using namespace Node3D;
 namespace Physic {
 
     enum class ShapeType {
-        Box, Sphere,
+        Box, Sphere, Capsule, Cylinder,
     };
 
     struct AABB {
@@ -34,7 +34,7 @@ namespace Physic {
 
         static AABB CalculateAABB(const glm::mat4& modelMatrix, const glm::vec3& localHalfExtents) {
 
-            const auto center = glm::vec3(modelMatrix[3]);
+            const auto center = glm::vec3(modelMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
             const glm::vec3 right   = glm::abs(glm::vec3(modelMatrix[0]));
             const glm::vec3 up      = glm::abs(glm::vec3(modelMatrix[1]));

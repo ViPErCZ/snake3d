@@ -10,11 +10,12 @@ namespace Handler {
     void PositionHandler::onDefaultHandler() {
     }
 
-    void PositionHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods) {
+    void PositionHandler::onEventHandler(const unsigned int key, int scancode, const int action, const int mods) {
         if (activeItem == nullptr) {
             return;
         }
 
+        const float sensitivity = (mods & GLFW_MOD_SHIFT) ? 2.0f : 0.05f;
         glm::vec3 pos = activeItem->getPosition();
         glm::vec3 zoom = activeItem->getScale();
         const float rotationX = activeItem->getRotationX();
@@ -28,140 +29,161 @@ namespace Handler {
                 break;
             case GLFW_KEY_RIGHT:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.x += 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.x += 0.1f;  // * SCALE
-                        }
-                    } else {
-                        pos.x += 0.0001f;
-                    }
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.x += 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     }
+                    // }
+
+                    const float movement = sensitivity * zoom.x; // * deltaTime;
+                    pos.x += movement;
+
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_LEFT:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.x -= 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.x -= 0.1f; // * SCALE
-                        }
-                    } else {
-                        pos.x -= 0.0001f;
-                    }
+                    const float movement = sensitivity * zoom.x; // * deltaTime;
+
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.x -= 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.x -= 0.1f; // * SCALE
+                    //     }
+                    // } else {
+                    //     pos.x -= 0.0001f;
+                    // }
+
+                    pos.x -= movement;
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_UP:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.y += 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.y += 0.1f;
-                        }
-                    } else {
-                        pos.y += 0.0001f;
-                    }
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.y += 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.y += 0.1f;
+                    //     }
+                    // } else {
+                    //     pos.y += 0.0001f;
+                    // }
+
+
+                    const float movement = sensitivity * zoom.y;
+                    pos.y += movement;
+
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_DOWN:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.y -= 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.y -= 0.1f;
-                        }
-                    } else {
-                        pos.y -= 0.0001f;
-                    }
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.y -= 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.y -= 0.1f;
+                    //     }
+                    // } else {
+                    //     pos.y -= 0.0001f;
+                    // }
+
+                    const float movement = sensitivity * zoom.y;
+                    pos.y -= movement;
+
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_PAGE_UP:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.z += 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.z += 0.01f;
-                        }
-                    } else {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.z += 0.0001f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.z += 0.0001f;
-                        }
-                    }
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.z += 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.z += 0.01f;
+                    //     }
+                    // } else {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.z += 0.0001f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.z += 0.0001f;
+                    //     }
+                    // }
+
+                    const float movement = sensitivity * zoom.z;
+                    pos.z += movement;
+
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_PAGE_DOWN:
                 if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                glm::vec3 direction = directLight->getDirection();
-                                direction.z -= 0.01f;
-                                directLight->setDirection(direction);
-                            }
-                        } else {
-                            pos.z -= 0.01f;
-                        }
-                    } else {
-                        if (mods & GLFW_MOD_CONTROL) {
-                            if (mods & GLFW_MOD_CONTROL) {
-                                if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                                    glm::vec3 direction = directLight->getDirection();
-                                    direction.z -= 0.0001f;
-                                    directLight->setDirection(direction);
-                                }
-                            }
-                        } else {
-                            pos.z -= 0.0001f;
-                        }
-                    }
+                    // if (mods & GLFW_MOD_SHIFT) {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //             glm::vec3 direction = directLight->getDirection();
+                    //             direction.z -= 0.01f;
+                    //             directLight->setDirection(direction);
+                    //         }
+                    //     } else {
+                    //         pos.z -= 0.01f;
+                    //     }
+                    // } else {
+                    //     if (mods & GLFW_MOD_CONTROL) {
+                    //         if (mods & GLFW_MOD_CONTROL) {
+                    //             if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                    //                 glm::vec3 direction = directLight->getDirection();
+                    //                 direction.z -= 0.0001f;
+                    //                 directLight->setDirection(direction);
+                    //             }
+                    //         }
+                    //     } else {
+                    //         pos.z -= 0.0001f;
+                    //     }
+                    // }
+
+                    const float movement = sensitivity * zoom.z;
+                    pos.z -= movement;
+
                     activeItem->setPosition(pos);
                 }
                 break;
             case GLFW_KEY_KP_ADD:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        zoom.x += 0.1f;
-                        zoom.y += 0.1f;
-                        zoom.z += 0.1f;
-                    } else {
                         zoom.x += 0.01f;
                         zoom.y += 0.01f;
                         zoom.z += 0.01f;
+                    } else {
+                        zoom.x += 0.001f;
+                        zoom.y += 0.001f;
+                        zoom.z += 0.001f;
                     }
                     activeItem->setScale(zoom);
                 }
@@ -169,13 +191,13 @@ namespace Handler {
             case GLFW_KEY_KP_SUBTRACT:
                 if (enabled) {
                     if (mods & GLFW_MOD_SHIFT) {
-                        zoom.x -= 0.1f;
-                        zoom.y -= 0.1f;
-                        zoom.z -= 0.1f;
-                    } else {
                         zoom.x -= 0.01f;
                         zoom.y -= 0.01f;
                         zoom.z -= 0.01f;
+                    } else {
+                        zoom.x -= 0.001f;
+                        zoom.y -= 0.001f;
+                        zoom.z -= 0.001f;
                     }
                     activeItem->setScale(zoom);
                 }
@@ -192,7 +214,7 @@ namespace Handler {
                 cout << "Rotation X: " << rotationX << endl;
                 cout << "Rotation Y: " << rotationY << endl;
                 cout << "Rotation Z: " << rotationZ << endl;
-                if (shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                if (const shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
                     cout << "Direction: " << light->getDirection().x << ", " << light->getDirection().y << ", " << light->getDirection().z << endl;
                 }
                 break;

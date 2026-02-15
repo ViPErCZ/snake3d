@@ -6,15 +6,12 @@
 
 #include "../../Manager/Camera.h"
 #include "../BaseKeydownHandle.h"
-#include "../../ItemsDto/BaseItem.h"
 #include "../../Lights/DirectionalLight.h"
 
-using namespace ItemsDto;
 using namespace Manager;
 using namespace Lights;
 
 namespace Handler {
-
     class PositionHandler final : public BaseKeydownHandle {
         public:
             explicit PositionHandler(const shared_ptr<Camera> &camera);
@@ -29,7 +26,6 @@ namespace Handler {
             shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
             bool enabled;
     };
-
 } // Handler
 
 #endif //POSITIONHANDLER_H
