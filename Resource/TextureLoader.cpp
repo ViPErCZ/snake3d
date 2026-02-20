@@ -6,6 +6,7 @@
 #include <iostream>
 #include <GL/glew.h>
 
+#include "../Manager/TextureManager.h"
 #include "../Thirdparty/stbimage/stb_image.h"
 
 namespace Resource {
@@ -55,6 +56,64 @@ namespace Resource {
 
     unsigned int TextureLoader::bindFromBuffer(const vector<unsigned char> &buffer, const bool isAlbedo) {
         return bindFromBuffer(buffer.data(), buffer.size(), isAlbedo);
+    }
+
+    shared_ptr<TextureManager> TextureLoader::decodeImage(const void * buffer, const unsigned int length) {
+        int widthImg, heightImg, numColCh;
+        const unsigned char* data = stbi_load_from_memory(
+            static_cast<const unsigned char*>(buffer),
+            static_cast<int>(length),
+            &widthImg,
+            &heightImg,
+            &numColCh,
+            0 // zachovej původní počet kanálů
+        );
+
+        size_t dataSize = widthImg * heightImg * numColCh;
+
+        return make_shared<TextureManager>(data, dataSize, widthImg, heightImg, numColCh);
+    }
+
+    unsigned int TextureLoader::bindFromBufferWithoutDecode(
+        const void *buffer, const bool isAlbedo, const int widthImg, const int heightImg, const int numColCh
+        ) {
+        if (buffer) {
+            unsigned int textureID;
+            glGenTextures(1, &textureID);
+
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            if (isAlbedo) {
+                // Albedo = barevná textura, musí být sRGB
+                if (numColCh == 3)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+                else if (numColCh == 4)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE,buffer);
+                else {
+                    throw std::invalid_argument("Automatic Texture type recognition failed");
+                }
+            } else {
+                // Metallic, roughness, ao, normal = data, lineární
+                if (numColCh == 1)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, widthImg, heightImg, 0, GL_RED, GL_UNSIGNED_BYTE, buffer);
+                else if (numColCh == 3)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+                else if (numColCh == 4)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                else {
+                    throw std::invalid_argument("Automatic Texture type recognition failed");
+                }
+            }
+
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            return textureID;
+        }
+
+        throw std::runtime_error("Texture failed to load from memory.");
     }
 
     unsigned int TextureLoader::bindFromBuffer(const void *buffer, const unsigned int length, const bool isAlbedo) {

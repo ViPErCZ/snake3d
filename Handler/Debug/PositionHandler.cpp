@@ -2,31 +2,28 @@
 
 #include "../../Lights/DirectionalLight.h"
 
-namespace Handler {
-    PositionHandler::PositionHandler(const shared_ptr<Camera> &camera): camera(camera), enabled(false) {
+namespace Handler::Debug {
+    PositionHandler::PositionHandler(const shared_ptr<Camera> &camera): BaseTransform(camera) {
         cameraOriginalStickyPoint = camera->getStickyPoint();
+        currentWorldCenter = glm::vec3(0);
     }
 
     void PositionHandler::onDefaultHandler() {
     }
 
-    void PositionHandler::onEventHandler(const unsigned int key, int scancode, const int action, const int mods) {
+    void PositionHandler::onEventHandler(const unsigned int key, int scancode, const int action, const int mods, float deltaTime) {
         if (activeItem == nullptr) {
             return;
         }
 
-        const float sensitivity = (mods & GLFW_MOD_SHIFT) ? 2.0f : 0.05f;
+        const float sensitivity = mods & GLFW_MOD_SHIFT ? 1.0f : 0.1f;
         glm::vec3 pos = activeItem->getPosition();
-        glm::vec3 zoom = activeItem->getScale();
+        const glm::vec3 zoom = activeItem->getScale();
         const float rotationX = activeItem->getRotationX();
         const float rotationY = activeItem->getRotationY();
         const float rotationZ = activeItem->getRotationZ();
 
         switch (key) {
-            case GLFW_KEY_F8:
-                enabled = !enabled;
-                camera->setStickyPoint(enabled ? activeItem : cameraOriginalStickyPoint);
-                break;
             case GLFW_KEY_RIGHT:
                 if (enabled) {
                     // if (mods & GLFW_MOD_SHIFT) {
@@ -39,16 +36,15 @@ namespace Handler {
                     //     }
                     // }
 
-                    const float movement = sensitivity * zoom.x; // * deltaTime;
+                    const float movement = sensitivity * zoom.x;
                     pos.x += movement;
 
                     activeItem->setPosition(pos);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_LEFT:
                 if (enabled) {
-                    const float movement = sensitivity * zoom.x; // * deltaTime;
-
                     // if (mods & GLFW_MOD_SHIFT) {
                     //     if (mods & GLFW_MOD_CONTROL) {
                     //         if (shared_ptr<DirectionalLight> directLight = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
@@ -63,8 +59,11 @@ namespace Handler {
                     //     pos.x -= 0.0001f;
                     // }
 
+                    const float movement = sensitivity * zoom.x;
                     pos.x -= movement;
+
                     activeItem->setPosition(pos);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_UP:
@@ -88,6 +87,7 @@ namespace Handler {
                     pos.y += movement;
 
                     activeItem->setPosition(pos);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_DOWN:
@@ -110,6 +110,7 @@ namespace Handler {
                     pos.y -= movement;
 
                     activeItem->setPosition(pos);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_PAGE_UP:
@@ -140,6 +141,7 @@ namespace Handler {
                     pos.z += movement;
 
                     activeItem->setPosition(pos);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_PAGE_DOWN:
@@ -172,80 +174,29 @@ namespace Handler {
                     pos.z -= movement;
 
                     activeItem->setPosition(pos);
-                }
-                break;
-            case GLFW_KEY_KP_ADD:
-                if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        zoom.x += 0.01f;
-                        zoom.y += 0.01f;
-                        zoom.z += 0.01f;
-                    } else {
-                        zoom.x += 0.001f;
-                        zoom.y += 0.001f;
-                        zoom.z += 0.001f;
-                    }
-                    activeItem->setScale(zoom);
-                }
-                break;
-            case GLFW_KEY_KP_SUBTRACT:
-                if (enabled) {
-                    if (mods & GLFW_MOD_SHIFT) {
-                        zoom.x -= 0.01f;
-                        zoom.y -= 0.01f;
-                        zoom.z -= 0.01f;
-                    } else {
-                        zoom.x -= 0.001f;
-                        zoom.y -= 0.001f;
-                        zoom.z -= 0.001f;
-                    }
-                    activeItem->setScale(zoom);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_TAB:
                 if (enabled) {
                     activeItem = findNextItem();
+                    computeWorld();
                     camera->setStickyPoint(activeItem);
                 }
                 break;
             case GLFW_KEY_SPACE:
-                cout << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
-                cout << "Zoom: " << zoom.x << ", " << zoom.y << ", " << zoom.z << endl;
-                cout << "Rotation X: " << rotationX << endl;
-                cout << "Rotation Y: " << rotationY << endl;
-                cout << "Rotation Z: " << rotationZ << endl;
-                if (const shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
-                    cout << "Direction: " << light->getDirection().x << ", " << light->getDirection().y << ", " << light->getDirection().z << endl;
+                if (enabled) {
+                    cout << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
+                    cout << "Rotation X: " << rotationX << endl;
+                    cout << "Rotation Y: " << rotationY << endl;
+                    cout << "Rotation Z: " << rotationZ << endl;
+                    if (const shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
+                        cout << "Direction: " << light->getDirection().x << ", " << light->getDirection().y << ", " << light->getDirection().z << endl;
+                    }
                 }
                 break;
             default:
                 break;
         }
-    }
-
-    void PositionHandler::addItem(const shared_ptr<Transform> &item) {
-        items.push_back(item);
-
-        if (activeItem == nullptr) {
-            activeItem = item;
-        }
-    }
-
-    shared_ptr<Transform> PositionHandler::findNextItem() {
-        if (items.empty()) {
-            return nullptr;
-        }
-
-        for (auto it = items.begin(); it != items.end(); ++it) {
-            if (activeItem == *it) {
-                if (it + 1 == items.end()) {
-                    return *items.begin();
-                }
-
-                return *(it + 1);
-            }
-        }
-
-        return nullptr;
     }
 } // Handler

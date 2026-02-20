@@ -1,5 +1,6 @@
 #include "CoinScene.h"
 
+#include "../Physic/BoxShape.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 
 namespace Scenes {
@@ -48,6 +49,13 @@ namespace Scenes {
         coinMaterial->setNormalEnabled(true);
         coinMaterial->setDirectionalLight(directionalLight);
         coinMaterial->setBlending(Blending::Translucent);
+
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.88, 1.9, 0.9));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        coin->addNode(shape);
+        collisionSystem->addCollider(coin);
+        manipulatorHandler->getPositionHandler()->addItem(coin);
+        manipulatorHandler->getScaleHandler()->addItem(coin);
 
         int index = 0;
         for (auto &spotLight : spotLights) {

@@ -13,7 +13,7 @@ namespace Handler {
 
     SnakeMoveHandler::~SnakeMoveHandler() = default;
 
-    void SnakeMoveHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods) {
+    void SnakeMoveHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods, float deltaTime) {
         switch (key) {
             case GLFW_KEY_L:
             case GLFW_KEY_I:

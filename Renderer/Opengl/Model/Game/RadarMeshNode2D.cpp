@@ -2,6 +2,8 @@
 
 #include <ranges>
 
+#include "../Collision/CollisionShape3D.h"
+
 namespace Model {
     RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<QuadNode2D> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager)
@@ -63,6 +65,9 @@ namespace Model {
         int index = 0;
 
         for (const auto &child: item->getChildren()) {
+            if (dynamic_pointer_cast<CollisionShape::CollisionShape3D>(child)) {
+                continue;
+            }
             const std::string itemName = name + "-" + std::to_string(index++);
             const auto subRadarItem = make_shared<RadarItem>(contextState, resourceManager, child, color, itemName);
             items.emplace(itemName, subRadarItem);

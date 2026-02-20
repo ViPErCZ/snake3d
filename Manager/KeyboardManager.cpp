@@ -2,9 +2,9 @@
 
 namespace Manager {
 
-    void KeyboardManager::onKeyPress(const int keyCode, const int scancode, const int action, const int mods) {
+    void KeyboardManager::onKeyPress(const int keyCode, const int scancode, const int action, const int mods, float deltaTime) {
         for (auto Iter = handlers.begin(); Iter < handlers.end(); ++Iter) {
-            (*Iter)->onEventHandler(keyCode, scancode, action, mods);
+            (*Iter)->onEventHandler(keyCode, scancode, action, mods, deltaTime);
         }
     }
 

@@ -26,29 +26,29 @@ namespace Model {
             const auto respawnShader = resourceManager->getShader("respawnShader");
             respawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
             respawnMaterial->setShadow(resourceManager->getTexture("depth"));
-            respawnMaterial->addUniform("u_useMaterial", false);
-            respawnMaterial->addUniform("u_LightColor", glm::vec4(0.88, 0.05, 0.05, 1.0f));
-            respawnMaterial->addUniform("u_Speed", 4.7f);
-            respawnMaterial->addUniform("u_Delay", 0.1f);
-            respawnMaterial->addUniform("u_FloatParameter", 0.1f);
+            respawnMaterial->setUniform("u_useMaterial", false);
+            respawnMaterial->setUniform("u_LightColor", glm::vec4(0.88, 0.05, 0.05, 1.0f));
+            respawnMaterial->setUniform("u_Speed", 4.7f);
+            respawnMaterial->setUniform("u_Delay", 0.1f);
+            respawnMaterial->setUniform("u_FloatParameter", 0.1f);
 
             headRespawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
             headRespawnMaterial->setShadow(resourceManager->getTexture("depth"));
-            headRespawnMaterial->addUniform("u_useMaterial", true);
-            headRespawnMaterial->addUniform("u_Speed", 4.7f);
-            headRespawnMaterial->addUniform("u_Delay", 0.1f);
-            headRespawnMaterial->addUniform("u_FloatParameter", 0.1f);
+            headRespawnMaterial->setUniform("u_useMaterial", true);
+            headRespawnMaterial->setUniform("u_Speed", 4.7f);
+            headRespawnMaterial->setUniform("u_Delay", 0.1f);
+            headRespawnMaterial->setUniform("u_FloatParameter", 0.1f);
 
             const auto textureUniform = make_shared<TextureUniform>(11, resourceManager->getTexture("fast_noise.bmp"));
-            respawnMaterial->addUniform("u_NoiseTexture", textureUniform);
-            respawnMaterial->addUniform("u_Time", timerUniform);
-            respawnMaterial->addUniform("useBones", false);
-            respawnMaterial->addUniform("useMaterial", true);
+            respawnMaterial->setUniform("u_NoiseTexture", textureUniform);
+            respawnMaterial->setUniform("u_Time", timerUniform);
+            respawnMaterial->setUniform("useBones", false);
+            respawnMaterial->setUniform("useMaterial", true);
 
-            headRespawnMaterial->addUniform("u_NoiseTexture", textureUniform);
-            headRespawnMaterial->addUniform("u_Time", timerUniform);
-            headRespawnMaterial->addUniform("useBones", false);
-            headRespawnMaterial->addUniform("useMaterial", true);
+            headRespawnMaterial->setUniform("u_NoiseTexture", textureUniform);
+            headRespawnMaterial->setUniform("u_Time", timerUniform);
+            headRespawnMaterial->setUniform("useBones", false);
+            headRespawnMaterial->setUniform("useMaterial", true);
         }
     }
 

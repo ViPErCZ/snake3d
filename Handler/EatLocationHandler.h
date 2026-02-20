@@ -2,7 +2,6 @@
 #define SNAKE3_EATLOCATIONHANDLER_H
 
 #include "BaseHandler.h"
-#include "../Physic/CollisionDetector.h"
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 

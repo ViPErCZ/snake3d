@@ -4,11 +4,19 @@
 #include "../Resource/TextureLoader.h"
 
 namespace Manager {
-    TextureManager::TextureManager(const unsigned int id) {
+    TextureManager::TextureManager(const unsigned int id) : widthImg(0), heightImg(0), numColCh(0) {
         textures.push_back(id);
     }
 
-    TextureManager::TextureManager(const aiTexel *buffer, const unsigned int size) {
+    TextureManager::TextureManager(const aiTexel *buffer, const unsigned int size) : widthImg(0), heightImg(0),
+                                                                                     numColCh(0) {
+        this->buffer.resize(size);
+        std::memcpy(this->buffer.data(), buffer, size);
+    }
+
+    TextureManager::TextureManager(const unsigned char *buffer, const unsigned int size, const unsigned int width,
+                                   const unsigned int height, const unsigned int numColCh) : widthImg(width),
+        heightImg(height), numColCh(numColCh) {
         this->buffer.resize(size);
         std::memcpy(this->buffer.data(), buffer, size);
     }
@@ -40,7 +48,7 @@ namespace Manager {
 
     void TextureManager::lazyLoad(const bool isAlbedo = true) {
         if (textures.empty()) {
-            addTexture(Resource::TextureLoader::bindFromBuffer(buffer, isAlbedo));
+            addTexture(TextureLoader::bindFromBufferWithoutDecode(buffer.data(), isAlbedo, widthImg, heightImg, numColCh));
             buffer.clear();
         }
     }

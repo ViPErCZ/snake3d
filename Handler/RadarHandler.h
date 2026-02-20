@@ -14,7 +14,7 @@ namespace Handler {
     class RadarHandler : public BaseKeydownHandle {
     public:
         explicit RadarHandler(const shared_ptr<MeshNode3D> &radar);
-        void onEventHandler(unsigned int key, int scancode, int action, int mods) override;
+        void onEventHandler(unsigned int key, int scancode, int action, int mods, float deltaTime) override;
         void onDefaultHandler() override = 0;
 
     protected:

@@ -21,10 +21,10 @@ namespace Model {
             shader->setMat4(name, view);
         };
         const auto viewUniform = make_shared<CallbackUniform>(viewFunc);
-        skyboxMaterial->addUniform("view", viewUniform);
-        skyboxMaterial->addUniform("skybox", textureUniform);
+        skyboxMaterial->setUniform("view", viewUniform);
+        skyboxMaterial->setUniform("skybox", textureUniform);
         const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), {1.0, 0.0, 0.0});
-        skyboxMaterial->addUniform("model", model);
+        skyboxMaterial->setUniform("model", model);
         mesh->setMaterial(skyboxMaterial);
         disablePlanarReflection();
     }

@@ -5,7 +5,7 @@
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
-        : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN) {
+        : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN), worldMin(+FLT_MAX), worldMax(-FLT_MIN) {
     }
 
     shared_ptr<Mesh> StandardMesh::getMesh() const {
@@ -201,6 +201,16 @@ namespace Model {
     void StandardMesh::animationResume(const string &name) const {
         if (animationPlayer) {
             animationPlayer->resume(name);
+        }
+    }
+
+    void StandardMesh::computeLocalAABB() {
+        const auto vertices = mesh->getVertices();
+        localMin = vertices[0].position;
+        localMax = vertices[0].position;
+        for (const auto &v: vertices) {
+            localMin = glm::min(localMin, v.position);
+            localMax = glm::max(localMax, v.position);
         }
     }
 } // Model

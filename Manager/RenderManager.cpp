@@ -29,8 +29,8 @@ namespace Manager {
 
     void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
         renderers.push_back({std::move(renderer), priority});
-        stable_sort(renderers.begin(), renderers.end(),
-                     [](auto &a, auto &b) { return a.priority > b.priority; });
+        ranges::stable_sort(renderers,
+                            [](auto &a, auto &b) { return a.priority > b.priority; });
         if (planarReflectionRenderer) {
             planarReflectionRenderer->updateRenderers(renderers);
         }
@@ -72,9 +72,9 @@ namespace Manager {
                 sceneMax = Iter->renderer->compareSceneMax(sceneMax);
             }
 
-            constexpr float padding = 2.0f;
-            sceneMin -= glm::vec3(padding);
-            sceneMax += glm::vec3(padding);
+            //constexpr float padding = 2.0f;
+            //sceneMin -= glm::vec3(padding);
+            //sceneMax += glm::vec3(padding);
 
             // constexpr glm::vec3 centerScene = {0, 0.0f, 0.0f}; //(sceneMin + sceneMax) / 2.0f;
 

@@ -4,6 +4,7 @@
 namespace Model {
     void ArrayMesh::fromMesh(const shared_ptr<Mesh> &mesh) {
         this->mesh = mesh;
+        computeLocalAABB();
     }
 
     void ArrayMesh::fromVertexData(vector<Vertex> &vertices) {

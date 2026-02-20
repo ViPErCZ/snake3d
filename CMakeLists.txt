@@ -206,6 +206,10 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Handler/Debug/DirectionalLightDirectionHandler.h
         Handler/Debug/CollisionShapeHandler.cpp
         Handler/Debug/CollisionShapeHandler.h
+        Renderer/Opengl/Model/Game/MarkRingNode3D.cpp
+        Renderer/Opengl/Model/Game/MarkRingNode3D.h
+        Handler/Debug/BaseTransform.cpp
+        Handler/Debug/BaseTransform.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -435,6 +439,10 @@ set(APP_SOURCES
         Handler/Debug/DirectionalLightDirectionHandler.h
         Handler/Debug/CollisionShapeHandler.cpp
         Handler/Debug/CollisionShapeHandler.h
+        Renderer/Opengl/Model/Game/MarkRingNode3D.cpp
+        Renderer/Opengl/Model/Game/MarkRingNode3D.h
+        Handler/Debug/BaseTransform.cpp
+        Handler/Debug/BaseTransform.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -610,6 +618,10 @@ add_library(snake3d_lib ${APP_SOURCES}
         Handler/Debug/DirectionalLightDirectionHandler.h
         Handler/Debug/CollisionShapeHandler.cpp
         Handler/Debug/CollisionShapeHandler.h
+        Renderer/Opengl/Model/Game/MarkRingNode3D.cpp
+        Renderer/Opengl/Model/Game/MarkRingNode3D.h
+        Handler/Debug/BaseTransform.cpp
+        Handler/Debug/BaseTransform.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

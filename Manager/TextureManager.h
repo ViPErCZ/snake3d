@@ -15,6 +15,8 @@ namespace Manager {
 
         explicit TextureManager(const aiTexel *buffer, unsigned int size);
 
+        explicit TextureManager(const unsigned char *buffer, unsigned int size, unsigned int width, unsigned int height, unsigned int numColCh);
+
         ~TextureManager();
 
         void addTexture(unsigned int id);
@@ -38,6 +40,7 @@ namespace Manager {
     protected:
         vector<unsigned int> textures;
         vector<unsigned char> buffer;
+        int widthImg, heightImg, numColCh;
     };
 } // Manager
 

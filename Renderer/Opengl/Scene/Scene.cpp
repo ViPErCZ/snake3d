@@ -30,8 +30,6 @@ namespace Scenes {
     }
 
     void Scene::init(const int priority) {
-        positionHandler = make_shared<PositionHandler>(camera);
-        keyboardManager->addEventHandler(positionHandler);
         rendererManager->addRenderer(sceneRenderer, priority);
         rendererManager->updateDirectionalLight(directionalLight);
     }
@@ -54,7 +52,7 @@ namespace Scenes {
     void Scene::render() {
         static float lastFrame = 0.0f;
         const auto currentFrame = static_cast<float>(glfwGetTime());
-        float deltaTime = currentFrame - lastFrame;
+        deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         deltaTime = std::min(deltaTime, 0.05f);
 
@@ -72,7 +70,7 @@ namespace Scenes {
 
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,
                               const int mods) const {
-        keyboardManager->onKeyPress(keyCode, scancode, action, mods);
+        keyboardManager->onKeyPress(keyCode, scancode, action, mods, deltaTime);
         for (const auto &node: nodes) {
             node->keyboardInput(window, keyCode, scancode, action, mods);
         }
@@ -101,5 +99,9 @@ namespace Scenes {
 
     void Scene::setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem) {
         this->collisionSystem = collisionSystem;
+    }
+
+    void Scene::setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler) {
+        this->manipulatorHandler = manipulatorHandler;
     }
 } // Scene

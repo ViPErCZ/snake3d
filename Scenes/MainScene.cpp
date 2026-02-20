@@ -10,6 +10,7 @@
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
+#include "../Renderer/Opengl/Model/Game/MarkRingNode3D.h"
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
@@ -31,6 +32,9 @@ namespace Scenes {
 
     void MainScene::init(const int priority) {
         Scene::init(priority);
+
+        manipulatorHandler = make_shared<ManipulatorHandler>(camera);
+        keyboardManager->addEventHandler(manipulatorHandler);
 
         collisionDetector = make_shared<CollisionDetector>();
         initLights();
@@ -56,15 +60,13 @@ namespace Scenes {
         dirLightNode->setDirectionalLight(directionalLight);
         addMeshNode3D(dirLightNode);
 
-        if (positionHandler != nullptr) {
-            // positionHandler->addItem(directionalLight);
-            // for (auto &spotLight : spotLights) {
-            //     positionHandler->addItem(spotLight);
-            // }
-            // for (auto &pointLight : pointLights) {
-            //     positionHandler->addItem(pointLight);
-            // }
+        if (manipulatorHandler != nullptr) {
+             // add dir light to dir light handler
         }
+
+        const auto markRing = make_shared<MarkRingNode3D>(contextState, resourceManager, manipulatorHandler);
+        markRing->init();
+        addMeshNode3D(markRing);
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -233,6 +235,7 @@ namespace Scenes {
     void MainScene::initPlayerScene() {
         playerScene = make_shared<PlayerScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         playerScene->setCollisionSystem(collisionSystem);
+        playerScene->setManipulatorHandler(manipulatorHandler);
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
         snakeMoveHandler->setCollisionDetector(collisionDetector);
@@ -241,6 +244,8 @@ namespace Scenes {
 
     void MainScene::initBarriersScene() {
         barriersScene = make_shared<BarriersScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        barriersScene->setCollisionSystem(collisionSystem);
+        barriersScene->setManipulatorHandler(manipulatorHandler);
         barriersScene->init(3);
         levelManager = barriersScene->getLevelManager();
         addNode(barriersScene);
@@ -248,6 +253,8 @@ namespace Scenes {
 
     void MainScene::initCoinScene() {
         coinScene = make_shared<CoinScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        coinScene->setCollisionSystem(collisionSystem);
+        coinScene->setManipulatorHandler(manipulatorHandler);
         coinScene->init(4);
         addNode(coinScene);
 
@@ -257,6 +264,7 @@ namespace Scenes {
     void MainScene::initTorchScene() {
         const auto torchScene = make_shared<TorchScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         torchScene->setCollisionSystem(collisionSystem);
+        torchScene->setManipulatorHandler(manipulatorHandler);
         torchScene->init(1);
         addNode(torchScene);
     }
@@ -280,11 +288,11 @@ namespace Scenes {
         radarFadeInUniform = make_shared<FadeInUniform>();
         radarFadeInUniform->setStep(5.0f);
         radarExpansionIn = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
-        radarExpansionIn->addUniform("quadSize", glm::vec2(200, 200));
-        radarExpansionIn->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionIn->addUniform("borderWidth", 11.9f);
-        radarExpansionIn->addUniform("radius", 8.0f);
-        radarExpansionIn->addUniform("expansion", radarFadeInUniform);
+        radarExpansionIn->setUniform("quadSize", glm::vec2(200, 200));
+        radarExpansionIn->setUniform("borderColor", glm::vec3(1.0,0.0,0.0));
+        radarExpansionIn->setUniform("borderWidth", 11.9f);
+        radarExpansionIn->setUniform("radius", 8.0f);
+        radarExpansionIn->setUniform("expansion", radarFadeInUniform);
         radarFadeInUniform->setFinishedCallback([this]() {
             radarMeshNode->showItems();
             if (coinScene->getCoin()->isVisible() == false) {
@@ -296,11 +304,11 @@ namespace Scenes {
         radarFadeOutUniform = make_shared<FadeOutUniform>();
         radarFadeOutUniform->setStep(5.0f);
         radarExpansionOut = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
-        radarExpansionOut->addUniform("quadSize", glm::vec2(200, 200));
-        radarExpansionOut->addUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionOut->addUniform("borderWidth", 11.9f);
-        radarExpansionOut->addUniform("radius", 8.0f);
-        radarExpansionOut->addUniform("expansion", radarFadeOutUniform);
+        radarExpansionOut->setUniform("quadSize", glm::vec2(200, 200));
+        radarExpansionOut->setUniform("borderColor", glm::vec3(1.0,0.0,0.0));
+        radarExpansionOut->setUniform("borderWidth", 11.9f);
+        radarExpansionOut->setUniform("radius", 8.0f);
+        radarExpansionOut->setUniform("expansion", radarFadeOutUniform);
 
         radarNode = make_shared<QuadNode2D>(220, 220, nullptr);
         radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -325,9 +333,9 @@ namespace Scenes {
 
         fadeOutUniform = make_shared<FadeOutUniform>();
         const auto shaderMaterial = make_shared<ShaderMaterial>(shader);
-        shaderMaterial->addUniform("alpha", fadeOutUniform);
-        shaderMaterial->addUniform("textColor", glm::vec3(1.0f));
-        shaderMaterial->addUniform("textTexture", 0);
+        shaderMaterial->setUniform("alpha", fadeOutUniform);
+        shaderMaterial->setUniform("textColor", glm::vec3(1.0f));
+        shaderMaterial->setUniform("textTexture", 0);
         fadeOutUniform->setFinishedCallback([this]() {
             helpText->setVisible(false);
         });
@@ -338,9 +346,9 @@ namespace Scenes {
         tilesCounterText = make_shared<LabelNode2D>("", shader, settings);
         fadeInUniform = make_shared<FadeInUniform>();
         const auto shaderMaterial2 = make_shared<ShaderMaterial>(shader);
-        shaderMaterial2->addUniform("alpha", fadeInUniform);
-        shaderMaterial2->addUniform("textColor", glm::vec3(1.0f));
-        shaderMaterial2->addUniform("textTexture", 0);
+        shaderMaterial2->setUniform("alpha", fadeInUniform);
+        shaderMaterial2->setUniform("textColor", glm::vec3(1.0f));
+        shaderMaterial2->setUniform("textTexture", 0);
 
         tilesCounterText->setMaterial(shaderMaterial2);
         tilesCounterNode = make_shared<MeshNode2D>(contextState, tilesCounterText, resourceManager);

@@ -71,6 +71,8 @@ namespace Model {
 
         void animationResume(const string &name) const;
 
+        void computeLocalAABB();
+
     protected:
         shared_ptr<Mesh> mesh;
         shared_ptr<BaseMaterial> material;
@@ -78,6 +80,8 @@ namespace Model {
         shared_ptr<AnimationPlayer> animationPlayer;
         glm::vec3 localMin;
         glm::vec3 localMax;
+        glm::vec3 worldMin;
+        glm::vec3 worldMax;
         Blending blending = Blending::Opaque;
         bool depthTest = true;
         bool depthWrite = true;

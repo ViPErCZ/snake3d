@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "SceneRenderer.h"
+#include "../../../Handler/Debug/ManipulatorHandler.h"
 #include "../../../Handler/Debug/PositionHandler.h"
 #include "../../../Manager/KeyboardManager.h"
 #include "../../../Manager/RenderManager.h"
@@ -13,6 +14,7 @@
 using namespace std;
 using namespace Model;
 using namespace Manager;
+using namespace Handler::Debug;
 
 namespace Scenes {
     class Scene : public enable_shared_from_this<Scene> {
@@ -48,6 +50,8 @@ namespace Scenes {
 
         void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
 
+        void setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler);
+
     protected:
         vector<RendererEntry3D> meshNode3d;
         vector<RendererEntry2D> meshNode2d;
@@ -61,7 +65,7 @@ namespace Scenes {
         unique_ptr<KeyboardManager> keyboardManager;
         shared_ptr<Camera> camera;
         shared_ptr<ContextState> contextState;
-        shared_ptr<PositionHandler> positionHandler;
+        shared_ptr<ManipulatorHandler> manipulatorHandler;
         shared_ptr<CollisionSystem3D> collisionSystem;
         glm::mat4 projection;
         vector<shared_ptr<Scene>> nodes;
@@ -69,6 +73,7 @@ namespace Scenes {
         int depth = 0;
         int width;
         int height;
+        float deltaTime = 1;
     };
 } // Scene
 

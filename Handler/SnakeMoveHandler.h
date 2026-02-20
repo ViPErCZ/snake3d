@@ -19,7 +19,7 @@ namespace Handler {
     public:
         ~SnakeMoveHandler() override;
         explicit SnakeMoveHandler(const shared_ptr<SnakeMeshNode3D> &snake_mesh_node);
-        void onEventHandler(unsigned int key, int scancode, int action, int mods) override;
+        void onEventHandler(unsigned int key, int scancode, int action, int mods, float deltaTime) override;
         void onDefaultHandler() override;
         void setCollisionDetector(shared_ptr<CollisionDetector> collisionDetector);
         void addStartMoveCallback(const function<void()> &startMoveCallback);

@@ -51,6 +51,11 @@ namespace Scenes {
             collisionSystem->addCollider(barrel);
         }
 
+        if (manipulatorHandler != nullptr) {
+            manipulatorHandler->getPositionHandler()->addItem(streetLamp);
+            manipulatorHandler->getPositionHandler()->addItem(barrel);
+        }
+
         addMeshNode3D(barrel);
     }
 
@@ -132,7 +137,16 @@ namespace Scenes {
         addMeshNode3D(torchNode3, 1);
         addMeshNode3D(torchNode4, 1);
 
-        positionHandler->addItem(torchNode);
+        if (manipulatorHandler != nullptr) {
+            manipulatorHandler->getPositionHandler()->addItem(torchNode);
+            manipulatorHandler->getPositionHandler()->addItem(torchNode2);
+            manipulatorHandler->getPositionHandler()->addItem(torchNode3);
+            manipulatorHandler->getPositionHandler()->addItem(torchNode4);
+
+            manipulatorHandler->getScaleHandler()->addItem(torchNode);
+
+            manipulatorHandler->getRotationHandler()->addItem(torchNode);
+        }
     }
 
     shared_ptr<GPUParticle3D> TorchScene::initFire() {

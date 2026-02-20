@@ -20,10 +20,11 @@ namespace Model {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 20");
         }
         children.push_back(node);
-        childrenChangedSignal = true;
 
         if (const auto collisionShape = std::dynamic_pointer_cast<CollisionShape::CollisionShape3D>(node)) {
             collisionShapes.push_back(node);
+        } else {
+            childrenChangedSignal = true;
         }
     }
 

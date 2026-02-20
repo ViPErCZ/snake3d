@@ -71,42 +71,7 @@ void App::initScene() {
     auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
     auto environmentMap = resourceManager->getTexture("skybox");
 
-    // const auto directionalLight = make_shared<DirectionalLight>();
-    // directionalLight->setPosition({0.0f, 7.0f, 11.0f});
-    // directionalLight->setDirection({1, 1.0, -3});
-    // directionalLight->setAmbient({0.7f, 0.7f, 0.7f});
-    // directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
-    // directionalLight->setSpecular({.091f, .091f, .091f});
-
-    // const auto spotLight = make_shared<SpotLight>();
-    // spotLight->setPosition({0.0f, 0.5f, 0.2f});
-    // spotLight->setDirection({0.0f, 0.0f, 0.0f});
-    // spotLight->setAmbient({1.0f, 1.0f, 1.0f});
-    // spotLight->setDiffuse({0.0f, 0.0f, 0.0f});
-    // spotLight->setSpecular({1.0f, 1.0f, 1.0f});
-    // spotLight->setCutOff(12.5);
-    // spotLight->setOuterCutOff(17.5);
-    //
-    // const auto pointLight = make_shared<PointLight>();
-    // pointLight->setPosition({-0.9f, 1.1f, 0.2f});
-    // pointLight->setAmbient(glm::vec3(0.6f));
-    // // pointLight->setDiffuse({0.198f, 0.459f, 0.94f});
-    // pointLight->setDiffuse(glm::vec3(0.0f));
-    // pointLight->setSpecular(glm::vec3(0.0f));
-    // pointLight->setConstant(0.0005f);
-    // pointLight->setLinear(0.8f);
-
     planeMaterial->setColor({0.88, 0.05, 0.05});
-    // planeMaterial->setColor({1, 1, 1});
-    //planeMaterial->setAlbedo(rustedAlbedo);
-    //planeMaterial->setNormal(rustedNormal);
-    // planeMaterial->setRoughness(rustedRoughness);
-    // planeMaterial->setMetalness(rustedMetallic);
-    //planeMaterial->setAoMap(aoMap);
-    // planeMaterial->setAlbedo(skeletonAlbedo);
-    // planeMaterial->setMetalness(skeletonORM);
-    // planeMaterial->setRoughness(skeletonORM);
-    // planeMaterial->setAoMap(skeletonORM);
     boxMaterial->setAlbedo(brickWall);
     boxMaterial->setNormal(brickWallNormal);
     boxMaterial->setSpecular(brickWallSpecular);
@@ -114,32 +79,12 @@ void App::initScene() {
     coinMaterial->setAlbedo(coinAlbedo);
     coinMaterial->setNormal(coinNormal);
     coinMaterial->setSpecular(coinMetalness);
-    // coinMaterial->setAoMap(aoMap);
-    // planeMaterial->setAlbedo(brickWall);
-    // planeMaterial->setNormal(brickWallNormal);
-    // planeMaterial->setMetalness(coinMetalness);
-    // planeMaterial->setRoughness(coinRoughness);
-    // planeMaterial->setNormal(gamefieldNormal);
     planeMaterial->setShadow(shadowMap);
     coinMaterial->setShadow(shadowMap);
     boxMaterial->setShadow(shadowMap);
     // planeMaterial->setNormalEnabled(true);
     coinMaterial->setNormalEnabled(true);
     boxMaterial->setNormalEnabled(true);
-    // planeMaterial->setSpecular(gamefieldSpecular);
-    // planeMaterial->setDirectionalLight(directionalLight);
-    // coinMaterial->setDirectionalLight(directionalLight);
-    // boxMaterial->setDirectionalLight(directionalLight);
-    // planeMaterial->addSpotLight(spotLight);
-    // planeMaterial->addPointLight(pointLight);
-    // coinMaterial->addPointLight(pointLight);
-    // boxMaterial->addPointLight(pointLight);
-    // boxMaterial->addPointLight(pointLight);
-    // planeMaterial->setShadow(true);
-    // coinMaterial->setShadow(true);
-    // boxMaterial->setShadow(true);
-    // planeMaterial->setEnvironmentMap(environmentMap);
-    // coinMaterial->setEnvironmentMap(environmentMap);
 
      musicBuffer = alutCreateBufferFromFile("Assets/Sounds/snake.wav");
      coinBuffer = alutCreateBufferFromFile("Assets/Sounds/coin.wav");
@@ -159,15 +104,6 @@ void App::initScene() {
 
 void App::Init() {
     InitResourceManager();
-
-    // resourceManager->addShader(
-    //     "bloom",
-    //     std::make_shared<ShaderManager>(
-    //         ShaderLoader::loadShader(
-    //             "Assets/Shaders/bloom/bloom.vs",
-    //             "Assets/Shaders/bloom/bloom.fs"
-    //             ))
-    // );
 
     resourceManager->addShader("blur",
         std::make_shared<ShaderManager>(
@@ -328,23 +264,6 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
     //keyboardManager->onKeyPress(keyCode, scancode, action, mods);
 
     switch (keyCode) {
-        case GLFW_KEY_P:
-            // if (objWallRenderer) {
-            //     objWallRenderer->toggleParallax();
-            // }
-            break;
-        case GLFW_KEY_F:
-            // rendererManager->toggleFog();
-            break;
-        case GLFW_KEY_W:
-            // if (rainRenderer && rainDropRenderer) {
-            //     rainRenderer->toggle();
-            //     rainDropRenderer->setEnable(rainRenderer->isEnable());
-            // }
-            break;
-        //        case GLFW_KEY_U:
-        //            camera->startUpsideDownRotate();
-        //            break;
         case GLFW_KEY_M:
             // TODO: sound
             // ALint source_state;
@@ -354,21 +273,6 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
             //     alSourceStop(musicSource);
             // } else {
             //     alSourcePlay(musicSource);
-            // }
-            break;
-        // case GLFW_KEY_1: // show classic red head
-            // snake->getHeadTile()->setVisible(true);
-            // animRenderer->setShow(false);
-            //snakeRenderer->toggleStyle(1);
-            // break;
-        // case GLFW_KEY_2: // show animated pacman head
-            // snake->getHeadTile()->setVisible(false);
-            // animRenderer->setShow(true);
-            //snakeRenderer->toggleStyle(2);
-            // break;
-        case GLFW_KEY_T:
-            // if (boltRenderer) {
-            //     boltRenderer->triggerBolt();
             // }
             break;
         case GLFW_KEY_ESCAPE:
@@ -470,8 +374,10 @@ void App::InitResourceManager() const {
         std::cout << "Shader gizmo ready!" << std::endl;
     });
 
-    resourceManager->loadAsyncShader("colorShader", "Assets/Shaders/color.vs", "", "Assets/Shaders/color.fs", []() {
-        std::cout << "Shader color ready!" << std::endl;
+    resourceManager->loadAsyncShader("markRingShader",
+        "Assets/Shaders/ring/ring.vs", "",
+        "Assets/Shaders/ring/ring.fs", []() {
+        std::cout << "Shader markRingShader ready!" << std::endl;
     });
 
     resourceManager->loadAsyncShader("respawnShader", "Assets/Shaders/basic.vs", "", "Assets/Shaders/respawn/respawn.fs", []() {;

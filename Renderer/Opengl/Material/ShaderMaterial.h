@@ -28,7 +28,7 @@ namespace Material {
 
         ~ShaderMaterial() override;
 
-        void addUniform(const string &name, const UniformValue &value);
+        void setUniform(const string &name, const UniformValue &value);
 
         void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
                   const glm::mat4 &model, bool shadows) const override;

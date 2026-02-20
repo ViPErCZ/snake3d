@@ -11,46 +11,53 @@
 #include "TextureLoader.h"
 
 namespace Resource {
-    std::vector<TextureInfo> loadMaterialTextures(const aiMaterial *mat, const aiTextureType type,
+    std::vector<TextureInfo> loadMaterialTextures(std::unordered_map<std::string, TextureInfo> &loadedTexturesCache,
+                                                  const aiMaterial *mat, const aiTextureType type,
                                                   const TextureType typeName, const aiScene *scene) {
         std::vector<TextureInfo> textures;
 
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
+            std::string texturePath = str.C_Str();
 
             TextureInfo texture;
             texture.type = typeName;
-            texture.path = str.C_Str();
+            texture.path = texturePath;
+
+            if (loadedTexturesCache.contains(texturePath)) {
+                cout << "Cache hit " << texture.path << std::endl;
+                textures.push_back(loadedTexturesCache[texturePath]);
+                continue;
+            }
 
             // Pokud cesta začíná hvězdičkou (např. "*0", "*1"), znamená to,
             // že textura je EMBEDDED (zabalená) přímo v binárním souboru.
-            const aiTexture *embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
-            unsigned int dataSize = 0;
-            if (embeddedTexture->mHeight == 0) {
-                dataSize = embeddedTexture->mWidth;
+            if (const aiTexture *embeddedTexture = scene->GetEmbeddedTexture(str.C_Str())) {
+                unsigned int dataSize = 0;
+                if (embeddedTexture->mHeight == 0) {
+                    dataSize = embeddedTexture->mWidth;
+                } else {
+                    dataSize = embeddedTexture->mWidth * embeddedTexture->mHeight * 4; // 4 bajty na pixel (BGRA)
+                }
+                texture.texture = TextureLoader::decodeImage(embeddedTexture->pcData, dataSize);
+                std::cout << "Find embedded texture: " << str.C_Str() << std::endl;
             } else {
-                dataSize = embeddedTexture->mWidth * embeddedTexture->mHeight * 4; // 4 bajty na pixel (BGRA)
-            }
-            if (embeddedTexture) {
-                // Zde musíš texturu načíst z paměti (viz vysvětlení pod kódem)
-                // texture.texture = std::make_shared<TextureManager>(
-                //     TextureLoader::bindFromBuffer(embeddedTexture->pcData, embeddedTexture->mWidth));
-                texture.texture = std::make_shared<TextureManager>(embeddedTexture->pcData, dataSize);
-                std::cout << "Nalezen embedded texture: " << str.C_Str() << std::endl;
-            } else {
-                // Textura je externí soubor na disku
+                // Texture is external (local disk storage)
                 texture.texture = std::make_shared<TextureManager>(TextureLoader::loadTexture(str.C_Str()));
-                std::cout << "Nalezen file texture: " << str.C_Str() << std::endl;
+                std::cout << "Find file texture: " << str.C_Str() << std::endl;
             }
 
+            loadedTexturesCache[texturePath] = texture;
             textures.push_back(texture);
         }
+
         return textures;
     }
 
     std::vector<std::shared_ptr<Mesh>> processAssimpScene(const aiScene* scene) {
 
+        std::unordered_map<std::string, TextureInfo> loadedTexturesCache;
         std::vector<std::shared_ptr<Mesh>> meshes;
 
         for (unsigned int m = 0; m < scene->mNumMeshes; m++) {
@@ -96,24 +103,24 @@ namespace Resource {
 
                 // a) Diffuse mapy (Base Color)
                 // V novějším Assimp a GLTF se Base Color mapuje často jako aiTextureType_BASE_COLOR nebo DIFFUSE
-                std::vector<TextureInfo> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TextureType::Diffuse, scene);
+                std::vector<TextureInfo> diffuseMaps = loadMaterialTextures(loadedTexturesCache, material, aiTextureType_DIFFUSE, TextureType::Diffuse, scene);
                 textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
                 // b) Normal mapy
-                std::vector<TextureInfo> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, TextureType::Normal, scene);
+                std::vector<TextureInfo> normalMaps = loadMaterialTextures(loadedTexturesCache, material, aiTextureType_NORMALS, TextureType::Normal, scene);
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
                 // c) EMISSIVE
-                std::vector<TextureInfo> emissiveMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, TextureType::Emissive, scene);
+                std::vector<TextureInfo> emissiveMaps = loadMaterialTextures(loadedTexturesCache, material, aiTextureType_EMISSIVE, TextureType::Emissive, scene);
                 textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 
                 // d) REFLEXION
-                std::vector<TextureInfo> pbrMaps = loadMaterialTextures(material, aiTextureType_METALNESS, TextureType::MetalRough, scene);
+                std::vector<TextureInfo> pbrMaps = loadMaterialTextures(loadedTexturesCache, material, aiTextureType_METALNESS, TextureType::MetalRough, scene);
 
                 // 2. Pokud nic nenašel (což je u GLTF běžné), zkusíme UNKNOWN
                 if (pbrMaps.empty()) {
                     // V GLTF je MetalRoughness textura často mapovaná jako UNKNOWN_0
-                    pbrMaps = loadMaterialTextures(material, aiTextureType_UNKNOWN, TextureType::MetalRough, scene);
+                    pbrMaps = loadMaterialTextures(loadedTexturesCache, material, aiTextureType_UNKNOWN, TextureType::MetalRough, scene);
                 }
 
                 textures.insert(textures.end(), pbrMaps.begin(), pbrMaps.end());
@@ -157,10 +164,7 @@ namespace Resource {
     std::vector<std::shared_ptr<Mesh>> ObjModelLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
 
-        // Načtení souboru
         const aiScene* scene = importer.ReadFile(path.string(), ASSIMP_FLAGS);
-
-        // Kontrola chyb
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cerr << "Assimp Error: " << importer.GetErrorString() << std::endl;
             exit(1);

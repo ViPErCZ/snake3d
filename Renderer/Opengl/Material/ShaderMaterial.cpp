@@ -12,7 +12,7 @@ namespace Material {
 
     ShaderMaterial::~ShaderMaterial() = default;
 
-    void ShaderMaterial::addUniform(const string &name, const UniformValue &value) {
+    void ShaderMaterial::setUniform(const string &name, const UniformValue &value) {
         uniforms[name] = value;
     }
 
@@ -76,7 +76,7 @@ namespace Material {
         );
 
         for (const auto& [name, value] : uniforms) {
-            cloned->addUniform(name, std::visit([]<typename T0>(T0&& v) -> UniformValue {
+            cloned->setUniform(name, std::visit([]<typename T0>(T0&& v) -> UniformValue {
                 using T = std::decay_t<T0>;
                 if constexpr (std::is_base_of_v<IUniform, T>) {
                     return v.clone();
