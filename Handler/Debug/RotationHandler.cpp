@@ -14,6 +14,7 @@ namespace Handler::Debug {
             return;
         }
 
+        const float sensitivity = mods & GLFW_MOD_SHIFT ? 1.0f : 0.1f;
         const float rotationX = activeItem->getRotationX();
         const float rotationY = activeItem->getRotationY();
         const float rotationZ = activeItem->getRotationZ();
@@ -21,11 +22,40 @@ namespace Handler::Debug {
         switch (key) {
             case GLFW_KEY_RIGHT:
                 if (enabled) {
+                    activeItem->setRotationY(rotationY-sensitivity);
+                    computeWorld();
                 }
                 break;
             case GLFW_KEY_LEFT:
                 if (enabled) {
+                    activeItem->setRotationY(rotationY+sensitivity);
+                    computeWorld();
                 }
+                break;
+            case GLFW_KEY_UP:
+                if (enabled) {
+                    activeItem->setRotationX(rotationX-sensitivity);
+                    computeWorld();
+                }
+                break;
+            case GLFW_KEY_DOWN:
+                if (enabled) {
+                    activeItem->setRotationX(rotationX+sensitivity);
+                    computeWorld();
+                }
+                break;
+            case GLFW_KEY_PAGE_UP:
+                if (enabled) {
+                    activeItem->setRotationZ(rotationZ-sensitivity);
+                    computeWorld();
+                }
+                break;
+            case GLFW_KEY_PAGE_DOWN:
+                if (enabled) {
+                    activeItem->setRotationZ(rotationZ+sensitivity);
+                    computeWorld();
+                }
+                break;
             case GLFW_KEY_TAB:
                 if (enabled) {
                     activeItem = findNextItem();
@@ -35,9 +65,9 @@ namespace Handler::Debug {
                 break;
             case GLFW_KEY_SPACE:
                 if (enabled) {
-                    cout << "Rotation X: " << rotationX << endl;
-                    cout << "Rotation Y: " << rotationY << endl;
-                    cout << "Rotation Z: " << rotationZ << endl;
+                    cout << "Debug Rotation X: " << rotationX << endl;
+                    cout << "Debug Rotation Y: " << rotationY << endl;
+                    cout << "Debug Rotation Z: " << rotationZ << endl;
                 }
                 break;
             default:

@@ -16,7 +16,7 @@ namespace Scenes {
         void init(int priority) override;
 
     protected:
-        [[nodiscard]] shared_ptr<MeshNode3D> initPreloader() const;
+        [[nodiscard]] shared_ptr<MeshNode2D> initPreloader() const;
     };
 } // Scenes
 

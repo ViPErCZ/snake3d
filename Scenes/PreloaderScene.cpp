@@ -1,6 +1,7 @@
 #include "PreloaderScene.h"
 
 #include "../Renderer/Opengl/Model/SpinnerMesh.h"
+#include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 namespace Scenes {
     PreloaderScene::PreloaderScene(
@@ -17,13 +18,18 @@ namespace Scenes {
 
         const auto preLoader = initPreloader();
         camera->setStickyPoint(preLoader);
-        addMeshNode3D(preLoader);
+        addMeshNode2D(preLoader);
     }
 
-    shared_ptr<MeshNode3D> PreloaderScene::initPreloader() const {
+    shared_ptr<MeshNode2D> PreloaderScene::initPreloader() const {
         auto shader = resourceManager->getShader("preloadShader");
-        auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
+        const auto quad = make_shared<QuadNode2D>(width, height, shader);
+        const auto material = make_shared<ShaderMaterial>(shader);
+        const auto timerUnion = make_shared<TimerUniform>(true);
+        material->setUniform("iTime", timerUnion);
+        material->setUniform("iResolution", glm::vec2(width, height));
+        quad->setMaterial(material);
 
-        return make_shared<MeshNode3D>(contextState, make_shared<SpinnerMesh>(shader), resourceManager);
+        return make_shared<MeshNode2D>(contextState, quad, resourceManager);
     }
 } // Scenes

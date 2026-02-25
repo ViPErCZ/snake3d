@@ -17,10 +17,9 @@ namespace Physic {
 
     private:
         float radius;
-        
-        shared_ptr<MeshNode3D> meshNode;
-
         shared_ptr<StandardMaterial> material;
+        shared_ptr<ContextState> contextState;
+        shared_ptr<ResourceManager> resourceManager;
 
     public:
         explicit SphereShape(const shared_ptr<ResourceManager> &resourceManager,
@@ -29,6 +28,8 @@ namespace Physic {
         ShapeType getType() override { return ShapeType::Sphere; }
 
         [[nodiscard]] float getRadius() const { return radius; }
+
+        void setRadius(float radius);
 
         [[nodiscard]] SphereWorldData BuildSphere(const glm::mat4& modelMatrix) const;
 

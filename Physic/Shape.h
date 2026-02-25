@@ -6,7 +6,9 @@
 
 #include "../ItemsDto/Transform.h"
 #include "../Manager/Camera.h"
+#include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
+using namespace Model;
 using namespace Manager;
 using namespace Node3D;
 
@@ -31,6 +33,7 @@ namespace Physic {
 
         void setColliding(const bool colliding) { this->colliding = colliding; }
         [[nodiscard]] bool isColliding() const { return colliding; }
+        [[nodiscard]] const shared_ptr<MeshNode3D> &getMeshNode() const { return meshNode; }
 
         static AABB CalculateAABB(const glm::mat4& modelMatrix, const glm::vec3& localHalfExtents) {
 
@@ -66,6 +69,8 @@ namespace Physic {
             return corners;
         }
 
+    protected:
+        shared_ptr<MeshNode3D> meshNode;
     private:
         bool colliding = false;
     };

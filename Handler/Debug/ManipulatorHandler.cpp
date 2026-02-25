@@ -5,6 +5,7 @@ namespace Handler::Debug {
         positionHandler = make_shared<PositionHandler>(camera);
         scaleHandler = make_shared<ScaleHandler>(camera);
         rotationHandler = make_shared<RotationHandler>(camera);
+        collisionShapeHandler = make_shared<CollisionShapeHandler>(camera);
     }
 
     void ManipulatorHandler::onDefaultHandler() {
@@ -22,6 +23,7 @@ namespace Handler::Debug {
                 rotateEnable = false;
                 scaleHandler->deactivate();
                 rotationHandler->deactivate();
+                collisionShapeHandler->deactivate();
                 break;
             case GLFW_KEY_F6:
                 scaleEnable = !scaleEnable;
@@ -32,6 +34,7 @@ namespace Handler::Debug {
                 positionEnable = false;
                 rotationHandler->deactivate();
                 positionHandler->deactivate();
+                collisionShapeHandler->deactivate();
                 break;
             case GLFW_KEY_F7:
                 rotateEnable = !rotateEnable;
@@ -42,6 +45,19 @@ namespace Handler::Debug {
                 positionEnable = false;
                 positionHandler->deactivate();
                 scaleHandler->deactivate();
+                collisionShapeHandler->deactivate();
+                break;
+            case GLFW_KEY_F8:
+                collisionShapeEnable = !collisionShapeEnable;
+                if (collisionShapeEnable) {
+                    collisionShapeHandler->active();
+                }
+                scaleEnable = false;
+                positionEnable = false;
+                rotateEnable = false;
+                positionHandler->deactivate();
+                scaleHandler->deactivate();
+                rotationHandler->deactivate();
                 break;
             default:
                 break;
@@ -53,6 +69,8 @@ namespace Handler::Debug {
             scaleHandler->onEventHandler(key, scancode, action, mods, deltaTime);
         } else if (rotateEnable) {
             rotationHandler->onEventHandler(key, scancode, action, mods, deltaTime);
+        } else if (collisionShapeEnable) {
+            collisionShapeHandler->onEventHandler(key, scancode, action, mods, deltaTime);
         }
     }
 

@@ -158,8 +158,8 @@ void App::Init() {
         "preloadShader",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
-                "Assets/Shaders/preloader/preloader.vs",
-                "Assets/Shaders/preloader/preloader.fs"
+                "Assets/Shaders/preloader/dots/dots.vs",
+                "Assets/Shaders/preloader/dots/dots.fs"
             ))
     );
     resourceManager->addShader(

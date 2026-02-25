@@ -50,12 +50,19 @@ namespace Scenes {
         coinMaterial->setDirectionalLight(directionalLight);
         coinMaterial->setBlending(Blending::Translucent);
 
-        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(0.88, 1.9, 0.9));
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.8, 2.8, 1.0));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         coin->addNode(shape);
-        collisionSystem->addCollider(coin);
-        manipulatorHandler->getPositionHandler()->addItem(coin);
-        manipulatorHandler->getScaleHandler()->addItem(coin);
+
+        if (collisionSystem != nullptr) {
+            collisionSystem->addCollider(coin);
+        }
+
+        if (manipulatorHandler != nullptr) {
+            manipulatorHandler->getPositionHandler()->addItem(coin);
+            manipulatorHandler->getScaleHandler()->addItem(coin);
+            manipulatorHandler->getCollisionShapeHandler()->addItem(shape);
+        }
 
         int index = 0;
         for (auto &spotLight : spotLights) {

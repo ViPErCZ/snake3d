@@ -9,7 +9,14 @@ namespace CollisionShape {
     void CollisionShape3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
         const glm::mat4 &parentTransform, const bool shadows) {
         if (visible) {
-            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            const auto parent = getParent();
+            if (parent != nullptr) {
+                const auto animationPlayer = parent->getMesh()->getAnimationPlayer();
+                if (animationPlayer != nullptr) {
+                    finalTransform *= animationPlayer->getMetadata(parent->getAnimation())->world_transform;
+                }
+            }
             // contextState->setBlendingMode(mesh->getBlending());
             // contextState->setDepthTest(mesh->getDepthTest());
             // contextState->setDepthWrite(mesh->getDepthWrite());
@@ -23,5 +30,9 @@ namespace CollisionShape {
                 node->render(camera, projection, dt, glm::mat4(1.0f), shadows);
             }
         }
+    }
+
+    shared_ptr<StandardMesh> CollisionShape3D::getMesh() const { // only for mark ring
+        return getParent()->getMesh();
     }
 } // CollisionShape

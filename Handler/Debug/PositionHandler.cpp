@@ -19,9 +19,6 @@ namespace Handler::Debug {
         const float sensitivity = mods & GLFW_MOD_SHIFT ? 1.0f : 0.1f;
         glm::vec3 pos = activeItem->getPosition();
         const glm::vec3 zoom = activeItem->getScale();
-        const float rotationX = activeItem->getRotationX();
-        const float rotationY = activeItem->getRotationY();
-        const float rotationZ = activeItem->getRotationZ();
 
         switch (key) {
             case GLFW_KEY_RIGHT:
@@ -186,10 +183,7 @@ namespace Handler::Debug {
                 break;
             case GLFW_KEY_SPACE:
                 if (enabled) {
-                    cout << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
-                    cout << "Rotation X: " << rotationX << endl;
-                    cout << "Rotation Y: " << rotationY << endl;
-                    cout << "Rotation Z: " << rotationZ << endl;
+                    cout << "Debug Position: " << pos.x << ", " << pos.y << ", " << pos.z << endl;
                     if (const shared_ptr<DirectionalLight> light = std::dynamic_pointer_cast<DirectionalLight>(activeItem)) {
                         cout << "Direction: " << light->getDirection().x << ", " << light->getDirection().y << ", " << light->getDirection().z << endl;
                     }

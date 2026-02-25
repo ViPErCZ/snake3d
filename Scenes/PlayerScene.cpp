@@ -1,6 +1,7 @@
 #include "PlayerScene.h"
 
 #include "../Physic/BoxShape.h"
+#include "../Physic/CapsuleShape.h"
 #include "../Physic/SphereShape.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
@@ -57,13 +58,20 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
-        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto sphereShape = make_shared<CapsuleShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
 
         snake->setCollisionShape(shape);
 
         addMeshNode3D(snake);
-        collisionSystem->addCollider(snake);
+
+        if (collisionSystem != nullptr) {
+            collisionSystem->addCollider(snake);
+        }
+
+        if (manipulatorHandler != nullptr) {
+            manipulatorHandler->getCollisionShapeHandler()->addItem(shape);
+        }
     }
 
     void PlayerScene::initSnakeMoveHandler() {

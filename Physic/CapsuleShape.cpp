@@ -5,7 +5,7 @@ namespace Physic {
     CapsuleShape::CapsuleShape(const shared_ptr<ResourceManager> &resourceManager,
                              const shared_ptr<ContextState> &contextState, 
                              const float radius, const float height) 
-        : radius(radius), height(height) {
+        : radius(radius), height(height), contextState(contextState), resourceManager(resourceManager) {
         
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
@@ -45,9 +45,9 @@ namespace Physic {
     }
 
     AABB CapsuleShape::calculateAABB(const glm::mat4 &modelMatrix) {
-        auto data = BuildCapsule(modelMatrix);
-        const glm::vec3 min = glm::min(data.p0, data.p1) - glm::vec3(data.radius);
-        const glm::vec3 max = glm::max(data.p0, data.p1) + glm::vec3(data.radius);
+        auto [p0, p1, radius] = BuildCapsule(modelMatrix);
+        const glm::vec3 min = glm::min(p0, p1) - glm::vec3(radius);
+        const glm::vec3 max = glm::max(p0, p1) + glm::vec3(radius);
 
         return {min, max};
     }
@@ -59,5 +59,25 @@ namespace Physic {
         meshNode->setScale(glm::vec3(1.0f));
         meshNode->setPosition(glm::vec3(0.0f));
         meshNode->render(camera, projection, 0.0f, t, false);
+    }
+
+    void CapsuleShape::setRadius(const float radius) {
+        this->radius = radius;
+
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
+        auto capsuleMesh = make_shared<CapsuleMesh>(shader, height, radius);
+        capsuleMesh->setMaterial(material);
+        meshNode = make_shared<MeshNode3D>(contextState, capsuleMesh, resourceManager);
+    }
+
+    void CapsuleShape::setHeight(const float height) {
+        this->height = height;
+
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
+        auto capsuleMesh = make_shared<CapsuleMesh>(shader, height, radius);
+        capsuleMesh->setMaterial(material);
+        meshNode = make_shared<MeshNode3D>(contextState, capsuleMesh, resourceManager);
     }
 } // Physic

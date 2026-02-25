@@ -18,8 +18,9 @@ namespace Physic {
     private:
         float radius;
         float height;
-        shared_ptr<MeshNode3D> meshNode;
         shared_ptr<StandardMaterial> material;
+        shared_ptr<ContextState> contextState;
+        shared_ptr<ResourceManager> resourceManager;
 
     public:
         explicit CylinderShape(const shared_ptr<ResourceManager> &resourceManager,
@@ -33,6 +34,14 @@ namespace Physic {
         AABB calculateAABB(const glm::mat4 &modelMatrix) override;
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
+
+        [[nodiscard]] float getRadius() const { return radius; }
+
+        [[nodiscard]] float getHeight() const { return height; }
+
+        void setRadius(float radius);
+
+        void setHeight(float height);
     };
 } // Physic
 

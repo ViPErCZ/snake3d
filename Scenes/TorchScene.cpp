@@ -54,6 +54,7 @@ namespace Scenes {
         if (manipulatorHandler != nullptr) {
             manipulatorHandler->getPositionHandler()->addItem(streetLamp);
             manipulatorHandler->getPositionHandler()->addItem(barrel);
+            manipulatorHandler->getCollisionShapeHandler()->addItem(collisionShape);
         }
 
         addMeshNode3D(barrel);

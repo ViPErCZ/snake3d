@@ -17,7 +17,7 @@ namespace Model {
 
         ~MeshNode3D() override = default;
 
-        [[nodiscard]] shared_ptr<StandardMesh> getMesh() const;
+        [[nodiscard]] virtual shared_ptr<StandardMesh> getMesh() const;
 
         void addNode(const std::shared_ptr<MeshNode3D> &node);
 
@@ -30,6 +30,8 @@ namespace Model {
                            const glm::mat4 &parentTransform) const;
 
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
+
+        shared_ptr<MeshNode3D> getParent() const { return parent.lock(); }
 
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getCollisionShapes() const;
 
@@ -56,6 +58,8 @@ namespace Model {
         void disablePlanarReflection();
 
         [[nodiscard]] bool isIncludeInPlanarReflection() const;
+
+        string getAnimation() { return animation; }
 
     protected:
         shared_ptr<MeshNode3D> deepCopy() const;

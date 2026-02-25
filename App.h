@@ -4,7 +4,6 @@
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
-#include "Handler/EatLocationHandler.h"
 #include "Manager/EatManager.h"
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"

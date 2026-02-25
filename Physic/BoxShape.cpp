@@ -4,7 +4,7 @@
 
 namespace Physic {
     BoxShape::BoxShape(const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<ContextState> &contextState,
-                       const glm::vec3 boxSize) : size(boxSize) {
+                       const glm::vec3 boxSize) : size(boxSize), resourceManager(resourceManager), contextState(contextState) {
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         // material
@@ -52,5 +52,14 @@ namespace Physic {
 
     AABB BoxShape::calculateAABB(const glm::mat4 &modelMatrix) {
         return CalculateAABB(modelMatrix, this->size * 0.5f);
+    }
+
+    void BoxShape::setSize(const glm::vec3 &size) {
+        this->size = size;
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
+        auto boxMesh = make_shared<BoxMesh>(shader, size.x, size.y, size.z);
+        boxMesh->setMaterial(material);
+        meshNode = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
     }
 } // Physic

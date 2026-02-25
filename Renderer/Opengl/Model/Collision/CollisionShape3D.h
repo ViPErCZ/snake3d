@@ -19,6 +19,8 @@ namespace CollisionShape {
 
         shared_ptr<Shape> getShape() const { return shape; }
 
+        shared_ptr<StandardMesh> getMesh() const override;
+
     private:
         shared_ptr<Shape> shape;
     };

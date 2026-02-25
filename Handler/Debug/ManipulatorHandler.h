@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "CollisionShapeHandler.h"
 #include "PositionHandler.h"
 #include "RotationHandler.h"
 #include "ScaleHandler.h"
@@ -20,10 +21,12 @@ namespace Handler::Debug {
                 shared_ptr<PositionHandler> getPositionHandler() { return positionHandler; }
                 shared_ptr<ScaleHandler> getScaleHandler() { return scaleHandler; }
                 shared_ptr<RotationHandler> getRotationHandler() { return rotationHandler; }
+                shared_ptr<CollisionShapeHandler> getCollisionShapeHandler() { return collisionShapeHandler; }
                 [[nodiscard]] bool isActive() const;
                 [[nodiscard]] bool isPositionHandlerActive() const { return positionEnable; }
                 [[nodiscard]] bool isScaleHandlerActive() const { return scaleEnable; }
                 [[nodiscard]] bool isRotationHandlerActive() const { return rotateEnable; }
+                [[nodiscard]] bool isCollisionShapeActive() const { return collisionShapeEnable; }
                 [[nodiscard]] glm::vec3 getItemWorldCenter() const;
                 [[nodiscard]] glm::vec3 getWorldMin() const;
                 [[nodiscard]] glm::vec3 getWorldMax() const;
@@ -31,9 +34,11 @@ namespace Handler::Debug {
                 shared_ptr<PositionHandler> positionHandler;
                 shared_ptr<ScaleHandler> scaleHandler;
                 shared_ptr<RotationHandler> rotationHandler;
+                shared_ptr<CollisionShapeHandler> collisionShapeHandler;
                 bool positionEnable = false;
                 bool scaleEnable = false;
                 bool rotateEnable = false;
+                bool collisionShapeEnable = false;
         };
 }
 

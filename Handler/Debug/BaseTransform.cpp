@@ -28,7 +28,7 @@ namespace Debug {
                 }
 
                 int index = 1;
-                const auto nextItem = *(it + 1);
+                auto nextItem = *(it + 1);
                 if (nextItem->isVisible()) {
                     return nextItem;
                 }
@@ -47,9 +47,9 @@ namespace Debug {
     }
 
     shared_ptr<MeshNode3D> BaseTransform::findFirstVisible() {
-        for (auto it = items.begin(); it != items.end(); ++it) {
-            if ((*it)->isVisible()) {
-                return *it;
+        for (auto & item : items) {
+            if (item->isVisible()) {
+                return item;
             }
         }
 

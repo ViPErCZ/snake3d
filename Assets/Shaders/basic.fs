@@ -17,6 +17,7 @@ in vec3 camPos;
 in mat3 TBN;
 in mat4 viewMatrix;
 in vec4 clipSpacePos;
+in vec2 outUvScale;
 
 uniform float uTime = 1;
 uniform vec3 viewPos;
@@ -29,11 +30,16 @@ uniform bool overrideColorMesh = false;
 uniform sampler2D metalness;
 uniform sampler2D roughnessMap;
 
+uniform bool rainDropEnable = false;
+uniform float rainSpeed = 0.2;
+uniform float rainDensity = 20.0;
+
 #include "functions/fog.glsl"
 #include "functions/lights.glsl"
 #include "functions/reflection.glsl"
 #include "functions/shadows.glsl"
 #include "functions/alpha.glsl"
+#include "functions/rainRipple.glsl"
 
 void main()
 {
@@ -45,9 +51,6 @@ void main()
         albedoTexture = vec4(ambientLightColor, 1.0);
     }
 
-    //float metalness = pbrEnabled ? texture(metalness, TexCoords).r : 0.0;
-    //float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).r : 0.5;
-
     float metalness = pbrEnabled ? texture(metalness, TexCoords).b : 0.0;
     float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).g : 0.5;
     vec3 F0 = vec3(0.04);
@@ -58,11 +61,27 @@ void main()
         F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
     }
 
+    vec2 rippleOffset = vec2(0.0);
+    if (rainDropEnable) {
+        vec2 cleanUV = TexCoords / outUvScale * 2;
+        rippleOffset = getRainRippleDistortion(cleanUV, uTime, rainSpeed, rainDensity);
+    }
+
     vec3 normal = Normal;
     if (normalMapEnabled) {
-       vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
-       tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
-       normal = TBN * tangentNormal;
+        vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
+        tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
+
+        if (rainDropEnable) {
+            // Modifikujeme normálovou mapu před převodem do World Space
+            tangentNormal.xy += rippleOffset * 2.0;
+            tangentNormal = normalize(tangentNormal);
+        }
+
+        normal = TBN * tangentNormal;
+    } else if (rainDropEnable) {
+        // Pokud není normal mapa, vytvoříme normálu jen z vlnek
+        normal = normalize(TBN * vec3(rippleOffset, 1.0));
     }
 
     vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
@@ -154,6 +173,11 @@ void main()
     }
 
     if (reflectionEnable) {
+        vec4 distortedClipPos = clipSpacePos;
+        if (rainDropEnable) {
+            // Planární reflexe se rozvlní
+            distortedClipPos.xy += rippleOffset * 0.05;
+        }
         FragColor = vec4(calcReflexion(clipSpacePos, FragColor.rgb), FragColor.a);
     }
 

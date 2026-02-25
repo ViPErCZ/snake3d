@@ -4,7 +4,7 @@
 
 namespace Physic {
     SphereShape::SphereShape(const shared_ptr<ResourceManager> &resourceManager,
-        const shared_ptr<ContextState> &contextState, const float radius) : radius(radius) {
+        const shared_ptr<ContextState> &contextState, const float radius) : radius(radius), contextState(contextState), resourceManager(resourceManager) {
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         // material
@@ -40,5 +40,16 @@ namespace Physic {
         meshNode->setScale(glm::vec3(1.0f));
         meshNode->setPosition(glm::vec3(0.0f));
         meshNode->render(camera, projection, 0.0f, t, false);
+    }
+
+    void SphereShape::setRadius(const float radius) {
+        this->radius = radius;
+        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
+
+        auto cylinderMesh = make_shared<SphereMesh>(shader, radius * 2.0f, radius);
+        cylinderMesh->setMaterial(material);
+
+        meshNode = make_shared<MeshNode3D>(contextState, cylinderMesh, resourceManager);
     }
 } // Physic

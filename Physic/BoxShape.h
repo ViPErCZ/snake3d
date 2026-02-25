@@ -31,15 +31,17 @@ namespace Physic {
 
         AABB calculateAABB(const glm::mat4 &modelMatrix) override;
 
-        [[nodiscard]] const shared_ptr<MeshNode3D> &getMeshNode() const { return meshNode; }
+        [[nodiscard]] const glm::vec3 &getSize() const { return size; }
+
+        void setSize(const glm::vec3 &size);
 
     private:
 
         glm::vec3 size;
 
-        shared_ptr<MeshNode3D> meshNode;
-
         shared_ptr<StandardMaterial> material;
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ContextState> contextState;
     };
 } // Physic
 
