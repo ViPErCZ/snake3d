@@ -59,4 +59,9 @@ namespace Model {
             MeshNode3D::render(camera, projection, dt, parentTransform, shadows);
         }
     }
+
+    void MarkRingNode3D::renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        const glm::mat4 &parentTransform) const {
+    }
+
 } // Model

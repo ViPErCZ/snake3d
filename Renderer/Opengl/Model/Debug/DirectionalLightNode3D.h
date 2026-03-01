@@ -15,15 +15,17 @@ namespace Model {
 
         ~DirectionalLightNode3D() override;
 
-        void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override {
-            directionalLight = directional_light;
-        };
+        void setOrientableLight(const shared_ptr<OrientableLight> &light) {
+            orientableLight = light;
+        }
+        
+        shared_ptr<OrientableLight> getOrientableLight() const { return orientableLight; }
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
     protected:
-        shared_ptr<DirectionalLight> directionalLight;
+        shared_ptr<OrientableLight> orientableLight;
     };
 } // Model
 

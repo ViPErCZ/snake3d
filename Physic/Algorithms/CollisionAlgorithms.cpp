@@ -65,13 +65,11 @@ namespace {
     }
 }
 
-bool Algorithms::BoxVsBox(const CollisionEntry &entA, const CollisionEntry &entB) {
+bool Algorithms::BoxVsBox(const CollisionEntry &entA, const CollisionEntry &entB, const glm::mat4& worldA, const glm::mat4& worldB) {
     const auto obbA = std::static_pointer_cast<BoxShape>(
-        entA.shapeNode->getShape())->BuildOBB(entA.parentObject->getModelMatrix() * entA.shapeNode->getModelMatrix()
-    );
+        entA.shapeNode->getShape())->BuildOBB(worldA);
     const auto obbB = std::static_pointer_cast<BoxShape>(
-        entB.shapeNode->getShape())->BuildOBB(entB.parentObject->getModelMatrix() * entB.shapeNode->getModelMatrix()
-    );
+        entB.shapeNode->getShape())->BuildOBB(worldB);
 
     const glm::vec3 T = obbB.center - obbA.center;
 
@@ -148,12 +146,12 @@ bool Algorithms::BoxVsBox(const CollisionEntry &entA, const CollisionEntry &entB
     return true;
 }
 
-bool Algorithms::SphereVsSphere(const CollisionEntry& entA, const CollisionEntry& entB) {
+bool Algorithms::SphereVsSphere(const CollisionEntry& entA, const CollisionEntry& entB, const glm::mat4& worldA, const glm::mat4& worldB) {
     auto sphereA = std::static_pointer_cast<SphereShape>(entA.shapeNode->getShape())
-                    ->BuildSphere(entA.parentObject->getModelMatrix() * entA.shapeNode->getModelMatrix());
+                    ->BuildSphere(worldA);
 
     auto sphereB = std::static_pointer_cast<SphereShape>(entB.shapeNode->getShape())
-                    ->BuildSphere(entB.parentObject->getModelMatrix() * entB.shapeNode->getModelMatrix());
+                    ->BuildSphere(worldB);
 
     const float distanceSq = glm::distance2(sphereA.center, sphereB.center);
     const float radiusSum = sphereA.radius + sphereB.radius;
@@ -162,12 +160,12 @@ bool Algorithms::SphereVsSphere(const CollisionEntry& entA, const CollisionEntry
     return distanceSq <= radiusSumSq;
 }
 
-bool Algorithms::BoxVsSphere(const CollisionEntry& entBox, const CollisionEntry& entSphere) {
+bool Algorithms::BoxVsSphere(const CollisionEntry& entBox, const CollisionEntry& entSphere, const glm::mat4& worldBox, const glm::mat4& worldSphere) {
     auto box = std::static_pointer_cast<BoxShape>(entBox.shapeNode->getShape())
-                ->BuildOBB(entBox.parentObject->getModelMatrix() * entBox.shapeNode->getModelMatrix());
+                ->BuildOBB(worldBox);
 
     auto sphere = std::static_pointer_cast<SphereShape>(entSphere.shapeNode->getShape())
-                   ->BuildSphere(entSphere.parentObject->getModelMatrix() * entSphere.shapeNode->getModelMatrix());
+                   ->BuildSphere(worldSphere);
 
     const glm::vec3 relCenter = sphere.center - box.center;
     const auto localCenter = glm::vec3(
@@ -186,12 +184,12 @@ bool Algorithms::BoxVsSphere(const CollisionEntry& entBox, const CollisionEntry&
     return distanceSq <= (sphere.radius * sphere.radius);
 }
 
-bool Algorithms::SphereVsCapsule(const CollisionEntry& entSphere, const CollisionEntry& entCapsule) {
+bool Algorithms::SphereVsCapsule(const CollisionEntry& entSphere, const CollisionEntry& entCapsule, const glm::mat4& worldSphere, const glm::mat4& worldCapsule) {
     auto sphere = std::static_pointer_cast<SphereShape>(entSphere.shapeNode->getShape())
-                    ->BuildSphere(entSphere.parentObject->getModelMatrix() * entSphere.shapeNode->getModelMatrix());
-    
+                   ->BuildSphere(worldSphere);
+
     auto capsule = std::static_pointer_cast<CapsuleShape>(entCapsule.shapeNode->getShape())
-                    ->BuildCapsule(entCapsule.parentObject->getModelMatrix() * entCapsule.shapeNode->getModelMatrix());
+                    ->BuildCapsule(worldCapsule);
 
     const glm::vec3 closestPoint = ClosestPointOnSegment(capsule.p0, capsule.p1, sphere.center);
     const float distSq = glm::distance2(sphere.center, closestPoint);
@@ -200,12 +198,12 @@ bool Algorithms::SphereVsCapsule(const CollisionEntry& entSphere, const Collisio
     return distSq <= (radiusSum * radiusSum);
 }
 
-bool Algorithms::CapsuleVsCapsule(const CollisionEntry& entA, const CollisionEntry& entB) {
+bool Algorithms::CapsuleVsCapsule(const CollisionEntry& entA, const CollisionEntry& entB, const glm::mat4& worldA, const glm::mat4& worldB) {
     auto capA = std::static_pointer_cast<CapsuleShape>(entA.shapeNode->getShape())
-                  ->BuildCapsule(entA.parentObject->getModelMatrix() * entA.shapeNode->getModelMatrix());
-    
+                 ->BuildCapsule(worldA);
+
     auto capB = std::static_pointer_cast<CapsuleShape>(entB.shapeNode->getShape())
-                  ->BuildCapsule(entB.parentObject->getModelMatrix() * entB.shapeNode->getModelMatrix());
+                 ->BuildCapsule(worldB);
 
     glm::vec3 c1, c2;
     ClosestPointsTwoSegments(capA.p0, capA.p1, capB.p0, capB.p1, c1, c2);
@@ -215,12 +213,12 @@ bool Algorithms::CapsuleVsCapsule(const CollisionEntry& entA, const CollisionEnt
     return distSq <= (radiusSum * radiusSum);
 }
 
-bool Algorithms::BoxVsCapsule(const CollisionEntry& entBox, const CollisionEntry& entCapsule) {
+bool Algorithms::BoxVsCapsule(const CollisionEntry& entBox, const CollisionEntry& entCapsule, const glm::mat4& worldBox, const glm::mat4& worldCapsule) {
     auto box = std::static_pointer_cast<BoxShape>(entBox.shapeNode->getShape())
-                ->BuildOBB(entBox.parentObject->getModelMatrix() * entBox.shapeNode->getModelMatrix());
-    
+                ->BuildOBB(worldBox);
+
     auto capsule = std::static_pointer_cast<CapsuleShape>(entCapsule.shapeNode->getShape())
-                    ->BuildCapsule(entCapsule.parentObject->getModelMatrix() * entCapsule.shapeNode->getModelMatrix());
+                    ->BuildCapsule(worldCapsule);
     
     // Or use the OBB data we have:
     auto toLocal = [&](glm::vec3 worldP) {
@@ -244,12 +242,12 @@ bool Algorithms::BoxVsCapsule(const CollisionEntry& entBox, const CollisionEntry
     return distSq <= (capsule.radius * capsule.radius);
 }
 
-bool Algorithms::SphereVsCylinder(const CollisionEntry& entSphere, const CollisionEntry& entCylinder) {
+bool Algorithms::SphereVsCylinder(const CollisionEntry& entSphere, const CollisionEntry& entCylinder, const glm::mat4& worldSphere, const glm::mat4& worldCylinder) {
     auto sphere = std::static_pointer_cast<SphereShape>(entSphere.shapeNode->getShape())
-                    ->BuildSphere(entSphere.parentObject->getModelMatrix() * entSphere.shapeNode->getModelMatrix());
-    
+                   ->BuildSphere(worldSphere);
+
     auto cylinder = std::static_pointer_cast<CylinderShape>(entCylinder.shapeNode->getShape())
-                    ->BuildCylinder(entCylinder.parentObject->getModelMatrix() * entCylinder.shapeNode->getModelMatrix());
+                     ->BuildCylinder(worldCylinder);
 
 
     const glm::vec3 d = cylinder.p1 - cylinder.p0;
@@ -280,12 +278,12 @@ bool Algorithms::SphereVsCylinder(const CollisionEntry& entSphere, const Collisi
     return distSqToAxis <= (sphere.radius + cylinder.radius) * (sphere.radius + cylinder.radius);
 }
 
-bool Algorithms::BoxVsCylinder(const CollisionEntry& entBox, const CollisionEntry& entCylinder) {
+bool Algorithms::BoxVsCylinder(const CollisionEntry& entBox, const CollisionEntry& entCylinder, const glm::mat4& worldBox, const glm::mat4& worldCylinder) {
     auto box = std::static_pointer_cast<BoxShape>(entBox.shapeNode->getShape())
-                ->BuildOBB(entBox.parentObject->getModelMatrix() * entBox.shapeNode->getModelMatrix());
-    
+                ->BuildOBB(worldBox);
+
     auto cylinder = std::static_pointer_cast<CylinderShape>(entCylinder.shapeNode->getShape())
-                    ->BuildCylinder(entCylinder.parentObject->getModelMatrix() * entCylinder.shapeNode->getModelMatrix());
+                     ->BuildCylinder(worldCylinder);
 
     auto toLocal = [&](const glm::vec3 worldP) {
         const glm::vec3 rel = worldP - box.center;
@@ -303,18 +301,18 @@ bool Algorithms::BoxVsCylinder(const CollisionEntry& entBox, const CollisionEntr
     glm::vec3 closestOnBox = glm::clamp(closestToCenter, -box.halfExtents, box.halfExtents);
     glm::vec3 closestOnSegmentLocal = ClosestPointOnSegment(localP0, localP1, closestOnBox);
     glm::vec3 finalClosestOnBox = glm::clamp(closestOnSegmentLocal, -box.halfExtents, box.halfExtents);
-    
+
     float distSq = glm::distance2(closestOnSegmentLocal, finalClosestOnBox);
 
     return distSq <= cylinder.radius * cylinder.radius;
 }
 
-bool Algorithms::CapsuleVsCylinder(const CollisionEntry& entCapsule, const CollisionEntry& entCylinder) {
+bool Algorithms::CapsuleVsCylinder(const CollisionEntry& entCapsule, const CollisionEntry& entCylinder, const glm::mat4& worldCapsule, const glm::mat4& worldCylinder) {
     auto cap = std::static_pointer_cast<CapsuleShape>(entCapsule.shapeNode->getShape())
-                  ->BuildCapsule(entCapsule.parentObject->getModelMatrix() * entCapsule.shapeNode->getModelMatrix());
+                  ->BuildCapsule(worldCapsule);
     
     auto cyl = std::static_pointer_cast<CylinderShape>(entCylinder.shapeNode->getShape())
-                  ->BuildCylinder(entCylinder.parentObject->getModelMatrix() * entCylinder.shapeNode->getModelMatrix());
+                  ->BuildCylinder(worldCylinder);
 
     glm::vec3 c1, c2;
     ClosestPointsTwoSegments(cap.p0, cap.p1, cyl.p0, cyl.p1, c1, c2);
@@ -324,12 +322,12 @@ bool Algorithms::CapsuleVsCylinder(const CollisionEntry& entCapsule, const Colli
     return distSq <= radiusSum * radiusSum;
 }
 
-bool Algorithms::CylinderVsCylinder(const CollisionEntry& entA, const CollisionEntry& entB) {
+bool Algorithms::CylinderVsCylinder(const CollisionEntry& entA, const CollisionEntry& entB, const glm::mat4& worldA, const glm::mat4& worldB) {
     auto cylA = std::static_pointer_cast<CylinderShape>(entA.shapeNode->getShape())
-                  ->BuildCylinder(entA.parentObject->getModelMatrix() * entA.shapeNode->getModelMatrix());
-    
+                 ->BuildCylinder(worldA);
+
     auto cylB = std::static_pointer_cast<CylinderShape>(entB.shapeNode->getShape())
-                  ->BuildCylinder(entB.parentObject->getModelMatrix() * entB.shapeNode->getModelMatrix());
+                 ->BuildCylinder(worldB);
 
     glm::vec3 c1, c2;
     ClosestPointsTwoSegments(cylA.p0, cylA.p1, cylB.p0, cylB.p1, c1, c2);

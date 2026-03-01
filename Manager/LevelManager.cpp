@@ -1,7 +1,9 @@
 #include "LevelManager.h"
 #include <fstream>
 
+#include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
+#include "../Tools//Layers.h"
 
 namespace Manager {
     LevelManager::LevelManager(const shared_ptr<ContextState> &contextState,
@@ -25,10 +27,22 @@ namespace Manager {
         return live;
     }
 
+    void LevelManager::resolveBoxShape(const shared_ptr<MeshNode3D> &boxNode3D) {
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        shape->setCollisionLayer(WORLD);
+        shape->setCollisionMask(PLAYER);
+        shape->setName(boxNode3D->getName() + " - shape");
+        boxNode3D->addNode(shape);
+        if (collisionSystem) {
+            collisionSystem->addCollider(boxNode3D);
+        }
+    }
+
     shared_ptr<MeshNode3D> LevelManager::createLevel(int level,
-        shared_ptr<DirectionalLight> &directionalLight,
-        const vector<shared_ptr<SpotLight> > &spotLights,
-        const vector<shared_ptr<PointLight> > &pointLights) {
+                                                     shared_ptr<DirectionalLight> &directionalLight,
+                                                     const vector<shared_ptr<SpotLight> > &spotLights,
+                                                     const vector<shared_ptr<PointLight> > &pointLights) {
         const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
         const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
@@ -83,6 +97,8 @@ namespace Manager {
                         childBoxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
                         childBoxNode3D->x = (x) * 32;
                         childBoxNode3D->y = (y) * 32;
+                        childBoxNode3D->setName("Level box " + std::to_string(x) + ", " + std::to_string(y));
+                        resolveBoxShape(childBoxNode3D);
                         boxNode3D->addNode(childBoxNode3D);
                     }
 
@@ -103,5 +119,9 @@ namespace Manager {
 
     void LevelManager::setEatCounter(const int eatCounter) {
         LevelManager::eatCounter = eatCounter;
+    }
+
+    void LevelManager::setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem) {
+        this->collisionSystem = collisionSystem;
     }
 } // Manager

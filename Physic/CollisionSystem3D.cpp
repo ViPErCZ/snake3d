@@ -3,6 +3,8 @@
 
 namespace Physic {
     void CollisionSystem3D::addCollider(const shared_ptr<MeshNode3D> &collider) {
+        if (!collider) return;
+
         const auto &shapes = collider->getCollisionShapes();
 
         for (const auto &shapeNode: shapes) {
@@ -12,6 +14,10 @@ namespace Physic {
                 entry.parentObject = collider;
                 flatEntries.push_back(entry);
             }
+        }
+
+        for (const auto &child: collider->getChildren()) {
+            addCollider(child);
         }
     }
 
@@ -34,28 +40,33 @@ namespace Physic {
         for (size_t i = 0; i < flatEntries.size(); ++i) {
             auto &entry = flatEntries[i];
 
-            // Resetujeme stav kolize
             entry.shapeNode->getShape()->setColliding(false);
+            entry.shapeNode->clearCollisions();
 
-            // WorldMatrix = Parent (Object) * Local (Shape)
-            const glm::mat4 worldMatrix = entry.parentObject->getModelMatrix() * entry.shapeNode->getModelMatrix();
+            const glm::mat4 worldMatrix = entry.parentObject->getWorldMatrix() * entry.shapeNode->getModelMatrix();
             worldAABBs[i] = entry.shapeNode->getShape()->calculateAABB(worldMatrix);
         }
 
         for (size_t i = 0; i < flatEntries.size(); i++) {
             for (size_t j = i + 1; j < flatEntries.size(); j++) {
-                // Owner filtering: Nepočítej kolize mezi tvary stejného objektu
                 if (flatEntries[i].parentObject == flatEntries[j].parentObject) {
                     continue;
                 }
 
+                if (!CollisionShape3D::shouldCollide(
+                flatEntries[i].shapeNode->getCollisionLayer(), flatEntries[i].shapeNode->getCollisionMask(),
+                flatEntries[j].shapeNode->getCollisionLayer(), flatEntries[j].shapeNode->getCollisionMask()))
+                {
+                    continue;
+                }
+
                 if (CollisionCheck::IntersectAABB(worldAABBs[i], worldAABBs[j])) {
-                    // flatEntries[i].shapeNode->getShape()->setColliding(true);
-                    // flatEntries[j].shapeNode->getShape()->setColliding(true);
 
                     if (CollisionCheck::IntersectExact(flatEntries[i], flatEntries[j])) {
                         flatEntries[i].shapeNode->getShape()->setColliding(true);
                         flatEntries[j].shapeNode->getShape()->setColliding(true);
+                        flatEntries[i].shapeNode->addCollidingBody(flatEntries[j].parentObject);
+                        flatEntries[j].shapeNode->addCollidingBody(flatEntries[i].parentObject);
                     }
                 }
             }

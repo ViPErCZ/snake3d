@@ -8,7 +8,6 @@
 namespace Handler::Debug {
     CollisionShapeHandler::CollisionShapeHandler(const shared_ptr<Camera> &camera) : camera(camera), enabled(false) {
         cameraOriginalStickyPoint = camera->getStickyPoint();
-        currentWorldCenter = glm::vec3(0);
     }
 
     void CollisionShapeHandler::onDefaultHandler() {
@@ -96,7 +95,6 @@ namespace Handler::Debug {
                             reinterpretItem->setRadius(radius);
                         }
                     }
-                    computeWorld();
                 }
                 break;
             case GLFW_KEY_UP:
@@ -135,8 +133,6 @@ namespace Handler::Debug {
                             reinterpretItem->setHeight(height);
                         }
                     }
-
-                    computeWorld();
                 }
                 break;
             case GLFW_KEY_DOWN:
@@ -175,7 +171,6 @@ namespace Handler::Debug {
                             reinterpretItem->setHeight(height);
                         }
                     }
-                    computeWorld();
                 }
                 break;
             case GLFW_KEY_PAGE_DOWN:
@@ -193,7 +188,6 @@ namespace Handler::Debug {
                             reinterpretItem->setSize(size);
                         }
                     }
-                    computeWorld();
                 }
                 break;
             case GLFW_KEY_PAGE_UP:
@@ -211,13 +205,11 @@ namespace Handler::Debug {
                             reinterpretItem->setSize(size);
                         }
                     }
-                    computeWorld();
                 }
                 break;
             case GLFW_KEY_TAB:
                 if (enabled) {
                     activeItem = findNextItem();
-                    computeWorld();
                     const auto parent = activeItem->getParent();
                     camera->setStickyPoint(parent != nullptr ? parent : activeItem);
                 }
@@ -258,7 +250,6 @@ namespace Handler::Debug {
 
         if (activeItem == nullptr) {
             activeItem = item;
-            computeWorld();
         }
     }
 
@@ -267,7 +258,6 @@ namespace Handler::Debug {
         if (nullptr != activeItem) {
             if (!activeItem->isVisible()) {
                 activeItem = findNextItem();
-                computeWorld();
             }
             const auto parent = activeItem->getParent();
             camera->setStickyPoint(parent != nullptr ? parent : activeItem);
@@ -315,11 +305,5 @@ namespace Handler::Debug {
         }
 
         return *items.begin();
-    }
-
-    void CollisionShapeHandler::computeWorld() {
-        worldMin = activeItem->getShape()->getMeshNode()->getMesh()->getMin(activeItem->getModelMatrix());
-        worldMax = activeItem->getShape()->getMeshNode()->getMesh()->getMax(activeItem->getModelMatrix());
-        currentWorldCenter = (worldMin + worldMax) * 0.5f;
     }
 }

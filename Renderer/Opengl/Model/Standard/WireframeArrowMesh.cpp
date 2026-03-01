@@ -3,8 +3,8 @@
 namespace Model {
     WireframeArrowMesh::WireframeArrowMesh(shared_ptr<ShaderManager> baseShader)
         : StandardMesh(std::move(baseShader)) {
-        float totalLength = 0.5f; // Původně 2.0f
-        float headLength = 0.15f; // Původně 0.6f
+        float totalLength = 0.5f;
+        float headLength = 0.15f;
 
         // Poloviční tloušťky (od středu ke kraji)
         float shaftWidth = 0.01f; // Velmi tenká linka
@@ -12,7 +12,7 @@ namespace Model {
 
         // Souřadnice Z (směrem do hloubky -Z)
         float zStart = 0.0f;
-        float zNeck = -totalLength + headLength; // Místo, kde se dřík mění v hlavu
+        float zNeck = -totalLength + headLength;
         float zTip = -totalLength; // Špička
 
         std::vector<Vertex> vertices;

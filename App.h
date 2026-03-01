@@ -8,9 +8,7 @@
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
-#include "Particle/SmokeParticleSystem.h"
 #include "Renderer/Opengl/BoltRenderer.h"
-#include "Renderer/Opengl/FireRenderer.h"
 #include <AL/al.h>
 #include <nlohmann/json.hpp>
 #include "Scenes/MainScene.h"
@@ -26,7 +24,6 @@ using namespace Manager;
 using namespace Renderer;
 using namespace Handler;
 using namespace Resource;
-using namespace Particle;
 using namespace Model;
 using namespace Material;
 
@@ -58,10 +55,8 @@ private:
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
     shared_ptr<RainDropRenderer> rainDropRenderer{};
-    shared_ptr<FireRenderer> fireRenderer{};
     shared_ptr<BoltRenderer> boltRenderer{};
     unique_ptr<KeyboardManager> keyboardManager;
-    shared_ptr<CollisionDetector> collisionDetector;
     unique_ptr<EatManager> eatManager;
     shared_ptr<Camera> camera;
     glm::mat4 projection{};

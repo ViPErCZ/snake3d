@@ -5,16 +5,17 @@
 #include <vector>
 #include "SceneRenderer.h"
 #include "../../../Handler/Debug/ManipulatorHandler.h"
-#include "../../../Handler/Debug/PositionHandler.h"
 #include "../../../Manager/KeyboardManager.h"
 #include "../../../Manager/RenderManager.h"
 #include "../../../Manager/ResourceManager.h"
 #include "../../../Physic/CollisionSystem3D.h"
+#include "../../../Tools/BuildSettings.h"
 
 using namespace std;
 using namespace Model;
 using namespace Manager;
 using namespace Handler::Debug;
+using namespace Build;
 
 namespace Scenes {
     class Scene : public enable_shared_from_this<Scene> {
@@ -32,6 +33,8 @@ namespace Scenes {
         virtual void init(int priority);
 
         virtual void update();
+
+        virtual void physics();
 
         virtual void render();
 

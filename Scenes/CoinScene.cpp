@@ -2,6 +2,7 @@
 
 #include "../Physic/BoxShape.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "../Tools/Layers.h"
 
 namespace Scenes {
     CoinScene::CoinScene(
@@ -26,6 +27,16 @@ namespace Scenes {
         return removeCoin;
     }
 
+    void CoinScene::update() {
+        Scene::update();
+
+        // for (const auto &shapeNode: coin->getCollisionShapes()) {
+        //     for (const auto &body : shapeNode->getCollidingBodies()) {
+        //         cout << "Mince narazila do objektu: " << body->getName() << endl;
+        //     }
+        // }
+    }
+
     void CoinScene::initCoin() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
@@ -37,6 +48,7 @@ namespace Scenes {
         coin->setScale({0.013888889, 0.013888889, 0.013888889});
         coin->setRotationX(90);
         coin->setVisible(false);
+        coin->setName("coin");
 
         const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
@@ -52,6 +64,8 @@ namespace Scenes {
 
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.8, 2.8, 1.0));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        shape->setCollisionLayer(WORLD);
+        shape->setCollisionMask(PLAYER);
         coin->addNode(shape);
 
         if (collisionSystem != nullptr) {
@@ -68,8 +82,6 @@ namespace Scenes {
         for (auto &spotLight : spotLights) {
             coinMaterial->addSpotLight(spotLight);
             index++;
-            // u indexu 5 vytvorit objekt co bude drzet pozici a direction
-            // takovou jako vlastni lampicku
         }
 
         coinMesh->setMaterial(coinMaterial);
@@ -86,7 +98,7 @@ namespace Scenes {
         std::vector<KeyFrame<glm::vec3>> scale_frames;
         const auto animationNode = make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, nullptr);
 
-        // CREATE eaten up animationi
+        // CREATE eaten up animation
         std::vector<KeyFrame<glm::fquat>> rot_frames2;
         rot_frames2.emplace_back(glm::angleAxis(glm::radians(0.f),   glm::vec3(0,1,0)), 0.f);
         rot_frames2.emplace_back(glm::angleAxis(glm::radians(90.f),  glm::vec3(0,1,0)), 8.f);

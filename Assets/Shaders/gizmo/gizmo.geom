@@ -13,7 +13,7 @@ uniform int axisType; // 0 = X, 1 = Y, 2 = Z
 in vec3 v_worldPos[];
 out vec3 f_worldPos;
 
-const float NDC_SCALE = 2.0;
+const float NDC_SCALE = 4.1;
 const float NDC_OFFSET = 1.0;
 const float HALF_FACTOR = 0.5;
 const float ARROW_WIDTH_FACTOR = 2.5;// Šířka špičky šipky relativně k tloušťce čáry

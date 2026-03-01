@@ -1,30 +1,6 @@
 #include "PointLight.h"
 
 namespace Lights {
-    glm::vec3 PointLight::getAmbient() const {
-        return ambient;
-    }
-
-    void PointLight::setAmbient(const glm::vec3 &ambient) {
-        this->ambient = ambient;
-    }
-
-    glm::vec3 PointLight::getDiffuse() const {
-        return diffuse;
-    }
-
-    void PointLight::setDiffuse(const glm::vec3 &diffuse) {
-        this->diffuse = diffuse;
-    }
-
-    glm::vec3 PointLight::getSpecular() const {
-        return specular;
-    }
-
-    void PointLight::setSpecular(const glm::vec3 &specular) {
-        this->specular = specular;
-    }
-
     float PointLight::getConstant() const {
         return constant;
     }

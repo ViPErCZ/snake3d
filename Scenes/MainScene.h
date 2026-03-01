@@ -71,7 +71,6 @@ namespace Scenes {
         shared_ptr<BarriersScene> barriersScene;
         unique_ptr<EatManager> eatManager;
         shared_ptr<LevelManager> levelManager;
-        shared_ptr<CollisionDetector> collisionDetector;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         shared_ptr<FadeOutUniform> fadeOutUniform;
         shared_ptr<FadeInUniform> fadeInUniform;

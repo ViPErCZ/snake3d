@@ -56,6 +56,8 @@ namespace Model {
 
         void setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape);
 
+        void computeWorldMatrix(const glm::mat4 &parentTransform) override;
+
     private:
         void stopRespawn();
         unique_ptr<Timer> timer;

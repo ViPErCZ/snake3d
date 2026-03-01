@@ -2,7 +2,6 @@
 #define SNAKE3_BOXSHAPE_H
 
 #include "Shape.h"
-#include <vector>
 
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 

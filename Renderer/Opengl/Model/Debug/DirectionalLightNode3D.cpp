@@ -12,12 +12,14 @@ namespace Model {
     void DirectionalLightNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
         const glm::mat4 &parentTransform, const bool shadows) {
 
-        const glm::mat4 model = calculateArrowTransform(directionalLight->getPosition(), -directionalLight->getDirection());
+        if (visible && orientableLight) {
+            const glm::mat4 model = calculateArrowTransform(orientableLight->getPosition(), -orientableLight->getDirection());
 
-        contextState->setBlendingMode(mesh->getBlending());
-        contextState->setDepthTest(mesh->getDepthTest());
-        contextState->setDepthWrite(mesh->getDepthWrite());
-        reinterpret_pointer_cast<WireframeArrowMesh>(mesh)->setColor(directionalLight->getAmbient());
-        mesh->render(camera, projection, 1, model, shadows);
+            contextState->setBlendingMode(mesh->getBlending());
+            contextState->setDepthTest(mesh->getDepthTest());
+            contextState->setDepthWrite(mesh->getDepthWrite());
+            static_pointer_cast<WireframeArrowMesh>(mesh)->setColor(orientableLight->getAmbient());
+            mesh->render(camera, projection, 1, model, shadows);
+        }
     }
 } // Model

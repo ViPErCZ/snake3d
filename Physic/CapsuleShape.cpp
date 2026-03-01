@@ -6,18 +6,20 @@ namespace Physic {
                              const shared_ptr<ContextState> &contextState, 
                              const float radius, const float height) 
         : radius(radius), height(height), contextState(contextState), resourceManager(resourceManager) {
-        
-        const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
-        const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
 
-        material = make_shared<StandardMaterial>(shader, shadowsShader);
-        material->setNormalEnabled(false);
-        material->setAlpha(0.2);
-        material->setBlending(Blending::Translucent);
+        if constexpr (isDebug) {
+            const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
+            const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
 
-        auto capsuleMesh = make_shared<CapsuleMesh>(shader, height, radius);
-        capsuleMesh->setMaterial(material);
-        meshNode = make_shared<MeshNode3D>(contextState, capsuleMesh, resourceManager);
+            material = make_shared<StandardMaterial>(shader, shadowsShader);
+            material->setNormalEnabled(false);
+            material->setAlpha(0.2);
+            material->setBlending(Blending::Translucent);
+
+            auto capsuleMesh = make_shared<CapsuleMesh>(shader, height, radius);
+            capsuleMesh->setMaterial(material);
+            meshNode = make_shared<MeshNode3D>(contextState, capsuleMesh, resourceManager);
+        }
     }
 
     CapsuleShape::CapsuleWorldData CapsuleShape::BuildCapsule(const glm::mat4 &modelMatrix) const {
@@ -53,12 +55,14 @@ namespace Physic {
     }
 
     void CapsuleShape::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) {
-        const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
-        material->setColor(color);
+        if constexpr (isDebug) {
+            const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
+            material->setColor(color);
 
-        meshNode->setScale(glm::vec3(1.0f));
-        meshNode->setPosition(glm::vec3(0.0f));
-        meshNode->render(camera, projection, 0.0f, t, false);
+            meshNode->setScale(glm::vec3(1.0f));
+            meshNode->setPosition(glm::vec3(0.0f));
+            meshNode->render(camera, projection, 0.0f, t, false);
+        }
     }
 
     void CapsuleShape::setRadius(const float radius) {

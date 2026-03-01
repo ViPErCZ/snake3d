@@ -19,12 +19,6 @@ add_custom_target(copy_assets ALL
 )
 
 add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
-        Particle/FireParticleSystem.cpp
-        Particle/FireParticleSystem.h
-        Particle/SmokeParticleSystem.cpp
-        Particle/SmokeParticleSystem.h
-        Renderer/Opengl/FireRenderer.cpp
-        Renderer/Opengl/FireRenderer.h
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/BoltRenderer.cpp
@@ -80,7 +74,6 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Scene/Scene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
         Renderer/Opengl/Scene/SceneRenderer.h
-        Renderer/Opengl/Material/IUniform.cpp
         Renderer/Opengl/Material/IUniform.h
         Renderer/Opengl/Material/Uniform/TextureUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureUniform.h
@@ -210,8 +203,20 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Lights/Light.cpp
+        Lights/Light.h
+        Lights/IOrientable.h
+        Lights/OrientableLight.h
+        ItemsDto/Named.cpp
+        ItemsDto/Named.h
+        ItemsDto/Tagged.cpp
+        ItemsDto/Tagged.h
+        Tools/BuildSettings.h
+        Tools/Layers.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
+
+target_compile_definitions(Snake3 PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
 file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
@@ -311,7 +316,6 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h
         Renderer/Opengl/Scene/Scene.cpp
         Renderer/Opengl/Scene/Scene.h
-        Renderer/Opengl/Material/IUniform.cpp
         Renderer/Opengl/Material/IUniform.h
         Renderer/Opengl/Material/Uniform/TextureUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureUniform.h
@@ -443,6 +447,16 @@ set(APP_SOURCES
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Lights/Light.cpp
+        Lights/Light.h
+        Lights/IOrientable.h
+        Lights/OrientableLight.h
+        ItemsDto/Named.cpp
+        ItemsDto/Named.h
+        ItemsDto/Tagged.cpp
+        ItemsDto/Tagged.h
+        Tools/BuildSettings.h
+        Tools/Layers.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -492,7 +506,6 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/CylinderMesh.h
         Renderer/Opengl/Scene/Scene.cpp
         Renderer/Opengl/Scene/Scene.h
-        Renderer/Opengl/Material/IUniform.cpp
         Renderer/Opengl/Material/IUniform.h
         Renderer/Opengl/Material/Uniform/TextureUniform.cpp
         Renderer/Opengl/Material/Uniform/TextureUniform.h
@@ -622,6 +635,16 @@ add_library(snake3d_lib ${APP_SOURCES}
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Lights/Light.cpp
+        Lights/Light.h
+        Lights/IOrientable.h
+        Lights/OrientableLight.h
+        ItemsDto/Named.cpp
+        ItemsDto/Named.h
+        ItemsDto/Tagged.cpp
+        ItemsDto/Tagged.h
+        Tools/BuildSettings.h
+        Tools/Layers.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu
@@ -636,7 +659,7 @@ target_include_directories(snake3d_lib PUBLIC
 target_link_libraries(snake3d_lib PUBLIC
         glfw glut GLU GL GLEW freetype assimp
 )
-
+target_compile_definitions(snake3d_lib PUBLIC $<$<CONFIG:Debug>:IS_DEBUG>)
 
 # --- Zdrojové soubory TESTŮ ---
 # Použijte GLOB pouze pro testy, pokud chcete, ale lepší je vypsat je

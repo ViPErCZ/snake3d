@@ -2,15 +2,18 @@
 #define SNAKE3_SHAPE_H
 
 #include <vector>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "../ItemsDto/Transform.h"
 #include "../Manager/Camera.h"
-#include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include "../Tools/BuildSettings.h"
 
-using namespace Model;
 using namespace Manager;
 using namespace Node3D;
+using namespace Build;
+
+namespace Model {
+    class MeshNode3D;
+}
 
 namespace Physic {
 
@@ -33,7 +36,9 @@ namespace Physic {
 
         void setColliding(const bool colliding) { this->colliding = colliding; }
         [[nodiscard]] bool isColliding() const { return colliding; }
-        [[nodiscard]] const shared_ptr<MeshNode3D> &getMeshNode() const { return meshNode; }
+
+        // Model:: is required !!!
+        [[nodiscard]] const shared_ptr<Model::MeshNode3D> &getMeshNode() const { return meshNode; }
 
         static AABB CalculateAABB(const glm::mat4& modelMatrix, const glm::vec3& localHalfExtents) {
 
@@ -70,7 +75,7 @@ namespace Physic {
         }
 
     protected:
-        shared_ptr<MeshNode3D> meshNode;
+        shared_ptr<Model::MeshNode3D> meshNode; // Model:: is required !!!
     private:
         bool colliding = false;
     };

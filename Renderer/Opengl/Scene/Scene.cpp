@@ -40,12 +40,19 @@ namespace Scenes {
 
     void Scene::update() {
         keyboardManager->runDefault();
-        if (collisionSystem != nullptr) {
-            collisionSystem->update();
-        }
         sceneRenderer->update(meshNode3d, meshNode2d);
         for (const auto &node: nodes) {
             node->update();
+        }
+
+        for (auto &node3D : meshNode3d) {
+            node3D.node->computeWorldMatrix(glm::mat4(1.0f));
+        }
+    }
+
+    void Scene::physics() {
+        if (collisionSystem != nullptr) {
+            collisionSystem->update();
         }
     }
 

@@ -25,6 +25,8 @@ namespace Scenes {
         [[nodiscard]] shared_ptr<CoinMeshNode3D> getCoin() const;
         [[nodiscard]] shared_ptr<CoinMeshNode3D> getRemoveCoin() const;
 
+        void update() override;
+
     protected:
         void initCoin();
 

@@ -33,10 +33,17 @@ namespace Scenes {
     void MainScene::init(const int priority) {
         Scene::init(priority);
 
-        manipulatorHandler = make_shared<ManipulatorHandler>(camera);
-        keyboardManager->addEventHandler(manipulatorHandler);
+        if constexpr (isDebug) {
+            manipulatorHandler = make_shared<ManipulatorHandler>(contextState, resourceManager, camera);
+            std::cout << "Manipulator initialized" << std::endl;
 
-        collisionDetector = make_shared<CollisionDetector>();
+            keyboardManager->addEventHandler(manipulatorHandler);
+
+            const auto markRing = make_shared<MarkRingNode3D>(contextState, resourceManager, manipulatorHandler);
+            markRing->init();
+            addMeshNode3D(markRing);
+        }
+
         initLights();
         initPlayerScene();
         initBarriersScene();
@@ -53,20 +60,25 @@ namespace Scenes {
         buildStartMoveCallback();
         buildEatenUpCallback();
 
-        // DEBUG
-        // ====================
-        const auto shader = resourceManager->getShader("arrowGizmo");
-        const auto dirLightNode = make_shared<DirectionalLightNode3D>(contextState, shader, resourceManager);
-        dirLightNode->setDirectionalLight(directionalLight);
-        addMeshNode3D(dirLightNode);
-
         if (manipulatorHandler != nullptr) {
-             // add dir light to dir light handler
-        }
+            manipulatorHandler->getLightsHandler()->addItem(directionalLight);
 
-        const auto markRing = make_shared<MarkRingNode3D>(contextState, resourceManager, manipulatorHandler);
-        markRing->init();
-        addMeshNode3D(markRing);
+            const auto focusTextNode = manipulatorHandler->getLightsHandler()->getFocusLabel();
+            const auto colorTextNode = manipulatorHandler->getLightsHandler()->getColorLabel();
+            const auto positionTextNode = manipulatorHandler->getLightsHandler()->getPositionLabel();
+            const auto directionTextNode = manipulatorHandler->getLightsHandler()->getDirectionLabel();
+            focusTextNode->setPosition(glm::vec3(10, height - 120, 0.0f));
+            colorTextNode->setPosition(glm::vec3(10, height - 100, 0.0f));
+            directionTextNode->setPosition(glm::vec3(10, height - 80, 0.0f));
+            positionTextNode->setPosition(glm::vec3(10, height - 60, 0.0f));
+            const auto dirLightNode = manipulatorHandler->getLightsHandler()->getDirLightNode();
+            dirLightNode->setDirectionalLight(directionalLight);
+            addMeshNode3D(dirLightNode);
+            addMeshNode2D(focusTextNode);
+            addMeshNode2D(colorTextNode);
+            addMeshNode2D(positionTextNode);
+            addMeshNode2D(directionTextNode);
+        }
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
@@ -193,6 +205,11 @@ namespace Scenes {
 
         this->pointLights.push_back(pointLight1);
         this->pointLights.push_back(pointLight2);
+
+        if (manipulatorHandler) {
+            manipulatorHandler->getLightsHandler()->addItem(pointLight1);
+            manipulatorHandler->getLightsHandler()->addItem(pointLight2);
+        }
     }
 
     void MainScene::initSkybox() {
@@ -238,7 +255,6 @@ namespace Scenes {
         playerScene->setManipulatorHandler(manipulatorHandler);
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
-        snakeMoveHandler->setCollisionDetector(collisionDetector);
         addNode(playerScene);
     }
 
@@ -257,8 +273,6 @@ namespace Scenes {
         coinScene->setManipulatorHandler(manipulatorHandler);
         coinScene->init(4);
         addNode(coinScene);
-
-        collisionDetector->addStaticItem(coinScene->getCoin());
     }
 
     void MainScene::initTorchScene() {

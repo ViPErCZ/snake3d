@@ -1,11 +1,9 @@
 #include "SnakeMeshNode3D.h"
 
-#include "../../../../Physic/BoxShape.h"
 #include "../../../../Physic/SphereShape.h"
-#include "../../../../Physic/CapsuleShape.h"
-#include "../../../../Physic/CylinderShape.h"
 #include "../../Material/Uniform/TextureUniform.h"
 #include "../../Material/Uniform/TimerUniform.h"
+#include "../../../../Tools/Layers.h"
 #include "../Standard/AnimationArrayMesh.h"
 #include "../Standard/SphereMesh.h"
 
@@ -76,6 +74,7 @@ namespace Model {
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
+        tile->setName("Snake tile 1");
         tile->setSpotLights(spotLights);
         tile->setPointLights(pointLights);
         tile->setPosition({21, -3, -23});
@@ -85,6 +84,9 @@ namespace Model {
 
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+        shape->setName("Snake tile 1 - shape");
+        shape->setCollisionLayer(PLAYER_BODY);
+        shape->setCollisionMask(WORLD | ENEMY);
         tile->setCollisionShape(shape);
         collisionSystem->addCollider(tile);
 
@@ -94,6 +96,7 @@ namespace Model {
         if (directionalLight) {
             tile2->setDirectionalLight(directionalLight);
         }
+        tile2->setName("Snake tile 2");
         tile2->setSpotLights(spotLights);
         tile2->setPointLights(pointLights);
         tile2->setScale({0.041667f, 0.041667f, 0.041667f});
@@ -103,6 +106,9 @@ namespace Model {
 
         const auto sphereShape2 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape2 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape2);
+        shape2->setName("Snake tile 2 - shape");
+        shape2->setCollisionLayer(PLAYER_BODY);
+        shape2->setCollisionMask(WORLD | ENEMY);
         tile2->setCollisionShape(shape2);
         collisionSystem->addCollider(tile2);
 
@@ -112,6 +118,7 @@ namespace Model {
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
+        tile3->setName("Snake tile 3");
         tile3->setPointLights(pointLights);
         tile3->setSpotLights(spotLights);
         tile3->setScale({0.041667f, 0.041667f, 0.041667f});
@@ -121,6 +128,9 @@ namespace Model {
 
         const auto sphereShape3 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape3 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape3);
+        shape3->setName("Snake tile 3 - shape");
+        shape3->setCollisionLayer(PLAYER_BODY);
+        shape3->setCollisionMask(WORLD | ENEMY);
         tile3->setCollisionShape(shape3);
         collisionSystem->addCollider(tile3);
 
@@ -130,6 +140,7 @@ namespace Model {
         if (directionalLight) {
             tile4->setDirectionalLight(directionalLight);
         }
+        tile4->setName("Snake tile 4");
         tile4->setPointLights(pointLights);
         tile4->setSpotLights(spotLights);
         tile4->setScale({0.041667f, 0.041667f, 0.041667f});
@@ -137,8 +148,11 @@ namespace Model {
         tile4->x = x - 128;
         tile4->y = y;
 
-        const auto capsuleShape = make_shared<CapsuleShape>(resourceManager, contextState, 0.8f, 2.5f);
-        const auto shape4 = make_shared<CollisionShape3D>(contextState, resourceManager, capsuleShape);
+        const auto sphereShape4 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape4 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape4);
+        shape4->setName("Snake tile 4 - shape");
+        shape4->setCollisionLayer(PLAYER_BODY);
+        shape4->setCollisionMask(WORLD | ENEMY | PLAYER);
         shape4->setRotationX(90.0f);
         tile4->setCollisionShape(shape4);
         collisionSystem->addCollider(tile4);
@@ -149,6 +163,7 @@ namespace Model {
         if (directionalLight) {
             tile5->setDirectionalLight(directionalLight);
         }
+        tile5->setName("Snake tile 5");
         tile5->setPointLights(pointLights);
         tile5->setSpotLights(spotLights);
         tile5->setScale({0.041667f, 0.041667f, 0.041667f});
@@ -156,8 +171,11 @@ namespace Model {
         tile5->x = x - 160;
         tile5->y = y;
 
-        const auto cylinderShape = make_shared<CylinderShape>(resourceManager, contextState, 0.8f, 2.5f);
-        const auto shape5 = make_shared<CollisionShape3D>(contextState, resourceManager, cylinderShape);
+        const auto sphereShape5 = make_shared<SphereShape>(resourceManager, contextState,0.77f);
+        const auto shape5 = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape5);
+        shape5->setName("Snake tile 5 - shape");
+        shape5->setCollisionLayer(PLAYER_BODY);
+        shape5->setCollisionMask(WORLD | ENEMY | PLAYER);
         shape5->setRotationX(90.0f);
         tile5->setCollisionShape(shape5);
         collisionSystem->addCollider(tile5);
@@ -261,6 +279,8 @@ namespace Model {
 
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+        shape->setCollisionLayer(PLAYER_BODY);
+        shape->setCollisionMask(WORLD | ENEMY | PLAYER);
         tile->setCollisionShape(shape);
         collisionSystem->addCollider(tile);
 
@@ -304,5 +324,13 @@ namespace Model {
     void SnakeMeshNode3D::setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape) {
         collisionShapes.clear();
         collisionShapes.push_back(collisionShape);
+    }
+
+    void SnakeMeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {
+        MeshNode3D::computeWorldMatrix(parentTransform);
+
+        for (const auto &shape : collisionShapes) {
+            shape->computeWorldMatrix(parentTransform * this->getModelMatrix());
+        }
     }
 } // Model

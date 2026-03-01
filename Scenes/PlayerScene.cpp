@@ -1,8 +1,8 @@
 #include "PlayerScene.h"
 
 #include "../Physic/BoxShape.h"
-#include "../Physic/CapsuleShape.h"
 #include "../Physic/SphereShape.h"
+#include "../Tools/Layers.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
 namespace Scenes {
@@ -50,6 +50,7 @@ namespace Scenes {
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
         snake = make_shared<SnakeMeshNode3D>(contextState, pacmanMesh, resourceManager, collisionSystem);
+        snake->setName("Snake head");
         snake->setDirectionalLight(directionalLight);
         snake->setScale({0.041667f, 0.041667f, 0.041667f});
         snake->setSpotLights(spotLights);
@@ -58,8 +59,10 @@ namespace Scenes {
 
         camera->setStickyPoint(snake);
 
-        const auto sphereShape = make_shared<CapsuleShape>(resourceManager, contextState,0.77f);
+        const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+        shape->setCollisionLayer(PLAYER);
+        shape->setCollisionMask(WORLD | ENEMY | PLAYER_BODY);
 
         snake->setCollisionShape(shape);
 

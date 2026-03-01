@@ -9,7 +9,7 @@ namespace CollisionShape {
     void CollisionShape3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
         const glm::mat4 &parentTransform, const bool shadows) {
         if (visible) {
-            glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            glm::mat4 finalTransform = worldMatrixCache;
             const auto parent = getParent();
             if (parent != nullptr) {
                 const auto animationPlayer = parent->getMesh()->getAnimationPlayer();

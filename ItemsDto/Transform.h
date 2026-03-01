@@ -42,7 +42,6 @@ namespace Node3D {
         void setTransform(const shared_ptr<Transform> &transform);
 
     protected:
-        glm::mat4 worldMatrix{};
         glm::vec3 position{};
         glm::vec3 scale{1.0f, 1.0f, 1.0f};
         float rotationX = 0;

@@ -4,7 +4,6 @@
 #include "BaseTransform.h"
 #include "../../Manager/Camera.h"
 #include "../BaseKeydownHandle.h"
-#include "../../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
 using namespace Model;
 using namespace Manager;

@@ -7,9 +7,12 @@
 
 #include <memory>
 
+#include "../Physic/BoxShape.h"
+#include "../Physic/CollisionSystem3D.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
-using namespace ItemsDto;
+using namespace Physic;
+using namespace CollisionShape;
 using namespace Model;
 using namespace std;
 
@@ -26,13 +29,16 @@ namespace Manager {
         [[nodiscard]] int getLive() const;
         [[nodiscard]] int getEatCounter() const;
         void setEatCounter(int eatCounter);
+        void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
 
     protected:
+        void resolveBoxShape(const shared_ptr<MeshNode3D> &boxNode3D);
         int level;
         int live;
         int eatCounter;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<ContextState> contextState;
+        shared_ptr<CollisionSystem3D> collisionSystem;
     };
 
 } // Manager

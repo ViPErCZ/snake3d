@@ -14,6 +14,10 @@ struct MockCollisionEntry : public CollisionEntry {
         shapeNode = make_shared<CollisionShape3D>(nullptr, nullptr, shape);
         parentObject = make_shared<MeshNode3D>(nullptr, nullptr, nullptr);
     }
+
+    [[nodiscard]] glm::mat4 getWorldMatrix() const {
+        return parentObject->getModelMatrix() * shapeNode->getModelMatrix();
+    }
 };
 
 TEST_CASE("BoxVsSphere Collision Detection") {
@@ -25,17 +29,17 @@ TEST_CASE("BoxVsSphere Collision Detection") {
 
     SECTION("No collision - sphere far away") {
         entSphere.parentObject->setPosition({3.0f, 0.0f, 0.0f}); // Center at 3, box ends at 1. Gap 1.5.
-        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
     }
 
     SECTION("Collision - sphere touching box face") {
         entSphere.parentObject->setPosition({1.4f, 0.0f, 0.0f}); // Center at 1.4, radius 0.5 -> edge at 0.9. Box edge at 1.0.
-        CHECK(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
     }
 
     SECTION("No collision - sphere just outside") {
         entSphere.parentObject->setPosition({1.6f, 0.0f, 0.0f}); // Center at 1.6, radius 0.5 -> edge at 1.1. Box edge at 1.0.
-        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
     }
 
     SECTION("Collision - sphere at corner") {
@@ -44,13 +48,13 @@ TEST_CASE("BoxVsSphere Collision Detection") {
         // Distance from corner to center: sqrt(0.3^2 + 0.3^2 + 0.3^2) = sqrt(0.27) approx 0.5196
         // 0.5196 > 0.5, so NO collision.
         entSphere.parentObject->setPosition({1.3f, 1.3f, 1.3f});
-        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
 
         // Sphere center at (1.2, 1.2, 1.2), radius 0.5.
         // Distance: sqrt(0.2^2 + 0.2^2 + 0.2^2) = sqrt(0.12) approx 0.346
         // 0.346 < 0.5, so YES collision.
         entSphere.parentObject->setPosition({1.2f, 1.2f, 1.2f});
-        CHECK(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
     }
 
     SECTION("Collision - with rotation and scale") {
@@ -70,10 +74,10 @@ TEST_CASE("BoxVsSphere Collision Detection") {
         // Světová pozice koule = (1,1,1) * (0, 1.6, 0) = (0, 1.6, 0).
         // Koule zasahuje do Y = 1.6 + 0.5 = 2.1. Mělo by kolidovat s Y=2.
         entSphere.parentObject->setPosition({0.0f, 1.6f, 0.0f});
-        CHECK(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
         
         entSphere.parentObject->setPosition({0.0f, 1.4f, 0.0f}); // Vrchol koule na 1.9, box končí na 2.0.
-        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere));
+        CHECK_FALSE(Algorithms::BoxVsSphere(entBox, entSphere, entBox.getWorldMatrix(), entSphere.getWorldMatrix()));
     }
 }
 
@@ -86,12 +90,12 @@ TEST_CASE("BoxVsBox SAT Collision Detection") {
 
     SECTION("Collision - overlapping") {
         entB.parentObject->setPosition({1.5f, 0.0f, 0.0f});
-        CHECK(Algorithms::BoxVsBox(entA, entB));
+        CHECK(Algorithms::BoxVsBox(entA, entB, entA.getWorldMatrix(), entB.getWorldMatrix()));
     }
 
     SECTION("No collision - separated") {
         entB.parentObject->setPosition({2.5f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::BoxVsBox(entA, entB));
+        CHECK_FALSE(Algorithms::BoxVsBox(entA, entB, entA.getWorldMatrix(), entB.getWorldMatrix()));
     }
 
     SECTION("Collision - rotated") {
@@ -100,7 +104,7 @@ TEST_CASE("BoxVsBox SAT Collision Detection") {
         // Box A: [-1, 1]
         // Box B: center (1.5, 1.5), half-diagonal ~1.414. 
         // 1.5 - 1.414 = 0.086. Corner of B is at (0.086, 0.086) inside A.
-        CHECK(Algorithms::BoxVsBox(entA, entB));
+        CHECK(Algorithms::BoxVsBox(entA, entB, entA.getWorldMatrix(), entB.getWorldMatrix()));
     }
 }
 
@@ -115,19 +119,19 @@ TEST_CASE("Capsule Collision Detection") {
         // Capsule at (0,0,0), oriented along Y. Segment is from (0, -0.5, 0) to (0, 0.5, 0).
         // Sphere at (0, 1.2, 0). Distance to p1 is 0.7. Radii sum is 1.0. COLLISION.
         entSphere.parentObject->setPosition({0.0f, 1.2f, 0.0f});
-        CHECK(Algorithms::SphereVsCapsule(entSphere, entCap));
+        CHECK(Algorithms::SphereVsCapsule(entSphere, entCap, entSphere.getWorldMatrix(), entCap.getWorldMatrix()));
 
         // Sphere at (0, 1.6, 0). Distance to p1 is 1.1. Radii sum 1.0. NO COLLISION.
         entSphere.parentObject->setPosition({0.0f, 1.6f, 0.0f});
-        CHECK_FALSE(Algorithms::SphereVsCapsule(entSphere, entCap));
+        CHECK_FALSE(Algorithms::SphereVsCapsule(entSphere, entCap, entSphere.getWorldMatrix(), entCap.getWorldMatrix()));
         
         // Sphere at (1.2, 0, 0). Distance to segment is 1.2. Radii sum 1.0. NO COLLISION.
         entSphere.parentObject->setPosition({1.2f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::SphereVsCapsule(entSphere, entCap));
+        CHECK_FALSE(Algorithms::SphereVsCapsule(entSphere, entCap, entSphere.getWorldMatrix(), entCap.getWorldMatrix()));
 
         // Sphere at (0.8, 0, 0). Distance to segment is 0.8. Radii sum 1.0. COLLISION.
         entSphere.parentObject->setPosition({0.8f, 0.0f, 0.0f});
-        CHECK(Algorithms::SphereVsCapsule(entSphere, entCap));
+        CHECK(Algorithms::SphereVsCapsule(entSphere, entCap, entSphere.getWorldMatrix(), entCap.getWorldMatrix()));
     }
 
     SECTION("Capsule vs Capsule") {
@@ -137,11 +141,11 @@ TEST_CASE("Capsule Collision Detection") {
         // CapA: (0, -0.5, 0) to (0, 0.5, 0)
         // CapB at (1.2, 0, 0): (1.2, -0.5, 0) to (1.2, 0.5, 0). Distance 1.2. Radii sum 1.0. NO.
         entCapB.parentObject->setPosition({1.2f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::CapsuleVsCapsule(entCap, entCapB));
+        CHECK_FALSE(Algorithms::CapsuleVsCapsule(entCap, entCapB, entCap.getWorldMatrix(), entCapB.getWorldMatrix()));
 
         // CapB at (0.8, 0, 0): Distance 0.8. Radii sum 1.0. YES.
         entCapB.parentObject->setPosition({0.8f, 0.0f, 0.0f});
-        CHECK(Algorithms::CapsuleVsCapsule(entCap, entCapB));
+        CHECK(Algorithms::CapsuleVsCapsule(entCap, entCapB, entCap.getWorldMatrix(), entCapB.getWorldMatrix()));
 
         // Crossed capsules
         entCapB.parentObject->setPosition({0.0f, 0.0f, 0.8f});
@@ -150,7 +154,7 @@ TEST_CASE("Capsule Collision Detection") {
         // Wait, Segment A is Y:[-0.5, 0.5], Segment B is Z:[0.3, 1.3] (if rotation is around X 90deg and it was Y oriented).
         // Closest points: A(0, 0.5, 0), B(0, 0, 0.8)? No.
         // Let's just trust the math if it's close.
-        CHECK(Algorithms::CapsuleVsCapsule(entCap, entCapB));
+        CHECK(Algorithms::CapsuleVsCapsule(entCap, entCapB, entCap.getWorldMatrix(), entCapB.getWorldMatrix()));
     }
 
     SECTION("Box vs Capsule") {
@@ -161,11 +165,11 @@ TEST_CASE("Capsule Collision Detection") {
         // Capsule at (1.3, 0, 0), radius 0.5. Closest point on segment is (1.3, 0, 0). 
         // Distance to box face (1, 0, 0) is 0.3. Radius 0.5. YES.
         entCap.parentObject->setPosition({1.3f, 0.0f, 0.0f});
-        CHECK(Algorithms::BoxVsCapsule(entBox, entCap));
+        CHECK(Algorithms::BoxVsCapsule(entBox, entCap, entBox.getWorldMatrix(), entCap.getWorldMatrix()));
 
         // Capsule at (1.6, 0, 0). Distance 0.6. Radius 0.5. NO.
         entCap.parentObject->setPosition({1.6f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::BoxVsCapsule(entBox, entCap));
+        CHECK_FALSE(Algorithms::BoxVsCapsule(entBox, entCap, entBox.getWorldMatrix(), entCap.getWorldMatrix()));
     }
 
     SECTION("Box vs Capsule oriented along Z") {
@@ -184,19 +188,19 @@ TEST_CASE("Capsule Collision Detection") {
         // The segment is from (0,0,0.8) to (0,0,1.8).
         // Point (0,0,0.8) is inside the box.
         entCap.parentObject->setPosition({0.0f, 0.0f, 1.3f});
-        CHECK(Algorithms::BoxVsCapsule(entBox, entCap));
+        CHECK(Algorithms::BoxVsCapsule(entBox, entCap, entBox.getWorldMatrix(), entCap.getWorldMatrix()));
 
         // Capsule at (0, 0, 1.6). Segment Z: [1.1, 2.1]. Radius 0.5.
         // Closest point on segment to box is (0,0,1.1).
         // Distance from (0,0,1.1) to box face (0,0,1.0) is 0.1. Radius 0.5. YES.
         entCap.parentObject->setPosition({0.0f, 0.0f, 1.6f});
-        CHECK(Algorithms::BoxVsCapsule(entBox, entCap));
+        CHECK(Algorithms::BoxVsCapsule(entBox, entCap, entBox.getWorldMatrix(), entCap.getWorldMatrix()));
 
         // Capsule at (0, 0, 2.1). Segment Z: [1.6, 2.6]. Radius 0.5.
         // Closest point on segment to box is (0,0,1.6).
         // Distance to (0,0,1.0) is 0.6. Radius 0.5. NO.
         entCap.parentObject->setPosition({0.0f, 0.0f, 2.1f});
-        CHECK_FALSE(Algorithms::BoxVsCapsule(entBox, entCap));
+        CHECK_FALSE(Algorithms::BoxVsCapsule(entBox, entCap, entBox.getWorldMatrix(), entCap.getWorldMatrix()));
     }
 }
 
@@ -212,19 +216,19 @@ TEST_CASE("Cylinder Collision Detection") {
         // Sphere at (0, 1.4, 0). Distance to p1 is 0.4. Radius 0.5. 
         // Plane of top disk is at y=1. 1.4-1.0 = 0.4. 0.4 < 0.5. Inside radius 0.5. COLLISION.
         entSphere.parentObject->setPosition({0.0f, 1.4f, 0.0f});
-        CHECK(Algorithms::SphereVsCylinder(entSphere, entCyl));
+        CHECK(Algorithms::SphereVsCylinder(entSphere, entCyl, entSphere.getWorldMatrix(), entCyl.getWorldMatrix()));
 
         // Sphere at (0, 1.6, 0). Distance to p1 is 0.6. Radius 0.5. NO COLLISION.
         entSphere.parentObject->setPosition({0.0f, 1.6f, 0.0f});
-        CHECK_FALSE(Algorithms::SphereVsCylinder(entSphere, entCyl));
+        CHECK_FALSE(Algorithms::SphereVsCylinder(entSphere, entCyl, entSphere.getWorldMatrix(), entCyl.getWorldMatrix()));
         
         // Sphere at (1.2, 0, 0). Distance to segment is 1.2. Radii sum 1.0. NO COLLISION.
         entSphere.parentObject->setPosition({1.2f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::SphereVsCylinder(entSphere, entCyl));
+        CHECK_FALSE(Algorithms::SphereVsCylinder(entSphere, entCyl, entSphere.getWorldMatrix(), entCyl.getWorldMatrix()));
 
         // Sphere at (0.8, 0, 0). Distance to segment is 0.8. Radii sum 1.0. COLLISION.
         entSphere.parentObject->setPosition({0.8f, 0.0f, 0.0f});
-        CHECK(Algorithms::SphereVsCylinder(entSphere, entCyl));
+        CHECK(Algorithms::SphereVsCylinder(entSphere, entCyl, entSphere.getWorldMatrix(), entCyl.getWorldMatrix()));
     }
 
     SECTION("Box vs Cylinder") {
@@ -235,10 +239,50 @@ TEST_CASE("Cylinder Collision Detection") {
         // Cylinder at (1.3, 0, 0), radius 0.5. Closest point on segment is (1.3, 0, 0). 
         // Distance to box face (1, 0, 0) is 0.3. Radius 0.5. YES.
         entCyl.parentObject->setPosition({1.3f, 0.0f, 0.0f});
-        CHECK(Algorithms::BoxVsCylinder(entBox, entCyl));
+        CHECK(Algorithms::BoxVsCylinder(entBox, entCyl, entBox.getWorldMatrix(), entCyl.getWorldMatrix()));
 
         // Cylinder at (1.6, 0, 0). Distance 0.6. Radius 0.5. NO.
         entCyl.parentObject->setPosition({1.6f, 0.0f, 0.0f});
-        CHECK_FALSE(Algorithms::BoxVsCylinder(entBox, entCyl));
+        CHECK_FALSE(Algorithms::BoxVsCylinder(entBox, entCyl, entBox.getWorldMatrix(), entCyl.getWorldMatrix()));
+    }
+}
+
+TEST_CASE("Collision Layers and Masks Filtering") {
+    auto shapeA = make_shared<BoxShape>(nullptr, nullptr, glm::vec3(2.0f));
+    auto shapeB = make_shared<BoxShape>(nullptr, nullptr, glm::vec3(2.0f));
+
+    const auto colA = make_shared<CollisionShape3D>(nullptr, nullptr, shapeA);
+    const auto colB = make_shared<CollisionShape3D>(nullptr, nullptr, shapeB);
+
+    SECTION("Basic Layer/Mask Match") {
+        colA->setCollisionLayer(1); colA->setCollisionMask(1);
+        colB->setCollisionLayer(1); colB->setCollisionMask(1);
+        CHECK(CollisionShape3D::shouldCollide(colA->getCollisionLayer(), colA->getCollisionMask(),
+                                              colB->getCollisionLayer(), colB->getCollisionMask()));
+    }
+
+    SECTION("Mismatch - No collision should occur") {
+        colA->setCollisionLayer(2); colA->setCollisionMask(2); // Hráč koliduje s Hráčem
+        colB->setCollisionLayer(4); colB->setCollisionMask(4); // Nepřítel koliduje s Nepřítelem
+
+        // Hráč (Layer 2) vs Nepřítel (Layer 4) -> Měli by se ignorovat
+        CHECK_FALSE(CollisionShape3D::shouldCollide(colA->getCollisionLayer(), colA->getCollisionMask(),
+                                                    colB->getCollisionLayer(), colB->getCollisionMask()));
+    }
+
+    SECTION("Projectile ignoring its owner") {
+        constexpr uint32_t WORLD = 1;
+        constexpr uint32_t PLAYER = 2;
+        constexpr uint32_t ENEMY = 4;
+        constexpr uint32_t ENEMY_PROJECTILE = 8;
+
+        colA->setCollisionLayer(PLAYER);
+        colA->setCollisionMask(WORLD | ENEMY | ENEMY_PROJECTILE);
+
+        colB->setCollisionLayer(ENEMY_PROJECTILE);
+        colB->setCollisionMask(PLAYER | WORLD); // Střela nekoliduje s ENEMY (svým tvůrcem)
+
+        CHECK(CollisionShape3D::shouldCollide(colA->getCollisionLayer(), colA->getCollisionMask(),
+                                              colB->getCollisionLayer(), colB->getCollisionMask()));
     }
 }

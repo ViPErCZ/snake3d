@@ -137,7 +137,6 @@ namespace Handler {
 
         moveAccumulator += deltaTime;
 
-        // Zpracovávej kroky v pevném intervalu odvozeném od požadované rychlosti (dlaždice/s)
         while (moveAccumulator >= moveInterval) {
             moveAccumulator -= moveInterval;
 
@@ -149,7 +148,7 @@ namespace Handler {
 
             if (snakeMeshNode->getDirection() == SnakeMeshNode3D::NONE || snakeMeshNode->getDirection() ==
                 SnakeMeshNode3D::STOP) {
-                moveAccumulator = 0; // Resetujeme akumulátor, pokud se had zastavil nebo ještě nevyjel
+                moveAccumulator = 0;
                 return;
             }
 
@@ -168,18 +167,24 @@ namespace Handler {
 
             moveTile(snakeMeshNode);
 
-            // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
-            if (collisionDetector && snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
-                 const bool l_allowed = isChangeDirectionAllowed();
-                 if (l_allowed && collisionDetector->detectWithStaticItem(snakeMeshNode)) {
-                     cout << "Head position(eaten): " << snakeMeshNode->getPosition().x << ", " << snakeMeshNode->getPosition().y << endl;
-                     if (eatenUpCallback) {
-                         eatenUpCallback();
-                     }
-                     if (snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP) { // doslo k postupu do dalsiho level
-                         changeCallback = nullptr;
-                     }
-                 }
+            // check only, when snake is moving
+            if (snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
+                if (isChangeDirectionAllowed()) {
+                    for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
+                        for (const auto &body : shapeNode->getCollidingBodies()) {
+                            if (body->getName() == "coin") {
+                                cout << "Had narazil do objektu: " << body->getName() << endl;
+                                if (eatenUpCallback) {
+                                    eatenUpCallback();
+                                }
+                                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP) { // level completed
+                                    changeCallback = nullptr;
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -226,10 +231,6 @@ namespace Handler {
             default:
                 return false;
         }
-    }
-
-    void SnakeMoveHandler::setCollisionDetector(shared_ptr<CollisionDetector> collisionDetector) {
-        SnakeMoveHandler::collisionDetector = std::move(collisionDetector);
     }
 
     void SnakeMoveHandler::addStartMoveCallback(const function<void()> &startMoveCallback) {

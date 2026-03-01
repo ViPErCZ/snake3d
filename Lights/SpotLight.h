@@ -1,7 +1,7 @@
 #ifndef SNAKE3_SPOTLIGHT_H
 #define SNAKE3_SPOTLIGHT_H
 
-#include "../ItemsDto/Transform.h"
+#include "OrientableLight.h"
 #include "../ItemsDto/Visibility.h"
 #include "../Manager/ShaderManager.h"
 
@@ -9,11 +9,7 @@ using namespace Node3D;
 using namespace Manager;
 
 namespace Lights {
-    class SpotLight : public Transform, public Visibility {
-        glm::vec3 direction = {};
-        glm::vec3 ambient = {};
-        glm::vec3 diffuse = {};
-        glm::vec3 specular = {};
+    class SpotLight : public Visibility, public OrientableLight {
         float constant = 1.0f;
         float linear = 0.19f;
         float quadratic = 0.032f;
@@ -22,22 +18,6 @@ namespace Lights {
         bool pulse = false;
 
     public:
-        [[nodiscard]] glm::vec3 getDirection() const;
-
-        void setDirection(const glm::vec3 &direction);
-
-        [[nodiscard]] glm::vec3 getAmbient() const;
-
-        void setAmbient(const glm::vec3 &ambient);
-
-        [[nodiscard]] glm::vec3 getDiffuse() const;
-
-        void setDiffuse(const glm::vec3 &diffuse);
-
-        [[nodiscard]] glm::vec3 getSpecular() const;
-
-        void setSpecular(const glm::vec3 &specular);
-
         [[nodiscard]] float getConstant() const;
 
         void setConstant(float constant);

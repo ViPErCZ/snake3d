@@ -1,5 +1,6 @@
 #include "BarriersScene.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
+#include "../Tools/Layers.h"
 
 namespace Scenes {
     BarriersScene::BarriersScene(
@@ -47,29 +48,68 @@ namespace Scenes {
         const auto boxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
         boxNode3D->setPosition(glm::vec3{-25.0, -25.0, -23.0});
         boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
+        boxNode3D->setName("Perimeter 1");
+        const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
+        shape->setCollisionLayer(WORLD);
+        shape->setCollisionMask(PLAYER);
+        shape->setName("Perimeter shape 1");
+        boxNode3D->addNode(shape);
 
         for (int x = 2; x <= 98; x += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
             boxNode3D_2->setPosition(glm::vec3{x, 0.0, 0.0});
+            boxNode3D_2->setName("Perimeter " + std::to_string(x));
+            const auto boxShapeX = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
+            const auto shapeX = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeX);
+            shapeX->setCollisionLayer(WORLD);
+            shapeX->setCollisionMask(PLAYER);
+            shapeX->setName("Perimeter shape " + std::to_string(x));
+            boxNode3D_2->addNode(shapeX);
             boxNode3D->addNode(boxNode3D_2);
         }
 
         for (int x = 0; x <= 98; x += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
             boxNode3D_2->setPosition(glm::vec3{x, 98.0, 0.0});
+            boxNode3D_2->setName("PerimeterTop " + std::to_string(x));
+            const auto boxShapeX = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
+            const auto shapeX = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeX);
+            shapeX->setCollisionLayer(WORLD);
+            shapeX->setCollisionMask(PLAYER);
+            shapeX->setName("Perimeter shape top " + std::to_string(x));
+            boxNode3D_2->addNode(shapeX);
             boxNode3D->addNode(boxNode3D_2);
         }
 
         for (int y = 2; y <= 96; y += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
             boxNode3D_2->setPosition(glm::vec3{0, y, 0.0});
+            boxNode3D_2->setName("PerimeterLeft " + std::to_string(y));
+            const auto boxShapeY = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
+            const auto shapeY = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeY);
+            shapeY->setCollisionLayer(WORLD);
+            shapeY->setCollisionMask(PLAYER);
+            shapeY->setName("Perimeter shape left " + std::to_string(y));
+            boxNode3D_2->addNode(shapeY);
             boxNode3D->addNode(boxNode3D_2);
         }
 
         for (int y = 2; y <= 96; y += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
             boxNode3D_2->setPosition(glm::vec3{98, y, 0.0});
+            boxNode3D_2->setName("PerimeterRight " + std::to_string(y));
+            const auto boxShapeY = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
+            const auto shapeY = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeY);
+            shapeY->setCollisionLayer(WORLD);
+            shapeY->setCollisionMask(PLAYER);
+            shapeY->setName("Perimeter shape right " + std::to_string(y));
+            boxNode3D_2->addNode(shapeY);
             boxNode3D->addNode(boxNode3D_2);
+        }
+
+        if (collisionSystem != nullptr) {
+            collisionSystem->addCollider(boxNode3D);
         }
 
         addMeshNode3D(boxNode3D, 100);
@@ -77,6 +117,7 @@ namespace Scenes {
 
     void BarriersScene::initLevelManager() {
         levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, resourceManager);
+        levelManager->setCollisionSystem(collisionSystem);
         // levelManager->createLevel(START_LEVEL);
         levelBoxes = levelManager->createLevel(START_LEVEL, directionalLight, spotLights, pointLights);
         addMeshNode3D(levelBoxes, 3001);

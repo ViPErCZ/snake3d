@@ -1,11 +1,13 @@
 #include "ManipulatorHandler.h"
 
 namespace Handler::Debug {
-    ManipulatorHandler::ManipulatorHandler(const shared_ptr<Camera> &camera) {
+    ManipulatorHandler::ManipulatorHandler(const shared_ptr<ContextState> &contextState,
+        const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Camera> &camera) {
         positionHandler = make_shared<PositionHandler>(camera);
         scaleHandler = make_shared<ScaleHandler>(camera);
         rotationHandler = make_shared<RotationHandler>(camera);
         collisionShapeHandler = make_shared<CollisionShapeHandler>(camera);
+        lightsHandler = make_shared<LightsHandler>(contextState, resourceManager, camera);
     }
 
     void ManipulatorHandler::onDefaultHandler() {
@@ -18,9 +20,14 @@ namespace Handler::Debug {
                 positionEnable = !positionEnable;
                 if (positionEnable) {
                     positionHandler->activate();
+                } else {
+                    positionHandler->deactivate();
                 }
                 scaleEnable = false;
                 rotateEnable = false;
+                collisionShapeEnable = false;
+                lightsEnable = false;
+                lightsHandler->deactivate();
                 scaleHandler->deactivate();
                 rotationHandler->deactivate();
                 collisionShapeHandler->deactivate();
@@ -29,35 +36,65 @@ namespace Handler::Debug {
                 scaleEnable = !scaleEnable;
                 if (scaleEnable) {
                     scaleHandler->activate();
+                } else {
+                    scaleHandler->deactivate();
                 }
                 rotateEnable = false;
                 positionEnable = false;
+                collisionShapeEnable = false;
+                lightsEnable = false;
                 rotationHandler->deactivate();
                 positionHandler->deactivate();
                 collisionShapeHandler->deactivate();
+                lightsHandler->deactivate();
                 break;
             case GLFW_KEY_F7:
                 rotateEnable = !rotateEnable;
                 if (rotateEnable) {
                     rotationHandler->activate();
+                } else {
+                    rotationHandler->deactivate();
                 }
                 scaleEnable = false;
                 positionEnable = false;
+                collisionShapeEnable = false;
+                lightsEnable = false;
                 positionHandler->deactivate();
                 scaleHandler->deactivate();
                 collisionShapeHandler->deactivate();
+                lightsHandler->deactivate();
                 break;
             case GLFW_KEY_F8:
                 collisionShapeEnable = !collisionShapeEnable;
                 if (collisionShapeEnable) {
                     collisionShapeHandler->active();
+                } else {
+                    collisionShapeHandler->deactivate();
                 }
                 scaleEnable = false;
                 positionEnable = false;
                 rotateEnable = false;
+                lightsEnable = false;
                 positionHandler->deactivate();
                 scaleHandler->deactivate();
                 rotationHandler->deactivate();
+                lightsHandler->deactivate();
+                break;
+            case GLFW_KEY_F9:
+                lightsEnable = !lightsEnable;
+                if (lightsEnable) {
+                    lightsHandler->active();
+                } else {
+                    lightsHandler->deactivate();
+                }
+                scaleEnable = false;
+                positionEnable = false;
+                rotateEnable = false;
+                collisionShapeEnable = false;
+                positionHandler->deactivate();
+                scaleHandler->deactivate();
+                rotationHandler->deactivate();
+                collisionShapeHandler->deactivate();
                 break;
             default:
                 break;
@@ -71,6 +108,8 @@ namespace Handler::Debug {
             rotationHandler->onEventHandler(key, scancode, action, mods, deltaTime);
         } else if (collisionShapeEnable) {
             collisionShapeHandler->onEventHandler(key, scancode, action, mods, deltaTime);
+        } else if (lightsEnable) {
+            lightsHandler->onEventHandler(key, scancode, action, mods, deltaTime);
         }
     }
 

@@ -6,7 +6,7 @@ namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
         : contextState(contextState), mesh(mesh), resourceManager(resourceManager), transformDetached(false),
-          childrenChangedSignal(false), lastUpdatedFrame(0) {
+          childrenChangedSignal(false), lastUpdatedFrame(0), worldMatrixCache(1.0f) {
     }
 
     shared_ptr<StandardMesh> MeshNode3D::getMesh() const {
@@ -22,7 +22,7 @@ namespace Model {
         children.push_back(node);
 
         if (const auto collisionShape = std::dynamic_pointer_cast<CollisionShape::CollisionShape3D>(node)) {
-            collisionShapes.push_back(node);
+            collisionShapes.push_back(collisionShape);
         } else {
             childrenChangedSignal = true;
         }
@@ -31,7 +31,10 @@ namespace Model {
     void MeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
                             const glm::mat4 &parentTransform, const bool shadows) {
         if (visible) {
-            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            glm::mat4 finalTransform = worldMatrixCache;
+            if constexpr (isDebug) {
+                finalTransform = parentTransform * this->getModelMatrix();
+            }
             contextState->setBlendingMode(mesh->getBlending());
             contextState->setDepthTest(mesh->getDepthTest());
             contextState->setDepthWrite(mesh->getDepthWrite());
@@ -73,7 +76,7 @@ namespace Model {
     void MeshNode3D::renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
                                    const glm::mat4 &parentTransform) const {
         if (visible) {
-            const glm::mat4 finalTransform = parentTransform * this->getModelMatrix();
+            const glm::mat4 finalTransform = worldMatrixCache;
             if (mesh != nullptr) {
                 mesh->renderShadowMap(camera, projection, dt, finalTransform);
             }
@@ -91,7 +94,7 @@ namespace Model {
         return children;
     }
 
-    const vector<shared_ptr<MeshNode3D>> & MeshNode3D::getCollisionShapes() const {
+    const vector<shared_ptr<CollisionShape::CollisionShape3D>> & MeshNode3D::getCollisionShapes() const {
         return collisionShapes;
     }
 
@@ -148,6 +151,28 @@ namespace Model {
 
     bool MeshNode3D::isIncludeInPlanarReflection() const {
         return includePlanarReflection;
+    }
+
+    void MeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {
+        worldMatrixCache = parentTransform * this->getModelMatrix();
+
+        // if (name == "Snake head") {
+        //     std::cout << "Compute Matrix snake head: " << name << std::endl;
+        //     worldMatrixCache = parentTransform * this->getModelMatrix();
+        //     for (int i = 0; i < 4; i++) {
+        //         std::cout << "  ";
+        //         for (int j = 0; j < 4; j++) {
+        //             // m[j][i] vypíše matici řádek po řádku, jak jsme zvyklí z matematiky
+        //             std::cout << std::setw(10) << std::fixed << std::setprecision(4) << worldMatrixCache[j][i] << " ";
+        //         }
+        //         std::cout << std::endl;
+        //     }
+        //     std::cout << "------------------------------------------" << std::endl;
+        // }
+
+        for (auto &node: children) {
+            node->computeWorldMatrix(transformDetached ? glm::mat4(1.0f) : worldMatrixCache);
+        }
     }
 
     std::shared_ptr<MeshNode3D> MeshNode3D::deepCopy() const {

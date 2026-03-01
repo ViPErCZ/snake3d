@@ -30,15 +30,11 @@ namespace Handler::Debug {
         shared_ptr<CollisionShape3D> findFirstVisible();
 
     protected:
-        void computeWorld();
         shared_ptr<Camera> camera = nullptr;
         vector<shared_ptr<CollisionShape3D> > items;
         shared_ptr<CollisionShape3D> activeItem = nullptr;
         shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
-        glm::vec3 currentWorldCenter{};
-        glm::vec3 worldMax{};
-        glm::vec3 worldMin{};
     };
 } // Debug
 // Handler

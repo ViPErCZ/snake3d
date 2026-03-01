@@ -4,6 +4,7 @@
 #include "../../../../Physic/Shape.h"
 #include "../Standard/MeshNode3D.h"
 #include <memory>
+#include <set>
 
 using namespace Physic;
 using namespace Model;
@@ -21,8 +22,37 @@ namespace CollisionShape {
 
         shared_ptr<StandardMesh> getMesh() const override;
 
+        void clearCollisions() { collidingBodies.clear(); }
+
+        void addCollidingBody(const shared_ptr<MeshNode3D> &body) {
+            collidingBodies.insert(body);
+        }
+
+        bool isCollidingWith(const shared_ptr<MeshNode3D> &body) const {
+            return collidingBodies.contains(body);
+        }
+
+        const std::set<shared_ptr<MeshNode3D> > &getCollidingBodies() const {
+            return collidingBodies;
+        }
+
+        bool hasCollisions() const { return !collidingBodies.empty(); }
+
+        void setCollisionLayer(const uint32_t layer) { collisionLayer = layer; }
+        [[nodiscard]] uint32_t getCollisionLayer() const { return collisionLayer; }
+
+        void setCollisionMask(const uint32_t mask) { collisionMask = mask; }
+        [[nodiscard]] uint32_t getCollisionMask() const { return collisionMask; }
+
+        static bool shouldCollide(const uint32_t layerA, const uint32_t maskA, const uint32_t layerB, const uint32_t maskB) {
+            return (maskA & layerB) != 0 && (maskB & layerA) != 0;
+        }
+
     private:
         shared_ptr<Shape> shape;
+        set<shared_ptr<MeshNode3D> > collidingBodies;
+        uint32_t collisionLayer = 1;
+        uint32_t collisionMask = 1;
     };
 } // CollisionShape
 

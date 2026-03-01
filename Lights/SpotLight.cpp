@@ -1,38 +1,6 @@
 #include "SpotLight.h"
 
 namespace Lights {
-    glm::vec3 SpotLight::getDirection() const {
-        return direction;
-    }
-
-    void SpotLight::setDirection(const glm::vec3 &direction) {
-        this->direction = direction;
-    }
-
-    glm::vec3 SpotLight::getAmbient() const {
-        return ambient;
-    }
-
-    void SpotLight::setAmbient(const glm::vec3 &ambient) {
-        this->ambient = ambient;
-    }
-
-    glm::vec3 SpotLight::getDiffuse() const {
-        return diffuse;
-    }
-
-    void SpotLight::setDiffuse(const glm::vec3 &diffuse) {
-        this->diffuse = diffuse;
-    }
-
-    glm::vec3 SpotLight::getSpecular() const {
-        return specular;
-    }
-
-    void SpotLight::setSpecular(const glm::vec3 &specular) {
-        this->specular = specular;
-    }
-
     float SpotLight::getConstant() const {
         return constant;
     }
@@ -85,7 +53,7 @@ namespace Lights {
         shader->use();
         const string name = "spotLight[" + std::to_string(index) + "]";
         shader->setVec3(name + ".position", position);
-        shader->setVec3(name + ".direction",glm::normalize(direction - position));
+        shader->setVec3(name + ".direction",glm::normalize(getDirection() - position));
         shader->setVec3(name + ".ambient", ambient);
         shader->setVec3(name + ".diffuse", diffuse);
         shader->setVec3(name + ".specular", specular);
