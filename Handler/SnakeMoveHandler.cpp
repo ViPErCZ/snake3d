@@ -131,6 +131,10 @@ namespace Handler {
         const double deltaTime = now - lastTime;
         lastTime = now;
 
+        if (crashLock && snakeMeshNode->isReady()) {
+            crashLock = false;
+        }
+
         if (stop) {
             return;
         }
@@ -172,14 +176,34 @@ namespace Handler {
                 if (isChangeDirectionAllowed()) {
                     for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
                         for (const auto &body : shapeNode->getCollidingBodies()) {
-                            if (body->getName() == "coin") {
+                            if (isDebug) {
                                 cout << "Had narazil do objektu: " << body->getName() << endl;
+                            }
+                            if (body->getName() == "coin") {
                                 if (eatenUpCallback) {
                                     eatenUpCallback();
                                 }
                                 if (snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP) { // level completed
                                     changeCallback = nullptr;
                                 }
+                                return;
+                            }
+                            if (!crashLock && crashCallback) {
+                                crashLock = true;
+                                crashCallback();
+                            }
+                            return;
+                        }
+                    }
+                } else { // check death
+                    for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
+                        for (const auto &body : shapeNode->getCollidingBodies()) {
+                            if (isDebug) {
+                                cout << "Had narazil do objektu: " << body->getName() << endl;
+                            }
+                            if (body->getName() != "coin" && !crashLock && crashCallback) {
+                                crashLock = true;
+                                crashCallback();
                                 return;
                             }
                         }

@@ -10,6 +10,7 @@ namespace Model {
     void CoinMeshNode3D::update(const float dt, const uint64_t frameId) {
         // update spotLight
         if (spotLight) {
+            spotLight->setVisible(isVisible());
             const auto coinPos = getPosition();
             if (coinPos == lastPos) {
                 return;
@@ -21,7 +22,6 @@ namespace Model {
             const glm::vec3 spotDir = {spotPos.x, spotPos.y, 0.0f};
             spotLight->setPosition(spotPos);
             spotLight->setDirection(spotDir);
-            spotLight->setVisible(isVisible());
             lastPos = coinPos;
         }
 

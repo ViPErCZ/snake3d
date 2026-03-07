@@ -37,6 +37,8 @@ namespace Model {
 
         void respawn();
 
+        void crash();
+
         void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override;
 
         void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light) override;
@@ -44,6 +46,8 @@ namespace Model {
         void setPointLights(const vector<shared_ptr<PointLight> > &point_light) override;
 
         void setDirection(eDIRECTION direction);
+
+        void setBodySegment(bool bodySegment);
 
         void addTile(eDIRECTION direction);
 
@@ -64,12 +68,15 @@ namespace Model {
         shared_ptr<SphereMesh> createTileNode() const;
         shared_ptr<StandardMaterial> tileMaterial;
         shared_ptr<BaseMaterial> headMaterial;
+        shared_ptr<ShaderMaterial> crashMaterial;
         shared_ptr<ShaderMaterial> respawnMaterial;
         shared_ptr<ShaderMaterial> headRespawnMaterial;
         shared_ptr<TimerUniform> timerUniform;
+        shared_ptr<TimerUniform> timerUniform2;
         shared_ptr<CollisionSystem3D> collisionSystem;
         eDIRECTION direction = NONE;
         bool respawned = false;
+        bool bodySegment = false;
     };
 } // Model
 

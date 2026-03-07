@@ -14,11 +14,20 @@ namespace Uniform {
     class TimerUniform final : public IUniform {
     public:
         explicit TimerUniform(bool autostart = false);
-        void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
+
+        void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
+
         [[nodiscard]] shared_ptr<IUniform> clone() const override;
+
         [[nodiscard]] double getElapsed() const;
+
+        [[nodiscard]] bool isRunning() const;
+
         void stop() const;
+
         void start() const;
+
+        void reset() const;
 
     private:
         unique_ptr<Timer> timer;

@@ -40,6 +40,7 @@ namespace Scenes {
         barrel->setDirectionalLight(directionalLight);
         barrel->setPointLights(pointLights);
         barrel->init();
+        barrel->setName("barrel");
 
         const auto shape = make_shared<CylinderShape>(resourceManager, contextState, 0.3f, 0.90f);
         const auto collisionShape = make_shared<CollisionShape3D>(contextState, resourceManager, shape);

@@ -1,6 +1,7 @@
 #include "SnakeMeshNode3D.h"
 
 #include "../../../../Physic/SphereShape.h"
+#include "../../Material/StandardMaterial.h"
 #include "../../Material/Uniform/TextureUniform.h"
 #include "../../Material/Uniform/TimerUniform.h"
 #include "../../../../Tools/Layers.h"
@@ -8,10 +9,41 @@
 #include "../Standard/SphereMesh.h"
 
 namespace Model {
+    namespace {
+        void copyExplosionSourceMaterial(const shared_ptr<ShaderMaterial>& crashMaterial,
+            const shared_ptr<BaseMaterial>& sourceMaterial) {
+            const auto sourceStandard = dynamic_pointer_cast<StandardMaterial>(sourceMaterial);
+            if (!sourceStandard) {
+                crashMaterial->setUniform("hasAlbedoTexture", false);
+                crashMaterial->setUniform("hasFallbackColor", false);
+                crashMaterial->setUniform("useMaterial", true);
+                return;
+            }
+
+            const auto albedo = sourceStandard->getAlbedo();
+            const bool hasAlbedoTexture = albedo && albedo->hasTexture();
+            crashMaterial->setUniform("hasAlbedoTexture", hasAlbedoTexture);
+            crashMaterial->setUniform("useMaterial", !hasAlbedoTexture);
+            const bool hasFallbackColor = sourceStandard->hasColor();
+            crashMaterial->setUniform("hasFallbackColor", hasFallbackColor);
+            if (hasFallbackColor) {
+                crashMaterial->setUniform("fallbackColor", sourceStandard->getColor());
+            }
+            if (hasAlbedoTexture) {
+                crashMaterial->setAlbedo(albedo);
+            }
+            crashMaterial->setNormal(sourceStandard->getNormal());
+            crashMaterial->setSpecular(sourceStandard->getSpecular());
+            crashMaterial->setMetalness(sourceStandard->getMetalness());
+            crashMaterial->setRoughness(sourceStandard->getRoughness());
+        }
+    }
+
     SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<CollisionSystem3D> &collisionSystem)
         : MeshNode3D(contextState, mesh, resourceManager), collisionSystem(collisionSystem) {
         timerUniform = make_shared<TimerUniform>(true);
+        timerUniform2 = make_shared<TimerUniform>(false);
         if (resourceManager) {
             const auto shader = resourceManager->getShader("basicShader");
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
@@ -29,6 +61,17 @@ namespace Model {
             respawnMaterial->setUniform("u_Speed", 4.7f);
             respawnMaterial->setUniform("u_Delay", 0.1f);
             respawnMaterial->setUniform("u_FloatParameter", 0.1f);
+
+            const auto explosionShader = resourceManager->getShader("explosion");
+            crashMaterial = make_shared<ShaderMaterial>(explosionShader, shadowsShader);
+            crashMaterial->setUniform("time", timerUniform2);
+            crashMaterial->setUniform("fadeTime", 0.65f);
+            crashMaterial->setUniform("explosionRadius", 0.35f);
+            crashMaterial->setUniform("hasAlbedoTexture", false);
+            crashMaterial->setUniform("hasFallbackColor", false);
+            crashMaterial->setUniform("fallbackColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            crashMaterial->setShadow(resourceManager->getTexture("depth"));
+            crashMaterial->setBlending(Blending::Translucent);
 
             headRespawnMaterial = make_shared<ShaderMaterial>(respawnShader, shadowsShader);
             headRespawnMaterial->setShadow(resourceManager->getTexture("depth"));
@@ -51,7 +94,11 @@ namespace Model {
     }
 
     void SnakeMeshNode3D::respawn() {
+        bodySegment = false;
         respawned = false;
+        if (!collisionShapes.empty()) {
+            collisionShapes.begin()->get()->setVisible(true);
+        }
 
         for (const auto &child: children) {
             collisionSystem->removeCollider(child);
@@ -68,9 +115,8 @@ namespace Model {
         this->setPosition({23, -3, -23});
         this->setDirection(NONE);
 
-        const auto sphere = createTileNode();
-
-        const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        const auto tile = make_shared<SnakeMeshNode3D>(contextState, createTileNode(), resourceManager, collisionSystem);
+        tile->setBodySegment(true);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
@@ -92,7 +138,8 @@ namespace Model {
 
         addNode(tile);
 
-        const auto tile2 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        const auto tile2 = make_shared<SnakeMeshNode3D>(contextState, createTileNode(), resourceManager, collisionSystem);
+        tile2->setBodySegment(true);
         if (directionalLight) {
             tile2->setDirectionalLight(directionalLight);
         }
@@ -114,7 +161,8 @@ namespace Model {
 
         addNode(tile2);
 
-        const auto tile3 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        const auto tile3 = make_shared<SnakeMeshNode3D>(contextState, createTileNode(), resourceManager, collisionSystem);
+        tile3->setBodySegment(true);
         if (directionalLight) {
             tile3->setDirectionalLight(directionalLight);
         }
@@ -136,7 +184,8 @@ namespace Model {
 
         addNode(tile3);
 
-        const auto tile4 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        const auto tile4 = make_shared<SnakeMeshNode3D>(contextState, createTileNode(), resourceManager, collisionSystem);
+        tile4->setBodySegment(true);
         if (directionalLight) {
             tile4->setDirectionalLight(directionalLight);
         }
@@ -159,7 +208,8 @@ namespace Model {
 
         addNode(tile4);
 
-        const auto tile5 = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        const auto tile5 = make_shared<SnakeMeshNode3D>(contextState, createTileNode(), resourceManager, collisionSystem);
+        tile5->setBodySegment(true);
         if (directionalLight) {
             tile5->setDirectionalLight(directionalLight);
         }
@@ -183,11 +233,33 @@ namespace Model {
         addNode(tile5);
     }
 
+    void SnakeMeshNode3D::crash() {
+        if (timerUniform2->isRunning()) {
+            return;
+        }
+
+        this->setDirection(NONE);
+        copyExplosionSourceMaterial(crashMaterial, mesh->getMaterial());
+        mesh->setMaterial(crashMaterial);
+        collisionShapes.begin()->get()->setVisible(false);
+
+        for (auto &child: children) {
+            if (const auto tile = dynamic_pointer_cast<SnakeMeshNode3D>(child)) {
+                tile->crash();
+                tile->getCollisionShapes().at(0).get()->setVisible(false);
+            }
+        }
+
+        timerUniform2->start();
+    }
+
     void SnakeMeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
         directionalLight = directional_light;
         if (resourceManager) {
             tileMaterial->setDirectionalLight(directional_light);
             respawnMaterial->setDirectionalLight(directionalLight);
+            headRespawnMaterial->setDirectionalLight(directionalLight);
+            crashMaterial->setDirectionalLight(directionalLight);
         }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setDirectionalLight(directional_light);
@@ -199,6 +271,8 @@ namespace Model {
         if (resourceManager) {
             tileMaterial->setSpotLights(spotLights);
             respawnMaterial->setSpotLights(spotLights);
+            headRespawnMaterial->setSpotLights(spotLights);
+            crashMaterial->setSpotLights(spotLights);
         }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setSpotLights(spot_light);
@@ -210,6 +284,8 @@ namespace Model {
         if (resourceManager) {
             tileMaterial->setPointLights(point_light);
             respawnMaterial->setPointLights(point_light);
+            headRespawnMaterial->setPointLights(point_light);
+            crashMaterial->setPointLights(point_light);
         }
         for (auto &child: children) {
             reinterpret_pointer_cast<SnakeMeshNode3D>(child)->setPointLights(point_light);
@@ -220,9 +296,13 @@ namespace Model {
         this->direction = direction;
     }
 
+    void SnakeMeshNode3D::setBodySegment(const bool bodySegment) {
+        this->bodySegment = bodySegment;
+    }
+
     shared_ptr<SphereMesh> SnakeMeshNode3D::createTileNode() const {
         const auto sphere = make_shared<SphereMesh>(nullptr, 1.5, 0.75);
-        sphere->setMaterial(respawned ? tileMaterial : respawnMaterial);
+        sphere->setMaterial(timerUniform->isRunning() == false ? tileMaterial : respawnMaterial);
 
         return sphere;
     }
@@ -267,6 +347,7 @@ namespace Model {
         }
 
         const auto tile = make_shared<SnakeMeshNode3D>(contextState, sphere, resourceManager, collisionSystem);
+        tile->setBodySegment(true);
         if (directionalLight) {
             tile->setDirectionalLight(directionalLight);
         }
@@ -293,7 +374,16 @@ namespace Model {
 
     void SnakeMeshNode3D::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
         const glm::mat4 &parentTransform, const bool shadows) {
-        if (timerUniform->getElapsed() > 0.5f) {
+        if (timerUniform2->isRunning() && timerUniform2->getElapsed() > 0.5f) {
+            timerUniform2->stop();
+            if (!bodySegment) {
+                respawn();
+            } else {
+                setVisible(false);
+            }
+        }
+
+        if (timerUniform->isRunning() && timerUniform->getElapsed() > 0.5f) {
             timerUniform->stop();
             mesh->setMaterial(headMaterial);
             for (auto &child: children) {
@@ -318,7 +408,7 @@ namespace Model {
     }
 
     bool SnakeMeshNode3D::isReady() const {
-        return respawned;
+        return mesh->getMaterial() == headMaterial && timerUniform->isRunning() == false;
     }
 
     void SnakeMeshNode3D::setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape) {

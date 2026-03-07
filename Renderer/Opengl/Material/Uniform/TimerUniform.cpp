@@ -6,10 +6,8 @@ namespace Uniform {
     }
 
     void TimerUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
-        if (timer->isRunning()) {
-            shader->setUniform(name, static_cast<float>(timer->getElapsedTime()));
-        }
         timer->update();
+        shader->setUniform(name, static_cast<float>(timer->getElapsedTime()));
     }
 
     shared_ptr<IUniform> TimerUniform::clone() const {
@@ -25,6 +23,14 @@ namespace Uniform {
 
     void TimerUniform::start() const {
         timer->start();
+    }
+
+    void TimerUniform::reset() const {
+        timer->reset();
+    }
+
+    bool TimerUniform::isRunning() const {
+        return timer->isRunning();
     }
 
     double TimerUniform::getElapsed() const {

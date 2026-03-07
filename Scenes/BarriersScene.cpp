@@ -48,7 +48,7 @@ namespace Scenes {
         const auto boxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
         boxNode3D->setPosition(glm::vec3{-25.0, -25.0, -23.0});
         boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
-        boxNode3D->setName("Perimeter 1");
+        boxNode3D->setName("PerimeterBottom 1");
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         shape->setCollisionLayer(WORLD);
@@ -59,12 +59,12 @@ namespace Scenes {
         for (int x = 2; x <= 98; x += 2) {
             const auto boxNode3D_2 = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);
             boxNode3D_2->setPosition(glm::vec3{x, 0.0, 0.0});
-            boxNode3D_2->setName("Perimeter " + std::to_string(x));
+            boxNode3D_2->setName("PerimeterBottom " + std::to_string(x));
             const auto boxShapeX = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
             const auto shapeX = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeX);
             shapeX->setCollisionLayer(WORLD);
             shapeX->setCollisionMask(PLAYER);
-            shapeX->setName("Perimeter shape " + std::to_string(x));
+            shapeX->setName("Perimeter shape bottom " + std::to_string(x));
             boxNode3D_2->addNode(shapeX);
             boxNode3D->addNode(boxNode3D_2);
         }

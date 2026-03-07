@@ -29,12 +29,6 @@ namespace Scenes {
 
     void CoinScene::update() {
         Scene::update();
-
-        // for (const auto &shapeNode: coin->getCollisionShapes()) {
-        //     for (const auto &body : shapeNode->getCollidingBodies()) {
-        //         cout << "Mince narazila do objektu: " << body->getName() << endl;
-        //     }
-        // }
     }
 
     void CoinScene::initCoin() {

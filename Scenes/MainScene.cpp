@@ -59,6 +59,7 @@ namespace Scenes {
 
         buildStartMoveCallback();
         buildEatenUpCallback();
+        buildCrashCallback();
 
         if (manipulatorHandler != nullptr) {
             manipulatorHandler->getLightsHandler()->addItem(directionalLight);
@@ -418,7 +419,9 @@ namespace Scenes {
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
                 this->eatManager->run(EatManager::firstPlace);
-                fadeOutUniform->start();
+                if (fadeOutUniform->getAlpha() != 0.0f) {
+                    fadeOutUniform->start();
+                }
                 char buff[100];
                 snprintf(buff, sizeof(buff),
                          "%s %d, %s %d, %s %d",
@@ -432,7 +435,9 @@ namespace Scenes {
                 const std::string buffAsStdStr = buff;
                 tilesCounterNode->setVisible(true);
                 tilesCounterText->setText(buffAsStdStr);
-                fadeInUniform->start();
+                if (fadeInUniform->getAlpha() != 1.0f) {
+                    fadeInUniform->start();
+                }
                 radarMeshNode->showItem("coin");
                 coinScene->getCoin()->animationStart("coinRotation");
                 playerScene->getSnake()->animationStart("KostraAction", true);
@@ -443,7 +448,8 @@ namespace Scenes {
     void MainScene::buildCrashCallback() {
         snakeMoveHandler->setCrashCallback([this]() {
             if (this->levelManager) {
-                playerScene->getSnake()->respawn();
+                this->eatManager->run(EatManager::clean);
+                playerScene->getSnake()->crash();
                 this->levelManager->setLive(this->levelManager->getLive() - 1);
                 this->levelManager->setEatCounter(0);
                 char buff[100];
@@ -459,11 +465,14 @@ namespace Scenes {
                 const std::string buffAsStdStr = buff;
                 tilesCounterText->setText(buffAsStdStr);
                 coinScene->getCoin()->setVisible(false);
+                coinScene->getCoin()->animationStop("coinRotation");
+                playerScene->getSnake()->animationStop("KostraAction");
+                radarMeshNode->hideItem("coin");
                 if (this->levelManager->getLive() == 0) {
                     // Game Over
-                    this->levelManager->createLevel(1, directionalLight, spotLights, pointLights);
-                    fadeOutUniform->setAlpha(1.0f);
-                    this->levelManager->setLive(3);
+                    // this->levelManager->createLevel(1, directionalLight, spotLights, pointLights);
+                    // fadeOutUniform->setAlpha(1.0f);
+                    // this->levelManager->setLive(3);
                     cout << "crash callback call" << endl;
                 }
             }

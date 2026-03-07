@@ -201,6 +201,10 @@ glm::vec3 Material::StandardMaterial::getColor() const {
     return *color.get();
 }
 
+bool Material::StandardMaterial::hasColor() const {
+    return color != nullptr;
+}
+
 void Material::StandardMaterial::setColor(const glm::vec3 &color) {
     this->color = make_shared<glm::vec3>(color);
 }

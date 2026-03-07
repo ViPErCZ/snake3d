@@ -53,6 +53,8 @@ namespace Material {
 
         [[nodiscard]] glm::vec3 getColor() const;
 
+        [[nodiscard]] bool hasColor() const;
+
         void setColor(const glm::vec3 &color);
 
         [[nodiscard]] bool isShadowEnabled() const;

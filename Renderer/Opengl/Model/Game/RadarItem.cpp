@@ -17,7 +17,7 @@ namespace Model {
 
     void RadarItem::update() {
         // update position
-        radarItem->setPosition(glm::vec3(-110 + 15 + (mesh->x - 16) / 32 * 4, 110 - 15 - (mesh->y - 16) / 32 * 4, 0));
+        radarItem->setPosition(glm::vec3(-110 + 15 + (mesh->x - 16) / 32 * 4, 110 - 15 - (mesh->y - 14) / 32 * 4, 0));
 
         if (mesh->hasChildrenChangedSignal()) {
             changedSize = true;

@@ -38,6 +38,7 @@ namespace Handler {
         double moveAccumulator{};
         double moveInterval = 0.1;
         bool stop;
+        bool crashLock = false;
         bool eatenUpCallbackCalled;
         std::function<bool(shared_ptr<SnakeMeshNode3D>)> changeCallback;
         vector<std::function<void()>> startMoveCallbacks;
