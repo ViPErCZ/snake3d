@@ -2,8 +2,6 @@
 
 #include <ranges>
 
-#include "../Collision/CollisionShape3D.h"
-
 namespace Model {
     RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<QuadNode2D> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager)
@@ -51,6 +49,9 @@ namespace Model {
                 // create new radar items for a new snake tile
                 int index = 0;
                 for (const auto& child: snd->getChildren()) {
+                    if (child->isCollisionShapeNode()) {
+                        continue;
+                    }
                     addItem(child, snd->getColor(), snd->getName() + "-" + std::to_string(index++));
                 }
             }
@@ -65,7 +66,7 @@ namespace Model {
         int index = 0;
 
         for (const auto &child: item->getChildren()) {
-            if (dynamic_pointer_cast<CollisionShape::CollisionShape3D>(child)) {
+            if (child->isCollisionShapeNode()) {
                 continue;
             }
             const std::string itemName = name + "-" + std::to_string(index++);

@@ -36,6 +36,8 @@ namespace Physic {
 
         void setColliding(const bool colliding) { this->colliding = colliding; }
         [[nodiscard]] bool isColliding() const { return colliding; }
+        void setCollisionEnabled(const bool enabled) { collisionEnabled = enabled; }
+        [[nodiscard]] bool isCollisionEnabled() const { return collisionEnabled; }
 
         // Model:: is required !!!
         [[nodiscard]] const shared_ptr<Model::MeshNode3D> &getMeshNode() const { return meshNode; }
@@ -78,6 +80,7 @@ namespace Physic {
         shared_ptr<Model::MeshNode3D> meshNode; // Model:: is required !!!
     private:
         bool colliding = false;
+        bool collisionEnabled = true;
     };
 } // Physic
 

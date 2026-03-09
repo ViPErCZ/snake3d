@@ -1,6 +1,7 @@
 #include "LevelManager.h"
 #include <fstream>
 
+#include "../Physic/BoxShape.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Tools//Layers.h"
@@ -67,6 +68,7 @@ namespace Manager {
         boxNode3D->setPosition({0.0, 0.0, -23.0});
         boxNode3D->setScale({0.041666667f, 0.041666667f, 0.041666667f});
         boxNode3D->setTransformDetached(true);
+        resolveBoxShape(boxNode3D);
 
         this->level = level;
         this->eatCounter = 0;
@@ -90,6 +92,7 @@ namespace Manager {
                             boxNode3D->x = (x+1) * 32;
                             boxNode3D->y = (y+1) * 32;
                             isFirst = false;
+                            x++;
                             continue;
                         }
                         const auto childBoxNode3D = make_shared<MeshNode3D>(contextState, boxMesh, resourceManager);

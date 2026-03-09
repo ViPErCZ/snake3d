@@ -1,4 +1,6 @@
 #include "BarriersScene.h"
+
+#include "../Physic/BoxShape.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Tools/Layers.h"
 

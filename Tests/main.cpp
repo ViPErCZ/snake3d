@@ -1,10 +1,15 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
+#include <fstream>
 #include "../Physic/Algorithms/CollisionAlgorithms.h"
 #include "../Physic/BoxShape.h"
 #include "../Physic/SphereShape.h"
 #include "../Physic/CapsuleShape.h"
 #include "../Physic/CylinderShape.h"
+#include "../Manager/LevelManager.h"
+#include "../Handler/EatLocationHandler.h"
+#include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
 
 using namespace Physic;
 
@@ -284,5 +289,56 @@ TEST_CASE("Collision Layers and Masks Filtering") {
 
         CHECK(CollisionShape3D::shouldCollide(colA->getCollisionLayer(), colA->getCollisionMask(),
                                               colB->getCollisionLayer(), colB->getCollisionMask()));
+    }
+}
+
+TEST_CASE("Eat spawn does not allow level 3 middle walls") {
+    shared_ptr<DirectionalLight> directionalLight = nullptr;
+    vector<shared_ptr<SpotLight>> spotLights;
+    vector<shared_ptr<PointLight>> pointLights;
+
+    Manager::LevelManager levelManager(nullptr, 1, MAX_LIVES, nullptr);
+    const auto barriers = levelManager.createLevel(START_LEVEL, directionalLight, spotLights, pointLights);
+
+    REQUIRE(barriers != nullptr);
+
+    auto snake = make_shared<SnakeMeshNode3D>(nullptr, nullptr, nullptr);
+    snake->x = -100000;
+    snake->y = -100000;
+
+    auto coin = make_shared<CoinMeshNode3D>(nullptr, nullptr, nullptr, nullptr);
+    Handler::EatLocationHandler handler(barriers, snake, coin);
+
+    ifstream infile("Assets/Levels/level3.txt");
+    REQUIRE(infile.is_open());
+
+    vector<pair<int, int>> blockedCells;
+    vector<pair<int, int>> freeCells;
+    string line;
+    int y = 0;
+    while (getline(infile, line)) {
+        for (int x = 0; x < static_cast<int>(line.size()); ++x) {
+            if (line[x] == '1') {
+                blockedCells.emplace_back(x, y);
+            } else if (line[x] == '0') {
+                freeCells.emplace_back(x, y);
+            }
+        }
+        y++;
+    }
+
+    REQUIRE_FALSE(blockedCells.empty());
+    REQUIRE_FALSE(freeCells.empty());
+
+    for (const auto &[x, yPos] : blockedCells) {
+        CHECK_FALSE(handler.isFieldEmpty(x, yPos));
+    }
+
+    int checkedFree = 0;
+    for (const auto &[x, yPos] : freeCells) {
+        CHECK(handler.isFieldEmpty(x, yPos));
+        if (++checkedFree >= 10) {
+            break;
+        }
     }
 }

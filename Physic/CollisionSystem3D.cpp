@@ -39,16 +39,25 @@ namespace Physic {
 
         for (size_t i = 0; i < flatEntries.size(); ++i) {
             auto &entry = flatEntries[i];
+            const auto &shape = entry.shapeNode->getShape();
 
-            entry.shapeNode->getShape()->setColliding(false);
+            shape->setColliding(false);
             entry.shapeNode->clearCollisions();
+            if (!shape->isCollisionEnabled()) {
+                continue;
+            }
 
             const glm::mat4 worldMatrix = entry.parentObject->getWorldMatrix() * entry.shapeNode->getModelMatrix();
-            worldAABBs[i] = entry.shapeNode->getShape()->calculateAABB(worldMatrix);
+            worldAABBs[i] = shape->calculateAABB(worldMatrix);
         }
 
         for (size_t i = 0; i < flatEntries.size(); i++) {
             for (size_t j = i + 1; j < flatEntries.size(); j++) {
+                if (!flatEntries[i].shapeNode->getShape()->isCollisionEnabled() ||
+                    !flatEntries[j].shapeNode->getShape()->isCollisionEnabled()) {
+                    continue;
+                }
+
                 if (flatEntries[i].parentObject == flatEntries[j].parentObject) {
                     continue;
                 }

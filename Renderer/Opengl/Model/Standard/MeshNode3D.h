@@ -70,6 +70,8 @@ namespace Model {
 
         string getAnimation() { return animation; }
 
+        [[nodiscard]] virtual bool isCollisionShapeNode() const { return false; }
+
         virtual void computeWorldMatrix(const glm::mat4 &parentTransform);
 
         [[nodiscard]] const glm::mat4 &getWorldMatrix() const { return worldMatrixCache; };

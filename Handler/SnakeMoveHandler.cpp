@@ -198,10 +198,10 @@ namespace Handler {
                 } else { // check death
                     for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
                         for (const auto &body : shapeNode->getCollidingBodies()) {
-                            if (isDebug) {
-                                cout << "Had narazil do objektu: " << body->getName() << endl;
-                            }
                             if (body->getName() != "coin" && !crashLock && crashCallback) {
+                                if (isDebug) {
+                                    cout << "Had narazil do objektu: " << body->getName() << endl;
+                                }
                                 crashLock = true;
                                 crashCallback();
                                 return;

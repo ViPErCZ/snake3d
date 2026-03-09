@@ -1,6 +1,7 @@
 #include "MainScene.h"
 
 #include <glm/gtc/random.hpp>
+#include <iostream>
 
 #include "PlayerScene.h"
 #include "TorchScene.h"
@@ -32,6 +33,7 @@ namespace Scenes {
 
     void MainScene::init(const int priority) {
         Scene::init(priority);
+        initSounds();
 
         if constexpr (isDebug) {
             manipulatorHandler = make_shared<ManipulatorHandler>(contextState, resourceManager, camera);
@@ -102,6 +104,13 @@ namespace Scenes {
                 rendererManager->toggleFog();
                 break;
             case GLFW_KEY_M:
+                if (soundManager->isPlaying("music")) {
+                    soundManager->pause("music");
+                } else {
+                    soundManager->play("music", {{AL_LOOPING, AL_TRUE}});
+                }
+                break;
+            case GLFW_KEY_N:
                 if (playerScene) {
                     playerScene->getSnake()->respawn();
                 }
@@ -123,6 +132,16 @@ namespace Scenes {
             default:
                 break;
         }
+    }
+
+    void MainScene::initSounds() const {
+        const bool musicLoaded = soundManager->addSoundFromFile("music", "Assets/Sounds/snake.wav", true);
+        const bool coinLoaded = soundManager->addSoundFromFile("coin", "Assets/Sounds/coin.wav");
+        if (!musicLoaded || !coinLoaded) {
+            std::cerr << "Sound loading error in MainScene." << std::endl;
+            return;
+        }
+        soundManager->play("music", {{AL_LOOPING, AL_TRUE}});
     }
 
     void MainScene::initLights() {
@@ -376,11 +395,7 @@ namespace Scenes {
     void MainScene::buildEatenUpCallback() const {
         snakeMoveHandler->setEatenUpCallback([this]() {
             if (this->levelManager) {
-                // alSourcePlay (coinSource);
-                //
-                // if (const ALCenum error = alGetError(); error != AL_NO_ERROR) {
-                //     cout << "Sound error" << endl;
-                // }
+                soundManager->play("coin");
 
                 coinScene->getRemoveCoin()->setTransform(coinScene->getCoin());
                 coinScene->getRemoveCoin()->setVisible(true);

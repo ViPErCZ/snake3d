@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "App.h"
 #include <iostream>
-#include <AL/alut.h>
 
 using namespace std;
 
@@ -47,7 +46,6 @@ int main(int argc, char *argv[]) {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     glewInit();
-    alutInit (&argc, argv);
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
@@ -83,7 +81,7 @@ int main(int argc, char *argv[]) {
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    alutExit();
+    app.reset();
 
     return 0;
 }

@@ -3,11 +3,10 @@
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
-#define START_LEVEL 2
+#define START_LEVEL 3
 
 #include <memory>
 
-#include "../Physic/BoxShape.h"
 #include "../Physic/CollisionSystem3D.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 

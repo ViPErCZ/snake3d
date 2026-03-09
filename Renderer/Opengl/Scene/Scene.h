@@ -8,6 +8,7 @@
 #include "../../../Manager/KeyboardManager.h"
 #include "../../../Manager/RenderManager.h"
 #include "../../../Manager/ResourceManager.h"
+#include "../../../Manager/SoundManager.h"
 #include "../../../Physic/CollisionSystem3D.h"
 #include "../../../Tools/BuildSettings.h"
 
@@ -55,6 +56,8 @@ namespace Scenes {
 
         void setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler);
 
+        SoundManager &getSoundManager() const;
+
     protected:
         vector<RendererEntry3D> meshNode3d;
         vector<RendererEntry2D> meshNode2d;
@@ -70,6 +73,7 @@ namespace Scenes {
         shared_ptr<ContextState> contextState;
         shared_ptr<ManipulatorHandler> manipulatorHandler;
         shared_ptr<CollisionSystem3D> collisionSystem;
+        unique_ptr<SoundManager> soundManager;
         glm::mat4 projection;
         vector<shared_ptr<Scene>> nodes;
         weak_ptr<Scene> parent;

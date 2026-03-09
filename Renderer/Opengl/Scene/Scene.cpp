@@ -25,6 +25,10 @@ namespace Scenes {
         this->pointLights = pointLights;
 
         keyboardManager = make_unique<KeyboardManager>();
+        soundManager = make_unique<SoundManager>();
+        if (!soundManager->initialize()) {
+            std::cout << "Sound system init failed." << std::endl;
+        }
         sceneRenderer = make_shared<SceneRenderer>(camera, projection, width, height);
         contextState = rendererManager->getContextState();
     }
@@ -110,5 +114,9 @@ namespace Scenes {
 
     void Scene::setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler) {
         this->manipulatorHandler = manipulatorHandler;
+    }
+
+    SoundManager &Scene::getSoundManager() const {
+        return *soundManager;
     }
 } // Scene

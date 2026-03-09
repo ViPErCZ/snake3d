@@ -1,5 +1,4 @@
-#include <AL/alc.h>
-#include <AL/alut.h>
+#include <nlohmann/json.hpp>
 #include "App.h"
 #include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
@@ -32,13 +31,6 @@ App::App(const shared_ptr<Camera> &camera, const int width, const int height) : 
         rendererManager, camera, projection, resourceManager, width, height
     );
     //mainScene->setEnvironment(environment);
-}
-
-App::~App() {
-    alDeleteSources(1, &musicSource);
-    alDeleteSources(1, &coinSource);
-    alDeleteBuffers(1, &musicBuffer);
-    alDeleteBuffers(1, &coinBuffer);
 }
 
 void App::initScene() {
@@ -86,20 +78,6 @@ void App::initScene() {
     // coinMaterial->setNormalEnabled(true);
     // boxMaterial->setNormalEnabled(true);
 
-    musicBuffer = alutCreateBufferFromFile("Assets/Sounds/snake.wav");
-    coinBuffer = alutCreateBufferFromFile("Assets/Sounds/coin.wav");
-    alGenSources(1, &musicSource);
-    alGenSources(1, &coinSource);
-    alSourcei(musicSource, AL_BUFFER, static_cast<ALint>(musicBuffer));
-    alSourcei(coinSource, AL_BUFFER, static_cast<ALint>(coinBuffer));
-    alSourcei(musicSource, AL_LOOPING, true);
-    //alSourcePlay (musicSource);
-    ALCenum error;
-
-    error = alGetError();
-    if (error != AL_NO_ERROR) {
-        cout << "Sound error" << endl;
-    }
 }
 
 void App::Init() {
@@ -265,17 +243,6 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
     //keyboardManager->onKeyPress(keyCode, scancode, action, mods);
 
     switch (keyCode) {
-        case GLFW_KEY_M:
-            // TODO: sound
-            // ALint source_state;
-            // alGetSourcei(musicSource, AL_SOURCE_STATE, &source_state);
-            //
-            // if (source_state == AL_PLAYING) {
-            //     alSourceStop(musicSource);
-            // } else {
-            //     alSourcePlay(musicSource);
-            // }
-            break;
         case GLFW_KEY_ESCAPE:
             if (state == SceneState::RUNNING) {
                 glfwSetWindowShouldClose(window, true);

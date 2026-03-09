@@ -9,14 +9,8 @@
 #include "Manager/Camera.h"
 #include "Renderer/Opengl/RainDropRenderer.h"
 #include "Renderer/Opengl/BoltRenderer.h"
-#include <AL/al.h>
-#include <nlohmann/json.hpp>
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
-
-#define MAX_POINT 6
-#define MAX_LIVES 4
-#define START_LEVEL 2
 
 namespace fs = std::filesystem;
 using namespace ItemsDto;
@@ -34,7 +28,7 @@ class App {
     };
 public:
     App(const shared_ptr<Camera> &camera, int width, int height);
-    ~App();
+
     void Init();
     void run();
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
@@ -62,8 +56,6 @@ private:
     glm::mat4 projection{};
     int width;
     int height;
-    ALuint musicSource{}, coinSource{};
-    ALuint coinBuffer{}, musicBuffer{};
     SceneState state = SceneState::LOADING;
     std::atomic<bool> scanning = false;
     shared_ptr<MainScene> mainScene;

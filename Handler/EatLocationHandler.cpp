@@ -1,5 +1,6 @@
 #include "EatLocationHandler.h"
 #include <random>
+#include <cmath>
 
 namespace Handler {
     EatLocationHandler::EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
@@ -32,6 +33,14 @@ namespace Handler {
     bool EatLocationHandler::isFieldEmpty(const int x, const int y) const {
         const int posX = x * 32;
         const int posY = y * 32;
+        const float worldX = -25.0f + (static_cast<float>(x + 1) * 2.0f);
+        const float worldY = -25.0f + (static_cast<float>(y + 1) * 2.0f);
+
+        const auto isSameFieldAsWorldPos = [worldX, worldY](const shared_ptr<MeshNode3D> &node) {
+            constexpr float eps = 0.0001f;
+            const auto nodePos = node->getPosition();
+            return std::abs(nodePos.x - worldX) < eps && std::abs(nodePos.y - worldY) < eps;
+        };
 
         if (snake->x - 16 + 32 >= posX && snake->x - 16 <= posX
             && snake->y - 16 + 32 >= posY && snake->y - 16 <= posY) {
@@ -45,12 +54,18 @@ namespace Handler {
             }
         }
 
-        if (barriers->x == posX && barriers->y == posY) {
+        if (isSameFieldAsWorldPos(barriers)) {
+            return false;
+        }
+        if (barriers->x == posX + 32 && barriers->y == posY + 32) {
             return false;
         }
 
         for (auto Iter = barriers->getChildren().begin(); Iter < barriers->getChildren().end(); ++Iter) {
-            if ((*Iter)->x == posX && (*Iter)->y == posY) {
+            if (isSameFieldAsWorldPos(*Iter)) {
+                return false;
+            }
+            if ((*Iter)->x == posX + 32 && (*Iter)->y == posY + 32) {
                 return false;
             }
         }

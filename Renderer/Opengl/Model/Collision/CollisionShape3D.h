@@ -18,6 +18,8 @@ namespace CollisionShape {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
+        [[nodiscard]] bool isCollisionShapeNode() const override { return true; }
+
         shared_ptr<Shape> getShape() const { return shape; }
 
         shared_ptr<StandardMesh> getMesh() const override;

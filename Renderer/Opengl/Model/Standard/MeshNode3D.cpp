@@ -43,7 +43,11 @@ namespace Model {
             }
 
             for (auto &node: children) {
-                node->render(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform, shadows);
+                const bool isCollisionShapeNode = node->isCollisionShapeNode();
+                const glm::mat4 childParentTransform = (transformDetached && !isCollisionShapeNode)
+                                                           ? glm::mat4(1.0f)
+                                                           : finalTransform;
+                node->render(camera, projection, dt, childParentTransform, shadows);
             }
         } else if (transformDetached) {
             for (auto &node: children) {
@@ -81,7 +85,11 @@ namespace Model {
                 mesh->renderShadowMap(camera, projection, dt, finalTransform);
             }
             for (const auto &node: children) {
-                node->renderShadows(camera, projection, dt, transformDetached ? glm::mat4(1.0f) : finalTransform);
+                const bool isCollisionShapeNode = node->isCollisionShapeNode();
+                const glm::mat4 childParentTransform = (transformDetached && !isCollisionShapeNode)
+                                                           ? glm::mat4(1.0f)
+                                                           : finalTransform;
+                node->renderShadows(camera, projection, dt, childParentTransform);
             }
         } else if (transformDetached) {
             for (auto &node: children) {
@@ -156,22 +164,12 @@ namespace Model {
     void MeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {
         worldMatrixCache = parentTransform * this->getModelMatrix();
 
-        // if (name == "Snake head") {
-        //     std::cout << "Compute Matrix snake head: " << name << std::endl;
-        //     worldMatrixCache = parentTransform * this->getModelMatrix();
-        //     for (int i = 0; i < 4; i++) {
-        //         std::cout << "  ";
-        //         for (int j = 0; j < 4; j++) {
-        //             // m[j][i] vypíše matici řádek po řádku, jak jsme zvyklí z matematiky
-        //             std::cout << std::setw(10) << std::fixed << std::setprecision(4) << worldMatrixCache[j][i] << " ";
-        //         }
-        //         std::cout << std::endl;
-        //     }
-        //     std::cout << "------------------------------------------" << std::endl;
-        // }
-
         for (auto &node: children) {
-            node->computeWorldMatrix(transformDetached ? glm::mat4(1.0f) : worldMatrixCache);
+            const bool isCollisionShapeNode = node->isCollisionShapeNode();
+            const glm::mat4 childParentTransform = (transformDetached && !isCollisionShapeNode)
+                                                       ? glm::mat4(1.0f)
+                                                       : worldMatrixCache;
+            node->computeWorldMatrix(childParentTransform);
         }
     }
 

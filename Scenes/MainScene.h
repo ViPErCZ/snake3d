@@ -38,6 +38,8 @@ namespace Scenes {
         void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const override;
 
     private:
+        void initSounds() const;
+
         void initLights();
 
         void initPlayerScene();
