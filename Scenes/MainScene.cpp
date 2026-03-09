@@ -275,7 +275,7 @@ namespace Scenes {
         playerScene->setManipulatorHandler(manipulatorHandler);
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
-        addNode(playerScene);
+        addNode("player", playerScene);
     }
 
     void MainScene::initBarriersScene() {
@@ -284,7 +284,7 @@ namespace Scenes {
         barriersScene->setManipulatorHandler(manipulatorHandler);
         barriersScene->init(3);
         levelManager = barriersScene->getLevelManager();
-        addNode(barriersScene);
+        addNode("barriers", barriersScene);
     }
 
     void MainScene::initCoinScene() {
@@ -292,7 +292,7 @@ namespace Scenes {
         coinScene->setCollisionSystem(collisionSystem);
         coinScene->setManipulatorHandler(manipulatorHandler);
         coinScene->init(4);
-        addNode(coinScene);
+        addNode("coin", coinScene);
     }
 
     void MainScene::initTorchScene() {
@@ -300,13 +300,13 @@ namespace Scenes {
         torchScene->setCollisionSystem(collisionSystem);
         torchScene->setManipulatorHandler(manipulatorHandler);
         torchScene->init(1);
-        addNode(torchScene);
+        addNode("torch", torchScene);
     }
 
     void MainScene::initWeatherScene() {
         const auto weatherScene = make_shared<WeatherScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         weatherScene->init(0);
-        addNode(weatherScene);
+        addNode("weather", weatherScene);
     }
 
     void MainScene::initEatManager() {

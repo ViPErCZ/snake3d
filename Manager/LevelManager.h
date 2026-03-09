@@ -3,7 +3,7 @@
 
 #define MAX_POINT 6
 #define MAX_LIVES 4
-#define START_LEVEL 3
+#define START_LEVEL 5
 
 #include <memory>
 

@@ -2,6 +2,8 @@
 #define SNAKE3_SCENE_H
 
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 #include "SceneRenderer.h"
 #include "../../../Handler/Debug/ManipulatorHandler.h"
@@ -19,7 +21,7 @@ using namespace Handler::Debug;
 using namespace Build;
 
 namespace Scenes {
-    class Scene : public enable_shared_from_this<Scene> {
+    class Scene : public enable_shared_from_this<Scene>, public Named {
     public:
         virtual ~Scene();
 
@@ -40,6 +42,11 @@ namespace Scenes {
         virtual void render();
 
         void addNode(const std::shared_ptr<Scene>& node);
+        void addNode(const std::string &name, const std::shared_ptr<Scene> &node);
+        [[nodiscard]] bool hasNode(const std::string &name) const;
+        [[nodiscard]] shared_ptr<Scene> getNode(const std::string &name) const;
+        bool removeNode(const std::string &name);
+        bool replaceNode(const std::string &name, const std::shared_ptr<Scene> &node);
 
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
@@ -75,7 +82,7 @@ namespace Scenes {
         shared_ptr<CollisionSystem3D> collisionSystem;
         unique_ptr<SoundManager> soundManager;
         glm::mat4 projection;
-        vector<shared_ptr<Scene>> nodes;
+        unordered_map<string, shared_ptr<Scene>> nodes;
         weak_ptr<Scene> parent;
         int depth = 0;
         int width;

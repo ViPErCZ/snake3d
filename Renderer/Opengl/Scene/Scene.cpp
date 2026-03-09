@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <algorithm>
 
 namespace Scenes {
     Scene::Scene(
@@ -46,7 +47,7 @@ namespace Scenes {
         keyboardManager->runDefault();
         sceneRenderer->update(meshNode3d, meshNode2d);
         for (const auto &node: nodes) {
-            node->update();
+            node.second->update();
         }
 
         for (auto &node3D : meshNode3d) {
@@ -71,19 +72,68 @@ namespace Scenes {
     }
 
     void Scene::addNode(const std::shared_ptr<Scene> &node) {
+        const string name = node->getName();
+        if (nodes.contains(name)) {
+            throw std::runtime_error("Scene node with name '" + name + "' already exists.");
+        }
+        addNode(name, node);
+    }
+
+    void Scene::addNode(const std::string &name, const std::shared_ptr<Scene> &node) {
+        if (nodes.contains(name)) {
+            throw std::runtime_error("Scene node with name '" + name + "' already exists.");
+        }
+
         node->parent = shared_from_this();
         node->depth = this->depth + 1;
         if (this->depth > 10) {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 10");
         }
-        nodes.push_back(node);
+        nodes[name] = node;
+    }
+
+    bool Scene::hasNode(const std::string &name) const {
+        return nodes.contains(name);
+    }
+
+    shared_ptr<Scene> Scene::getNode(const std::string &name) const {
+        const auto it = nodes.find(name);
+        if (it == nodes.end()) {
+            return nullptr;
+        }
+        return it->second;
+    }
+
+    bool Scene::removeNode(const std::string &name) {
+        const auto erased = nodes.erase(name);
+        if (erased == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool Scene::replaceNode(const std::string &name, const std::shared_ptr<Scene> &node) {
+        const auto it = nodes.find(name);
+        if (it == nodes.end()) {
+            return false;
+        }
+
+        node->parent = shared_from_this();
+        node->depth = this->depth + 1;
+        if (this->depth > 10) {
+            throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 10");
+        }
+
+        it->second = node;
+        return true;
     }
 
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,
                               const int mods) const {
         keyboardManager->onKeyPress(keyCode, scancode, action, mods, deltaTime);
         for (const auto &node: nodes) {
-            node->keyboardInput(window, keyCode, scancode, action, mods);
+            node.second->keyboardInput(window, keyCode, scancode, action, mods);
         }
     }
 
@@ -102,7 +152,7 @@ namespace Scenes {
     vector<RendererEntry3D> Scene::getAllMeshNodes3D() const {
         vector<RendererEntry3D> allNodes = meshNode3d;
         for (const auto &node : nodes) {
-            auto childNodes = node->getAllMeshNodes3D();
+            auto childNodes = node.second->getAllMeshNodes3D();
             allNodes.insert(allNodes.end(), childNodes.begin(), childNodes.end());
         }
         return allNodes;
