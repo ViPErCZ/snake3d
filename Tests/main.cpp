@@ -293,12 +293,14 @@ TEST_CASE("Collision Layers and Masks Filtering") {
 }
 
 TEST_CASE("Eat spawn does not allow level 3 middle walls") {
+    constexpr int testedLevel = 3;
+
     shared_ptr<DirectionalLight> directionalLight = nullptr;
     vector<shared_ptr<SpotLight>> spotLights;
     vector<shared_ptr<PointLight>> pointLights;
 
     Manager::LevelManager levelManager(nullptr, 1, MAX_LIVES, nullptr);
-    const auto barriers = levelManager.createLevel(START_LEVEL, directionalLight, spotLights, pointLights);
+    const auto barriers = levelManager.createLevel(testedLevel, directionalLight, spotLights, pointLights);
 
     REQUIRE(barriers != nullptr);
 
@@ -309,7 +311,7 @@ TEST_CASE("Eat spawn does not allow level 3 middle walls") {
     auto coin = make_shared<CoinMeshNode3D>(nullptr, nullptr, nullptr, nullptr);
     Handler::EatLocationHandler handler(barriers, snake, coin);
 
-    ifstream infile("Assets/Levels/level3.txt");
+    ifstream infile("Assets/Levels/level" + std::to_string(testedLevel) + ".txt");
     REQUIRE(infile.is_open());
 
     vector<pair<int, int>> blockedCells;
