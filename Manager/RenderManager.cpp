@@ -1,4 +1,5 @@
 #include "RenderManager.h"
+#include <algorithm>
 
 namespace Manager {
     RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
@@ -28,6 +29,8 @@ namespace Manager {
     }
 
     void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
+        renderer->setShadow(shadows);
+        renderer->setFog(fog);
         renderers.push_back({std::move(renderer), priority});
         ranges::stable_sort(renderers,
                             [](auto &a, auto &b) { return a.priority > b.priority; });
@@ -36,7 +39,24 @@ namespace Manager {
         }
     }
 
+    bool RenderManager::removeRenderer(const shared_ptr<BaseRenderer> &renderer) {
+        const auto before = renderers.size();
+        renderers.erase(
+            remove_if(renderers.begin(), renderers.end(),
+                      [&renderer](const RendererEntry &entry) { return entry.renderer == renderer; }),
+            renderers.end()
+        );
+        if (planarReflectionRenderer) {
+            planarReflectionRenderer->updateRenderers(renderers);
+        }
+        return renderers.size() != before;
+    }
+
     void RenderManager::render(const float dt) {
+        // Reset depth state in case a previous pass disabled depth writes/tests.
+        contextState->setDepthWrite(true);
+        contextState->setDepthTest(true);
+
         if (reflections && planarReflectionRenderer) {
             planarReflectionRenderer->render3D(dt, gFrameId);
         }

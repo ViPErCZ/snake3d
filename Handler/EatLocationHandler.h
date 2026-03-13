@@ -29,6 +29,10 @@ namespace Handler {
 
         [[nodiscard]] bool isFieldEmpty(int x, int y) const;
 
+        void clearBarriers();
+
+        void setBarriers(const shared_ptr<MeshNode3D> &barriers) { this->barriers = barriers; }
+
     protected:
         shared_ptr<MeshNode3D> barriers;
         shared_ptr<SnakeMeshNode3D> snake;

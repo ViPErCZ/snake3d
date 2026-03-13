@@ -73,6 +73,10 @@ namespace Handler {
         return true;
     }
 
+    void EatLocationHandler::clearBarriers() {
+        barriers = nullptr;
+    }
+
     void EatLocationHandler::onFirstPlaceHandler() const {
         while (true) {
             try {

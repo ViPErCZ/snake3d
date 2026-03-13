@@ -29,6 +29,8 @@ namespace Model {
 
         void showItem(const std::string &name) const;
 
+        void clearItems();
+
     private:
         map<std::string, shared_ptr<RadarItem> > items;
     };

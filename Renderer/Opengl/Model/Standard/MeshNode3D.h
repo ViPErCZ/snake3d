@@ -24,7 +24,7 @@ namespace Model {
         explicit MeshNode3D(const shared_ptr<ContextState> &contextState,
             const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
 
-        ~MeshNode3D() override = default;
+        ~MeshNode3D() override;
 
         [[nodiscard]] virtual shared_ptr<StandardMesh> getMesh() const;
 

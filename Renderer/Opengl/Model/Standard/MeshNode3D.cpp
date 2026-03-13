@@ -9,6 +9,13 @@ namespace Model {
           childrenChangedSignal(false), lastUpdatedFrame(0), worldMatrixCache(1.0f) {
     }
 
+    MeshNode3D::~MeshNode3D() {
+        children.clear();
+        collisionShapes.clear();
+        spotLights.clear();
+        pointLights.clear();
+    }
+
     shared_ptr<StandardMesh> MeshNode3D::getMesh() const {
         return mesh;
     }

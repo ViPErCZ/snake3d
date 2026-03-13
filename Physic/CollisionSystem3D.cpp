@@ -1,5 +1,6 @@
 #include "CollisionSystem3D.h"
 #include "CollisionCheck.h"
+#include <unordered_set>
 
 namespace Physic {
     void CollisionSystem3D::addCollider(const shared_ptr<MeshNode3D> &collider) {
@@ -22,9 +23,21 @@ namespace Physic {
     }
 
     void CollisionSystem3D::removeCollider(const std::shared_ptr<MeshNode3D> &collider) {
+        if (!collider) return;
+
+        std::unordered_set<const MeshNode3D*> nodes;
+        const auto collectNodes = [&nodes](const std::shared_ptr<MeshNode3D> &node, const auto &self) -> void {
+            if (!node) return;
+            nodes.insert(node.get());
+            for (const auto &child : node->getChildren()) {
+                self(child, self);
+            }
+        };
+        collectNodes(collider, collectNodes);
+
         std::erase_if(flatEntries,
-                      [&collider](const CollisionEntry &entry) {
-                          return entry.parentObject == collider;
+                      [&nodes](const CollisionEntry &entry) {
+                          return nodes.contains(entry.parentObject.get());
                       });
     }
 

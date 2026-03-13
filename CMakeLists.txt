@@ -136,6 +136,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Tools/ContextState.h
         Scenes/PreloaderScene.cpp
         Scenes/PreloaderScene.h
+        Scenes/Preloader2Scene.cpp
+        Scenes/Preloader2Scene.h
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
         Renderer/Opengl/Model/Standard/TringleMesh3D.cpp
@@ -382,6 +384,8 @@ set(APP_SOURCES
         Tools/ContextState.h
         Scenes/PreloaderScene.cpp
         Scenes/PreloaderScene.h
+        Scenes/Preloader2Scene.cpp
+        Scenes/Preloader2Scene.h
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
         Renderer/Opengl/Model/Standard/TringleMesh3D.cpp
@@ -572,6 +576,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Tools/ContextState.h
         Scenes/PreloaderScene.cpp
         Scenes/PreloaderScene.h
+        Scenes/Preloader2Scene.cpp
+        Scenes/Preloader2Scene.h
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/TringleNode2D.h
         Renderer/Opengl/Model/Standard/TringleMesh3D.cpp

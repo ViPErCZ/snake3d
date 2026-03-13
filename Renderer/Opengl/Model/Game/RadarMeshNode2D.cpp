@@ -96,4 +96,9 @@ namespace Model {
     void RadarMeshNode2D::showItem(const std::string &name) const {
         items.at(name)->getRadarItem()->setVisible(true);
     }
+
+    void RadarMeshNode2D::clearItems() {
+        items.clear();
+        children.clear();
+    }
 } // Model

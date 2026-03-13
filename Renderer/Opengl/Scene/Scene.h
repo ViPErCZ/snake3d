@@ -47,6 +47,9 @@ namespace Scenes {
         [[nodiscard]] shared_ptr<Scene> getNode(const std::string &name) const;
         bool removeNode(const std::string &name);
         bool replaceNode(const std::string &name, const std::shared_ptr<Scene> &node);
+        void attachRenderer();
+        void detachRenderer();
+        [[nodiscard]] bool isRendererAttached() const;
 
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
 
@@ -88,6 +91,8 @@ namespace Scenes {
         int width;
         int height;
         float deltaTime = 1;
+        int renderPriority = 0;
+        bool rendererAttached = false;
     };
 } // Scene
 

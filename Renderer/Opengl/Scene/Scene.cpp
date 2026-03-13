@@ -35,8 +35,7 @@ namespace Scenes {
     }
 
     void Scene::init(const int priority) {
-        rendererManager->addRenderer(sceneRenderer, priority);
-        rendererManager->updateDirectionalLight(directionalLight);
+        renderPriority = priority;
     }
 
     Scene::~Scene() {
@@ -90,6 +89,7 @@ namespace Scenes {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 10");
         }
         nodes[name] = node;
+        node->attachRenderer();
     }
 
     bool Scene::hasNode(const std::string &name) const {
@@ -105,11 +105,13 @@ namespace Scenes {
     }
 
     bool Scene::removeNode(const std::string &name) {
-        const auto erased = nodes.erase(name);
-        if (erased == 0) {
+        const auto it = nodes.find(name);
+        if (it == nodes.end()) {
             return false;
         }
 
+        it->second->detachRenderer();
+        nodes.erase(it);
         return true;
     }
 
@@ -125,8 +127,31 @@ namespace Scenes {
             throw std::runtime_error("Depth limit reached. Maximum nesting scene nodes is 10");
         }
 
+        it->second->detachRenderer();
         it->second = node;
+        node->attachRenderer();
         return true;
+    }
+
+    void Scene::attachRenderer() {
+        if (rendererAttached) {
+            return;
+        }
+        rendererManager->addRenderer(sceneRenderer, renderPriority);
+        rendererManager->updateDirectionalLight(directionalLight);
+        rendererAttached = true;
+    }
+
+    void Scene::detachRenderer() {
+        if (!rendererAttached) {
+            return;
+        }
+        rendererManager->removeRenderer(sceneRenderer);
+        rendererAttached = false;
+    }
+
+    bool Scene::isRendererAttached() const {
+        return rendererAttached;
     }
 
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,

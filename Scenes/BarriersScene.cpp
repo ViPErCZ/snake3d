@@ -113,6 +113,7 @@ namespace Scenes {
         if (collisionSystem != nullptr) {
             collisionSystem->addCollider(boxNode3D);
         }
+        perimeterBoxes = boxNode3D;
 
         addMeshNode3D(boxNode3D, 100);
     }
@@ -120,8 +121,22 @@ namespace Scenes {
     void BarriersScene::initLevelManager() {
         levelManager = make_shared<LevelManager>(contextState, 1, MAX_LIVES, resourceManager);
         levelManager->setCollisionSystem(collisionSystem);
-        // levelManager->createLevel(START_LEVEL);
         levelBoxes = levelManager->createLevel(START_LEVEL, directionalLight, spotLights, pointLights);
+        addMeshNode3D(levelBoxes, 3001);
+    }
+
+    void BarriersScene::nextLevel() {
+        if (collisionSystem != nullptr) {
+            if (levelBoxes) {
+                collisionSystem->removeCollider(levelBoxes);
+            }
+            if (perimeterBoxes) {
+                collisionSystem->removeCollider(perimeterBoxes);
+            }
+        }
+        meshNode3d.clear();
+        initBarriers();
+        levelBoxes = levelManager->createLevel(levelManager->getLevel(), directionalLight, spotLights, pointLights);
         addMeshNode3D(levelBoxes, 3001);
     }
 } // Scenes

@@ -37,6 +37,7 @@ namespace Manager {
         void render(float dt);
 
         void addRenderer(shared_ptr<BaseRenderer> renderer, int priority = 0);
+        bool removeRenderer(const shared_ptr<BaseRenderer> &renderer);
 
         void setDepthMapRenderer(unique_ptr<DepthMapRenderer> &depthMapRenderer);
 

@@ -37,7 +37,7 @@ public:
     void setKeyState(int key, bool pressed) const;
     void cameraProcessKeyboard(GLFWwindow *window) const;
 protected:
-    void initScene();
+    void initScene() const;
     void InitResourceManager() const;
 private:
     struct TextureEntry {

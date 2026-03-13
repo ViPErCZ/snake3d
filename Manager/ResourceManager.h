@@ -35,6 +35,7 @@ namespace Manager {
         void addModel(const string &name, shared_ptr<AnimationPlayer> res);
 
         shared_ptr<TextureManager> getTexture(const string &name) const;
+        bool hasTexture(const string &name) const;
 
         shared_ptr<ShaderManager> getShader(const string &name) const;
 

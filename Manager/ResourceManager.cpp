@@ -76,6 +76,11 @@ namespace Manager {
         }
     }
 
+    bool ResourceManager::hasTexture(const string &name) const {
+        std::unique_lock lock(mutex);
+        return texture.contains(name);
+    }
+
     void ResourceManager::addModel(const string &name, std::shared_ptr<Mesh> &res) {
         std::unique_lock lock(mutex);
         if (const auto [fst, snd] = model.emplace(name, res); !snd) {

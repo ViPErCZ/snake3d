@@ -33,51 +33,9 @@ App::App(const shared_ptr<Camera> &camera, const int width, const int height) : 
     //mainScene->setEnvironment(environment);
 }
 
-void App::initScene() {
+void App::initScene() const {
     mainScene->init(100);
-    //const glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
-
-    // auto basicShader = resourceManager->getShader("basicShader");
-    // auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
-    // const auto planeMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
-    // const auto coinMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
-    // const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(basicShader, shadowDepthShader));
-    //
-    // auto gamefieldAlbedo = resourceManager->getTexture("gamefield.bmp");
-    // auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
-    // auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
-    // // auto skeletonAlbedo = resourceManager->getTexture("Skeleton_Body.png");
-    // // auto skeletonORM = resourceManager->getTexture("Skeleton_Body_ORM.png");
-    // auto shadowMap = resourceManager->getTexture("depth");
-    // auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
-    // auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
-    // auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
-    // auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
-    // auto rustedAlbedo = resourceManager->getTexture("rusted_albedo.png");
-    // auto rustedNormal = resourceManager->getTexture("rusted_normal.png");
-    // auto rustedRoughness = resourceManager->getTexture("rusted_roughness.png");
-    // auto aoMap = resourceManager->getTexture("ao.png");
-    // auto rustedMetallic = resourceManager->getTexture("rusted_metallic.png");
-    // auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
-    // auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
-    // auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
-    // auto environmentMap = resourceManager->getTexture("skybox");
-    //
-    // planeMaterial->setColor({0.88, 0.05, 0.05});
-    // boxMaterial->setAlbedo(brickWall);
-    // boxMaterial->setNormal(brickWallNormal);
-    // boxMaterial->setSpecular(brickWallSpecular);
-    // // planeMaterial->setAlbedo(gamefieldAlbedo);
-    // coinMaterial->setAlbedo(coinAlbedo);
-    // coinMaterial->setNormal(coinNormal);
-    // coinMaterial->setSpecular(coinMetalness);
-    // planeMaterial->setShadow(shadowMap);
-    // coinMaterial->setShadow(shadowMap);
-    // boxMaterial->setShadow(shadowMap);
-    // // planeMaterial->setNormalEnabled(true);
-    // coinMaterial->setNormalEnabled(true);
-    // boxMaterial->setNormalEnabled(true);
-
+    mainScene->attachRenderer();
 }
 
 void App::Init() {
@@ -141,6 +99,14 @@ void App::Init() {
             ))
     );
     resourceManager->addShader(
+        "preloadShader2",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/preloader/dots2/dots2.vs",
+                "Assets/Shaders/preloader/dots2/dots2.fs"
+            ))
+    );
+    resourceManager->addShader(
         "particle_update",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
@@ -196,6 +162,7 @@ void App::Init() {
         vector<shared_ptr<PointLight> >{},
         rendererManager, camera, projection, resourceManager, width, height);
     preloaderScene->init(0);
+    preloaderScene->attachRenderer();
 
     const fs::path assets_dir{"Assets/Objects"};
     resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {

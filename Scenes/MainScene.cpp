@@ -33,7 +33,9 @@ namespace Scenes {
 
     void MainScene::init(const int priority) {
         Scene::init(priority);
-        initSounds();
+
+        initPreloader();
+        prepareScene();
 
         if constexpr (isDebug) {
             manipulatorHandler = make_shared<ManipulatorHandler>(contextState, resourceManager, camera);
@@ -44,43 +46,6 @@ namespace Scenes {
             const auto markRing = make_shared<MarkRingNode3D>(contextState, resourceManager, manipulatorHandler);
             markRing->init();
             addMeshNode3D(markRing);
-        }
-
-        initLights();
-        initPlayerScene();
-        initBarriersScene();
-        initCoinScene();
-        initTorchScene();
-        initWeatherScene();
-
-        initSkybox();
-        initPlane();
-        initRadar();
-        initEatManager();
-        initLabels();
-
-        buildStartMoveCallback();
-        buildEatenUpCallback();
-        buildCrashCallback();
-
-        if (manipulatorHandler != nullptr) {
-            manipulatorHandler->getLightsHandler()->addItem(directionalLight);
-
-            const auto focusTextNode = manipulatorHandler->getLightsHandler()->getFocusLabel();
-            const auto colorTextNode = manipulatorHandler->getLightsHandler()->getColorLabel();
-            const auto positionTextNode = manipulatorHandler->getLightsHandler()->getPositionLabel();
-            const auto directionTextNode = manipulatorHandler->getLightsHandler()->getDirectionLabel();
-            focusTextNode->setPosition(glm::vec3(10, height - 120, 0.0f));
-            colorTextNode->setPosition(glm::vec3(10, height - 100, 0.0f));
-            directionTextNode->setPosition(glm::vec3(10, height - 80, 0.0f));
-            positionTextNode->setPosition(glm::vec3(10, height - 60, 0.0f));
-            const auto dirLightNode = manipulatorHandler->getLightsHandler()->getDirLightNode();
-            dirLightNode->setDirectionalLight(directionalLight);
-            addMeshNode3D(dirLightNode);
-            addMeshNode2D(focusTextNode);
-            addMeshNode2D(colorTextNode);
-            addMeshNode2D(positionTextNode);
-            addMeshNode2D(directionTextNode);
         }
     }
 
@@ -310,7 +275,7 @@ namespace Scenes {
     }
 
     void MainScene::initEatManager() {
-        auto eatLocationHandler = make_shared<EatLocationHandler>(
+        eatLocationHandler = make_shared<EatLocationHandler>(
             barriersScene->getLevelBoxes(),
             playerScene->getSnake(),
             coinScene->getCoin()
@@ -392,7 +357,16 @@ namespace Scenes {
         addMeshNode2D(tilesCounterNode);
     }
 
-    void MainScene::buildEatenUpCallback() const {
+    void MainScene::initPreloader() {
+        preLoader = make_shared<Preloader2Scene>(nullptr,
+            vector<shared_ptr<SpotLight> >{},
+            vector<shared_ptr<PointLight> >{},
+            rendererManager, camera, projection, resourceManager, width, height);
+        preLoader->init(-10);
+        addNode("scenePreloader", preLoader);
+    }
+
+    void MainScene::buildEatenUpCallback() {
         snakeMoveHandler->setEatenUpCallback([this]() {
             if (this->levelManager) {
                 soundManager->play("coin");
@@ -406,10 +380,21 @@ namespace Scenes {
                 if (this->levelManager->getEatCounter() == MAX_POINT) {
                     fadeOutUniform->setAlpha(1.0f);
                     coinScene->getCoin()->setVisible(false);
-                    //     playerScene->getSnake()->respawn();
-                    //     this->eat->setVisible(false);
-                    //     this->levelManager->createLevel(this->levelManager->getLevel() + 1);
-                    //     this->eatManager->run(Manager::EatManager::clean);
+                    if (levelManager->getLevel() < 10) {
+                        levelManager->setLevel(levelManager->getLevel() + 1);
+                        eatLocationHandler->clearBarriers();
+                        radarMeshNode->clearItems();
+                        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
+                        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
+                        nextLevel();
+                        eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
+                        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+                    } else {
+                        // end game....winner
+                        cout << "End game... you win !" << endl;
+                    }
+                    playerScene->getSnake()->respawn();
+                    this->eatManager->run(EatManager::clean);
                 } else {
                     this->eatManager->run(EatManager::eatenUp);
                 }
@@ -494,15 +479,93 @@ namespace Scenes {
         });
     }
 
-    void MainScene::update() {
-        Scene::update();
+    void MainScene::prepareScene() {
+        switch (progress) {
+            case 0:
+                initSkybox();
+                initLights();
+                break;
+            case 10:
+                initPlane();
+                initLabels();
+                break;
+            case 20:
+                initPlayerScene();
+                break;
+            case 30:
+                initBarriersScene();
+                break;
+            case 40:
+                initCoinScene();
+                break;
+            case 50:
+                initTorchScene();
+                break;
+            case 60:
+                initRadar();
+                break;
+            case 70:
+                initEatManager();
+                break;
+            case 80:
+                buildStartMoveCallback();
+                buildEatenUpCallback();
+                buildCrashCallback();
+                break;
+            case 90:
+                if (manipulatorHandler != nullptr) {
+                    manipulatorHandler->getLightsHandler()->addItem(directionalLight);
 
-        if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {
-            radarMeshNode->setVisible(false);
+                    const auto focusTextNode = manipulatorHandler->getLightsHandler()->getFocusLabel();
+                    const auto colorTextNode = manipulatorHandler->getLightsHandler()->getColorLabel();
+                    const auto positionTextNode = manipulatorHandler->getLightsHandler()->getPositionLabel();
+                    const auto directionTextNode = manipulatorHandler->getLightsHandler()->getDirectionLabel();
+                    focusTextNode->setPosition(glm::vec3(10, height - 120, 0.0f));
+                    colorTextNode->setPosition(glm::vec3(10, height - 100, 0.0f));
+                    directionTextNode->setPosition(glm::vec3(10, height - 80, 0.0f));
+                    positionTextNode->setPosition(glm::vec3(10, height - 60, 0.0f));
+                    const auto dirLightNode = manipulatorHandler->getLightsHandler()->getDirLightNode();
+                    dirLightNode->setDirectionalLight(directionalLight);
+                    addMeshNode3D(dirLightNode);
+                    addMeshNode2D(focusTextNode);
+                    addMeshNode2D(colorTextNode);
+                    addMeshNode2D(positionTextNode);
+                    addMeshNode2D(directionTextNode);
+                }
+                break;
+            case 100:
+                initSounds();
+                removeNode("scenePreloader");
+                loading = false;
+            default:
+                break;
         }
 
-        if (!helpText->isVisible()) {
-            eatManager->run(EatManager::checkPlace);
+        progress++;
+    }
+
+    void MainScene::nextLevel() {
+        removeNode("barriers");
+        barriersScene->nextLevel();
+        addNode("barriers", barriersScene);
+    }
+
+    void MainScene::update() {
+        Scene::update();
+        if (loading) {
+            prepareScene();
+        }
+
+        if (radarMeshNode != nullptr) {
+            if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {
+                radarMeshNode->setVisible(false);
+            }
+        }
+
+        if (helpText != nullptr) {
+            if (!helpText->isVisible()) {
+                eatManager->run(EatManager::checkPlace);
+            }
         }
     }
 } // Scenes

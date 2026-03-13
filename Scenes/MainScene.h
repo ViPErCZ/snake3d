@@ -6,6 +6,7 @@
 #include "BarriersScene.h"
 #include "CoinScene.h"
 #include "PlayerScene.h"
+#include "Preloader2Scene.h"
 #include "../Manager/EatManager.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
@@ -62,15 +63,22 @@ namespace Scenes {
 
         void initLabels();
 
-        void buildEatenUpCallback() const;
+        void initPreloader();
+
+        void buildEatenUpCallback();
 
         void buildStartMoveCallback() const;
 
         void buildCrashCallback();
 
+        void prepareScene();
+
+        void nextLevel();
+
         shared_ptr<PlayerScene> playerScene;
         shared_ptr<CoinScene> coinScene;
         shared_ptr<BarriersScene> barriersScene;
+        shared_ptr<EatLocationHandler> eatLocationHandler;
         unique_ptr<EatManager> eatManager;
         shared_ptr<LevelManager> levelManager;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
@@ -86,7 +94,10 @@ namespace Scenes {
         shared_ptr<QuadNode2D> radarNode;
         shared_ptr<RadarMeshNode2D> radarMeshNode;
         shared_ptr<PlanarReflectionMaterial> planeMaterial;
+        shared_ptr<Preloader2Scene> preLoader;
         glm::mat4 ortho{};
+        bool loading = true;
+        int progress = 0;
     };
 } // Scenes
 
