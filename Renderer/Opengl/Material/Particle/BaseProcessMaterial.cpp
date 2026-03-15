@@ -244,4 +244,20 @@ namespace Material {
     void BaseProcessMaterial::set_drag(const float drag) {
         this->drag = drag;
     }
+
+    float BaseProcessMaterial::get_burst_interval() const {
+        return burstInterval;
+    }
+
+    void BaseProcessMaterial::set_burst_interval(const float burst_interval) {
+        burstInterval = burst_interval;
+    }
+
+    float BaseProcessMaterial::get_spawn_window() const {
+        return spawnWindow;
+    }
+
+    void BaseProcessMaterial::set_spawn_window(const float spawn_window) {
+        spawnWindow = spawn_window;
+    }
 } // Material

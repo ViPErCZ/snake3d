@@ -7,6 +7,7 @@
 #include "CoinScene.h"
 #include "PlayerScene.h"
 #include "Preloader2Scene.h"
+#include "WinnerScene.h"
 #include "../Manager/EatManager.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
@@ -95,8 +96,10 @@ namespace Scenes {
         shared_ptr<RadarMeshNode2D> radarMeshNode;
         shared_ptr<PlanarReflectionMaterial> planeMaterial;
         shared_ptr<Preloader2Scene> preLoader;
+        shared_ptr<WinnerScene> winnerScene;
         glm::mat4 ortho{};
         bool loading = true;
+        bool winning = false;
         int progress = 0;
     };
 } // Scenes

@@ -29,6 +29,11 @@ namespace Scenes {
         return snakeMoveHandler;
     }
 
+    void PlayerScene::winning() const {
+        snake->respawn();
+        snake->hide();
+    }
+
     void PlayerScene::initSnake() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");

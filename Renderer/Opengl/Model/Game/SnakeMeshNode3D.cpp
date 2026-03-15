@@ -423,4 +423,12 @@ namespace Model {
             shape->computeWorldMatrix(parentTransform * this->getModelMatrix());
         }
     }
+
+    void SnakeMeshNode3D::hide() {
+        setVisible(false);
+
+        for (const auto &child: children) {
+            child->setVisible(false);
+        }
+    }
 } // Model

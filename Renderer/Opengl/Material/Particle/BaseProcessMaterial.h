@@ -146,6 +146,14 @@ namespace Material {
 
         void set_drag(float drag);
 
+        [[nodiscard]] float get_burst_interval() const;
+
+        void set_burst_interval(float burst_interval);
+
+        [[nodiscard]] float get_spawn_window() const;
+
+        void set_spawn_window(float spawn_window);
+
         virtual void bind(shared_ptr<ShaderManager> shader) const = 0;
 
         virtual void update(shared_ptr<ShaderManager> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
@@ -187,6 +195,8 @@ namespace Material {
         float spawnHeight = 10.0f; // vyska sloupce
         float timeOffset = 0.0f;
         float drag = 0.0f;
+        float burstInterval = 3.0f;
+        float spawnWindow = 0.1f;
 
         std::string texture;
         ParticleMode mode = Billboard;

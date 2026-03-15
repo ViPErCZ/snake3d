@@ -62,6 +62,8 @@ namespace Model {
 
         void computeWorldMatrix(const glm::mat4 &parentTransform) override;
 
+        void hide();
+
     private:
         void stopRespawn();
         unique_ptr<Timer> timer;

@@ -45,6 +45,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
+        Tools/CameraOrbit.cpp
+        Tools/CameraOrbit.h
         Tools/Timer.cpp
         Tools/Timer.h
         Tools/WorldEnvironment.cpp
@@ -217,6 +219,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Tools/Layers.h
         Manager/SoundManager.cpp
         Manager/SoundManager.h
+        Scenes/WinnerScene.cpp
+        Scenes/WinnerScene.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
 
@@ -465,6 +469,8 @@ set(APP_SOURCES
         Tools/Layers.h
         Manager/SoundManager.cpp
         Manager/SoundManager.h
+        Scenes/WinnerScene.cpp
+        Scenes/WinnerScene.h
 )
 
 # --- Vytvoření KNIHOVNY z herních souborů ---
@@ -657,6 +663,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Tools/Layers.h
         Manager/SoundManager.cpp
         Manager/SoundManager.h
+        Scenes/WinnerScene.cpp
+        Scenes/WinnerScene.h
 )
 
 # Přidání cest k hlavičkovým souborům pro vaši knihovnu

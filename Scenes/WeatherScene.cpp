@@ -26,7 +26,6 @@ namespace Scenes {
         // initRain();
         // initRainDrop();
         // initSnow();
-        // initExplosion();
     }
 
     void WeatherScene::initRain() {
@@ -112,34 +111,5 @@ namespace Scenes {
         const auto snow = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 6000);
 
         addMeshNode3D(snow);
-    }
-
-    void WeatherScene::initExplosion() {
-        const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
-        material->set_texture("explosion.png");
-        material->set_mode(Stretched);
-        material->set_spawn_shape(2);
-        material->set_respawn_mode(0);
-        material->set_life_min(0.1f);
-        material->set_life_max(0.6f);
-        material->set_size_max(0.01f);
-        material->set_size_min(0.002f);
-        material->set_stretch(0.0f);
-        material->set_vel_min({ 0.5f, 0.0f, 0.0f });
-        material->set_vel_max({ 1.3f, 0.0f, 0.0f });
-        material->set_gravity({0.0f, 0.0f, -0.9f});
-        material->set_emitter_radius(0.05f);
-        material->set_color_start({8.0f, 4.0f, 1.0f, 1.0f});
-        material->set_color_end({0.1f, 0.1f, 0.1f, 0.0f});
-
-        const auto explosion1 = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 500);
-        const auto explosion2 = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 500);
-
-        explosion1->setPosition(glm::vec3(0.0, 0.6, 0.0));
-        explosion2->setPosition(glm::vec3(2.0, 0.6, 0.0));
-        explosion2->setTimeOffset(0.2f);
-
-        addMeshNode3D(explosion1);
-        addMeshNode3D(explosion2);
     }
 } // Scenes

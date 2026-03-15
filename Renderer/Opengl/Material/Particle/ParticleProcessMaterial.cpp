@@ -45,6 +45,8 @@ namespace Material {
         shader->setFloat("u_dt", stepDt);
         shader->setFloat("u_timeAccum", timeAccum + timeOffset);
         shader->setFloat("u_spawnPerFrame", spawnPerFrame);
+        shader->setFloat("u_burstInterval", burstInterval);
+        shader->setFloat("u_spawnWindow", spawnWindow);
     }
 
     ParticleProcessMaterial::ParticleDataGPU ParticleProcessMaterial::prepareUniformData() const {

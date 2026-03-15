@@ -50,6 +50,10 @@ namespace Scenes {
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
+        if (winning) {
+            return;
+        }
+
         Scene::keyboardInput(window, keyCode, scancode, action, mods);
 
         switch (keyCode) {
@@ -380,21 +384,21 @@ namespace Scenes {
                 if (this->levelManager->getEatCounter() == MAX_POINT) {
                     fadeOutUniform->setAlpha(1.0f);
                     coinScene->getCoin()->setVisible(false);
-                    if (levelManager->getLevel() < 10) {
-                        levelManager->setLevel(levelManager->getLevel() + 1);
-                        eatLocationHandler->clearBarriers();
-                        radarMeshNode->clearItems();
-                        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
-                        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
+                    if (levelManager->getLevel() < 9) {
                         nextLevel();
-                        eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
-                        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
                     } else {
                         // end game....winner
                         cout << "End game... you win !" << endl;
+                        tilesCounterNode->setVisible(false);
+                        playerScene->winning();
+                        // zastavit hada a schovat ho (nova funkce do playerScene)
+                        addNode("winner", winnerScene);
+                        radarMeshNode->setVisible(false);
+                        // zobrazi napis, ze player vyhral
+                        // nastavit kameru do nejakeho winning mode (oddalit a rotovat nad scenou)
+                        // disablovat ovladani hada
+                        winning = true;
                     }
-                    playerScene->getSnake()->respawn();
-                    this->eatManager->run(EatManager::clean);
                 } else {
                     this->eatManager->run(EatManager::eatenUp);
                 }
@@ -506,11 +510,14 @@ namespace Scenes {
                 break;
             case 70:
                 initEatManager();
+                initWeatherScene();
                 break;
             case 80:
                 buildStartMoveCallback();
                 buildEatenUpCallback();
                 buildCrashCallback();
+                winnerScene = make_shared<WinnerScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+                winnerScene->init(0);
                 break;
             case 90:
                 if (manipulatorHandler != nullptr) {
@@ -545,9 +552,18 @@ namespace Scenes {
     }
 
     void MainScene::nextLevel() {
+        levelManager->setLevel(levelManager->getLevel() + 1);
+        eatLocationHandler->clearBarriers();
+        radarMeshNode->clearItems();
+        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
+        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
         removeNode("barriers");
         barriersScene->nextLevel();
         addNode("barriers", barriersScene);
+        eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
+        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+        playerScene->getSnake()->respawn();
+        eatManager->run(EatManager::clean);
     }
 
     void MainScene::update() {

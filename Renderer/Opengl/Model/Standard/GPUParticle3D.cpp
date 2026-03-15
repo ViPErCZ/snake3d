@@ -10,7 +10,7 @@ namespace Model {
         update_shader = resourceManager->getShader("particle_update");
         render_shader = resourceManager->getShader("particle_3d_render");
         render_texture_shader = resourceManager->getShader("particle_3d_render_tex");
-        initBuffers();
+        initBuffers(false);
     }
 
     GPUParticle3D::~GPUParticle3D() {
@@ -60,9 +60,9 @@ namespace Model {
             return;
         }
 
-        float usedDt = dt;
+        float usedDt = dt * timeScale;
         if (firstFrame) {
-            usedDt = std::min(dt, material->get_first_frame_clamp());
+            usedDt = std::min(usedDt, material->get_first_frame_clamp());
             firstFrame = false;
         }
 
@@ -118,15 +118,26 @@ namespace Model {
         );
     }
 
-    void GPUParticle3D::initBuffers() {
+    void GPUParticle3D::restart(const bool startDead) {
+        frameIndex = 0;
+        timeAccum = 0.0f;
+        firstFrame = true;
+        refillBuffers(startDead);
+    }
+
+    void GPUParticle3D::initBuffers(const bool startDead) {
         std::vector<GPUParticle> initial(maxParticles);
         for (int i = 0; i < maxParticles; i++) {
             initial[i].position = glm::vec3(0.0f);
             initial[i].velocity = glm::vec3(0.0f);
             initial[i].seed = static_cast<float>(i) * 17.123f;
 
-            const float maxL = material->get_life_max() > 0 ? material->get_life_max() : 2.0f;
-            initial[i].life = static_cast<float>(random()) / static_cast<float>(RAND_MAX) * maxL;
+            if (startDead) {
+                initial[i].life = 0.0f;
+            } else {
+                const float maxL = material->get_life_max() > 0 ? material->get_life_max() : 2.0f;
+                initial[i].life = static_cast<float>(random()) / static_cast<float>(RAND_MAX) * maxL;
+            }
         }
 
         // Ping-pong buffer pro TF
@@ -166,5 +177,30 @@ namespace Model {
 
         // Unbind VAO
         glBindVertexArray(0);
+    }
+
+    void GPUParticle3D::refillBuffers(const bool startDead) {
+        std::vector<GPUParticle> initial(maxParticles);
+        for (int i = 0; i < maxParticles; i++) {
+            initial[i].position = glm::vec3(0.0f);
+            initial[i].velocity = glm::vec3(0.0f);
+            initial[i].seed = static_cast<float>(i) * 17.123f;
+
+            if (startDead) {
+                initial[i].life = 0.0f;
+            } else {
+                const float maxL = material->get_life_max() > 0 ? material->get_life_max() : 2.0f;
+                initial[i].life = static_cast<float>(random()) / static_cast<float>(RAND_MAX) * maxL;
+            }
+        }
+
+        for (const unsigned int i : particleVBO) {
+            glBindBuffer(GL_ARRAY_BUFFER, i);
+            glBufferSubData(GL_ARRAY_BUFFER,
+                            0,
+                            static_cast<GLsizei>(maxParticles * sizeof(GPUParticle)),
+                            initial.data());
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 } // Model

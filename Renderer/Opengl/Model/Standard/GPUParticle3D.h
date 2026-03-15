@@ -34,9 +34,12 @@ namespace Model {
                     const glm::mat4 &parentTransform, bool shadows) override;
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
+        void restart(bool startDead = true);
+        void setTimeScale(const float scale) { timeScale = scale; }
 
     private:
-        void initBuffers();
+        void initBuffers(bool startDead);
+        void refillBuffers(bool startDead);
 
         GLuint VAO[2];
         GLuint meshVAO{};
@@ -50,6 +53,7 @@ namespace Model {
         bool firstFrame = true;
         float timeAccum = 0.0f;
         float timeOffset = 0.0f;
+        float timeScale = 1.0f;
 
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
