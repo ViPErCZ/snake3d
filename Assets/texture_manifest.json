@@ -1,5 +1,10 @@
 [
   {
+    "name": "Skeleton_Body.png",
+    "path": "Albedo/Skeleton_Body.png",
+    "category": "Albedo"
+  },
+  {
     "name": "brickwall.jpg",
     "path": "Albedo/box/brickwall.jpg",
     "category": "Albedo"
@@ -27,6 +32,11 @@
   {
     "name": "Coin_Gold_albedo.png",
     "path": "Albedo/coin/Coin_Gold_albedo.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "explosion.png",
+    "path": "Albedo/explosion/explosion.png",
     "category": "Albedo"
   },
   {
@@ -80,13 +90,8 @@
     "category": "Albedo"
   },
   {
-    "name": "snow.png",
-    "path": "Albedo/snow/snow.png",
-    "category": "Albedo"
-  },
-  {
-    "name": "explosion.png",
-    "path": "Albedo/explosion/explosion.png",
+    "name": "rain.jpg",
+    "path": "Albedo/rain.jpg",
     "category": "Albedo"
   },
   {
@@ -97,6 +102,16 @@
   {
     "name": "snake.bmp",
     "path": "Albedo/snake.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "snake3d_title_base.png",
+    "path": "Albedo/snake3d_title_base.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "snow.png",
+    "path": "Albedo/snow/snow.png",
     "category": "Albedo"
   },
   {
@@ -125,6 +140,11 @@
     "category": "Others"
   },
   {
+    "name": "Skeleton_Body_ORM.png",
+    "path": "Others/Skeleton_Body_ORM.png",
+    "category": "Others"
+  },
+  {
     "name": "ao.png",
     "path": "Others/ao.png",
     "category": "Others"
@@ -150,6 +170,11 @@
     "category": "Others"
   },
   {
+    "name": "drop_normal.png",
+    "path": "Others/drop_normal.png",
+    "category": "Others"
+  },
+  {
     "name": "gamefield_normal.jpg",
     "path": "Others/gamefield_normal.jpg",
     "category": "Others"
@@ -172,11 +197,6 @@
   {
     "name": "torch_normal.png",
     "path": "Others/torch_normal.png",
-    "category": "Others"
-  },
-  {
-    "name": "drop_normal.png",
-    "path": "Others/drop_normal.png",
     "category": "Others"
   }
 ]

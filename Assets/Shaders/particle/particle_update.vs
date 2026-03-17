@@ -30,6 +30,7 @@ uniform bool u_is2D;
 #define u_minRadius     u_spawnArea.x
 #define u_maxRadius     u_spawnArea.y
 #define u_spawnHeight   u_spawnArea.z
+#define u_spawnPerFrame u_spawnArea.w
 
 #define u_velMin        u_velMinStretch.xyz
 #define u_velMax        u_velMaxDrag.xyz

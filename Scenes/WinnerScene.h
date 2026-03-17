@@ -5,8 +5,7 @@
 #include <vector>
 
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
-#include "../Renderer/Opengl/Scene/Scene.h"
-#include "../Tools/CameraOrbit.h"
+#include "OrbitSceneBase.h"
 
 namespace Model {
     class GPUParticle3D;
@@ -17,7 +16,7 @@ using namespace Tools;
 using namespace std;
 
 namespace Scenes {
-    class WinnerScene final : public Scene {
+    class WinnerScene final : public OrbitSceneBase {
     public:
         WinnerScene(
             const shared_ptr<DirectionalLight> &directionalLight,
@@ -36,7 +35,6 @@ namespace Scenes {
         std::vector<std::shared_ptr<GPUParticle3D>> explosions;
         std::vector<float> explosionMoveTimers;
         float explosionCycleDuration = 0.0f;
-        CameraOrbit cameraOrbit;
     };
 } // Scenes
 

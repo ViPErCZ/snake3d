@@ -24,6 +24,9 @@ namespace Material {
         }
         shader->setMat4("projection", projection);
         shader->setMat4("model", model);
+        if (shader->hasUniform("expansion") && uniforms.contains("expansion") == false) {
+            shader->setFloat("expansion", 1.0f);
+        }
         if (shader->hasUniform("viewPos")) {
             shader->setVec3("viewPos", posView);
         }

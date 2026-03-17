@@ -8,6 +8,18 @@ OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed
     // 2. Kontrola smrti (vypršel čas) nebo vypadnutí z obrazovky (y < -1.2)
     if (newLife <= 0.0 || pos.y < -1.2) {
 
+        // Pokud je respawn vypnuty nebo neni spawn zadany, zhasni castici.
+        if (u_respawnMode == 0 && u_spawnPerFrame <= 0.0) {
+            newLife = 0.0;
+            pos = vec2(-2.0, -2.0);
+            vel = vec2(0.0);
+            data.outPos = vec3(pos.xy, 0);
+            data.outVel = vec3(vel.xy, 0);
+            data.outLife = newLife;
+            data.outSeed = newSeed;
+            return data;
+        }
+
         // --- RESPAWN LOGIKA ---
 
         // Generujeme novou náhodu
@@ -15,6 +27,19 @@ OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed
         float rnd1 = rand(seedBase);
         float rnd2 = rand(seedBase + 1.0);
         float rnd3 = rand(seedBase + 2.0);
+
+        // Spawn rate gate: pouze cast z nich se znovu zrodí
+        float spawnChance = u_spawnPerFrame * u_dt;
+        if (u_respawnMode == 0 && (u_spawnPerFrame <= 0.0 || rand(seedBase + 3.0) > spawnChance)) {
+            newLife = 0.0;
+            pos = vec2(-2.0, -2.0);
+            vel = vec2(0.0);
+            data.outPos = vec3(pos.xy, 0);
+            data.outVel = vec3(vel.xy, 0);
+            data.outLife = newLife;
+            data.outSeed = newSeed;
+            return data;
+        }
 
         // Reset života
         newLife = mix(u_lifeMin, u_lifeMax, rnd3);
@@ -32,7 +57,10 @@ OutputData particle_update_2d(vec3 inPos, vec3 inVel, float inLife, float inSeed
         }
         else {
             // Bod (emitování z bodu)
-            pos = u_emitterPos.xy;
+            float ang = rnd1 * 6.2831853;
+            float rad = sqrt(rnd2);
+            vec2 disk = vec2(cos(ang), sin(ang)) * rad * u_emitterRadius;
+            pos = u_emitterPos.xy + disk;
         }
 
         // Reset rychlosti

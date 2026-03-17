@@ -32,6 +32,9 @@ namespace Model {
                     const glm::mat4 &parentTransform) const override;
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
+        void setAspectRatio(const float ratio) { this->aspectRatio = ratio; }
+        void setRenderShader(const shared_ptr<ShaderManager> &shader) { render_shader = shader; }
+        void setRenderTextureShader(const shared_ptr<ShaderManager> &shader) { render_texture_shader = shader; }
 
     private:
         void initBuffers();

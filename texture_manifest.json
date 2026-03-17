@@ -35,6 +35,11 @@
     "category": "Albedo"
   },
   {
+    "name": "explosion.png",
+    "path": "Albedo/explosion/explosion.png",
+    "category": "Albedo"
+  },
+  {
     "name": "fast_noise.bmp",
     "path": "Albedo/fast_noise.bmp",
     "category": "Albedo"
@@ -70,6 +75,11 @@
     "category": "Albedo"
   },
   {
+    "name": "rain.png",
+    "path": "Albedo/rain/rain.png",
+    "category": "Albedo"
+  },
+  {
     "name": "raindrops.png",
     "path": "Albedo/rain/raindrops.png",
     "category": "Albedo"
@@ -92,6 +102,16 @@
   {
     "name": "snake.bmp",
     "path": "Albedo/snake.bmp",
+    "category": "Albedo"
+  },
+  {
+    "name": "snake3d_title_base.png",
+    "path": "Albedo/snake3d_title_base.png",
+    "category": "Albedo"
+  },
+  {
+    "name": "snow.png",
+    "path": "Albedo/snow/snow.png",
     "category": "Albedo"
   },
   {
@@ -147,6 +167,11 @@
   {
     "name": "brickwork_normal-map.jpg",
     "path": "Others/brickwork_normal-map.jpg",
+    "category": "Others"
+  },
+  {
+    "name": "drop_normal.png",
+    "path": "Others/drop_normal.png",
     "category": "Others"
   },
   {

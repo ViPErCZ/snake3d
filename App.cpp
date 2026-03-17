@@ -208,15 +208,6 @@ void App::run() {
 void App::processInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
     mainScene->keyboardInput(window, keyCode, scancode, action, mods);
     //keyboardManager->onKeyPress(keyCode, scancode, action, mods);
-
-    switch (keyCode) {
-        case GLFW_KEY_ESCAPE:
-            if (state == SceneState::RUNNING) {
-                glfwSetWindowShouldClose(window, true);
-            }
-        default:
-            break;
-    }
 }
 
 void App::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) const {
@@ -233,6 +224,10 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
     //         }
     //     }
     // }
+    if (mainScene) {
+        mainScene->mouseButtonCallback(window, button, action, mods);
+    }
+
     if (camera) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             camera->onMouseDown(button, action, mods);
@@ -245,7 +240,10 @@ void App::mousePositionCallback(GLFWwindow *window, const double x, const double
     //if (torchRenderer != nullptr) {
     //    torchRenderer->onMouseMove(cursor, width, height);
     //}
-    if (state == SceneState::RUNNING && camera != nullptr) {
+    if (mainScene) {
+        mainScene->setCursorPosition(cursor);
+    }
+    if (state == SceneState::RUNNING && camera != nullptr && (!mainScene || !mainScene->isMenuVisible())) {
         camera->processMouseMovement(x, y);
     }
 }
@@ -255,6 +253,9 @@ void App::setKeyState(const int key, const bool pressed) const {
 }
 
 void App::cameraProcessKeyboard(GLFWwindow *window) const {
+    if (mainScene && mainScene->isMenuVisible()) {
+        return;
+    }
     camera->processKeyboard(window, 1);
 }
 
@@ -282,6 +283,7 @@ void App::InitResourceManager() const {
     std::vector<TextureEntry> textures;
 
     for (auto &item : j) {
+        cout << "Loading texture: " << item["name"] << endl;
         textures.push_back(TextureEntry{
             item["name"].get<std::string>(),
             item["path"].get<std::string>(),
@@ -300,6 +302,14 @@ void App::InitResourceManager() const {
     resourceManager->loadAsyncShader("textShader", "Assets/Shaders/text.vs", "", "Assets/Shaders/text.fs", []() {
         std::cout << "Shader textShader ready!" << std::endl;
     });
+    resourceManager->loadAsyncShader("textTitle", "Assets/Shaders/text_title_fx.vs", "",
+        "Assets/Shaders/text_title_fx.fs", []() {
+        std::cout << "Shader textTitle ready!" << std::endl;
+    });
+    resourceManager->loadAsyncShader("titleImageFx", "Assets/Shaders/basic_2d.vs", "",
+        "Assets/Shaders/title_image_fx.fs", []() {
+        std::cout << "Shader titleImageFx ready!" << std::endl;
+    });
 
     resourceManager->loadAsyncShader("gizmoShader",
                                        "Assets/Shaders/gizmo/gizmo.vs",
@@ -317,6 +327,15 @@ void App::InitResourceManager() const {
 
     resourceManager->loadAsyncShader("respawnShader", "Assets/Shaders/basic.vs", "", "Assets/Shaders/respawn/respawn.fs", []() {;
         std::cout << "Shader respawnShader ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("cursor2d", "Assets/Shaders/basic_2d.vs", "", "Assets/Shaders/cursor_2d.fs", []() {
+        std::cout << "Shader cursor2d ready!" << std::endl;
+    });
+
+    resourceManager->loadAsyncShader("particle_render_2d_trail", "Assets/Shaders/particle/particle_render_2d.vs", "",
+        "Assets/Shaders/particle/particle_render_2d_trail.fs", []() {
+        std::cout << "Shader particle_render_2d_trail ready!" << std::endl;
     });
 
     resourceManager->loadAsyncShader("normalShader", "Assets/Shaders/normal_map.vs", "", "Assets/Shaders/normal_map.fs", []() {

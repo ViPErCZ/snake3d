@@ -64,6 +64,15 @@ void Renderer::BloomRenderer::render3D(float dt, uint64_t frameId) {
 }
 
 void Renderer::BloomRenderer::afterRender() {
+    const GLboolean blendEnabled = glIsEnabled(GL_BLEND);
+    const GLboolean depthEnabled = glIsEnabled(GL_DEPTH_TEST);
+    if (blendEnabled) {
+        glDisable(GL_BLEND);
+    }
+    if (depthEnabled) {
+        glDisable(GL_DEPTH_TEST);
+    }
+
     bool horizontal = true, first_iteration = true;
     constexpr unsigned int amount = 10;
     shaderBlur->use();
@@ -90,6 +99,13 @@ void Renderer::BloomRenderer::afterRender() {
     shaderBloomFinal->setInt("bloom", true);
     shaderBloomFinal->setFloat("exposure", 1.2f);
     renderQuad();
+
+    if (depthEnabled) {
+        glEnable(GL_DEPTH_TEST);
+    }
+    if (blendEnabled) {
+        glEnable(GL_BLEND);
+    }
 }
 
 void Renderer::BloomRenderer::renderQuad() {
@@ -118,7 +134,14 @@ void Renderer::BloomRenderer::renderQuad() {
 
 void Renderer::BloomRenderer::beforeRender(const MODE mode) {
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDrawBuffer(GL_COLOR_ATTACHMENT1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDrawBuffers(2, attachments);
+    glClear(GL_DEPTH_BUFFER_BIT);
     this->mode = mode;
 }
 

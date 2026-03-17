@@ -41,11 +41,8 @@ namespace Manager {
 
     bool RenderManager::removeRenderer(const shared_ptr<BaseRenderer> &renderer) {
         const auto before = renderers.size();
-        renderers.erase(
-            remove_if(renderers.begin(), renderers.end(),
-                      [&renderer](const RendererEntry &entry) { return entry.renderer == renderer; }),
-            renderers.end()
-        );
+        erase_if(renderers,
+                 [&renderer](const RendererEntry &entry) { return entry.renderer == renderer; });
         if (planarReflectionRenderer) {
             planarReflectionRenderer->updateRenderers(renderers);
         }

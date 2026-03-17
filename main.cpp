@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
     glfwSetKeyCallback(window, key_callback);
     glewInit();
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
     glViewport(0, 0, W_WIDTH, W_HEIGHT);
@@ -137,7 +139,7 @@ void mouse_callback(GLFWwindow* window, double x, double y)
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // app->mouseButtonCallback(window, button, action, mods);
+    app->mouseButtonCallback(window, button, action, mods);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

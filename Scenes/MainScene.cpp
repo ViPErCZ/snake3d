@@ -2,7 +2,10 @@
 
 #include <glm/gtc/random.hpp>
 #include <iostream>
+#include <GLFW/glfw3.h>
 
+#include "../Resource/TextureLoader.h"
+#include "../Thirdparty/stbimage/stb_image.h"
 #include "PlayerScene.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
@@ -20,6 +23,14 @@
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 namespace Scenes {
+    namespace {
+        constexpr float kCursorScale = 0.9f;
+        constexpr float kCursorTrailSpawnMax = 80.0f;
+        constexpr float kCursorTrailSpawnPerPixel = 12.0f;
+        constexpr float kCursorTrailSpawnMin = 4.0f;
+        constexpr float kCursorEmitterRadius = 0.02f;
+    }
+
     MainScene::MainScene(
         const shared_ptr<DirectionalLight> &directionalLight,
         const vector<shared_ptr<SpotLight> > &spotLights,
@@ -35,6 +46,8 @@ namespace Scenes {
         Scene::init(priority);
 
         initPreloader();
+        initCursor();
+        initMainMenu();
         prepareScene();
 
         if constexpr (isDebug) {
@@ -50,18 +63,42 @@ namespace Scenes {
     }
 
     void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
+        if (keyCode == GLFW_KEY_B && action == GLFW_PRESS) {
+            rendererManager->toggleBloom();
+            return;
+        }
+
         if (winning) {
+            if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+                glfwSetWindowShouldClose(window, true);
+            }
+            return;
+        }
+
+        if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+            if (menuVisible) {
+                if (gameStarted) {
+                    const_cast<MainScene *>(this)->hideMenu();
+                }
+            } else if (gameStarted) {
+                const_cast<MainScene *>(this)->showMenu(MainMenuScene::PrimaryAction::Resume);
+            }
+            return;
+        }
+
+        if (menuVisible) {
             return;
         }
 
         Scene::keyboardInput(window, keyCode, scancode, action, mods);
 
+        if (action != GLFW_PRESS) {
+            return;
+        }
+
         switch (keyCode) {
             case GLFW_KEY_V:
                 rendererManager->toggleShadows();
-                break;
-            case GLFW_KEY_B:
-                rendererManager->toggleBloom();
                 break;
             case GLFW_KEY_F2:
                 if (planeMaterial) {
@@ -101,6 +138,13 @@ namespace Scenes {
             default:
                 break;
         }
+    }
+
+    void MainScene::physics() {
+        if (menuVisible) {
+            return;
+        }
+        Scene::physics();
     }
 
     void MainScene::initSounds() const {
@@ -325,6 +369,11 @@ namespace Scenes {
         radarMeshNode->hideItems();
 
         addMeshNode2D(radarMeshNode);
+
+        if (menuVisible) {
+            radarMeshNode->setVisible(false);
+            hudRadarVisible = true;
+        }
     }
 
     void MainScene::initLabels() {
@@ -359,6 +408,11 @@ namespace Scenes {
 
         addMeshNode2D(helpText);
         addMeshNode2D(tilesCounterNode);
+
+        if (menuVisible) {
+            helpText->setVisible(false);
+            tilesCounterNode->setVisible(false);
+        }
     }
 
     void MainScene::initPreloader() {
@@ -368,6 +422,67 @@ namespace Scenes {
             rendererManager, camera, projection, resourceManager, width, height);
         preLoader->init(-10);
         addNode("scenePreloader", preLoader);
+    }
+
+    void MainScene::initMainMenu() {
+        mainMenuScene = make_shared<MainMenuScene>(directionalLight, spotLights, pointLights, rendererManager, camera,
+            projection, resourceManager, width, height);
+        mainMenuScene->init(200);
+        showMenu(MainMenuScene::PrimaryAction::Start);
+    }
+
+    void MainScene::initCursor() {
+        int imgW = 0;
+        int imgH = 0;
+        int imgCh = 0;
+        unsigned char* pixels = stbi_load("Assets/Cursors/Arrow_Rounded_Blue.png", &imgW, &imgH, &imgCh, 4);
+        if (!pixels) {
+            std::cerr << "Failed to load cursor texture." << std::endl;
+            return;
+        }
+
+        const unsigned int textureId = TextureLoader::bindFromBufferWithoutDecode(
+            pixels, true, imgW, imgH, 4);
+        stbi_image_free(pixels);
+
+        cursorTexture = std::make_shared<TextureManager>(textureId);
+        cursorSize = glm::vec2(static_cast<float>(imgW), static_cast<float>(imgH)) * kCursorScale;
+
+        const auto shader = resourceManager->getShader("cursor2d");
+        cursorMesh = make_shared<ImageNode2D>(cursorSize.x, cursorSize.y, shader, cursorTexture);
+        cursorMesh->setBlending(Blending::Translucent);
+        cursorMesh->setDepthTest(false);
+        cursorMesh->setDepthWrite(false);
+
+        cursorNode = make_shared<MeshNode2D>(contextState, cursorMesh, resourceManager);
+        addMeshNode2D(cursorNode, 10000);
+
+        const auto trailQuad = make_shared<QuadNode2D>(0.03f, 0.03f);
+        trailQuad->setBlending(Blending::Additive);
+        trailQuad->setDepthTest(false);
+        trailQuad->setDepthWrite(false);
+
+        cursorTrailMaterial = make_shared<ParticleProcessMaterial>(resourceManager);
+        cursorTrailMaterial->set_spawn_shape(0);
+        cursorTrailMaterial->set_respawn_mode(0);
+        cursorTrailMaterial->set_life_min(0.35f);
+        cursorTrailMaterial->set_life_max(0.7f);
+        cursorTrailMaterial->set_size_min(0.08f);
+        cursorTrailMaterial->set_size_max(0.16f);
+        cursorTrailMaterial->set_vel_min({-0.12f, -0.12f, 0.0f});
+        cursorTrailMaterial->set_vel_max({0.12f, 0.12f, 0.0f});
+        cursorTrailMaterial->set_gravity({0.0f, 0.0f, 0.0f});
+        cursorTrailMaterial->set_spawn_per_frame(0.0f);
+        cursorTrailMaterial->set_color_start({0.45f, 0.85f, 1.0f, 0.9f});
+        cursorTrailMaterial->set_color_end({0.15f, 0.3f, 1.0f, 0.0f});
+        cursorTrailMaterial->set_emitter_radius(kCursorEmitterRadius);
+
+        cursorTrail = make_shared<GPUParticle2D>(cursorTrailMaterial, contextState, trailQuad, resourceManager, 400);
+        cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+        cursorTrail->setRenderShader(resourceManager->getShader("particle_render_2d_trail"));
+        addMeshNode2D(cursorTrail, 9000);
+
+        cursorInitialized = true;
     }
 
     void MainScene::buildEatenUpCallback() {
@@ -579,9 +694,156 @@ namespace Scenes {
         }
 
         if (helpText != nullptr) {
-            if (!helpText->isVisible()) {
+            if (!helpText->isVisible() && eatManager) {
                 eatManager->run(EatManager::checkPlace);
             }
         }
+
+        if (cursorInitialized && cursorNode && cursorTrailMaterial) {
+            if (!menuVisible) {
+                cursorTrailMaterial->set_spawn_per_frame(0.0f);
+            }
+
+            const float cursorX = cursorScreenPos.x + (cursorSize.x * 0.5f) - cursorHotspot.x;
+            const float cursorY = cursorScreenPos.y + (cursorSize.y * 0.5f) - cursorHotspot.y;
+            cursorNode->setPosition({cursorX, cursorY, 0.0f});
+
+            const glm::vec2 delta = cursorScreenPos - lastCursorScreenPos;
+            const float moveLen = glm::length(delta);
+            if (menuVisible && hasCursorLastPos && moveLen > 0.5f) {
+                const float emitX = cursorScreenPos.x + cursorSize.x - cursorHotspot.x;
+                const float emitY = cursorScreenPos.y + cursorSize.y - cursorHotspot.y;
+                const float ndcX = (emitX / static_cast<float>(width)) * 2.0f - 1.0f;
+                const float ndcY = 1.0f - (emitY / static_cast<float>(height)) * 2.0f;
+                cursorTrailMaterial->set_emitter_pos({ndcX, ndcY, 0.0f});
+                const float spawnRate = std::clamp(
+                    moveLen * kCursorTrailSpawnPerPixel,
+                    kCursorTrailSpawnMin,
+                    kCursorTrailSpawnMax);
+                cursorTrailMaterial->set_spawn_per_frame(spawnRate);
+            } else {
+                cursorTrailMaterial->set_spawn_per_frame(0.0f);
+            }
+
+            lastCursorScreenPos = cursorScreenPos;
+            hasCursorLastPos = true;
+        }
+    }
+
+    void MainScene::setCursorPosition(const glm::vec2 &position) {
+        cursorScreenPos = position;
+        if (menuVisible && mainMenuScene) {
+            mainMenuScene->setCursorPosition(position);
+        }
+    }
+
+    void MainScene::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) {
+        if (!menuVisible || !mainMenuScene) {
+            return;
+        }
+
+        switch (mainMenuScene->handleMouseButton(button, action)) {
+            case MainMenuScene::MenuAction::Start:
+                gameStarted = true;
+                hideMenu();
+                break;
+            case MainMenuScene::MenuAction::Resume:
+                hideMenu();
+                break;
+            case MainMenuScene::MenuAction::Quit:
+                glfwSetWindowShouldClose(window, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    bool MainScene::isMenuVisible() const {
+        return menuVisible;
+    }
+
+    void MainScene::showMenu(const MainMenuScene::PrimaryAction action) {
+        if (!mainMenuScene) {
+            return;
+        }
+        if (menuVisible) {
+            mainMenuScene->setPrimaryAction(action);
+            return;
+        }
+
+        menuVisible = true;
+        mainMenuScene->setPrimaryAction(action);
+        if (!hasNode("mainMenu")) {
+            addNode("mainMenu", mainMenuScene);
+        }
+        mainMenuScene->setCursorPosition(cursorScreenPos);
+        if (cursorNode) {
+            cursorNode->setVisible(true);
+        }
+        if (cursorTrail) {
+            cursorTrail->setVisible(true);
+        }
+        saveHudVisibility();
+    }
+
+    void MainScene::hideMenu() {
+        if (!menuVisible) {
+            return;
+        }
+        menuVisible = false;
+        removeNode("mainMenu");
+        restoreHudVisibility();
+        if (cursorNode) {
+            cursorNode->setVisible(false);
+        }
+        if (cursorTrail) {
+            cursorTrail->setVisible(false);
+        }
+        if (cursorTrailMaterial) {
+            cursorTrailMaterial->set_spawn_per_frame(0.0f);
+        }
+        if (playerScene) {
+            camera->setStickyPoint(playerScene->getSnake());
+        }
+    }
+
+    void MainScene::saveHudVisibility() {
+        if (hudStateSaved) {
+            return;
+        }
+
+        hudHelpVisible = helpText ? helpText->isVisible() : false;
+        hudTilesVisible = tilesCounterNode ? tilesCounterNode->isVisible() : false;
+        hudRadarVisible = radarMeshNode ? radarMeshNode->isVisible() : false;
+
+        if (helpText) {
+            helpText->setVisible(false);
+        }
+        if (tilesCounterNode) {
+            tilesCounterNode->setVisible(false);
+        }
+        if (radarMeshNode) {
+            radarMeshNode->setVisible(false);
+        }
+
+        hudStateSaved = true;
+    }
+
+    void MainScene::restoreHudVisibility() {
+        if (!hudStateSaved) {
+            return;
+        }
+
+        if (helpText) {
+            helpText->setVisible(hudHelpVisible);
+        }
+        if (tilesCounterNode) {
+            tilesCounterNode->setVisible(hudTilesVisible);
+        }
+        if (radarMeshNode) {
+            radarMeshNode->setVisible(hudRadarVisible);
+        }
+
+        hudStateSaved = false;
     }
 } // Scenes

@@ -19,41 +19,28 @@ namespace Scenes {
         constexpr float kPlaneMaxY = 3.0f;
         constexpr float kExplosionZ = 0.0f;
 
-        constexpr float kPlaneCenterX = (kPlaneMinX + kPlaneMaxX) * 0.5f;
-        constexpr float kPlaneCenterY = (kPlaneMinY + kPlaneMaxY) * 0.5f;
-        constexpr float kPlaneCenterZ = -1.0f;
-        constexpr float kCameraBackOffset = 3.0f;
-        constexpr float kOrbitSpeed = 0.012f;
-        constexpr glm::vec3 kWorldUp = {0.0f, 0.0f, 1.0f};
     }
 
     WinnerScene::WinnerScene(const shared_ptr<DirectionalLight> &directionalLight,
         const vector<shared_ptr<SpotLight>> &spotLights, const vector<shared_ptr<PointLight>> &pointLights,
         const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera, const glm::mat4 &projection,
         const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
+        : OrbitSceneBase(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
     }
 
     void WinnerScene::init(const int priority) {
-        Scene::init(priority);
+        OrbitSceneBase::init(priority);
 
         quad = make_shared<QuadMesh3D>(resourceManager->getShader("basicShader"), 1.7, 1.7);
         quad->setBlending(Blending::AlphaAdditive);
         quad->setDepthTest(false);
         quad->setDepthWrite(false);
 
-        cameraOrbit.setCenter({kPlaneCenterX, kPlaneCenterY, kPlaneCenterZ});
-        cameraOrbit.setBackOffset(kCameraBackOffset);
-        cameraOrbit.setSpeed(kOrbitSpeed);
-        cameraOrbit.setWorldUp(kWorldUp);
-
         initExplosion();
     }
 
     void WinnerScene::update() {
-        Scene::update();
-
-        cameraOrbit.update(camera, deltaTime);
+        OrbitSceneBase::update();
 
         if (explosions.empty()) {
             return;
