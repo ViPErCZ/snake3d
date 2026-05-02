@@ -7,7 +7,7 @@
 #include "../Renderer/Opengl/Model/Game/BoltLinesNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
-#include "../Tools/Time.h"
+#include "../Tools/Timer.h"
 
 using namespace std;
 using namespace Model;
@@ -34,7 +34,7 @@ namespace Scenes {
         shared_ptr<ShaderMaterial> flashMaterial;
         shared_ptr<MeshNode2D> flashNode;
 
-        Time boltTimer;
+        Timer boltTimer;
         float nextBoltIn = 0.0f;
         bool boltActive = false;
         float boltElapsed = 0.0f;

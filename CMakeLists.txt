@@ -83,8 +83,6 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Tools/CameraOrbit.h
         Tools/Timer.cpp
         Tools/Timer.h
-        Tools/Time.cpp
-        Tools/Time.h
         Tools/WorldEnvironment.cpp
         Tools/WorldEnvironment.h
         Tools/Environment.cpp

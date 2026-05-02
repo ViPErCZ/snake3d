@@ -51,13 +51,14 @@ namespace Scenes {
         addMeshNode2D(flashNode, 80);
 
         nextBoltIn = randomNextBoltTime();
-        boltTimer.reset();
+        boltTimer.start();
     }
 
     void BoltScene::update() {
         Scene::update();
 
-        const float dt = boltTimer.tick();
+        boltTimer.update();
+        const float dt = static_cast<float>(boltTimer.getDeltaTime());
 
         if (boltActive) {
             boltElapsed += dt;
@@ -73,13 +74,14 @@ namespace Scenes {
             flashMaterial->setUniform("alpha", flashAlpha);
         }
 
-        if (boltTimer.elapsed() >= nextBoltIn) {
+        if (static_cast<float>(boltTimer.getElapsedTime()) >= nextBoltIn) {
             triggerBolt();
         }
     }
 
     void BoltScene::triggerBolt() {
         boltTimer.reset();
+        boltTimer.update();
         nextBoltIn = randomNextBoltTime();
         boltActive = true;
         boltElapsed = 0.0f;
