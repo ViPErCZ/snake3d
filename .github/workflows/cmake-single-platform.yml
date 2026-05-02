@@ -33,6 +33,7 @@ jobs:
           libglm-dev \
           libgl1-mesa-dev \
           libfreetype6-dev \
+          libenet-dev \
           nlohmann-json3-dev
 
       - name: Clear build directory
