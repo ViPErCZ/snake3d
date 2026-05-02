@@ -59,10 +59,6 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Network/Game/SnakeSnapshotApplier.h
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
-        Renderer/Opengl/BoltRenderer.cpp
-        Renderer/Opengl/BoltRenderer.h
-        Renderer/Opengl/Effects/LightningFlashEffect.cpp
-        Renderer/Opengl/Effects/LightningFlashEffect.h
         Handler/Debug/PositionHandler.cpp
         Handler/Debug/PositionHandler.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp
@@ -87,6 +83,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Tools/CameraOrbit.h
         Tools/Timer.cpp
         Tools/Timer.h
+        Tools/Time.cpp
+        Tools/Time.h
         Tools/WorldEnvironment.cpp
         Tools/WorldEnvironment.h
         Tools/Environment.cpp
@@ -203,6 +201,10 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Scenes/BoltScene.cpp
+        Scenes/BoltScene.h
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.cpp
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.h
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
         Renderer/Opengl/Model/Debug/LightNode3D.cpp
@@ -475,6 +477,10 @@ set(APP_SOURCES
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Scenes/BoltScene.cpp
+        Scenes/BoltScene.h
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.cpp
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.h
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
         Renderer/Opengl/Model/Debug/LightNode3D.cpp
@@ -693,6 +699,10 @@ add_library(snake3d_lib ${APP_SOURCES}
         Scenes/TorchScene.h
         Scenes/WeatherScene.cpp
         Scenes/WeatherScene.h
+        Scenes/BoltScene.cpp
+        Scenes/BoltScene.h
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.cpp
+        Renderer/Opengl/Model/Game/BoltLinesNode2D.h
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.cpp
         Renderer/Opengl/Model/Standard/WireframeArrowMesh.h
         Renderer/Opengl/Model/Debug/LightNode3D.cpp

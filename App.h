@@ -7,7 +7,6 @@
 #include "Manager/EatManager.h"
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
-#include "Renderer/Opengl/BoltRenderer.h"
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
 
@@ -48,7 +47,6 @@ private:
     shared_ptr<Environment> environment;
     shared_ptr<ResourceManager> resourceManager;
     shared_ptr<RenderManager> rendererManager;
-    shared_ptr<BoltRenderer> boltRenderer{};
     unique_ptr<KeyboardManager> keyboardManager;
     unique_ptr<EatManager> eatManager;
     shared_ptr<Camera> camera;

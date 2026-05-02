@@ -1,6 +1,5 @@
 #include <nlohmann/json.hpp>
 #include "App.h"
-#include "Renderer/Opengl/BoltRenderer.h"
 #include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
@@ -211,19 +210,6 @@ void App::processInput(GLFWwindow *window, const int keyCode, const int scancode
 }
 
 void App::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) const {
-    double xpos, ypos;
-    // glfwGetCursorPos(window, &xpos, &ypos);
-    // const glm::vec2 cursor(static_cast<float>(xpos), static_cast<float>(ypos));
-
-    // if (torchRenderer != nullptr) {
-    //     if (button == GLFW_MOUSE_BUTTON_LEFT) {
-    //         if (action == GLFW_PRESS) {
-    //             torchRenderer->onMouseDown(cursor, width, height);
-    //         } else if (action == GLFW_RELEASE) {
-    //             torchRenderer->onMouseUp();
-    //         }
-    //     }
-    // }
     if (mainScene) {
         mainScene->mouseButtonCallback(window, button, action, mods);
     }

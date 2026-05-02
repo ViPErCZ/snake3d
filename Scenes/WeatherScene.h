@@ -20,7 +20,7 @@ namespace Scenes {
 
         void init(int priority) override;
     protected:
-        void initRain();
+        void initRain(bool lightning = false);
         void initRainDrop();
         void initSnow();
 

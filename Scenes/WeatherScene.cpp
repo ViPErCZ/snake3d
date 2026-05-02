@@ -4,6 +4,7 @@
 #include "../Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include "BoltScene.h"
 
 namespace Scenes {
     WeatherScene::WeatherScene(
@@ -23,12 +24,12 @@ namespace Scenes {
         quad->setDepthTest(false);
         quad->setDepthWrite(false);
 
-        // initRain();
+        initRain(true);
         // initRainDrop();
         // initSnow();
     }
 
-    void WeatherScene::initRain() {
+    void WeatherScene::initRain(const bool lightning) {
         const auto material = make_shared<ParticleProcessMaterial>(resourceManager);
         material->set_texture("rain.png");
         material->set_mode(Billboard);
@@ -53,8 +54,14 @@ namespace Scenes {
         material->set_stretch(0.003f);
 
         const auto rain = make_shared<GPUParticle3D>(material, contextState, camera, quad, resourceManager, 6000);
-
         addMeshNode3D(rain);
+
+        if (lightning) {
+            const auto boltScene = make_shared<BoltScene>(
+                directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+            boltScene->init(10);
+            addNode("bolt", boltScene);
+        }
     }
 
     void WeatherScene::initRainDrop() {
