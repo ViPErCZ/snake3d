@@ -54,7 +54,7 @@ namespace Scenes {
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         shape->setCollisionLayer(WORLD);
-        shape->setCollisionMask(PLAYER);
+        shape->setCollisionMask(PLAYER | ENEMY);
         shape->setName("Perimeter shape 1");
         boxNode3D->addNode(shape);
 
@@ -65,7 +65,7 @@ namespace Scenes {
             const auto boxShapeX = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
             const auto shapeX = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeX);
             shapeX->setCollisionLayer(WORLD);
-            shapeX->setCollisionMask(PLAYER);
+            shapeX->setCollisionMask(PLAYER | ENEMY);
             shapeX->setName("Perimeter shape bottom " + std::to_string(x));
             boxNode3D_2->addNode(shapeX);
             boxNode3D->addNode(boxNode3D_2);
@@ -78,7 +78,7 @@ namespace Scenes {
             const auto boxShapeX = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
             const auto shapeX = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeX);
             shapeX->setCollisionLayer(WORLD);
-            shapeX->setCollisionMask(PLAYER);
+            shapeX->setCollisionMask(PLAYER | ENEMY);
             shapeX->setName("Perimeter shape top " + std::to_string(x));
             boxNode3D_2->addNode(shapeX);
             boxNode3D->addNode(boxNode3D_2);
@@ -91,7 +91,7 @@ namespace Scenes {
             const auto boxShapeY = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
             const auto shapeY = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeY);
             shapeY->setCollisionLayer(WORLD);
-            shapeY->setCollisionMask(PLAYER);
+            shapeY->setCollisionMask(PLAYER | ENEMY);
             shapeY->setName("Perimeter shape left " + std::to_string(y));
             boxNode3D_2->addNode(shapeY);
             boxNode3D->addNode(boxNode3D_2);
@@ -104,7 +104,7 @@ namespace Scenes {
             const auto boxShapeY = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.01, 2.01, 2.01));
             const auto shapeY = make_shared<CollisionShape3D>(contextState, resourceManager, boxShapeY);
             shapeY->setCollisionLayer(WORLD);
-            shapeY->setCollisionMask(PLAYER);
+            shapeY->setCollisionMask(PLAYER | ENEMY);
             shapeY->setName("Perimeter shape right " + std::to_string(y));
             boxNode3D_2->addNode(shapeY);
             boxNode3D->addNode(boxNode3D_2);
@@ -125,7 +125,7 @@ namespace Scenes {
         addMeshNode3D(levelBoxes, 3001);
     }
 
-    void BarriersScene::nextLevel() {
+    void BarriersScene::nextLevel(const int targetLevel) {
         if (collisionSystem != nullptr) {
             if (levelBoxes) {
                 collisionSystem->removeCollider(levelBoxes);
@@ -136,7 +136,8 @@ namespace Scenes {
         }
         meshNode3d.clear();
         initBarriers();
-        levelBoxes = levelManager->createLevel(levelManager->getLevel(), directionalLight, spotLights, pointLights);
+        const int level = (targetLevel >= 0) ? targetLevel : levelManager->getLevel();
+        levelBoxes = levelManager->createLevel(level, directionalLight, spotLights, pointLights);
         addMeshNode3D(levelBoxes, 3001);
     }
 } // Scenes

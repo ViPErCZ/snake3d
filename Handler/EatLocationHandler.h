@@ -27,6 +27,8 @@ namespace Handler {
 
         void rePosition() const;
 
+        void fixVirtualPosition(const glm::vec3 &pos) const;
+
         [[nodiscard]] bool isFieldEmpty(int x, int y) const;
 
         void clearBarriers();

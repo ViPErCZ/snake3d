@@ -8,6 +8,26 @@ find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 find_package(assimp 5.2 REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+option(USE_ENET "Enable ENet networking" ON)
+if (USE_ENET)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(ENET QUIET enet)
+    if (NOT ENET_FOUND)
+        pkg_check_modules(ENET QUIET libenet)
+    endif()
+    if (NOT ENET_FOUND)
+        find_path(ENET_INCLUDE_DIRS enet/enet.h)
+        find_library(ENET_LIBRARIES NAMES enet libenet)
+        if (ENET_INCLUDE_DIRS AND ENET_LIBRARIES)
+            set(ENET_FOUND TRUE)
+        endif()
+    endif()
+    if (NOT ENET_FOUND)
+        message(FATAL_ERROR "ENet not found. Install libenet-dev and ensure pkg-config can find it.")
+    endif()
+    add_definitions(-DSNAKE3_USE_ENET)
+    include_directories(${ENET_INCLUDE_DIRS})
+endif()
 
 include_directories(/usr/include/freetype2)
 include_directories(/usr/include/AL)
@@ -19,6 +39,24 @@ add_custom_target(copy_assets ALL
 )
 
 add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
+        Network/NetManager.cpp
+        Network/NetManager.h
+        Network/NetProtocol.cpp
+        Network/NetProtocol.h
+        Network/NetMessages.cpp
+        Network/NetMessages.h
+        Network/NetClientServer.cpp
+        Network/NetClientServer.h
+        Network/NetDispatcher.cpp
+        Network/NetDispatcher.h
+        Network/NetClock.cpp
+        Network/NetClock.h
+        Network/Game/NetGameSnapshot.cpp
+        Network/Game/NetGameSnapshot.h
+        Network/Game/NetUtils.cpp
+        Network/Game/NetUtils.h
+        Network/Game/SnakeSnapshotApplier.cpp
+        Network/Game/SnakeSnapshotApplier.h
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/BoltRenderer.cpp
@@ -87,6 +125,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/RemoteSnakeScene.cpp
+        Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
         Renderer/Opengl/Model/Standard/MeshNode3D.h
         Scenes/PlayerScene.cpp
@@ -217,6 +257,24 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         ItemsDto/Named.h
         ItemsDto/Tagged.cpp
         ItemsDto/Tagged.h
+        Network/NetManager.cpp
+        Network/NetManager.h
+        Network/NetProtocol.cpp
+        Network/NetProtocol.h
+        Network/NetMessages.cpp
+        Network/NetMessages.h
+        Network/NetClientServer.cpp
+        Network/NetClientServer.h
+        Network/NetDispatcher.cpp
+        Network/NetDispatcher.h
+        Network/NetClock.cpp
+        Network/NetClock.h
+        Network/Game/NetGameSnapshot.cpp
+        Network/Game/NetGameSnapshot.h
+        Network/Game/NetUtils.cpp
+        Network/Game/NetUtils.h
+        Network/Game/SnakeSnapshotApplier.cpp
+        Network/Game/SnakeSnapshotApplier.h
         Tools/BuildSettings.h
         Tools/Layers.h
         Manager/SoundManager.cpp
@@ -229,6 +287,9 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Scenes/MainMenuScene.h
 )
 target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
+if (USE_ENET)
+    target_link_libraries(${PROJECT_NAME} ${ENET_LIBRARIES})
+endif()
 
 target_compile_definitions(Snake3 PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
@@ -341,6 +402,8 @@ set(APP_SOURCES
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/RemoteSnakeScene.cpp
+        Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
         Renderer/Opengl/Scene/SceneRenderer.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
@@ -471,6 +534,24 @@ set(APP_SOURCES
         ItemsDto/Named.h
         ItemsDto/Tagged.cpp
         ItemsDto/Tagged.h
+        Network/NetManager.cpp
+        Network/NetManager.h
+        Network/NetProtocol.cpp
+        Network/NetProtocol.h
+        Network/NetMessages.cpp
+        Network/NetMessages.h
+        Network/NetClientServer.cpp
+        Network/NetClientServer.h
+        Network/NetDispatcher.cpp
+        Network/NetDispatcher.h
+        Network/NetClock.cpp
+        Network/NetClock.h
+        Network/Game/NetGameSnapshot.cpp
+        Network/Game/NetGameSnapshot.h
+        Network/Game/NetUtils.cpp
+        Network/Game/NetUtils.h
+        Network/Game/SnakeSnapshotApplier.cpp
+        Network/Game/SnakeSnapshotApplier.h
         Tools/BuildSettings.h
         Tools/Layers.h
         Manager/SoundManager.cpp
@@ -541,6 +622,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/RemoteSnakeScene.cpp
+        Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
         Renderer/Opengl/Model/Standard/MeshNode3D.h
         Scenes/PlayerScene.cpp
@@ -693,6 +776,9 @@ target_include_directories(snake3d_lib PUBLIC
 target_link_libraries(snake3d_lib PUBLIC
         glfw glut GLU GL GLEW freetype assimp
 )
+if (USE_ENET)
+    target_link_libraries(snake3d_lib PUBLIC ${ENET_LIBRARIES})
+endif()
 target_compile_definitions(snake3d_lib PUBLIC $<$<CONFIG:Debug>:IS_DEBUG>)
 
 # --- Zdrojové soubory TESTŮ ---

@@ -14,28 +14,41 @@ namespace Manager {
     }
 
     bool ResourceManager::release() {
-        std::unique_lock lock(mutex);
-
-        if (loader) {
-            loader->stop();
-            loader.reset();
+        std::unique_ptr<ResourceLoader> loaderToStop;
+        std::vector<std::thread> threadsToJoin;
+        {
+            std::unique_lock lock(mutex);
+            loaderToStop = std::move(loader);
+            threadsToJoin = std::move(threads);
         }
 
-        for (auto &t: threads) {
+        if (loaderToStop) {
+            loaderToStop->stop();
+        }
+
+        for (auto &t: threadsToJoin) {
             if (t.joinable()) {
                 t.join();
             }
         }
-        threads.clear(); {
+
+        {
             std::lock_guard guard(pendingMutex);
             while (!pending.empty()) pending.pop();
+            while (!pendingAnim.empty()) pendingAnim.pop();
+            while (!pendingTextures.empty()) pendingTextures.pop();
+            while (!pendingShaders.empty()) pendingShaders.pop();
             waitingModels.clear();
+            loadingCount = 0;
         }
 
-        animationModel.clear();
-        model.clear();
-        texture.clear();
-        shader.clear();
+        {
+            std::unique_lock lock(mutex);
+            animationModel.clear();
+            model.clear();
+            texture.clear();
+            shader.clear();
+        }
 
         return true;
     }

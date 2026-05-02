@@ -55,36 +55,26 @@ namespace Renderer {
     void DepthMapRenderer::render(float dt) const {
         shader->use();
 
-        int index = 0;
-        constexpr int NUM_CASCADES = 3;
-        float cascadeEnds[NUM_CASCADES];
-
-        const float lambda = 0.95f;
-        const float nearClip = 0.1f;
-        const float farClip = 1000.0f;
-
-        for (int i = 0; i < NUM_CASCADES; i++) {
-            const float p = static_cast<float>(i + 1) / static_cast<float>(NUM_CASCADES);
-            const float logSplit = nearClip * std::pow(farClip / nearClip, p);
-            const float linSplit = nearClip + (farClip - nearClip) * p;
-            cascadeEnds[i] = lambda * logSplit + (1.0f - lambda) * linSplit;
-        }
-
-        shader->setFloat("cascadeEnds" + std::to_string(0), cascadeEnds[0]);
-        shader->setFloat("cascadeEnds" + std::to_string(1), cascadeEnds[1]);
-        shader->setFloat("cascadeEnds" + std::to_string(2), cascadeEnds[2]);
+        shader->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
+        shader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
+        shader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
 
         const auto basicShader = resourceManager->getShader("basicShader");
         basicShader->use();
-        index = 0;
+        int index = 0;
         for (const auto &lightSpaceMatrice: lightSpaceMatrices) {
             basicShader->setMat4("lightSpaceMatrix" + std::to_string(index), lightSpaceMatrice);
             index++;
         }
 
-        basicShader->setFloat("cascadeEnds" + std::to_string(0), cascadeEnds[0]);
-        basicShader->setFloat("cascadeEnds" + std::to_string(1), cascadeEnds[1]);
-        basicShader->setFloat("cascadeEnds" + std::to_string(2), cascadeEnds[2]);
+        basicShader->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
+        basicShader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
+        basicShader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
+
+        const glm::vec3 shadowCenter = camera->getStickyPoint()
+            ? glm::vec3(camera->getStickyPoint()->getModelMatrix() * glm::vec4(0, 0, 0, 1))
+            : camera->getPosition();
+        basicShader->setVec3("shadowCenter", shadowCenter);
     }
 
     void DepthMapRenderer::bind(const int index, const glm::mat4 &lightSpaceMatrix) const {
@@ -95,18 +85,20 @@ namespace Renderer {
         simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
-    std::vector<glm::mat4> DepthMapRenderer::computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light) {
+    std::vector<glm::mat4> DepthMapRenderer::computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light,
+                                                                      const glm::vec3 /*sceneMin*/, const glm::vec3 /*sceneMax*/) {
         lightSpaceMatrices.clear();
         lightSpaceMatrices.resize(NUM_CASCADES);
 
         const glm::vec3 lightDir = glm::normalize(light->getDirection());
 
-        for (int i = 0; i < NUM_CASCADES; ++i) {
-            constexpr float cameraFar = 80.0f;
-            constexpr float cameraNear = 0.1f;
+        constexpr float cameraFar = 80.0f;
+        constexpr float cameraNear = 0.1f;
 
+        for (int i = 0; i < NUM_CASCADES; ++i) {
             const float cascadeNear = (i == 0) ? cameraNear : cameraNear + cascadeSplits[i - 1] * (cameraFar - cameraNear);
-            const float cascadeFar = cameraNear + cascadeSplits[i] * (cameraFar - cameraNear);
+            const float cascadeFar  = cameraNear + cascadeSplits[i] * (cameraFar - cameraNear);
+            cascadeEndsWorld[i] = cascadeFar;
 
             auto frustumCorners = getFrustumCornersWorldSpace(cascadeNear, cascadeFar);
 
@@ -142,6 +134,15 @@ namespace Renderer {
             maxZ += zMargin;
 
             glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -maxZ, -minZ);
+
+            // Snap world origin to texel grid to eliminate shadow shimmer on camera movement
+            glm::mat4 shadowMatrix = lightProjection * lightView;
+            glm::vec4 shadowOrigin = shadowMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            shadowOrigin *= static_cast<float>(SHADOW_WIDTH) / 2.0f;
+            glm::vec4 roundOffset = (glm::round(shadowOrigin) - shadowOrigin) * (2.0f / static_cast<float>(SHADOW_WIDTH));
+            roundOffset.z = 0.0f;
+            roundOffset.w = 0.0f;
+            lightProjection[3] += roundOffset;
 
             lightSpaceMatrices[i] = lightProjection * lightView;
         }

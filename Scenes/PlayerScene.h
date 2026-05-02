@@ -27,6 +27,7 @@ namespace Scenes {
         [[nodiscard]] shared_ptr<SnakeMoveHandler> getSnakeMoveHandler() const;
 
         void winning() const;
+        void setInputEnabled(bool enabled) const;
 
     protected:
         void initSnake();

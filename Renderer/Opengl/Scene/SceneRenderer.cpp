@@ -50,4 +50,14 @@ namespace Scenes {
         BaseRenderer::setShadow(shadow);
         this->meshNode3DRenderer->setShadow(shadow);
     }
+
+    void SceneRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
+        this->projection = projection;
+        if (meshNode3DRenderer) {
+            meshNode3DRenderer->resize(width, height, projection);
+        }
+        if (meshNode2DRenderer) {
+            meshNode2DRenderer->resize(width, height, projection);
+        }
+    }
 } // Scene

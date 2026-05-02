@@ -49,6 +49,10 @@ namespace Manager {
 
         void setHeight(int height);
 
+        void setProjection(const glm::mat4 &projection);
+
+        void resize(int width, int height, const glm::mat4 &projection);
+
         void enableShadows();
 
         void disableShadows();

@@ -30,7 +30,8 @@ namespace Renderer {
 
         void bind(int index, const glm::mat4 &lightSpaceMatrix) const;
 
-        std::vector<glm::mat4> computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light);
+        std::vector<glm::mat4> computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light,
+                                                      glm::vec3 sceneMin, glm::vec3 sceneMax);
 
     protected:
         ResourceManager *resourceManager;
@@ -43,6 +44,7 @@ namespace Renderer {
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
         float cascadeSplits[NUM_CASCADES] = {0.1f, 0.3f, 1.0f};
+        float cascadeEndsWorld[NUM_CASCADES] = {};
 
         [[nodiscard]] std::vector<glm::vec3> getFrustumCornersWorldSpace(
             float nearPlane,

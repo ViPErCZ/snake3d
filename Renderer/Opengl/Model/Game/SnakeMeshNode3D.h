@@ -57,6 +57,8 @@ namespace Model {
                     const glm::mat4 &parentTransform, bool shadows) override;
 
         bool isReady() const;
+        bool isCrashing() const;
+        bool isRespawning() const;
 
         void setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape);
 

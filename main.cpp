@@ -47,6 +47,9 @@ int main(int argc, char *argv[]) {
     glfwSetKeyCallback(window, key_callback);
     glewInit();
 
+    glfwGetFramebufferSize(window, &W_WIDTH, &W_HEIGHT);
+    app->resize(W_WIDTH, W_HEIGHT);
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
@@ -56,8 +59,6 @@ int main(int argc, char *argv[]) {
     glDepthFunc(GL_LESS);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    // ZAMKNE A SKRYJE KURZOR
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -68,10 +69,6 @@ int main(int argc, char *argv[]) {
 
     while (!glfwWindowShouldClose(window))
     {
-        // input
-        // -----
-        processInput(window);
-
         app->run();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -80,33 +77,15 @@ int main(int argc, char *argv[]) {
         glfwPollEvents();
     }
 
+    app.reset();
+    camera.reset();
+
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    app.reset();
 
     return 0;
 }
 
-// process all inputs: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ----------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
-    app->cameraProcessKeyboard(window);
-
-    // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    //     camera->processKeyboard(Camera_Movement::FORWARD, 0.1);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    //     camera->processKeyboard(Camera_Movement::BACKWARD, 0.1);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    //     camera->processKeyboard(Camera_Movement::LEFT, 0.1);
-    // }
-    // if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    //     camera->processKeyboard(Camera_Movement::RIGHT, 0.1);
-    // }
-}
 // glfw: whenever the window size changed (by OS or user resize), this callback function executes
 // ----------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, const int width, const int height)
@@ -114,8 +93,12 @@ void framebuffer_size_callback(GLFWwindow* window, const int width, const int he
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+    W_WIDTH = width;
+    W_HEIGHT = height;
+    if (app) {
+        app->resize(width, height);
+    }
 }
-
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
@@ -162,4 +145,6 @@ void key_callback(GLFWwindow* window, const int key, const int scancode, const i
     if (action == GLFW_PRESS || action == GLFW_REPEAT) {
         app->processInput(window, key, scancode, action, mods);
     }
+
+    app->cameraProcessKeyboard(window);
 }

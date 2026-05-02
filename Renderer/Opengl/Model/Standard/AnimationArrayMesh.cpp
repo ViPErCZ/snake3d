@@ -1,5 +1,7 @@
 #include "AnimationArrayMesh.h"
 
+#include <stdexcept>
+
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
                                            const shared_ptr<ShaderManager> &baseShader, const string &animationName)
@@ -47,7 +49,12 @@ namespace Model {
     }
 
     void AnimationArrayMesh::renderMesh(const glm::mat4 &parentTransform, const bool animPlay) const {
-        const auto metadata = animPlay ? animationPlayer->play(animation) : animationPlayer->getMetadata(animation);
+        shared_ptr<AnimationMeta> metadata;
+        try {
+            metadata = animPlay ? animationPlayer->play(animation) : animationPlayer->getMetadata(animation);
+        } catch (const std::invalid_argument &) {
+            return;
+        }
 
         for (int i = 0; i < metadata->bone_transform.size(); ++i) {
             if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {

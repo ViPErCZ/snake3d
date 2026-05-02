@@ -44,6 +44,7 @@ namespace Scenes {
         void afterRender() override;
 
         void setShadow(bool shadow) override;
+        void resize(int width, int height, const glm::mat4 &projection) override;
 
     private:
         shared_ptr<Camera> camera;

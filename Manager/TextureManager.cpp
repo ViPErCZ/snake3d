@@ -61,6 +61,22 @@ namespace Manager {
         textures.push_back(id);
     }
 
+    void TextureManager::replaceTexture(const unsigned int id, const int item) {
+        if (item < 0) {
+            return;
+        }
+
+        const auto index = static_cast<size_t>(item);
+        if (index < textures.size()) {
+            textures[index] = id;
+            return;
+        }
+
+        if (index == textures.size()) {
+            textures.push_back(id);
+        }
+    }
+
     void TextureManager::bind(const int index, const int item) {
         glActiveTexture(GL_TEXTURE0 + index);
         const auto id = textures.begin() + item;

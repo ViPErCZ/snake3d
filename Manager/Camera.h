@@ -38,6 +38,9 @@ namespace Manager {
         void setUp(const glm::vec3& up);
         void onMouseDown(int button, int action, int mods);
         void setKeyState(int key, bool pressed);
+        void setReflectionPass(bool value);
+        void syncFollowPosition();
+        void releaseFollow();
 
     protected:
         bool keys[1024] = { false };
@@ -52,6 +55,7 @@ namespace Manager {
         float PITCH = 56.0f;
         bool rightButtonPressed = true;
         bool firstMouse = true;
+        bool reflectionPass = false;
         float lastX = 0.0f;
         float lastY = 0.0f;
         glm::vec3 offsetFromTarget = glm::vec3(0.0f, -3.5f, 3.0f);

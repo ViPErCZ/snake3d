@@ -128,15 +128,8 @@ void main()
             if (shadowsEnable) {
                 vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
                 float viewDepth = -fragPosView.z;
-                int cascadeIndex = int(GetCascadeIndex(viewDepth));
                 vec3 shadowNormal = normalMapEnabled ? Normal : worldNormal;
-
-                if (cascadeIndex == 0) {
-                    shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix0);
-                } else if (cascadeIndex == 1)
-                    shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix1);
-                else
-                    shadow = ShadowCalculation2(fragPos, shadowNormal, -dirLight.direction, cascadeIndex, lightSpaceMatrix2);
+                shadow = ShadowBlended(fragPos, shadowNormal, -dirLight.direction, viewDepth);
             }
 
             final = CalcDirLight(dirLight, normal, viewDir, ambient, shadow);

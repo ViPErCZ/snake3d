@@ -36,6 +36,7 @@ public:
     void mousePositionCallback(GLFWwindow* window, double x, double y) const;
     void setKeyState(int key, bool pressed) const;
     void cameraProcessKeyboard(GLFWwindow *window) const;
+    void resize(int width, int height);
 protected:
     void initScene() const;
     void InitResourceManager() const;

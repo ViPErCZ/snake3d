@@ -411,6 +411,14 @@ namespace Model {
         return mesh->getMaterial() == headMaterial && timerUniform->isRunning() == false;
     }
 
+    bool SnakeMeshNode3D::isCrashing() const {
+        return timerUniform2 && timerUniform2->isRunning();
+    }
+
+    bool SnakeMeshNode3D::isRespawning() const {
+        return timerUniform && timerUniform->isRunning();
+    }
+
     void SnakeMeshNode3D::setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape) {
         collisionShapes.clear();
         collisionShapes.push_back(collisionShape);

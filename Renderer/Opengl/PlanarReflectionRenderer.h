@@ -28,8 +28,11 @@ namespace Renderer {
         void afterRender() override;
         void renderShadowMap() override;
         void setPlaneZ(float z);
+        void resize(int width, int height, const glm::mat4 &projection) override;
 
     protected:
+        void initializeFramebuffer();
+        void destroyFramebuffer();
         shared_ptr<ContextState> contextState;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;

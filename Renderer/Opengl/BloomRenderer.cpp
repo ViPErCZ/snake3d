@@ -6,6 +6,29 @@ Renderer::BloomRenderer::BloomRenderer(const shared_ptr<ResourceManager> &resMan
 
     shaderBlur = resourceManager->getShader("blur");
     shaderBloomFinal = resourceManager->getShader("bloomFinal");
+    initializeFramebuffers();
+
+    shaderBlur->use();
+    shaderBlur->setInt("image", 0);
+    shaderBloomFinal->use();
+    shaderBloomFinal->setInt("scene", 0);
+    shaderBloomFinal->setInt("bloomBlur", 1);
+}
+
+Renderer::BloomRenderer::~BloomRenderer() {
+    destroyFramebuffers();
+    if (quadVAO != 0) {
+        glDeleteVertexArrays(1, &quadVAO);
+        quadVAO = 0;
+    }
+    if (quadVBO != 0) {
+        glDeleteBuffers(1, &quadVBO);
+        quadVBO = 0;
+    }
+}
+
+void Renderer::BloomRenderer::initializeFramebuffers() {
+    destroyFramebuffers();
 
     glGenFramebuffers(1, &hdrFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -20,7 +43,6 @@ Renderer::BloomRenderer::BloomRenderer(const shared_ptr<ResourceManager> &resMan
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0);
     }
-    unsigned int rboDepth;
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
@@ -50,14 +72,32 @@ Renderer::BloomRenderer::BloomRenderer(const shared_ptr<ResourceManager> &resMan
             std::cout << "Framebuffer not complete!" << std::endl;
     }
 
-    const auto sceneTexture = make_shared<TextureManager>(colorBuffers[0]);
-    resourceManager->replaceTexture("SceneTexture", sceneTexture);
+    if (resourceManager->hasTexture("SceneTexture")) {
+        resourceManager->getTexture("SceneTexture")->replaceTexture(colorBuffers[0]);
+    } else {
+        const auto sceneTexture = make_shared<TextureManager>(colorBuffers[0]);
+        resourceManager->addTexture("SceneTexture", sceneTexture);
+    }
+}
 
-    shaderBlur->use();
-    shaderBlur->setInt("image", 0);
-    shaderBloomFinal->use();
-    shaderBloomFinal->setInt("scene", 0);
-    shaderBloomFinal->setInt("bloomBlur", 1);
+void Renderer::BloomRenderer::destroyFramebuffers() {
+    if (hdrFBO != 0) {
+        glDeleteFramebuffers(1, &hdrFBO);
+        hdrFBO = 0;
+    }
+    glDeleteFramebuffers(2, pingpongFBO);
+    pingpongFBO[0] = 0;
+    pingpongFBO[1] = 0;
+    glDeleteTextures(2, colorBuffers);
+    colorBuffers[0] = 0;
+    colorBuffers[1] = 0;
+    glDeleteTextures(2, pingpongColorBuffers);
+    pingpongColorBuffers[0] = 0;
+    pingpongColorBuffers[1] = 0;
+    if (rboDepth != 0) {
+        glDeleteRenderbuffers(1, &rboDepth);
+        rboDepth = 0;
+    }
 }
 
 void Renderer::BloomRenderer::render3D(float dt, uint64_t frameId) {
@@ -146,3 +186,12 @@ void Renderer::BloomRenderer::beforeRender(const MODE mode) {
 }
 
 void Renderer::BloomRenderer::renderShadowMap() {}
+
+void Renderer::BloomRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+    this->width = width;
+    this->height = height;
+    initializeFramebuffers();
+}

@@ -7,10 +7,10 @@
 
 namespace Resource {
     ResourceLoader::ResourceLoader() {
-        worker = std::thread([this]() { workerLoop(); });
-        std::thread([this]() { workerLoopAnim(); }).detach();
-        std::thread([this]() { workerLoopTexture(); }).detach();
-        std::thread([this]() { workerLoopShader(); }).detach();
+        modelWorker = std::thread([this]() { workerLoop(); });
+        animWorker = std::thread([this]() { workerLoopAnim(); });
+        textureWorker = std::thread([this]() { workerLoopTexture(); });
+        shaderWorker = std::thread([this]() { workerLoopShader(); });
     }
 
     ResourceLoader::~ResourceLoader() {
@@ -22,12 +22,23 @@ namespace Resource {
             std::lock_guard lock(queueMutex);
             running = false;
         }
-        cv.notify_all(); // probudí worker, pokud spí
-        if (worker.joinable())
-            worker.join();
+        cv.notify_all();
+
+        if (modelWorker.joinable()) {
+            modelWorker.join();
+        }
+        if (animWorker.joinable()) {
+            animWorker.join();
+        }
+        if (textureWorker.joinable()) {
+            textureWorker.join();
+        }
+        if (shaderWorker.joinable()) {
+            shaderWorker.join();
+        }
     }
 
-    void ResourceLoader::enqueue(const std::filesystem::path& path, Callback callback) {
+    void ResourceLoader::enqueue(const std::filesystem::path &path, Callback callback) {
         {
             std::lock_guard lock(queueMutex);
             jobs.push({path, std::move(callback)});
@@ -66,132 +77,103 @@ namespace Resource {
     void ResourceLoader::workerLoop() {
         while (true) {
             Job job;
-
             {
                 std::unique_lock lock(queueMutex);
                 cv.wait(lock, [this]() { return !jobs.empty() || !running; });
-
                 if (!running && jobs.empty()) {
                     break;
                 }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 job = jobs.front();
                 jobs.pop();
             }
 
             loadSemaphore.acquire();
-
-            // Spustíme job asynchronně
-            std::thread([this, job]() {
-                try {
-                    const auto obj = ObjModelLoader::loadObj(job.path);
-                    job.callback(obj);
-                } catch (const std::exception &e) {
-                    std::cerr << "[ResourceLoader] Failed to load " << job.path << ": " << e.what() << "\n";
-                }
-                loadSemaphore.release();
-                cv.notify_one();
-            }).detach();
+            try {
+                const auto obj = ObjModelLoader::loadObj(job.path);
+                job.callback(obj);
+            } catch (const std::exception &e) {
+                std::cerr << "[ResourceLoader] Failed to load " << job.path << ": " << e.what() << "\n";
+            }
+            loadSemaphore.release();
         }
     }
 
     void ResourceLoader::workerLoopAnim() {
         while (true) {
             AnimJob job;
-
             {
                 std::unique_lock lock(queueMutex);
                 cv.wait(lock, [this]() { return !animJobs.empty() || !running; });
-
                 if (!running && animJobs.empty()) {
                     break;
                 }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 job = animJobs.front();
                 animJobs.pop();
             }
 
             loadSemaphore.acquire();
-            std::thread([this, job]() {
-                try {
-                    const auto anim = AnimLoader::loadObj(job.path);
-                    job.callback(anim);
-                } catch (const std::exception &e) {
-                    std::cerr << "[ResourceLoader] Failed to load ANIM " << job.path << ": " << e.what() << "\n";
-                }
-                loadSemaphore.release();
-                cv.notify_one();
-            }).detach();
+            try {
+                const auto anim = AnimLoader::loadObj(job.path);
+                job.callback(anim);
+            } catch (const std::exception &e) {
+                std::cerr << "[ResourceLoader] Failed to load ANIM " << job.path << ": " << e.what() << "\n";
+            }
+            loadSemaphore.release();
         }
     }
 
     void ResourceLoader::workerLoopTexture() {
         while (true) {
             TextureJob job;
-
             {
                 std::unique_lock lock(queueMutex);
                 cv.wait(lock, [this]() { return !textureJobs.empty() || !running; });
-
                 if (!running && textureJobs.empty()) {
                     break;
                 }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 job = textureJobs.front();
                 textureJobs.pop();
             }
 
             loadSemaphore.acquire();
-            std::thread([this, job]() {
-                try {
-                    const vector<unsigned char> data = TextureLoader::loadTextureToBuffer(job.path);
-                    job.callback(data, job.albedo);
-                } catch (const std::exception &e) {
-                    std::cerr << "[ResourceLoader] Failed to load TEXTURE " << job.path << ": " << e.what() << "\n";
-                }
-                loadSemaphore.release();
-                cv.notify_one();
-            }).detach();
+            try {
+                const vector<unsigned char> data = TextureLoader::loadTextureToBuffer(job.path);
+                job.callback(data, job.albedo);
+            } catch (const std::exception &e) {
+                std::cerr << "[ResourceLoader] Failed to load TEXTURE " << job.path << ": " << e.what() << "\n";
+            }
+            loadSemaphore.release();
         }
     }
 
     void ResourceLoader::workerLoopShader() {
         while (true) {
             ShaderJob job;
-
             {
                 std::unique_lock lock(queueMutex);
                 cv.wait(lock, [this]() { return !shaderJobs.empty() || !running; });
-
                 if (!running && shaderJobs.empty()) {
                     break;
                 }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 job = shaderJobs.front();
                 shaderJobs.pop();
             }
 
             loadSemaphore.acquire();
-            std::thread([this, job]() {
-                try {
-                    if (job.geometryPath.empty()) {
-                        const fvShader shader = ShaderLoader::loadShaderToBuffer(job.vertexPath, job.fragmentPath);
-                        const vector<unsigned char> geom;
-                        job.callback(shader.vertex, shader.fragment, geom);
-                    } else {
-                        const fgvShader shader = ShaderLoader::loadShaderToBuffer(job.vertexPath, job.geometryPath, job.fragmentPath);
-                        job.callback(shader.vertex, shader.fragment, shader.geometry);
-                    }
-                } catch (const std::exception &e) {
-                    std::cerr << "[ResourceLoader] Failed to load SHADER " << job.vertexPath << ": " << e.what() << "\n";
+            try {
+                if (job.geometryPath.empty()) {
+                    const fvShader shader = ShaderLoader::loadShaderToBuffer(job.vertexPath, job.fragmentPath);
+                    const vector<unsigned char> geom;
+                    job.callback(shader.vertex, shader.fragment, geom);
+                } else {
+                    const fgvShader shader = ShaderLoader::loadShaderToBuffer(job.vertexPath, job.geometryPath,
+                                                                              job.fragmentPath);
+                    job.callback(shader.vertex, shader.fragment, shader.geometry);
                 }
-                loadSemaphore.release();
-                cv.notify_one();
-            }).detach();
+            } catch (const std::exception &e) {
+                std::cerr << "[ResourceLoader] Failed to load SHADER " << job.vertexPath << ": " << e.what() << "\n";
+            }
+            loadSemaphore.release();
         }
     }
 } // Resource

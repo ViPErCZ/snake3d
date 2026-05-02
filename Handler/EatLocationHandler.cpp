@@ -20,7 +20,7 @@ namespace Handler {
         try {
             const glm::vec2 newPos = getPosition();
             glm::vec3 pos = eat->getPosition();
-            //cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
+            // cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
             eat->x = static_cast<int>(newPos.x) * 32 + 16;
             eat->y = static_cast<int>(newPos.y) * 32 + 16;
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
@@ -28,6 +28,15 @@ namespace Handler {
         } catch (const std::invalid_argument &e) {
             eat->setVisible(false);
         }
+    }
+
+    void EatLocationHandler::fixVirtualPosition(const glm::vec3 &pos) const {
+        const float originalNewPosX = (pos.x + 69.0f) / 6.0f;
+        const float originalNewPosY = (pos.y + 69.0f) / 6.0f;
+        eat->x = static_cast<int>(originalNewPosX) * 32 + 16;
+        eat->y = static_cast<int>(originalNewPosY) * 32 + 16;
+
+        // cout << "coin: " << eat->x << ", " << eat->y << endl;
     }
 
     bool EatLocationHandler::isFieldEmpty(const int x, const int y) const {

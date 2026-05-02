@@ -54,6 +54,7 @@ namespace Tools {
             center.z + height
         };
 
+        camera.releaseFollow();
         camera.setPosition(orbitPos);
         camera.setFront(center - orbitPos);
         camera.setUp(worldUp);

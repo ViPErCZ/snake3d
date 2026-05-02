@@ -27,18 +27,30 @@ namespace Manager {
     }
 
     glm::mat4 Camera::getViewMatrix() {
-        if (!rightButtonPressed) {
+        if (!rightButtonPressed && !reflectionPass) {
             // --- STANDARDNÍ MÓD ---
-            // Kamera je fixována na 'stickyPoint' s daným offsetem
             const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
             this->setPosition(targetPos + offsetFromTarget);
             return glm::lookAt(position, targetPos, worldUp);
         }
 
-        // --- SPECTATOR MÓD ---
-        // Kamera se volně pohybuje a dívá se, kam míří její 'front' vektor
-        // Používáme 'position' jako volnou pozici kamery
+        // --- SPECTATOR MÓD / REFLECTION PASS ---
         return glm::lookAt(position, position + front, up);
+    }
+
+    void Camera::setReflectionPass(const bool value) {
+        reflectionPass = value;
+    }
+
+    void Camera::syncFollowPosition() {
+        if (!rightButtonPressed && stickyPoint) {
+            const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+            position = targetPos + offsetFromTarget;
+        }
+    }
+
+    void Camera::releaseFollow() {
+        rightButtonPressed = true;
     }
 
     const glm::vec3 &Camera::getPosition() const {
@@ -100,19 +112,26 @@ namespace Manager {
                 rightButtonPressed = true;
                 firstMouse = true;
 
-                // Uložíme si aktuální pozici kamery jako startovní bod pro spectator mód
                 const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
-                position = targetPos + offsetFromTarget; // Nastavíme 'position' na aktuální vizuální pozici
+                position = targetPos + offsetFromTarget;
 
-                // Vypočítáme YAW a PITCH, aby přechod byl plynulý
+                // Z-up convention: YAW in XY plane, PITCH = elevation from XY plane
                 const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
-                YAW = glm::degrees(atan2(dirToTarget.z, dirToTarget.x));
-                PITCH = glm::degrees(asin(dirToTarget.y));
-                updateCameraVectors(); // Ihned aktualizujeme vektory
-                cout << "Spectator started..." << endl;
+                YAW   = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
+                PITCH = glm::degrees(asin(glm::clamp(dirToTarget.z, -1.0f, 1.0f)));
+                updateCameraVectors();
             } else if (action == GLFW_RELEASE) {
                 rightButtonPressed = false;
-                // Není potřeba nic resetovat,getViewMatrix se postará o návrat na původní pozici
+                // Sync front/up/right back to the standard follow-mode direction so that
+                // getFrustumCornersWorldSpace() matches getViewMatrix().
+                if (stickyPoint) {
+                    const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+                    const glm::vec3 camPos = targetPos + offsetFromTarget;
+                    const glm::vec3 dirToTarget = glm::normalize(targetPos - camPos);
+                    YAW   = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
+                    PITCH = glm::degrees(asin(glm::clamp(dirToTarget.z, -1.0f, 1.0f)));
+                    updateCameraVectors();
+                }
             }
         }
     }

@@ -28,6 +28,10 @@ namespace Renderer {
     void Node3DRenderer::afterRender() {
     }
 
+    void Node3DRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
+        this->projection = projection;
+    }
+
     void Node3DRenderer::renderShadowMap() {
         if (shadows) {
             rootNode->renderShadows(camera, projection, 1, glm::mat4(1));

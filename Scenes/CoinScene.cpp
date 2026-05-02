@@ -59,7 +59,7 @@ namespace Scenes {
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.8, 2.8, 1.0));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         shape->setCollisionLayer(WORLD);
-        shape->setCollisionMask(PLAYER);
+        shape->setCollisionMask(PLAYER | ENEMY);
         coin->addNode(shape);
 
         if (collisionSystem != nullptr) {

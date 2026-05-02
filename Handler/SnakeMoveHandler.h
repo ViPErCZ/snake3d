@@ -23,10 +23,16 @@ namespace Handler {
         void setStopMoveCallback(const function<void(bool stop)> &stopMoveCallback);
         void setCrashCallback(const function<void()> &crashCallback);
         void setEatenUpCallback(const function<void()> &eatenUpCallback);
+        void setEnabled(bool enabled);
+        void setStopped(bool stopped);
+        void setInitialBodyDirection(SnakeMeshNode3D::eDIRECTION direction);
+        void resetState();
+        [[nodiscard]] bool isEnabled() const { return enabled; }
+        [[nodiscard]] bool isStopped() const { return stop; }
+        void stopMove();
 
     protected:
         void changeMove(unsigned int direction);
-        void stopMove();
         static void moveTile(const shared_ptr<SnakeMeshNode3D> &snakeMeshNode);
         template<typename Iter>
         [[nodiscard]] SnakeMeshNode3D::eDIRECTION findDirection(Iter iter) const;
@@ -38,8 +44,10 @@ namespace Handler {
         double moveAccumulator{};
         double moveInterval = 0.1;
         bool stop;
+        bool enabled = true;
         bool crashLock = false;
         bool eatenUpCallbackCalled;
+        SnakeMeshNode3D::eDIRECTION initialBodyDirection = SnakeMeshNode3D::RIGHT;
         std::function<bool(shared_ptr<SnakeMeshNode3D>)> changeCallback;
         vector<std::function<void()>> startMoveCallbacks;
         std::function<void(bool stop)> stopMoveCallback;

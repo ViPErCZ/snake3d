@@ -230,6 +230,11 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
 
     if (camera) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            if (action == GLFW_PRESS) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else if (action == GLFW_RELEASE) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
             camera->onMouseDown(button, action, mods);
         }
     }
@@ -237,9 +242,7 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
 
 void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
     const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
-    //if (torchRenderer != nullptr) {
-    //    torchRenderer->onMouseMove(cursor, width, height);
-    //}
+
     if (mainScene) {
         mainScene->setCursorPosition(cursor);
     }
@@ -257,6 +260,33 @@ void App::cameraProcessKeyboard(GLFWwindow *window) const {
         return;
     }
     camera->processKeyboard(window, 1);
+}
+
+void App::resize(const int width, const int height) {
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    this->width = width;
+    this->height = height;
+    projection = glm::perspective(
+        glm::radians(camera->getZoom()),
+        static_cast<float>(width) / static_cast<float>(height),
+        0.1f,
+        1000.0f
+    );
+
+    if (rendererManager) {
+        rendererManager->resize(width, height, projection);
+    }
+
+    if (mainScene) {
+        mainScene->resize(width, height, projection);
+    }
+
+    if (preloaderScene) {
+        preloaderScene->resize(width, height, projection);
+    }
 }
 
 void App::InitResourceManager() const {

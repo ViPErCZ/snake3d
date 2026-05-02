@@ -41,6 +41,8 @@ namespace Scenes {
 
         virtual void render();
 
+        virtual void resize(int width, int height, const glm::mat4 &projection);
+
         void addNode(const std::shared_ptr<Scene>& node);
         void addNode(const std::string &name, const std::shared_ptr<Scene> &node);
         [[nodiscard]] bool hasNode(const std::string &name) const;
@@ -51,7 +53,7 @@ namespace Scenes {
         void detachRenderer();
         [[nodiscard]] bool isRendererAttached() const;
 
-        virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
+        virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods);
 
         void addMeshNode3D(shared_ptr<MeshNode3D> node, int priority = 0);
         void addMeshNode2D(shared_ptr<MeshNode2D> node, int priority = 0);

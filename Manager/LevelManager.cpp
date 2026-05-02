@@ -32,7 +32,7 @@ namespace Manager {
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.01, 2.01, 2.01));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
         shape->setCollisionLayer(WORLD);
-        shape->setCollisionMask(PLAYER);
+        shape->setCollisionMask(PLAYER | ENEMY);
         shape->setName(boxNode3D->getName() + " - shape");
         boxNode3D->addNode(shape);
         if (collisionSystem) {

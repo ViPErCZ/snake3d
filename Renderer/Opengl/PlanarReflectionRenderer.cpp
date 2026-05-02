@@ -12,7 +12,12 @@ namespace Renderer {
             const glm::mat4 &projection,
             const int width, const int height)
             : contextState(contextState), resourceManager(resManager), camera(camera), projection(projection), width(width), height(height) {
-        // Framebuffer setup
+        initializeFramebuffer();
+    }
+
+    void PlanarReflectionRenderer::initializeFramebuffer() {
+        destroyFramebuffer();
+
         glGenFramebuffers(1, &reflectionFBO);
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
 
@@ -33,14 +38,31 @@ namespace Renderer {
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        const auto textureRes = make_shared<TextureManager>(reflectionTexture);
-        resourceManager->addTexture("PlanarReflectionTexture", textureRes);
+        if (resourceManager->hasTexture("PlanarReflectionTexture")) {
+            resourceManager->getTexture("PlanarReflectionTexture")->replaceTexture(reflectionTexture);
+        } else {
+            const auto textureRes = make_shared<TextureManager>(reflectionTexture);
+            resourceManager->addTexture("PlanarReflectionTexture", textureRes);
+        }
+    }
+
+    void PlanarReflectionRenderer::destroyFramebuffer() {
+        if (reflectionFBO != 0) {
+            glDeleteFramebuffers(1, &reflectionFBO);
+            reflectionFBO = 0;
+        }
+        if (reflectionTexture != 0) {
+            glDeleteTextures(1, &reflectionTexture);
+            reflectionTexture = 0;
+        }
+        if (depthBuffer != 0) {
+            glDeleteRenderbuffers(1, &depthBuffer);
+            depthBuffer = 0;
+        }
     }
 
     PlanarReflectionRenderer::~PlanarReflectionRenderer() {
-        glDeleteFramebuffers(1, &reflectionFBO);
-        glDeleteTextures(1, &reflectionTexture);
-        glDeleteRenderbuffers(1, &depthBuffer);
+        destroyFramebuffer();
     }
 
     void PlanarReflectionRenderer::updateRenderers(const vector<RendererEntry> &renderers) {
@@ -48,16 +70,16 @@ namespace Renderer {
     }
 
     void PlanarReflectionRenderer::render3D(const float dt, const uint64_t frameId) {
-        // Vypočet zrcadlené kamery
+        // Reflect the camera across the Z plane so sub-renderers see the mirrored scene.
+        // setReflectionPass(true) forces getViewMatrix() to use the stored position/front
+        // instead of the follow-mode path, which would otherwise reset them.
         glm::vec3 originalPos = camera->getPosition();
         const glm::vec3 originalFront = camera->getFront();
         const glm::vec3 originalUp = camera->getUp();
 
-        // Zrcadlíme pozici přes rovinu Z
         const float dist = 2.0f * (originalPos.z - planeZ);
         camera->setPosition({originalPos.x, originalPos.y, originalPos.z - dist});
 
-        // Zrcadlíme front vektor: X a Y zůstávají, Z se obrací
         glm::vec3 reflectedFront = originalFront;
         reflectedFront.z = -reflectedFront.z;
         camera->setFront(reflectedFront);
@@ -66,15 +88,15 @@ namespace Renderer {
         reflectedUp.z = -reflectedUp.z;
         camera->setUp(reflectedUp);
 
+        camera->setReflectionPass(true);
+
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
         glViewport(0, 0, width, height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Změna winding order kvůli zrcadlení
         glFrontFace(GL_CW);
 
-        // Vykreslíme ostatní renderery (např. oheň)
         for (auto &entry: renderers) {
             if (entry.renderer.get() == this) continue;
 
@@ -88,7 +110,7 @@ namespace Renderer {
         glFrontFace(GL_CCW);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // Camera restore
+        camera->setReflectionPass(false);
         camera->setPosition(originalPos);
         camera->setFront(originalFront);
         camera->setUp(originalUp);
@@ -106,5 +128,15 @@ namespace Renderer {
 
     void PlanarReflectionRenderer::setPlaneZ(const float z) {
         planeZ = z;
+    }
+
+    void PlanarReflectionRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        this->width = width;
+        this->height = height;
+        this->projection = projection;
+        initializeFramebuffer();
     }
 }

@@ -56,12 +56,12 @@ namespace Animations {
         const shared_ptr<AnimationNode> &animationNode, const int duration) {
         const auto anim = animations.find(name);
         if (anim == animations.end()) {
-            throw std::invalid_argument("Animation not found");
+            throw std::invalid_argument("Animation not found (in addAnimationNode): " + name);
         }
 
         const auto meta = metadata.at(name);
         if (nullptr == meta) {
-            throw std::invalid_argument("Animation metadata not found");
+            throw std::invalid_argument("Animation metadata not found: " + name);
         }
 
         anim->second->duration = duration;
@@ -113,11 +113,11 @@ namespace Animations {
     shared_ptr<AnimationMeta> AnimationPlayer::play(const string &name) {
         const auto anim = animations.find(name);
         if (anim == animations.end()) {
-            throw std::invalid_argument("Animation not found");
+            throw std::invalid_argument("Animation not found (in play): " + name);
         }
         const auto meta = metadata.at(name);
         if (!meta) {
-            throw std::invalid_argument("Animation metadata not found");
+            throw std::invalid_argument("Animation metadata not found: " + name);
         }
         meta->current_animation = anim->second;
         if (!meta->pause) {
@@ -192,11 +192,11 @@ namespace Animations {
     shared_ptr<AnimationMeta> AnimationPlayer::getMetadata(const string &name) const {
         const auto anim = animations.find(name);
         if (anim == animations.end()) {
-            throw std::invalid_argument("Animation not found");
+            throw std::invalid_argument("Animation not found (in getMetadata): " + name);
         }
         const auto meta = metadata.at(name);
         if (!meta) {
-            throw std::invalid_argument("Animation metadata not found");
+            throw std::invalid_argument("Animation metadata not found:" + name);
         }
         meta->current_animation = anim->second;
 
@@ -207,7 +207,7 @@ namespace Animations {
         completed = false;
         const auto meta = metadata.at(name);
         if (!meta) {
-            throw std::invalid_argument("Animation metadata not found");
+            throw std::invalid_argument("Animation metadata not found: " + name);
         }
         meta->animation_duration = std::chrono::seconds(0);
         meta->last_time = std::chrono::time_point<std::chrono::steady_clock>();

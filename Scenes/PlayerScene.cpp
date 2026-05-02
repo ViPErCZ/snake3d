@@ -34,6 +34,12 @@ namespace Scenes {
         snake->hide();
     }
 
+    void PlayerScene::setInputEnabled(const bool enabled) const {
+        if (snakeMoveHandler) {
+            snakeMoveHandler->setEnabled(enabled);
+        }
+    }
+
     void PlayerScene::initSnake() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
@@ -67,7 +73,7 @@ namespace Scenes {
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
         shape->setCollisionLayer(PLAYER);
-        shape->setCollisionMask(WORLD | ENEMY | PLAYER_BODY);
+        shape->setCollisionMask(WORLD | ENEMY | ENEMY_BODY | PLAYER_BODY);
 
         snake->setCollisionShape(shape);
 

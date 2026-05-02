@@ -1,15 +1,21 @@
 #include "MainScene.h"
 
 #include <glm/gtc/random.hpp>
+#include <cmath>
 #include <iostream>
+#include <random>
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <GLFW/glfw3.h>
 
 #include "../Resource/TextureLoader.h"
 #include "../Thirdparty/stbimage/stb_image.h"
+#include "../Network/Game/NetUtils.h"
+#include "../Network/NetDispatcher.h"
+#include "../Network/Game/SnakeSnapshotApplier.h"
 #include "PlayerScene.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
-#include "../Resource/ShaderLoader.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
@@ -21,15 +27,17 @@
 #include "../Renderer/Opengl/Model/Standard/SkyboxNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
+#include "../Tools/Layers.h"
 
 namespace Scenes {
-    namespace {
+    namespace MainSceneConstants {
         constexpr float kCursorScale = 0.9f;
         constexpr float kCursorTrailSpawnMax = 80.0f;
         constexpr float kCursorTrailSpawnPerPixel = 12.0f;
         constexpr float kCursorTrailSpawnMin = 4.0f;
         constexpr float kCursorEmitterRadius = 0.02f;
-    }
+    } // namespace MainSceneConstants
 
     MainScene::MainScene(
         const shared_ptr<DirectionalLight> &directionalLight,
@@ -37,7 +45,9 @@ namespace Scenes {
         const vector<shared_ptr<PointLight> > &pointLights,
         const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height),
+          netClient(netManager),
+          netServer(netManager) {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
         collisionSystem = make_shared<CollisionSystem3D>();
     }
@@ -48,6 +58,7 @@ namespace Scenes {
         initPreloader();
         initCursor();
         initMainMenu();
+        initNetworking();
         prepareScene();
 
         if constexpr (isDebug) {
@@ -62,7 +73,7 @@ namespace Scenes {
         }
     }
 
-    void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
+    void MainScene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) {
         if (keyCode == GLFW_KEY_B && action == GLFW_PRESS) {
             rendererManager->toggleBloom();
             return;
@@ -78,23 +89,79 @@ namespace Scenes {
         if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
             if (menuVisible) {
                 if (gameStarted) {
-                    const_cast<MainScene *>(this)->hideMenu();
+                    this->hideMenu();
                 }
             } else if (gameStarted) {
-                const_cast<MainScene *>(this)->showMenu(MainMenuScene::PrimaryAction::Resume);
+                if (netEnabled && netIsClient) {
+                    const auto snake = playerScene ? playerScene->getSnake() : nullptr;
+                    this->resumeLocalMovementAfterMenu =
+                        snake && snake->getDirection() > SnakeMeshNode3D::STOP && snake->getDirection() < SnakeMeshNode3D::CRASH;
+                    this->sendClientPauseToggle();
+                } else if (snakeMoveHandler) {
+                    this->resumeLocalMovementAfterMenu = !snakeMoveHandler->isStopped();
+                    snakeMoveHandler->setStopped(true);
+                }
+                this->showMenu(MainMenuScene::PrimaryAction::Resume);
             }
             return;
         }
 
         if (menuVisible) {
+            if (action == GLFW_PRESS && mainMenuScene) {
+                mainMenuScene.get()->handleKeyInput(keyCode, action);
+                if (mainMenuScene.get()->consumeJoinRequest()) {
+                    if (netEnabled) {
+                        this->resetNetworkState();
+                    }
+                    const std::string ip = mainMenuScene->getJoinIp();
+                    this->netIsClient = netClient.connect(ip, netPort, "Player");
+                    if (netIsClient) {
+                        this->netEnabled = true;
+                        mainMenuScene.get()->setNetworkStatus("Status: connecting");
+                        mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
+                        if constexpr (isDebug) {
+                            std::cout << "[Net] Joining " << ip << ":" << netPort << std::endl;
+                        }
+                    } else {
+                        mainMenuScene.get()->setNetworkStatus("Status: join failed");
+                        if constexpr (isDebug) {
+                            std::cout << "[Net] Failed to join " << ip << ":" << netPort << std::endl;
+                        }
+                    }
+                }
+            }
             return;
+        }
+
+        if (action != GLFW_PRESS) {
+            Scene::keyboardInput(window, keyCode, scancode, action, mods);
+            return;
+        }
+
+        if (netEnabled && netIsClient) {
+            Net::InputMsg input{};
+            input.tick = netClock.getTick();
+            input.actions = 0;
+            switch (keyCode) {
+                case GLFW_KEY_J: input.moveX = -1; input.moveY = 0; break;
+                case GLFW_KEY_L: input.moveX = 1; input.moveY = 0; break;
+                case GLFW_KEY_I: input.moveX = 0; input.moveY = 1; break;
+                case GLFW_KEY_K: input.moveX = 0; input.moveY = -1; break;
+                case GLFW_KEY_SPACE: input.actions = 1; break;
+                default: break;
+            }
+            if (input.moveX != 0 || input.moveY != 0 || input.actions != 0) {
+                const bool sent = netClient.sendInput(input);
+                if (!sent) {
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Failed to send input to server" << std::endl;
+                    }
+                }
+                return;
+            }
         }
 
         Scene::keyboardInput(window, keyCode, scancode, action, mods);
-
-        if (action != GLFW_PRESS) {
-            return;
-        }
 
         switch (keyCode) {
             case GLFW_KEY_V:
@@ -141,10 +208,27 @@ namespace Scenes {
     }
 
     void MainScene::physics() {
-        if (menuVisible) {
+        if (netEnabled && netIsClient) {
+            return;
+        }
+        if (menuVisible && !(netEnabled && netIsServer)) {
             return;
         }
         Scene::physics();
+    }
+
+    void MainScene::resize(const int width, const int height, const glm::mat4 &projection) {
+        Scene::resize(width, height, projection);
+        ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
+        if (mainMenuScene) {
+            mainMenuScene->resize(width, height, projection);
+        }
+        if (radarMeshNode) {
+            radarMeshNode->setPosition({width - 240 + 100, 30.0f + 110, 0.0f});
+        }
+        if (cursorTrail) {
+            cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+        }
     }
 
     void MainScene::initSounds() const {
@@ -154,7 +238,7 @@ namespace Scenes {
             std::cerr << "Sound loading error in MainScene." << std::endl;
             return;
         }
-        soundManager->play("music", {{AL_LOOPING, AL_TRUE}});
+        //soundManager->play("music", {{AL_LOOPING, AL_TRUE}});
     }
 
     void MainScene::initLights() {
@@ -289,6 +373,16 @@ namespace Scenes {
         playerScene->init(2);
         snakeMoveHandler = playerScene->getSnakeMoveHandler();
         addNode("player", playerScene);
+        initRemoteSnakeScene();
+    }
+
+    void MainScene::initRemoteSnakeScene() {
+        remoteSnakeScene = make_shared<RemoteSnakeScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        remoteSnakeScene->setCollisionSystem(collisionSystem);
+        remoteSnakeScene->setManipulatorHandler(manipulatorHandler);
+        remoteSnakeScene->init(5);
+        remoteSnakeScene->setActive(false);
+        addNode("remotePlayer", remoteSnakeScene);
     }
 
     void MainScene::initBarriersScene() {
@@ -329,6 +423,15 @@ namespace Scenes {
             coinScene->getCoin()
         );
         eatManager = make_unique<EatManager>(eatLocationHandler);
+
+        if (remoteSnakeScene && remoteSnakeScene->getSnake()) {
+            remoteEatLocationHandler = make_shared<EatLocationHandler>(
+                barriersScene->getLevelBoxes(),
+                remoteSnakeScene->getSnake(),
+                coinScene->getCoin()
+            );
+            remoteEatManager = make_unique<EatManager>(remoteEatLocationHandler);
+        }
     }
 
     void MainScene::initRadar() {
@@ -363,9 +466,7 @@ namespace Scenes {
         radarMeshNode = make_shared<RadarMeshNode2D>(contextState, radarNode, resourceManager);
         radarNode->setBlending(Blending::Translucent);
         radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
-        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
-        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
-        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+        rebuildRadarItems(false);
         radarMeshNode->hideItems();
 
         addMeshNode2D(radarMeshNode);
@@ -431,6 +532,523 @@ namespace Scenes {
         showMenu(MainMenuScene::PrimaryAction::Start);
     }
 
+    void MainScene::initNetworking() {
+        netEnabled = false;
+        netIsServer = false;
+        netIsClient = false;
+        netPeerId = 0;
+        netSeed = 0;
+        netClock.reset(0);
+
+        netPort = 7777;
+        std::ifstream file("Assets/config.json");
+        if (file.is_open()) {
+            try {
+                nlohmann::json j;
+                file >> j;
+                if (j.contains("network") && j["network"].contains("port")) {
+                    netPort = j["network"]["port"].get<uint16_t>();
+                }
+            } catch (...) {
+                netPort = 7777;
+            }
+        }
+
+        if (mainMenuScene) {
+            mainMenuScene->setLocalIp(Net::getLocalIpAddress());
+            mainMenuScene->setNetworkStatus("Status: idle");
+        }
+    }
+
+    void MainScene::resetNetworkState() {
+        notifyNetworkDisconnect();
+        netManager.shutdown();
+        netEnabled = false;
+        netIsServer = false;
+        netIsClient = false;
+        netPeerId = 0;
+        netSeed = 0;
+        netLastSnapshotLevel = 0;
+        netLastSnapshotEatCounter = 0;
+        localRespawnSerial = 0;
+        remoteRespawnSerial = 0;
+        netLastSeenLocalRespawnSerial = 0;
+        netLastSeenRemoteRespawnSerial = 0;
+        netLastSeenLocalCrash = false;
+        netLastSeenRemoteCrash = false;
+        localMultiplayerSpawnPos = {23.0f, -3.0f, -23.0f};
+        pendingLocalRespawn = {};
+        netClock.reset(0);
+        if (playerScene) {
+            playerScene->setInputEnabled(true);
+        }
+        if (remoteSnakeScene) {
+            remoteSnakeScene->setServerControlled(false);
+            remoteSnakeScene->setActive(false);
+        }
+        if (mainMenuScene) {
+            mainMenuScene->setNetworkStatus("Status: idle");
+            mainMenuScene->setNetworkSessionState(MainMenuScene::NetworkSessionState::Idle);
+            mainMenuScene->setMenuView(MainMenuScene::MenuView::Main);
+        }
+    }
+
+    void MainScene::notifyNetworkDisconnect() const {
+        if (!netEnabled) {
+            return;
+        }
+
+        if (netIsServer) {
+            netManager.disconnectAllNow(0);
+        } else if (netIsClient) {
+            netManager.disconnectNow(0, 0);
+        }
+
+        netManager.flush();
+    }
+
+    void MainScene::rebuildRadarItems(const bool includeRemote) const {
+        if (!radarMeshNode || !playerScene || !coinScene || !barriersScene) {
+            return;
+        }
+
+        radarMeshNode->clearItems();
+        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
+        if (includeRemote && remoteSnakeScene && remoteSnakeScene->getSnake()) {
+            radarMeshNode->addItem(remoteSnakeScene->getSnake(), glm::vec3(0.1f,0.45f,1.0f), "remote-snake");
+        }
+        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
+        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+    }
+
+    void MainScene::sendClientPauseToggle() const {
+        if (!netEnabled || !netIsClient) {
+            return;
+        }
+
+        Net::InputMsg input{};
+        input.tick = netClock.getTick();
+        input.actions = 1;
+        input.moveX = 0;
+        input.moveY = 0;
+        const bool sent = netClient.sendInput(input);
+        if (!sent) {
+            if constexpr (isDebug) {
+                std::cout << "[Net] Failed to send pause toggle to server" << std::endl;
+            }
+        }
+    }
+
+    void MainScene::initializeMultiplayerState() {
+        gameStarted = true;
+            if (playerScene) {
+                playerScene->setInputEnabled(!netIsClient);
+                if (const auto snake = playerScene->getSnake()) {
+                snake->setDirection(SnakeMeshNode3D::NONE);
+                snake->setRotationX(90.0f);
+                snake->setRotationY(netIsClient ? 180.0f : 0.0f);
+                if (netIsClient) {
+                    const glm::vec3 clientHead = findRemoteSpawnPosition();
+                    localMultiplayerSpawnPos = clientHead;
+                    snake->respawn();
+                    if (const auto moveHandler = playerScene->getSnakeMoveHandler()) {
+                        moveHandler->resetState();
+                        moveHandler->setInitialBodyDirection(SnakeMeshNode3D::LEFT);
+                    }
+                    const auto spawnPositions = Net::buildStraightSnakePositions({clientHead.x, clientHead.y}, 6,
+                                                                                SnakeMeshNode3D::LEFT);
+                    Net::applyExactSnakePositions(snake, spawnPositions, SnakeMeshNode3D::LEFT, false);
+                } else {
+                    localMultiplayerSpawnPos = {23.0f, -3.0f, -23.0f};
+                    pendingLocalRespawn = {};
+                    snake->respawn();
+                }
+                }
+            }
+        if (remoteSnakeScene) {
+            remoteSnakeScene->setServerControlled(netIsServer);
+            remoteSnakeScene->setActive(true);
+            if (netIsServer) {
+                remoteSnakeScene->setSpawnLayout(findRemoteSpawnPosition(), SnakeMeshNode3D::LEFT);
+            } else {
+                remoteSnakeScene->setSpawnLayout({23.0f, -3.0f, -23.0f}, SnakeMeshNode3D::RIGHT);
+            }
+        }
+        rebuildRadarItems(true);
+        if (mainMenuScene) {
+            mainMenuScene->setNetworkSessionState(netIsServer ? MainMenuScene::NetworkSessionState::Hosting
+                                                             : MainMenuScene::NetworkSessionState::Client);
+            mainMenuScene->setMenuView(MainMenuScene::MenuView::Main);
+        }
+        if (menuVisible) {
+            hideMenu();
+        }
+    }
+
+    void MainScene::shutdownMultiplayerState(const bool showMenuAfter) {
+        resetNetworkState();
+        gameStarted = false;
+
+        if (playerScene && playerScene->getSnake()) {
+            playerScene->getSnake()->respawn();
+        }
+        if (remoteSnakeScene) {
+            remoteSnakeScene->setActive(false);
+        }
+        rebuildRadarItems(false);
+
+        if (showMenuAfter) {
+            showMenu(MainMenuScene::PrimaryAction::Start);
+        }
+    }
+
+    void MainScene::respawnLocalSnake() {
+        if (!levelManager || !playerScene || !coinScene) {
+            return;
+        }
+
+        if (netEnabled && netIsServer) {
+            ++localRespawnSerial;
+        }
+
+        if (eatManager) {
+            eatManager->run(EatManager::clean);
+        }
+        playerScene->getSnake()->crash();
+        levelManager->setLive(levelManager->getLive() - 1);
+        levelManager->setEatCounter(0);
+
+        char buff[100];
+        snprintf(buff, sizeof(buff),
+                 "%s %d, %s %d, %s %d",
+                 "Level:",
+                 levelManager->getLevel(),
+                 "Lives:",
+                 levelManager->getLive(),
+                 "Points left:",
+                 MAX_POINT - levelManager->getEatCounter());
+        tilesCounterText->setText(buff);
+        if (!netEnabled) {
+            coinScene->getCoin()->setVisible(false);
+            coinScene->getCoin()->animationStop("coinRotation");
+            radarMeshNode->hideItem("coin");
+        }
+        playerScene->getSnake()->animationStop("KostraAction");
+    }
+
+    void MainScene::respawnRemoteSnake() {
+        if (remoteSnakeScene) {
+            remoteSnakeScene->respawnAt(findRemoteSpawnPosition(), SnakeMeshNode3D::LEFT);
+        }
+        if (netEnabled && netIsServer) {
+            ++remoteRespawnSerial;
+        }
+        if (remoteEatManager) {
+            remoteEatManager->run(EatManager::clean);
+        }
+    }
+
+    bool MainScene::localSnakeHitRemote() const {
+        if (!playerScene || !playerScene->getSnake()) {
+            return false;
+        }
+
+        for (const auto &shapeNode : playerScene->getSnake()->getCollisionShapes()) {
+            for (const auto &body : shapeNode->getCollidingBodies()) {
+                for (const auto &bodyShape : body->getCollisionShapes()) {
+                    const uint32_t layer = bodyShape->getCollisionLayer();
+                    if (layer == ENEMY || layer == ENEMY_BODY) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    bool MainScene::remoteSnakeHitLocal() const {
+        if (!remoteSnakeScene || !remoteSnakeScene->getSnake()) {
+            return false;
+        }
+
+        for (const auto &shapeNode : remoteSnakeScene->getSnake()->getCollisionShapes()) {
+            for (const auto &body : shapeNode->getCollidingBodies()) {
+                for (const auto &bodyShape : body->getCollisionShapes()) {
+                    const uint32_t layer = bodyShape->getCollisionLayer();
+                    if (layer == PLAYER || layer == PLAYER_BODY) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    void MainScene::startNetworkGame() {
+        initializeMultiplayerState();
+    }
+
+    void MainScene::updateNetworking() {
+        if (!netEnabled) {
+            return;
+        }
+
+        netClock.advance(1);
+
+        Net::NetEvent event{};
+        Net::PacketView packet{};
+
+        if (netIsServer) {
+            while (netServer.poll(event, packet)) {
+                if (event.type == Net::NetEventType::Connect) {
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Client connected: " << event.peerId << std::endl;
+                    }
+                    continue;
+                }
+                if (event.type == Net::NetEventType::Disconnect) {
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Client disconnected: " << event.peerId << std::endl;
+                    }
+                    shutdownMultiplayerState(true);
+                    continue;
+                }
+                if (event.type != Net::NetEventType::Receive) {
+                    continue;
+                }
+
+                const auto decoded = Net::NetDispatcher::decode(packet);
+                if (!decoded.has_value()) {
+                    continue;
+                }
+
+                if (auto *hello = std::get_if<Net::HelloMsg>(&decoded.value())) {
+                    Net::WelcomeMsg welcome{};
+                    welcome.protocolVersion = Net::Protocol::kProtocolVersion;
+                    welcome.assignedPeerId = event.peerId;
+                    welcome.serverTick = netClock.getTick();
+                    welcome.seed = netSeed;
+                    bool result = netServer.sendWelcome(event.peerId, welcome);
+                    if (mainMenuScene) {
+                        mainMenuScene->setNetworkStatus("Status: client connected");
+                    }
+                    startNetworkGame();
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Hello from peer " << event.peerId << " name=" << hello->name << std::endl;
+                    }
+                } else if (auto *input = std::get_if<Net::InputMsg>(&decoded.value())) {
+                    if (remoteSnakeScene) {
+                        remoteSnakeScene->applyNetworkInput(input->moveX, input->moveY, input->actions);
+                    }
+                } else if (auto *ping = std::get_if<Net::PingMsg>(&decoded.value())) {
+                    Net::PongMsg pong{};
+                    pong.timeMs = ping->timeMs;
+                    bool result = netServer.sendPong(event.peerId, pong);
+                }
+            }
+
+            if (netEnabled) {
+                if (playerScene && coinScene && levelManager) {
+                    const auto snake = playerScene->getSnake();
+                    const auto coin = coinScene->getCoin();
+                    const auto remoteSnake = remoteSnakeScene ? remoteSnakeScene->getSnake() : nullptr;
+                    if (snake && coin && remoteSnake) {
+                        const auto localPositions = collectSnakePositions(snake);
+                        const auto remotePositions = remoteSnakeScene->collectPositions();
+
+                        Net::BufferWriter writer(4096);
+                        Net::WorldSnapshotState snapshot{};
+                        snapshot.localSnake.positions = localPositions;
+                        snapshot.localSnake.direction = snake->getDirection();
+                        snapshot.localSnake.segmentCount = static_cast<uint32_t>(snake->getChildren().size() + 1);
+                        snapshot.localSnake.respawnSerial = localRespawnSerial;
+                        snapshot.localSnake.crashActive = snake->isCrashing();
+                        snapshot.localSnake.stopped = snakeMoveHandler && snakeMoveHandler->isStopped();
+                        snapshot.remoteSnake.positions = remotePositions;
+                        snapshot.remoteSnake.direction = remoteSnake->getDirection();
+                        snapshot.remoteSnake.segmentCount = static_cast<uint32_t>(remoteSnake->getChildren().size() + 1);
+                        snapshot.remoteSnake.respawnSerial = remoteRespawnSerial;
+                        snapshot.remoteSnake.crashActive = remoteSnake->isCrashing();
+                        snapshot.remoteSnake.stopped = remoteSnakeScene->getMoveHandler() &&
+                                                       remoteSnakeScene->getMoveHandler()->isStopped();
+                        const glm::vec3 coinPos = coin->getPosition();
+                        snapshot.coinX = coinPos.x;
+                        snapshot.coinY = coinPos.y;
+                        snapshot.coinVisible = coin->isVisible();
+                        snapshot.level = static_cast<uint32_t>(levelManager->getLevel());
+                        snapshot.eatCounter = static_cast<uint32_t>(levelManager->getEatCounter());
+                        snapshot.lives = static_cast<uint32_t>(levelManager->getLive());
+                        snapshot.winning = winning;
+                        Net::writeWorldSnapshotState(writer, snapshot);
+
+                        Net::SnapshotMsg snap{};
+                        snap.tick = netClock.getTick();
+                        snap.payload = writer.data();
+                        netServer.broadcastSnapshot(snap);
+                    }
+                }
+            }
+        } else if (netIsClient) {
+            while (netClient.poll(event, packet)) {
+                if (event.type == Net::NetEventType::Disconnect) {
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Disconnected from server" << std::endl;
+                    }
+                    shutdownMultiplayerState(true);
+                    continue;
+                }
+                if (event.type != Net::NetEventType::Receive) {
+                    continue;
+                }
+
+                const auto decoded = Net::NetDispatcher::decode(packet);
+                if (!decoded.has_value()) {
+                    continue;
+                }
+
+                if (auto *welcome = std::get_if<Net::WelcomeMsg>(&decoded.value())) {
+                    netPeerId = welcome->assignedPeerId;
+                    netSeed = welcome->seed;
+                    if (mainMenuScene) {
+                        mainMenuScene->setNetworkStatus("Status: connected");
+                    }
+                    startNetworkGame();
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Welcome: peerId=" << netPeerId << " seed=" << netSeed << std::endl;
+                    }
+                } else if (auto *ping = std::get_if<Net::PingMsg>(&decoded.value())) {
+                    Net::PongMsg pong{};
+                    pong.timeMs = ping->timeMs;
+                    bool result = netClient.sendPong(pong);
+                } else if (auto *pong = std::get_if<Net::PongMsg>(&decoded.value())) {
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Pong: " << pong->timeMs << std::endl;
+                    }
+                } else if (auto *snap = std::get_if<Net::SnapshotMsg>(&decoded.value())) {
+                    if (snap->payload.size() >= 4) {
+                        Net::BufferReader reader(snap->payload.data(), snap->payload.size());
+                        Net::WorldSnapshotState snapshot{};
+                        if (Net::readWorldSnapshotState(reader, snapshot)) {
+                            if (playerScene && coinScene) {
+                                const auto snake = playerScene->getSnake();
+                                const auto coin = coinScene->getCoin();
+                                const auto &authoritativeSnake = snapshot.localSnake;
+                                const auto &clientSnake = snapshot.remoteSnake;
+                                if (!snapshot.winning) {
+                                    if (snake && remoteSnakeScene && remoteSnakeScene->getSnake()) {
+                                        if (clientSnake.positions.empty()) {
+                                            continue;
+                                        }
+                                        const bool localRespawnDetected =
+                                            clientSnake.respawnSerial != netLastSeenLocalRespawnSerial;
+                                        const bool localCrashActive = clientSnake.crashActive;
+                                        const bool remoteCrashActive = authoritativeSnake.crashActive;
+                                        netLastSeenLocalRespawnSerial = clientSnake.respawnSerial;
+                                        netLastSeenRemoteRespawnSerial = authoritativeSnake.respawnSerial;
+                                        if (localRespawnDetected && !pendingLocalRespawn.active) {
+                                            if constexpr (isDebug) {
+                                                std::cout << "[Net][ClientRespawnDetected] serial=" << clientSnake.respawnSerial
+                                                          << " dir=" << static_cast<int>(clientSnake.direction)
+                                                          << " count=" << clientSnake.segmentCount
+                                                          << " positions=" << clientSnake.positions.size() << std::endl;
+                                            }
+                                            snake->crash();
+                                            playerScene->setInputEnabled(false);
+                                            pendingLocalRespawn.positions = clientSnake.positions;
+                                            pendingLocalRespawn.segmentCount = clientSnake.segmentCount;
+                                            pendingLocalRespawn.direction = clientSnake.direction;
+                                            pendingLocalRespawn.active = true;
+                                        } else if (localCrashActive) {
+                                            if (!netLastSeenLocalCrash) {
+                                                snake->crash();
+                                                playerScene->setInputEnabled(false);
+                                            }
+                                        } else if (!pendingLocalRespawn.active) {
+                                            Net::applyExactSnakePositions(snake, clientSnake.positions,
+                                                                         clientSnake.direction, clientSnake.stopped);
+                                        }
+                                        if (remoteCrashActive) {
+                                            if (const auto remoteSnake = remoteSnakeScene->getSnake()) {
+                                                if (!netLastSeenRemoteCrash) {
+                                                    remoteSnake->crash();
+                                                }
+                                            }
+                                        }
+                                        if (const auto remoteSnake = remoteSnakeScene->getSnake()) {
+                                            Net::applyExactSnakePositions(remoteSnake, authoritativeSnake.positions,
+                                                                         authoritativeSnake.direction,
+                                                                         authoritativeSnake.stopped);
+                                        }
+                                        netLastSeenLocalCrash = localCrashActive;
+                                        netLastSeenRemoteCrash = remoteCrashActive;
+                                        remoteSnakeScene->setActive(true);
+                                    } else if (snake) {
+                                        if (!authoritativeSnake.positions.empty()) {
+                                            Net::applyExactSnakePositions(snake, authoritativeSnake.positions,
+                                                                         authoritativeSnake.direction,
+                                                                         authoritativeSnake.stopped);
+                                        }
+                                    }
+                                }
+                                if (coin) {
+                                    const bool coinAdvanced = (snapshot.level == netLastSnapshotLevel &&
+                                                               snapshot.eatCounter != netLastSnapshotEatCounter);
+                                    if (coinAdvanced && snapshot.coinVisible) {
+                                        coinScene->getRemoveCoin()->setTransform(coin);
+                                        coinScene->getRemoveCoin()->setVisible(true);
+                                        coinScene->getRemoveCoin()->animationStart("eatenUp", false);
+                                    }
+                                    coin->setPosition({snapshot.coinX, snapshot.coinY, coin->getPosition().z});
+                                    coin->setVisible(snapshot.coinVisible);
+                                    if (snapshot.coinVisible) {
+                                        coin->animationStart("coinRotation", true);
+                                    } else {
+                                        coin->animationStop("coinRotation");
+                                        if (radarMeshNode) {
+                                            radarMeshNode->hideItem("coin");
+                                        }
+                                    }
+                                    if (eatLocationHandler) {
+                                        eatLocationHandler->fixVirtualPosition(coin->getPosition());
+                                    }
+                                    if (remoteEatLocationHandler) {
+                                        remoteEatLocationHandler->fixVirtualPosition(coin->getPosition());
+                                    }
+                                    if (snapshot.coinVisible && radarMeshNode) {
+                                        radarMeshNode->showItem("coin");
+                                    }
+                                }
+                                if (levelManager) {
+                                    levelManager->setLevel(static_cast<int>(snapshot.level));
+                                    levelManager->setEatCounter(static_cast<int>(snapshot.eatCounter));
+                                    levelManager->setLive(static_cast<int>(snapshot.lives));
+                                    char buff[100];
+                                    snprintf(buff, sizeof(buff),
+                                             "%s %d, %s %d, %s %d",
+                                             "Level:",
+                                             levelManager->getLevel(),
+                                             "Lives:",
+                                             levelManager->getLive(),
+                                             "Points left:",
+                                             MAX_POINT - levelManager->getEatCounter());
+                                    tilesCounterText->setText(buff);
+                                    if (!winning && tilesCounterNode) {
+                                        tilesCounterNode->setVisible(true);
+                                    }
+                                }
+                                if (snapshot.winning) {
+                                    enterWinningState();
+                                }
+                                netLastSnapshotLevel = snapshot.level;
+                                netLastSnapshotEatCounter = snapshot.eatCounter;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void MainScene::initCursor() {
         int imgW = 0;
         int imgH = 0;
@@ -446,7 +1064,7 @@ namespace Scenes {
         stbi_image_free(pixels);
 
         cursorTexture = std::make_shared<TextureManager>(textureId);
-        cursorSize = glm::vec2(static_cast<float>(imgW), static_cast<float>(imgH)) * kCursorScale;
+        cursorSize = glm::vec2(static_cast<float>(imgW), static_cast<float>(imgH)) * MainSceneConstants::kCursorScale;
 
         const auto shader = resourceManager->getShader("cursor2d");
         cursorMesh = make_shared<ImageNode2D>(cursorSize.x, cursorSize.y, shader, cursorTexture);
@@ -475,7 +1093,7 @@ namespace Scenes {
         cursorTrailMaterial->set_spawn_per_frame(0.0f);
         cursorTrailMaterial->set_color_start({0.45f, 0.85f, 1.0f, 0.9f});
         cursorTrailMaterial->set_color_end({0.15f, 0.3f, 1.0f, 0.0f});
-        cursorTrailMaterial->set_emitter_radius(kCursorEmitterRadius);
+        cursorTrailMaterial->set_emitter_radius(MainSceneConstants::kCursorEmitterRadius);
 
         cursorTrail = make_shared<GPUParticle2D>(cursorTrailMaterial, contextState, trailQuad, resourceManager, 400);
         cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
@@ -485,59 +1103,168 @@ namespace Scenes {
         cursorInitialized = true;
     }
 
+    std::vector<glm::vec2> MainScene::collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake) {
+        std::vector<glm::vec2> positions;
+        if (!snake) {
+            return positions;
+        }
+
+        positions.emplace_back(snake->getPosition().x, snake->getPosition().y);
+        for (const auto &child : snake->getChildren()) {
+            positions.emplace_back(child->getPosition().x, child->getPosition().y);
+        }
+        return positions;
+    }
+
+    glm::vec3 MainScene::findRemoteSpawnPosition() const {
+        const auto isBlocked = [this](const glm::vec2 &pos) {
+            auto matchesNode = [&pos](const shared_ptr<MeshNode3D> &node) {
+                if (!node) {
+                    return false;
+                }
+                constexpr float epsilon = 0.01f;
+                const auto nodePos = node->getPosition();
+                return std::abs(nodePos.x - pos.x) < epsilon && std::abs(nodePos.y - pos.y) < epsilon;
+            };
+
+            if (playerScene && playerScene->getSnake()) {
+                const auto snakePositions = collectSnakePositions(playerScene->getSnake());
+                for (const auto &snakePos : snakePositions) {
+                    if (std::abs(snakePos.x - pos.x) < 0.01f && std::abs(snakePos.y - pos.y) < 0.01f) {
+                        return true;
+                    }
+                }
+            }
+
+            if (!barriersScene || !barriersScene->getLevelBoxes()) {
+                return false;
+            }
+
+            if (matchesNode(barriersScene->getLevelBoxes())) {
+                return true;
+            }
+
+            for (const auto &child : barriersScene->getLevelBoxes()->getChildren()) {
+                if (matchesNode(child)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        for (float y = 71.0f; y >= -21.0f; y -= 2.0f) {
+            for (float x = 61.0f; x >= -11.0f; x -= 2.0f) {
+                bool valid = true;
+                for (int segment = 0; segment < 6; ++segment) {
+                    if (isBlocked({x + static_cast<float>(segment * 2), y})) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid) {
+                    return {x, y, -23.0f};
+                }
+            }
+        }
+
+        return {49.0f, 55.0f, -23.0f};
+    }
+
+    void MainScene::handleCoinEaten(const EatManager &manager) {
+        if (!levelManager || !coinScene || winning) {
+            return;
+        }
+
+        soundManager->play("coin");
+
+        coinScene->getRemoveCoin()->setTransform(coinScene->getCoin());
+        coinScene->getRemoveCoin()->setVisible(true);
+        coinScene->getRemoveCoin()->animationStart("eatenUp", false);
+
+        levelManager->setEatCounter(levelManager->getEatCounter() + 1);
+
+        if (levelManager->getEatCounter() == MAX_POINT) {
+            fadeOutUniform->setAlpha(1.0f);
+            coinScene->getCoin()->setVisible(false);
+            if (radarMeshNode) {
+                radarMeshNode->hideItem("coin");
+            }
+            if (levelManager->getLevel() < 9) {
+                nextLevel();
+            } else {
+                cout << "End game... you win !" << endl;
+                enterWinningState();
+            }
+        } else {
+            manager.run(EatManager::eatenUp);
+            if (coinScene->getCoin()->isVisible()) {
+                coinScene->getCoin()->animationStart("coinRotation", true);
+                if (radarMeshNode) {
+                    radarMeshNode->showItem("coin");
+                }
+            }
+        }
+
+        char buff[100];
+        snprintf(buff, sizeof(buff),
+                 "%s %d, %s %d, %s %d",
+                 "Level:",
+                 levelManager->getLevel(),
+                 "Lives:",
+                 levelManager->getLive(),
+                 "Points left:",
+                 MAX_POINT - levelManager->getEatCounter()
+        );
+        tilesCounterText->setText(buff);
+    }
+
+    void MainScene::enterWinningState() {
+        if (winning) {
+            return;
+        }
+
+        if (tilesCounterNode) {
+            tilesCounterNode->setVisible(false);
+        }
+        if (playerScene) {
+            playerScene->setInputEnabled(false);
+            playerScene->winning();
+        }
+        if (remoteSnakeScene) {
+            remoteSnakeScene->setServerControlled(false);
+            remoteSnakeScene->setActive(false);
+        }
+        if (winnerScene && !hasNode("winner")) {
+            addNode("winner", winnerScene);
+        }
+        if (radarMeshNode) {
+            radarMeshNode->setVisible(false);
+        }
+        winning = true;
+    }
+
     void MainScene::buildEatenUpCallback() {
         snakeMoveHandler->setEatenUpCallback([this]() {
-            if (this->levelManager) {
-                soundManager->play("coin");
-
-                coinScene->getRemoveCoin()->setTransform(coinScene->getCoin());
-                coinScene->getRemoveCoin()->setVisible(true);
-                coinScene->getRemoveCoin()->animationStart("eatenUp", false);
-
-                this->levelManager->setEatCounter(this->levelManager->getEatCounter() + 1);
-
-                if (this->levelManager->getEatCounter() == MAX_POINT) {
-                    fadeOutUniform->setAlpha(1.0f);
-                    coinScene->getCoin()->setVisible(false);
-                    if (levelManager->getLevel() < 9) {
-                        nextLevel();
-                    } else {
-                        // end game....winner
-                        cout << "End game... you win !" << endl;
-                        tilesCounterNode->setVisible(false);
-                        playerScene->winning();
-                        // zastavit hada a schovat ho (nova funkce do playerScene)
-                        addNode("winner", winnerScene);
-                        radarMeshNode->setVisible(false);
-                        // zobrazi napis, ze player vyhral
-                        // nastavit kameru do nejakeho winning mode (oddalit a rotovat nad scenou)
-                        // disablovat ovladani hada
-                        winning = true;
-                    }
-                } else {
-                    this->eatManager->run(EatManager::eatenUp);
-                }
-
-                char buff[100];
-                snprintf(buff, sizeof(buff),
-                         "%s %d, %s %d, %s %d",
-                         "Level:",
-                         this->levelManager->getLevel(),
-                         "Lives:",
-                         this->levelManager->getLive(),
-                         "Points left:",
-                         MAX_POINT - this->levelManager->getEatCounter()
-                );
-                const std::string buffAsStdStr = buff;
-                tilesCounterText->setText(buffAsStdStr);
+            if (this->eatManager) {
+                handleCoinEaten(*this->eatManager);
             }
         });
+
+        if (remoteSnakeScene && remoteSnakeScene->getMoveHandler()) {
+            remoteSnakeScene->getMoveHandler()->setEatenUpCallback([this]() {
+                if (this->remoteEatManager) {
+                    handleCoinEaten(*this->remoteEatManager);
+                }
+            });
+        }
     }
 
     void MainScene::buildStartMoveCallback() const {
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
-                this->eatManager->run(EatManager::firstPlace);
+                if ((!netEnabled || netIsServer) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
+                    this->eatManager->run(EatManager::firstPlace);
+                }
                 if (fadeOutUniform->getAlpha() != 0.0f) {
                     fadeOutUniform->start();
                 }
@@ -562,40 +1289,50 @@ namespace Scenes {
                 playerScene->getSnake()->animationStart("KostraAction", true);
             }
         });
+
+        if (remoteSnakeScene && remoteSnakeScene->getMoveHandler()) {
+            remoteSnakeScene->getMoveHandler()->addStartMoveCallback([this]() {
+                if ((!netEnabled || netIsServer) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
+                    this->eatManager->run(EatManager::firstPlace);
+                }
+            });
+        }
     }
 
     void MainScene::buildCrashCallback() {
         snakeMoveHandler->setCrashCallback([this]() {
-            if (this->levelManager) {
-                this->eatManager->run(EatManager::clean);
-                playerScene->getSnake()->crash();
-                this->levelManager->setLive(this->levelManager->getLive() - 1);
-                this->levelManager->setEatCounter(0);
-                char buff[100];
-                snprintf(buff, sizeof(buff),
-                         "%s %d, %s %d, %s %d",
-                         "Level:",
-                         this->levelManager->getLevel(),
-                         "Lives:",
-                         this->levelManager->getLive(),
-                         "Points left:",
-                         MAX_POINT - this->levelManager->getEatCounter()
-                );
-                const std::string buffAsStdStr = buff;
-                tilesCounterText->setText(buffAsStdStr);
-                coinScene->getCoin()->setVisible(false);
-                coinScene->getCoin()->animationStop("coinRotation");
-                playerScene->getSnake()->animationStop("KostraAction");
-                radarMeshNode->hideItem("coin");
-                if (this->levelManager->getLive() == 0) {
-                    // Game Over
-                    // this->levelManager->createLevel(1, directionalLight, spotLights, pointLights);
-                    // fadeOutUniform->setAlpha(1.0f);
-                    // this->levelManager->setLive(3);
-                    cout << "crash callback call" << endl;
-                }
+            if (multiplayerCrashInProgress) {
+                return;
+            }
+
+            multiplayerCrashInProgress = true;
+            if (localSnakeHitRemote()) {
+                respawnLocalSnake();
+                respawnRemoteSnake();
+            } else {
+                respawnLocalSnake();
+            }
+
+            if (this->levelManager && this->levelManager->getLive() == 0) {
+                cout << "crash callback call" << endl;
             }
         });
+
+        if (remoteSnakeScene && remoteSnakeScene->getMoveHandler()) {
+            remoteSnakeScene->getMoveHandler()->setCrashCallback([this]() {
+                if (multiplayerCrashInProgress) {
+                    return;
+                }
+
+                multiplayerCrashInProgress = true;
+                if (remoteSnakeHitLocal()) {
+                    respawnLocalSnake();
+                    respawnRemoteSnake();
+                } else {
+                    respawnRemoteSnake();
+                }
+            });
+        }
     }
 
     void MainScene::prepareScene() {
@@ -669,20 +1406,48 @@ namespace Scenes {
     void MainScene::nextLevel() {
         levelManager->setLevel(levelManager->getLevel() + 1);
         eatLocationHandler->clearBarriers();
-        radarMeshNode->clearItems();
-        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
-        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
+        rebuildRadarItems(netEnabled);
         removeNode("barriers");
         barriersScene->nextLevel();
         addNode("barriers", barriersScene);
         eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
-        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+        if (remoteEatLocationHandler) {
+            remoteEatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
+        }
         playerScene->getSnake()->respawn();
         eatManager->run(EatManager::clean);
+        if (remoteSnakeScene) {
+            remoteSnakeScene->setSpawnLayout(findRemoteSpawnPosition(), SnakeMeshNode3D::LEFT);
+        }
+        if (remoteEatManager) {
+            remoteEatManager->run(EatManager::clean);
+        }
     }
 
     void MainScene::update() {
+        multiplayerCrashInProgress = false;
+        updateNetworking();
+        if (netEnabled && netIsServer && remoteSnakeScene) {
+            remoteSnakeScene->updateAuthoritative();
+        }
         Scene::update();
+        if (pendingLocalRespawn.active && playerScene && playerScene->getSnake() && playerScene->getSnake()->isReady()) {
+            if constexpr (isDebug) {
+                std::cout << "[Net][ClientRespawnApply] dir=" << static_cast<int>(pendingLocalRespawn.direction)
+                          << " count=" << pendingLocalRespawn.segmentCount
+                          << " positions=" << pendingLocalRespawn.positions.size() << std::endl;
+            }
+            const auto snake = playerScene->getSnake();
+            snake->respawn();
+            if (const auto moveHandler = playerScene->getSnakeMoveHandler()) {
+                moveHandler->resetState();
+                moveHandler->setInitialBodyDirection(
+                    pendingLocalRespawn.direction == SnakeMeshNode3D::NONE ? SnakeMeshNode3D::LEFT : pendingLocalRespawn.direction);
+            }
+            Net::applyExactSnakePositions(snake, pendingLocalRespawn.positions, pendingLocalRespawn.direction, false);
+            pendingLocalRespawn = {};
+            playerScene->setInputEnabled(!netIsClient);
+        }
         if (loading) {
             prepareScene();
         }
@@ -694,7 +1459,7 @@ namespace Scenes {
         }
 
         if (helpText != nullptr) {
-            if (!helpText->isVisible() && eatManager) {
+            if (!helpText->isVisible() && eatManager && (!netEnabled || netIsServer)) {
                 eatManager->run(EatManager::checkPlace);
             }
         }
@@ -717,9 +1482,9 @@ namespace Scenes {
                 const float ndcY = 1.0f - (emitY / static_cast<float>(height)) * 2.0f;
                 cursorTrailMaterial->set_emitter_pos({ndcX, ndcY, 0.0f});
                 const float spawnRate = std::clamp(
-                    moveLen * kCursorTrailSpawnPerPixel,
-                    kCursorTrailSpawnMin,
-                    kCursorTrailSpawnMax);
+                    moveLen * MainSceneConstants::kCursorTrailSpawnPerPixel,
+                    MainSceneConstants::kCursorTrailSpawnMin,
+                    MainSceneConstants::kCursorTrailSpawnMax);
                 cursorTrailMaterial->set_spawn_per_frame(spawnRate);
             } else {
                 cursorTrailMaterial->set_spawn_per_frame(0.0f);
@@ -743,14 +1508,95 @@ namespace Scenes {
         }
 
         switch (mainMenuScene->handleMouseButton(button, action)) {
+            case MainMenuScene::MenuAction::Host: {
+                if (netEnabled) {
+                    this->resetNetworkState();
+                }
+                this->netIsServer = netServer.start(netPort);
+                if (netIsServer) {
+                    this->netEnabled = true;
+                    this->netSeed = static_cast<uint32_t>(std::random_device{}());
+                    mainMenuScene.get()->setNetworkStatus("Status: hosting");
+                    mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Hosting);
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Hosting on port " << netPort << std::endl;
+                    }
+                } else {
+                    mainMenuScene.get()->setNetworkStatus("Status: host failed");
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Failed to host on port " << netPort << std::endl;
+                    }
+                }
+                break;
+            }
+            case MainMenuScene::MenuAction::Disconnect:
+                shutdownMultiplayerState(true);
+                break;
+            case MainMenuScene::MenuAction::Join: {
+                if (netEnabled) {
+                    this->resetNetworkState();
+                }
+                const std::string ip = mainMenuScene->getJoinIp();
+                this->netIsClient = netClient.connect(ip, netPort, "Player");
+                if (netIsClient) {
+                    this->netEnabled = true;
+                    mainMenuScene.get()->setNetworkStatus("Status: connecting");
+                    mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Joining " << ip << ":" << netPort << std::endl;
+                    }
+                } else {
+                    mainMenuScene.get()->setNetworkStatus("Status: join failed");
+                    if constexpr (isDebug) {
+                        std::cout << "[Net] Failed to join " << ip << ":" << netPort << std::endl;
+                    }
+                }
+                break;
+            }
             case MainMenuScene::MenuAction::Start:
-                gameStarted = true;
-                hideMenu();
+                if (netEnabled) {
+                    startNetworkGame();
+                } else {
+                    gameStarted = true;
+                    hideMenu();
+                    if (eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
+                        eatManager->run(EatManager::firstPlace);
+                        coinScene->getCoin()->animationStart("coinRotation", true);
+                    }
+                }
                 break;
             case MainMenuScene::MenuAction::Resume:
                 hideMenu();
                 break;
+            case MainMenuScene::MenuAction::NewGame:
+                if (netEnabled) {
+                    shutdownMultiplayerState(false);
+                }
+                gameStarted = false;
+                if (eatManager) {
+                    eatManager->run(EatManager::clean);
+                }
+                if (coinScene) {
+                    coinScene->getCoin()->setVisible(false);
+                    coinScene->getCoin()->animationStop("coinRotation");
+                }
+                if (levelManager) {
+                    levelManager->setLive(MAX_LIVES);
+                    eatLocationHandler->clearBarriers();
+                    removeNode("barriers");
+                    barriersScene->nextLevel(START_LEVEL);
+                    addNode("barriers", barriersScene);
+                    eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
+                }
+                if (playerScene && playerScene->getSnake()) {
+                    playerScene->getSnake()->respawn();
+                }
+                showMenu(MainMenuScene::PrimaryAction::Start);
+                break;
             case MainMenuScene::MenuAction::Quit:
+                if (netEnabled) {
+                    notifyNetworkDisconnect();
+                }
                 glfwSetWindowShouldClose(window, true);
                 break;
             default:
@@ -772,6 +1618,7 @@ namespace Scenes {
         }
 
         menuVisible = true;
+        mainMenuScene->resize(width, height, projection);
         mainMenuScene->setPrimaryAction(action);
         if (!hasNode("mainMenu")) {
             addNode("mainMenu", mainMenuScene);
@@ -805,6 +1652,14 @@ namespace Scenes {
         if (playerScene) {
             camera->setStickyPoint(playerScene->getSnake());
         }
+        if (netEnabled && netIsClient) {
+            if (resumeLocalMovementAfterMenu) {
+                sendClientPauseToggle();
+            }
+        } else if (snakeMoveHandler && resumeLocalMovementAfterMenu) {
+            snakeMoveHandler->setStopped(false);
+        }
+        resumeLocalMovementAfterMenu = false;
     }
 
     void MainScene::saveHudVisibility() {

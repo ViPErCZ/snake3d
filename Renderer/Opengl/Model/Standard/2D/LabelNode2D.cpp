@@ -70,4 +70,12 @@ namespace Model {
 
         align = glm::vec2(xCenter, yCenter);
     }
+
+    float LabelNode2D::getWidth() const {
+        return mesh ? mesh->getWidth() : 0.0f;
+    }
+
+    float LabelNode2D::getHeight() const {
+        return mesh ? mesh->getSizeY() : 0.0f;
+    }
 } // namespace Model

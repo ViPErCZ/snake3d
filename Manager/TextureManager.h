@@ -20,6 +20,7 @@ namespace Manager {
         ~TextureManager();
 
         void addTexture(unsigned int id);
+        void replaceTexture(unsigned int id, int item = 0);
 
         void bind() const;
 

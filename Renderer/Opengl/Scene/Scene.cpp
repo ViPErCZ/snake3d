@@ -70,6 +70,20 @@ namespace Scenes {
         rendererManager->render(deltaTime);
     }
 
+    void Scene::resize(const int width, const int height, const glm::mat4 &projection) {
+        this->width = width;
+        this->height = height;
+        this->projection = projection;
+        if (sceneRenderer) {
+            sceneRenderer->resize(width, height, projection);
+        }
+        for (auto &[name, node] : nodes) {
+            if (node) {
+                node->resize(width, height, projection);
+            }
+        }
+    }
+
     void Scene::addNode(const std::shared_ptr<Scene> &node) {
         const string name = node->getName();
         if (nodes.contains(name)) {
@@ -155,7 +169,7 @@ namespace Scenes {
     }
 
     void Scene::keyboardInput(GLFWwindow *window, const int keyCode, const int scancode, const int action,
-                              const int mods) const {
+                              const int mods) {
         keyboardManager->onKeyPress(keyCode, scancode, action, mods, deltaTime);
         for (const auto &node: nodes) {
             node.second->keyboardInput(window, keyCode, scancode, action, mods);

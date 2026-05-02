@@ -55,6 +55,7 @@ namespace Manager {
         contextState->setDepthTest(true);
 
         if (reflections && planarReflectionRenderer) {
+            camera->syncFollowPosition();
             planarReflectionRenderer->render3D(dt, gFrameId);
         }
 
@@ -102,7 +103,7 @@ namespace Manager {
                 light->setDirection({1, 1.0, -3});
             }
             //const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrixForPlane(light, centerScene, 14, 14);
-            const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light);
+            const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, sceneMin, sceneMax);
             int index = 0;
 
             for (auto & matrix : lightSpacesMatrix) {
@@ -163,6 +164,27 @@ namespace Manager {
 
     void RenderManager::setHeight(const int height) {
         RenderManager::height = height;
+    }
+
+    void RenderManager::setProjection(const glm::mat4 &projection) {
+        this->projection = projection;
+    }
+
+    void RenderManager::resize(const int width, const int height, const glm::mat4 &projection) {
+        this->width = width;
+        this->height = height;
+        this->projection = projection;
+
+        if (bloomRenderer) {
+            bloomRenderer->resize(width, height, projection);
+        }
+        if (planarReflectionRenderer) {
+            planarReflectionRenderer->resize(width, height, projection);
+        }
+
+        for (auto &entry : renderers) {
+            entry.renderer->resize(width, height, projection);
+        }
     }
 
     void RenderManager::setDepthMapRenderer(unique_ptr<DepthMapRenderer> &depthMapRenderer) {

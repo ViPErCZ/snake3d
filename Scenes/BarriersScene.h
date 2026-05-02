@@ -20,7 +20,7 @@ namespace Scenes {
 
         [[nodiscard]] shared_ptr<MeshNode3D> getLevelBoxes() const;
 
-        void nextLevel();
+        void nextLevel(int targetLevel = -1);
 
     protected:
         void initBarriers();

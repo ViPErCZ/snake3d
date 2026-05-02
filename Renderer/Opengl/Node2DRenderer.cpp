@@ -26,6 +26,10 @@ namespace Renderer {
     void Node2DRenderer::afterRender() {
     }
 
+    void Node2DRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
+        ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
+    }
+
     void Node2DRenderer::setRootNode(const shared_ptr<MeshNode2D> &rootNode) {
         this->rootNode = rootNode;
     }

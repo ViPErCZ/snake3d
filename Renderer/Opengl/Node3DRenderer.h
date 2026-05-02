@@ -28,6 +28,7 @@ namespace Renderer {
         void beforeRender(MODE mode) override;
 
         void afterRender() override;
+        void resize(int width, int height, const glm::mat4 &projection) override;
 
         void renderShadowMap() override;
 

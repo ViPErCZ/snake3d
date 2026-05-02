@@ -1,9 +1,7 @@
 #ifndef SNAKE3_NETCLIENTSERVER_H
 #define SNAKE3_NETCLIENTSERVER_H
 
-#include <cstdint>
 #include <string>
-#include <vector>
 
 #include "NetManager.h"
 #include "NetMessages.h"

@@ -1,7 +1,7 @@
 #ifndef SNAKE3_LEVELMANAGER_H
 #define SNAKE3_LEVELMANAGER_H
 
-#define MAX_POINT 1
+#define MAX_POINT 3
 #define MAX_LIVES 4
 #define START_LEVEL 9
 

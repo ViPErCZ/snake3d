@@ -153,11 +153,19 @@ namespace Model {
     }
 
     void MeshNode3D::animationPause(const string &name) const {
-        mesh->animationPause(name);
+        try {
+            mesh->animationPause(name);
+        } catch (exception &e) {
+            cout << "Mesh is not AnimationArrayMesh instance." << endl;
+        }
     }
 
     void MeshNode3D::animationResume(const string &name) const {
-        mesh->animationResume(name);
+        try {
+            mesh->animationResume(name);
+        } catch (exception &e) {
+            cout << "Mesh is not AnimationArrayMesh instance." << endl;
+        }
     }
 
     void MeshNode3D::disablePlanarReflection() {

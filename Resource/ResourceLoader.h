@@ -63,7 +63,10 @@ namespace Resource {
         std::queue<TextureJob> textureJobs;
         std::queue<ShaderJob> shaderJobs;
         mutable std::mutex queueMutex;
-        std::thread worker;
+        std::thread modelWorker;
+        std::thread animWorker;
+        std::thread textureWorker;
+        std::thread shaderWorker;
         std::atomic<bool> running = true;
         std::condition_variable cv;
         std::counting_semaphore<MAX_CONCURRENT_LOADS> loadSemaphore{MAX_CONCURRENT_LOADS};

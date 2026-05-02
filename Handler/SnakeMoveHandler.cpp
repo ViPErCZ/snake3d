@@ -14,6 +14,9 @@ namespace Handler {
     SnakeMoveHandler::~SnakeMoveHandler() = default;
 
     void SnakeMoveHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods, float deltaTime) {
+        if (!enabled) {
+            return;
+        }
         switch (key) {
             case GLFW_KEY_L:
             case GLFW_KEY_I:
@@ -111,11 +114,11 @@ namespace Handler {
                 }
 
                 for (auto &node: snakeMeshNode->getChildren()) {
-                    // prvni rozbehnuti tela je vzdy vpravo, protoze na startu je hlava vpravo od tela
+                    // Initial body direction depends on the spawn layout.
                     const auto snakeMesh = dynamic_pointer_cast<SnakeMeshNode3D>(node);
                     const auto nodeDirection = snakeMesh->getDirection();
                     if (nodeDirection == SnakeMeshNode3D::NONE) {
-                        snakeMesh->setDirection(SnakeMeshNode3D::RIGHT);
+                        snakeMesh->setDirection(initialBodyDirection);
                     }
                 }
 
@@ -127,6 +130,11 @@ namespace Handler {
     }
 
     void SnakeMoveHandler::onDefaultHandler() {
+        if (!enabled) {
+            lastTime = glfwGetTime();
+            return;
+        }
+
         const double now = glfwGetTime();
         const double deltaTime = now - lastTime;
         lastTime = now;
@@ -173,6 +181,14 @@ namespace Handler {
 
             // check only, when snake is moving
             if (snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
+                const auto isRealSnakeCollision = [this](const shared_ptr<MeshNode3D> &body) {
+                    const auto snakeBody = dynamic_pointer_cast<SnakeMeshNode3D>(body);
+                    if (!snakeBody) {
+                        return true;
+                    }
+                    return snakeMeshNode->x == snakeBody->x && snakeMeshNode->y == snakeBody->y;
+                };
+
                 if (isChangeDirectionAllowed()) {
                     for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
                         for (const auto &body : shapeNode->getCollidingBodies()) {
@@ -188,6 +204,9 @@ namespace Handler {
                                 }
                                 return;
                             }
+                            if (!isRealSnakeCollision(body)) {
+                                continue;
+                            }
                             if (!crashLock && crashCallback) {
                                 crashLock = true;
                                 crashCallback();
@@ -198,7 +217,13 @@ namespace Handler {
                 } else { // check death
                     for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
                         for (const auto &body : shapeNode->getCollidingBodies()) {
-                            if (body->getName() != "coin" && !crashLock && crashCallback) {
+                            if (body->getName() == "coin") {
+                                continue;
+                            }
+                            if (!isRealSnakeCollision(body)) {
+                                continue;
+                            }
+                            if (!crashLock && crashCallback) {
                                 if (isDebug) {
                                     cout << "Had narazil do objektu: " << body->getName() << endl;
                                 }
@@ -271,6 +296,36 @@ namespace Handler {
 
     void SnakeMoveHandler::setEatenUpCallback(const function<void()> &eatenUpCallback) {
         SnakeMoveHandler::eatenUpCallback = eatenUpCallback;
+    }
+
+    void SnakeMoveHandler::setEnabled(const bool enabled) {
+        SnakeMoveHandler::enabled = enabled;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
+    }
+
+    void SnakeMoveHandler::setStopped(const bool stopped) {
+        if (changeCallback) {
+            return;
+        }
+        if (stop == stopped) {
+            return;
+        }
+        stop = stopped;
+        stopMoveCallback(stop);
+    }
+
+    void SnakeMoveHandler::setInitialBodyDirection(const SnakeMeshNode3D::eDIRECTION direction) {
+        initialBodyDirection = direction;
+    }
+
+    void SnakeMoveHandler::resetState() {
+        changeCallback = nullptr;
+        crashLock = false;
+        stop = false;
+        eatenUpCallbackCalled = false;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
     }
 
     template<typename Iter>

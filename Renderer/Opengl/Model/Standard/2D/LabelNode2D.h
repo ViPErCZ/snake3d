@@ -24,6 +24,8 @@ namespace Model {
             const glm::mat4 &parentTransform) const override;
 
         void alignVerticalCenter(float viewportWidth, float viewportHeight);
+        [[nodiscard]] float getWidth() const;
+        [[nodiscard]] float getHeight() const;
 
     protected:
         shared_ptr<TextMesh> mesh;

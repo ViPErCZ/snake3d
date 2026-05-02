@@ -2,6 +2,7 @@
 #define SNAKE3_BASERENDERER_H
 
 #include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/type_precision.inl>
 #include <memory>
 
@@ -37,6 +38,7 @@ namespace Renderer {
         virtual void afterRender() = 0;
 
         virtual void setShadow(bool shadow);
+        virtual void resize(int width, int height, const glm::mat4 &projection) {}
 
         [[nodiscard]] bool isShadow() const;
 

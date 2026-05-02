@@ -34,7 +34,7 @@ namespace Model {
         glm::mat4 worldTransform = parentTransform;
         float alpha = 1.0f;
 
-        if (nullptr != animationPlayer) {
+        if (nullptr != animationPlayer && !animation.empty()) {
             const auto metadata = animationPlayer->play(animation);
             worldTransform = worldTransform * metadata->world_transform;
             alpha = metadata->alpha;

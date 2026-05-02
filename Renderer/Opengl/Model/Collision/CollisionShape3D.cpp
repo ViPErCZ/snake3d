@@ -13,7 +13,7 @@ namespace CollisionShape {
             const auto parent = getParent();
             if (parent != nullptr) {
                 const auto animationPlayer = parent->getMesh()->getAnimationPlayer();
-                if (animationPlayer != nullptr) {
+                if (animationPlayer != nullptr && !parent->getAnimation().empty()) {
                     finalTransform *= animationPlayer->getMetadata(parent->getAnimation())->world_transform;
                 }
             }

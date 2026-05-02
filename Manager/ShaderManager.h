@@ -18,7 +18,9 @@ using UniformValue = std::variant<
     glm::vec4,
     glm::mat2,
     glm::mat3,
-    glm::mat4
+    glm::mat4,
+    vector<float>,
+    vector<glm::mat4>
 >;
 
 namespace Manager {
