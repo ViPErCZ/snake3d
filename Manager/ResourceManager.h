@@ -2,6 +2,7 @@
 #define SNAKE3_RESOURCEMANAGER_H
 
 #include <functional>
+#include <iostream>
 #include <mutex>
 #include <unordered_map>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "AnimItem.h"
+#include "../Tools/AnimItem.h"
 
 ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept
         : rotations(std::move(rotations))

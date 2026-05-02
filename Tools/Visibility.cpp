@@ -1,4 +1,4 @@
-#include "Visibility.h"
+#include "../Tools/Visibility.h"
 
 namespace Node3D {
     bool Visibility::isVisible() const {

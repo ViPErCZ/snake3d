@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../../../../ItemsDto/AnimItem.h"
+#include "../../../../../Tools/AnimItem.h"
 #include "../../Utils/Mesh.h"
 #include "../../Utils/Tree.h"
 

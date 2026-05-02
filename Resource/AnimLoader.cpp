@@ -1,6 +1,7 @@
 #include "AnimLoader.h"
 #include <assimp/postprocess.h>
 #include <functional>
+#include <iostream>
 
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 

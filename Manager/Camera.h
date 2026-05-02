@@ -2,11 +2,12 @@
 #define SNAKE3_CAMERA_H
 
 #include <memory>
-
-#include "../ItemsDto/BaseItem.h"
 #include <glm/glm.hpp>
 
-using namespace ItemsDto;
+#include "../stdafx.h"
+#include "../Tools/Transform.h"
+
+using namespace Node3D;
 
 namespace Manager {
 
@@ -29,7 +30,6 @@ namespace Manager {
         void setStickyPoint(const shared_ptr<Transform> &stickyPoint);
         [[nodiscard]] shared_ptr<Transform> getStickyPoint() const;
         [[nodiscard]] glm::vec3 getStickyPosition() const;
-        void updateStickyPoint();
         void processMouseMovement(double x, double y);
         void processKeyboard(GLFWwindow *window, float deltaTime);
 

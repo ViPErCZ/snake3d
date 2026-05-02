@@ -38,7 +38,7 @@ add_custom_target(copy_assets ALL
         COMMENT "Cleaning and copying Assets folder"
 )
 
-add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Physic/CollisionDetector.cpp Physic/CollisionDetector.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Renderer/Opengl/Model/RainModel.cpp Renderer/Opengl/Model/RainModel.h Renderer/Opengl/RainDropRenderer.cpp Renderer/Opengl/RainDropRenderer.h Renderer/Opengl/Model/MeshModel.cpp Renderer/Opengl/Model/MeshModel.h Resource/AnimLoader.cpp Resource/AnimLoader.h ItemsDto/AnimItem.cpp ItemsDto/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
+add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderManager.cpp Manager/ShaderManager.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Resource/AnimLoader.cpp Resource/AnimLoader.h Tools/AnimItem.cpp Tools/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
         Network/NetManager.cpp
         Network/NetManager.h
         Network/NetProtocol.cpp
@@ -96,8 +96,8 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Lights/SpotLight.cpp
         Lights/SpotLight.h
         Tools/Clear.h
-        ItemsDto/Transform.cpp
-        ItemsDto/Transform.h
+        Tools/Transform.cpp
+        Tools/Transform.h
         Lights/PointLight.cpp
         Lights/PointLight.h
         Renderer/Opengl/Model/Standard/SphereMesh.cpp
@@ -133,12 +133,12 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Scenes/PlayerScene.h
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
-        ItemsDto/Vector3i.cpp
-        ItemsDto/Vector3i.h
+        Tools/Vector3i.cpp
+        Tools/Vector3i.h
         Renderer/Opengl/Model/Game/CoinMeshNode3D.cpp
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
-        ItemsDto/Visibility.cpp
-        ItemsDto/Visibility.h
+        Tools/Visibility.cpp
+        Tools/Visibility.h
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
         Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
@@ -253,10 +253,10 @@ add_executable(Snake3 main.cpp ItemsDto/BaseItem.cpp ItemsDto/BaseItem.h stdafx.
         Lights/Light.h
         Lights/IOrientable.h
         Lights/OrientableLight.h
-        ItemsDto/Named.cpp
-        ItemsDto/Named.h
-        ItemsDto/Tagged.cpp
-        ItemsDto/Tagged.h
+        Tools/Named.cpp
+        Tools/Named.h
+        Tools/Tagged.cpp
+        Tools/Tagged.h
         Network/NetManager.cpp
         Network/NetManager.h
         Network/NetProtocol.cpp
@@ -312,7 +312,6 @@ FetchContent_MakeAvailable(catch2)
 # Definujte zde všechny .cpp soubory vaší hry (mimo složku Tests/)
 # POZNÁMKA: Hlavičkové soubory (.h) se sem nepíšou!
 set(APP_SOURCES
-        ItemsDto/BaseItem.cpp
         Manager/ResourceManager.cpp
         Manager/RenderManager.cpp
         Manager/KeyboardManager.cpp
@@ -322,10 +321,9 @@ set(APP_SOURCES
         Manager/VboIndexer.cpp
         Manager/Camera.cpp
         Manager/TextureManager.cpp
-        ItemsDto/AnimItem.cpp
+        Tools/AnimItem.cpp
         Renderer/Opengl/BaseRenderer.cpp
         Renderer/Opengl/BloomRenderer.cpp
-        Renderer/Opengl/RainDropRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/Model/Character.cpp
@@ -333,13 +331,10 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Utils/Vbo.cpp
         Renderer/Opengl/Model/Utils/Ebo.cpp
         Renderer/Opengl/Model/Utils/Mesh.cpp
-        Renderer/Opengl/Model/RainModel.cpp
-        Renderer/Opengl/Model/MeshModel.cpp
         Handler/SnakeMoveHandler.cpp
         Handler/BaseHandler.cpp
         Handler/EatLocationHandler.cpp
         Handler/RadarHandler.cpp
-        Physic/CollisionDetector.cpp
         Resource/ObjModelLoader.cpp
         Resource/TextureLoader.cpp
         Resource/ShaderLoader.cpp
@@ -377,8 +372,8 @@ set(APP_SOURCES
         Lights/SpotLight.cpp
         Lights/SpotLight.h
         Tools/Clear.h
-        ItemsDto/Transform.cpp
-        ItemsDto/Transform.h
+        Tools/Transform.cpp
+        Tools/Transform.h
         Lights/PointLight.cpp
         Lights/PointLight.h
         Renderer/Opengl/Model/Standard/SphereMesh.cpp
@@ -412,12 +407,12 @@ set(APP_SOURCES
         Scenes/PlayerScene.h
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
-        ItemsDto/Vector3i.cpp
-        ItemsDto/Vector3i.h
+        Tools/Vector3i.cpp
+        Tools/Vector3i.h
         Renderer/Opengl/Model/Game/CoinMeshNode3D.cpp
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
-        ItemsDto/Visibility.cpp
-        ItemsDto/Visibility.h
+        Tools/Visibility.cpp
+        Tools/Visibility.h
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
         Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
@@ -530,10 +525,10 @@ set(APP_SOURCES
         Lights/Light.h
         Lights/IOrientable.h
         Lights/OrientableLight.h
-        ItemsDto/Named.cpp
-        ItemsDto/Named.h
-        ItemsDto/Tagged.cpp
-        ItemsDto/Tagged.h
+        Tools/Named.cpp
+        Tools/Named.h
+        Tools/Tagged.cpp
+        Tools/Tagged.h
         Network/NetManager.cpp
         Network/NetManager.h
         Network/NetProtocol.cpp
@@ -593,8 +588,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Lights/SpotLight.cpp
         Lights/SpotLight.h
         Tools/Clear.h
-        ItemsDto/Transform.cpp
-        ItemsDto/Transform.h
+        Tools/Transform.cpp
+        Tools/Transform.h
         Lights/PointLight.cpp
         Lights/PointLight.h
         Renderer/Opengl/Model/Standard/SphereMesh.cpp
@@ -630,12 +625,12 @@ add_library(snake3d_lib ${APP_SOURCES}
         Scenes/PlayerScene.h
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.cpp
         Renderer/Opengl/Model/Game/SnakeMeshNode3D.h
-        ItemsDto/Vector3i.cpp
-        ItemsDto/Vector3i.h
+        Tools/Vector3i.cpp
+        Tools/Vector3i.h
         Renderer/Opengl/Model/Game/CoinMeshNode3D.cpp
         Renderer/Opengl/Model/Game/CoinMeshNode3D.h
-        ItemsDto/Visibility.cpp
-        ItemsDto/Visibility.h
+        Tools/Visibility.cpp
+        Tools/Visibility.h
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.cpp
         Renderer/Opengl/Model/Standard/2D/LabelNode2D.h
         Renderer/Opengl/Model/Standard/2D/BaseNode2D.cpp
@@ -748,10 +743,10 @@ add_library(snake3d_lib ${APP_SOURCES}
         Lights/Light.h
         Lights/IOrientable.h
         Lights/OrientableLight.h
-        ItemsDto/Named.cpp
-        ItemsDto/Named.h
-        ItemsDto/Tagged.cpp
-        ItemsDto/Tagged.h
+        Tools/Named.cpp
+        Tools/Named.h
+        Tools/Tagged.cpp
+        Tools/Tagged.h
         Tools/BuildSettings.h
         Tools/Layers.h
         Manager/SoundManager.cpp

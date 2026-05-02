@@ -1,4 +1,4 @@
-#include "Named.h"
+#include "../Tools/Named.h"
 
 namespace Node3D {
     void Named::setName(const string &name) {

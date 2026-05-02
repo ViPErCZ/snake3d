@@ -8,7 +8,6 @@
 #include "BaseKeydownHandle.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
-using namespace ItemsDto;
 using namespace Model;
 
 namespace Handler {

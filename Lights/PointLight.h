@@ -2,7 +2,7 @@
 #define SNAKE3_POINTLIGHT_H
 
 #include "Light.h"
-#include "../ItemsDto/Visibility.h"
+#include "../Tools/Visibility.h"
 #include "../Manager/ShaderManager.h"
 
 using namespace Node3D;

@@ -1,7 +1,6 @@
 #ifndef SNAKE3_ANIMITEM_H
 #define SNAKE3_ANIMITEM_H
 
-#include "BaseItem.h"
 #include <memory>
 #include <array>
 #include <vector>

@@ -5,7 +5,8 @@
 #include <memory>
 
 #include "BaseNode2D.h"
-#include "../../../../../ItemsDto/Visibility.h"
+#include "../../../../../Tools/Vector3i.h"
+#include "../../../../../Tools/Visibility.h"
 #include "../../../../../Manager/Camera.h"
 #include "../../../../../Manager/ResourceManager.h"
 #include "../../../../../Tools/ContextState.h"

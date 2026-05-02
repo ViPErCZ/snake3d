@@ -1,6 +1,7 @@
 #include "LabelNode2D.h"
 
 #include <utility>
+#include <iostream>
 #include "../../../../../Manager/VboIndexer.h"
 #include "../../../Material/StandardMaterial.h"
 #include "../../Utils/TextMesh.h"

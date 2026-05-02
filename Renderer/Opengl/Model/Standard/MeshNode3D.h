@@ -4,9 +4,10 @@
 #include <memory>
 
 #include "StandardMesh.h"
-#include "../../../../ItemsDto/Named.h"
-#include "../../../../ItemsDto/Tagged.h"
-#include "../../../../ItemsDto/Visibility.h"
+#include "../../../../Tools/Named.h"
+#include "../../../../Tools/Vector3i.h"
+#include "../../../../Tools/Tagged.h"
+#include "../../../../Tools/Visibility.h"
 #include "../../../../Manager/ResourceManager.h"
 #include "../../../../Tools/ContextState.h"
 
