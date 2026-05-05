@@ -6,13 +6,16 @@
 #include <glm/glm.hpp>
 
 #include "OrbitSceneBase.h"
+#include "../Manager/TextureManager.h"
 #include "../Renderer/Opengl/Material/2D/LabelSettings.h"
+#include "../Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/Uniform/TimerUniform.h"
+#include "../Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
+#include "../Renderer/Opengl/Model/Standard/2D/ImageNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/ImageNode2D.h"
 
 using namespace Material;
 using namespace Model;
@@ -86,6 +89,8 @@ namespace Scenes {
         };
 
         void initBackdrop();
+        void initCursor();
+        void updateCursor();
         void initTitle(const glm::vec2 &center);
         void initButtons(const glm::vec2 &center);
         MenuButton buildButton(const std::string &text, const glm::vec2 &center, const glm::vec2 &size);
@@ -140,6 +145,17 @@ namespace Scenes {
         glm::vec2 networkInfoBase{0.0f, 0.0f};
         shared_ptr<MeshNode2D> backdropNode;
         shared_ptr<MeshNode2D> titleNode;
+
+        shared_ptr<ImageNode2D> cursorMesh;
+        shared_ptr<MeshNode2D> cursorNode;
+        shared_ptr<ParticleProcessMaterial> cursorTrailMaterial;
+        shared_ptr<GPUParticle2D> cursorTrail;
+        shared_ptr<TextureManager> cursorTexture;
+        glm::vec2 cursorSize{0.0f, 0.0f};
+        glm::vec2 cursorHotspot{0.0f, 0.0f};
+        glm::vec2 lastCursorScreenPos{0.0f, 0.0f};
+        bool cursorInitialized = false;
+        bool hasCursorLastPos = false;
     };
 } // Scenes
 

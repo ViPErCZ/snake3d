@@ -2,8 +2,20 @@
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <iostream>
+
+#include "../Resource/TextureLoader.h"
+#include "../Thirdparty/stbimage/stb_image.h"
 
 namespace Scenes {
+    namespace {
+        constexpr float kCursorScale = 0.9f;
+        constexpr float kCursorTrailSpawnMax = 80.0f;
+        constexpr float kCursorTrailSpawnPerPixel = 12.0f;
+        constexpr float kCursorTrailSpawnMin = 4.0f;
+        constexpr float kCursorEmitterRadius = 0.02f;
+    }
+
     namespace {
         constexpr float kButtonWidth = 360.0f;
         constexpr float kButtonHeight = 72.0f;
@@ -63,6 +75,7 @@ namespace Scenes {
 
         const glm::vec2 buttonsCenter = {viewportCenter.x, viewportCenter.y + kButtonsOffsetY};
         initButtons(buttonsCenter);
+        initCursor();
         setMenuView(MenuView::Main);
         updateIpLabel();
     }
@@ -95,11 +108,15 @@ namespace Scenes {
                 updateIpLabel();
             }
         }
+        updateCursor();
     }
 
     void MainMenuScene::setCursorPosition(const glm::vec2 &position) {
         cursorScreenPos = position;
         cursorValid = true;
+        if (!hasCursorLastPos) {
+            lastCursorScreenPos = position;
+        }
     }
 
     MainMenuScene::MenuAction MainMenuScene::handleMouseButton(const int button, const int action) {
@@ -594,6 +611,93 @@ namespace Scenes {
     void MainMenuScene::resize(const int width, const int height, const glm::mat4 &projection) {
         OrbitSceneBase::resize(width, height, projection);
         updateLayout();
+        if (cursorTrail) {
+            cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+        }
+    }
+
+    void MainMenuScene::initCursor() {
+        int imgW = 0;
+        int imgH = 0;
+        int imgCh = 0;
+        unsigned char* pixels = stbi_load("Assets/Cursors/Arrow_Rounded_Blue.png", &imgW, &imgH, &imgCh, 4);
+        if (!pixels) {
+            std::cerr << "Failed to load cursor texture." << std::endl;
+            return;
+        }
+
+        const unsigned int textureId = TextureLoader::bindFromBufferWithoutDecode(
+            pixels, true, imgW, imgH, 4);
+        stbi_image_free(pixels);
+
+        cursorTexture = std::make_shared<TextureManager>(textureId);
+        cursorSize = glm::vec2(static_cast<float>(imgW), static_cast<float>(imgH)) * kCursorScale;
+
+        const auto shader = resourceManager->getShader("cursor2d");
+        cursorMesh = make_shared<ImageNode2D>(cursorSize.x, cursorSize.y, shader, cursorTexture);
+        cursorMesh->setBlending(Blending::Translucent);
+        cursorMesh->setDepthTest(false);
+        cursorMesh->setDepthWrite(false);
+
+        cursorNode = make_shared<MeshNode2D>(contextState, cursorMesh, resourceManager);
+        addMeshNode2D(cursorNode, 10000);
+
+        const auto trailQuad = make_shared<QuadNode2D>(0.03f, 0.03f);
+        trailQuad->setBlending(Blending::Additive);
+        trailQuad->setDepthTest(false);
+        trailQuad->setDepthWrite(false);
+
+        cursorTrailMaterial = make_shared<ParticleProcessMaterial>(resourceManager);
+        cursorTrailMaterial->set_spawn_shape(0);
+        cursorTrailMaterial->set_respawn_mode(0);
+        cursorTrailMaterial->set_life_min(0.35f);
+        cursorTrailMaterial->set_life_max(0.7f);
+        cursorTrailMaterial->set_size_min(0.08f);
+        cursorTrailMaterial->set_size_max(0.16f);
+        cursorTrailMaterial->set_vel_min({-0.12f, -0.12f, 0.0f});
+        cursorTrailMaterial->set_vel_max({0.12f, 0.12f, 0.0f});
+        cursorTrailMaterial->set_gravity({0.0f, 0.0f, 0.0f});
+        cursorTrailMaterial->set_spawn_per_frame(0.0f);
+        cursorTrailMaterial->set_color_start({0.45f, 0.85f, 1.0f, 0.9f});
+        cursorTrailMaterial->set_color_end({0.15f, 0.3f, 1.0f, 0.0f});
+        cursorTrailMaterial->set_emitter_radius(kCursorEmitterRadius);
+
+        cursorTrail = make_shared<GPUParticle2D>(cursorTrailMaterial, contextState, trailQuad, resourceManager, 400);
+        cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+        cursorTrail->setRenderShader(resourceManager->getShader("particle_render_2d_trail"));
+        addMeshNode2D(cursorTrail, 9000);
+
+        cursorInitialized = true;
+    }
+
+    void MainMenuScene::updateCursor() {
+        if (!cursorInitialized || !cursorNode || !cursorTrailMaterial) {
+            return;
+        }
+
+        const float cursorX = cursorScreenPos.x + (cursorSize.x * 0.5f) - cursorHotspot.x;
+        const float cursorY = cursorScreenPos.y + (cursorSize.y * 0.5f) - cursorHotspot.y;
+        cursorNode->setPosition({cursorX, cursorY, 0.0f});
+
+        const glm::vec2 delta = cursorScreenPos - lastCursorScreenPos;
+        const float moveLen = glm::length(delta);
+        if (hasCursorLastPos && moveLen > 0.5f) {
+            const float emitX = cursorScreenPos.x + cursorSize.x - cursorHotspot.x;
+            const float emitY = cursorScreenPos.y + cursorSize.y - cursorHotspot.y;
+            const float ndcX = (emitX / static_cast<float>(width)) * 2.0f - 1.0f;
+            const float ndcY = 1.0f - (emitY / static_cast<float>(height)) * 2.0f;
+            cursorTrailMaterial->set_emitter_pos({ndcX, ndcY, 0.0f});
+            const float spawnRate = std::clamp(
+                moveLen * kCursorTrailSpawnPerPixel,
+                kCursorTrailSpawnMin,
+                kCursorTrailSpawnMax);
+            cursorTrailMaterial->set_spawn_per_frame(spawnRate);
+        } else {
+            cursorTrailMaterial->set_spawn_per_frame(0.0f);
+        }
+
+        lastCursorScreenPos = cursorScreenPos;
+        hasCursorLastPos = true;
     }
 
     void MainMenuScene::setMenuView(const MenuView view) {

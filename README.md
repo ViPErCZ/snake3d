@@ -23,6 +23,7 @@ and game detail
 - GLFW3
 - glut, GLU, GL, GLEW
 - nlohman (json)
+- libenet
 
 ### Tutorials:
 - https://learnopengl.com
