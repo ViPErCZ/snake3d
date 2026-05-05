@@ -47,7 +47,7 @@ namespace Scenes {
         void resize(int width, int height, const glm::mat4 &projection) override;
 
         void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) override;
-        void setCursorPosition(const glm::vec2 &position);
+        void setCursorPosition(const glm::vec2 &position) const;
         void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
         [[nodiscard]] bool isMenuVisible() const;
 

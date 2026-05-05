@@ -1,5 +1,6 @@
 #include "MainScene.h"
 
+#include <algorithm>
 #include <glm/gtc/random.hpp>
 #include <cmath>
 #include <iostream>
@@ -1076,19 +1077,20 @@ namespace Scenes {
                 return true;
             }
 
-            for (const auto &child : barriersScene->getLevelBoxes()->getChildren()) {
-                if (matchesNode(child)) {
-                    return true;
-                }
-            }
-            return false;
+            return std::ranges::any_of(
+                barriersScene->getLevelBoxes()->getChildren(),
+                matchesNode);
         };
 
-        for (float y = 71.0f; y >= -21.0f; y -= 2.0f) {
-            for (float x = 61.0f; x >= -11.0f; x -= 2.0f) {
+        for (int yIndex = 0; yIndex <= 46; ++yIndex) {
+            constexpr float step = 2.0f;
+            const float y = 71.0f - static_cast<float>(yIndex) * step;
+            for (int xIndex = 0; xIndex <= 36; ++xIndex) {
+                constexpr float startX = 61.0f;
+                const float x = startX - static_cast<float>(xIndex) * step;
                 bool valid = true;
                 for (int segment = 0; segment < 6; ++segment) {
-                    if (isBlocked({x + static_cast<float>(segment * 2), y})) {
+                    if (isBlocked({x + static_cast<float>(segment) * step, y})) {
                         valid = false;
                         break;
                     }
@@ -1397,7 +1399,7 @@ namespace Scenes {
         }
     }
 
-    void MainScene::setCursorPosition(const glm::vec2 &position) {
+    void MainScene::setCursorPosition(const glm::vec2 &position) const {
         if (mainMenuScene) {
             mainMenuScene->setCursorPosition(position);
         }

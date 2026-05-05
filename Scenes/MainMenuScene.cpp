@@ -640,7 +640,7 @@ namespace Scenes {
         cursorMesh->setDepthWrite(false);
 
         cursorNode = make_shared<MeshNode2D>(contextState, cursorMesh, resourceManager);
-        addMeshNode2D(cursorNode, 10000);
+        addMeshNode2D(cursorNode, -10000);
 
         const auto trailQuad = make_shared<QuadNode2D>(0.03f, 0.03f);
         trailQuad->setBlending(Blending::Additive);
@@ -665,7 +665,7 @@ namespace Scenes {
         cursorTrail = make_shared<GPUParticle2D>(cursorTrailMaterial, contextState, trailQuad, resourceManager, 400);
         cursorTrail->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
         cursorTrail->setRenderShader(resourceManager->getShader("particle_render_2d_trail"));
-        addMeshNode2D(cursorTrail, 9000);
+        addMeshNode2D(cursorTrail, -9000);
 
         cursorInitialized = true;
     }
