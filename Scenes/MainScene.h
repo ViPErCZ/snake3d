@@ -18,8 +18,7 @@
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
-#include "../Network/NetClientServer.h"
-#include "../Network/NetClock.h"
+#include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
 
 using namespace Uniform;
@@ -28,7 +27,7 @@ using namespace Scenes;
 using namespace std;
 
 namespace Scenes {
-    class MainScene final : public Scene {
+    class MainScene final : public Scene, public Net::NetWorldSource, public Net::NetWorldSink {
     public:
         explicit MainScene(
             const shared_ptr<DirectionalLight> &directionalLight,
@@ -52,12 +51,21 @@ namespace Scenes {
         [[nodiscard]] bool isMenuVisible() const;
 
     private:
-        struct PendingRespawnState {
-            std::vector<glm::vec2> positions;
-            size_t segmentCount = 0;
-            SnakeMeshNode3D::eDIRECTION direction = SnakeMeshNode3D::NONE;
-            bool active = false;
-        };
+        bool collectWorldSnapshot(Net::WorldSnapshotState &out) const override;
+
+        void onClientHello(uint32_t peerId) override;
+        void onWelcomeReceived() override;
+        void onPeerDisconnected() override;
+        void onRemoteInput(int8_t moveX, int8_t moveY, uint8_t actions) override;
+
+        void requestLocalCrash() override;
+        void requestRemoteCrash() override;
+        void applyLocalSnakePositions(const Net::SnakeSnapshotState &snake) override;
+        void applyRemoteSnakePositions(const Net::SnakeSnapshotState &snake) override;
+
+        void applyCoin(float x, float y, bool visible, bool eatenAnim) override;
+        void applyHud(uint32_t level, uint32_t eatCounter, uint32_t lives) override;
+        void applyWinning() override;
 
         void initSounds() const;
 
@@ -82,9 +90,7 @@ namespace Scenes {
         void handleCoinEaten(const EatManager &manager);
         void initializeMultiplayerState();
         void shutdownMultiplayerState(bool showMenu);
-        void notifyNetworkDisconnect() const;
         void rebuildRadarItems(bool includeRemote) const;
-        void sendClientPauseToggle() const;
         void respawnLocalSnake();
         void respawnRemoteSnake();
         [[nodiscard]] bool localSnakeHitRemote() const;
@@ -113,7 +119,6 @@ namespace Scenes {
         void saveHudVisibility();
         void restoreHudVisibility();
         void initNetworking();
-        void updateNetworking();
         void resetNetworkState();
         void startNetworkGame();
         void enterWinningState();
@@ -155,26 +160,7 @@ namespace Scenes {
         bool multiplayerCrashInProgress = false;
         bool resumeLocalMovementAfterMenu = false;
         int progress = 0;
-        uint16_t netPort = 7777;
-        Net::NetManager netManager;
-        Net::NetClient netClient;
-        Net::NetServer netServer;
-        Net::NetClock netClock{60};
-        bool netEnabled = false;
-        bool netIsServer = false;
-        bool netIsClient = false;
-        uint32_t netPeerId = 0;
-        uint32_t netSeed = 0;
-        uint32_t netLastSnapshotLevel = 0;
-        uint32_t netLastSnapshotEatCounter = 0;
-        uint32_t localRespawnSerial = 0;
-        uint32_t remoteRespawnSerial = 0;
-        uint32_t netLastSeenLocalRespawnSerial = 0;
-        uint32_t netLastSeenRemoteRespawnSerial = 0;
-        bool netLastSeenLocalCrash = false;
-        bool netLastSeenRemoteCrash = false;
-        glm::vec3 localMultiplayerSpawnPos{23.0f, -3.0f, -23.0f};
-        PendingRespawnState pendingLocalRespawn;
+        Net::NetGameController netSession;
     };
 } // Scenes
 

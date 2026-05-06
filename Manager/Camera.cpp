@@ -71,6 +71,7 @@ namespace Manager {
 
     void Camera::setStickyPoint(const shared_ptr<Transform> &stickyPoint) {
         this->stickyPoint = stickyPoint;
+        rightButtonPressed = false;
 
         const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
         position = targetPos + offsetFromTarget;

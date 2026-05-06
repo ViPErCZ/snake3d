@@ -13,6 +13,7 @@
 #include "../Network/NetDispatcher.h"
 #include "../Network/Game/SnakeSnapshotApplier.h"
 #include "PlayerScene.h"
+#include "SceneLightFactory.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
 #include "../Renderer/Opengl/Material/ShaderMaterial.h"
@@ -36,9 +37,7 @@ namespace Scenes {
         const vector<shared_ptr<PointLight> > &pointLights,
         const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
         const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, const int width, const int height)
-        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height),
-          netClient(netManager),
-          netServer(netManager) {
+        : Scene(directionalLight, spotLights, pointLights, rendererManager, camera, projection, rm, width, height) {
         ortho = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1000.0f);
         collisionSystem = make_shared<CollisionSystem3D>();
     }
@@ -71,6 +70,9 @@ namespace Scenes {
 
         if (winning) {
             if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+                if (netSession.isEnabled()) {
+                    netSession.notifyDisconnect();
+                }
                 glfwSetWindowShouldClose(window, true);
             }
             return;
@@ -82,11 +84,11 @@ namespace Scenes {
                     this->hideMenu();
                 }
             } else if (gameStarted) {
-                if (netEnabled && netIsClient) {
+                if (netSession.isEnabled() && netSession.isClient()) {
                     const auto snake = playerScene ? playerScene->getSnake() : nullptr;
                     this->resumeLocalMovementAfterMenu =
                         snake && snake->getDirection() > SnakeMeshNode3D::STOP && snake->getDirection() < SnakeMeshNode3D::CRASH;
-                    this->sendClientPauseToggle();
+                    netSession.sendPauseToggle();
                 } else if (snakeMoveHandler) {
                     this->resumeLocalMovementAfterMenu = !snakeMoveHandler->isStopped();
                     snakeMoveHandler->setStopped(true);
@@ -100,22 +102,20 @@ namespace Scenes {
             if (action == GLFW_PRESS && mainMenuScene) {
                 mainMenuScene.get()->handleKeyInput(keyCode, action);
                 if (mainMenuScene.get()->consumeJoinRequest()) {
-                    if (netEnabled) {
+                    if (netSession.isEnabled()) {
                         this->resetNetworkState();
                     }
                     const std::string ip = mainMenuScene->getJoinIp();
-                    this->netIsClient = netClient.connect(ip, netPort, "Player");
-                    if (netIsClient) {
-                        this->netEnabled = true;
-                        mainMenuScene.get()->setNetworkStatus("Status: connecting");
-                        mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
+                    if (netSession.join(ip, "Player")) {
+                        mainMenuScene->setNetworkStatus("Status: connecting");
+                        mainMenuScene->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
                         if constexpr (isDebug) {
-                            std::cout << "[Net] Joining " << ip << ":" << netPort << std::endl;
+                            std::cout << "[Net] Joining " << ip << ":" << netSession.getPort() << std::endl;
                         }
                     } else {
-                        mainMenuScene.get()->setNetworkStatus("Status: join failed");
+                        mainMenuScene->setNetworkStatus("Status: join failed");
                         if constexpr (isDebug) {
-                            std::cout << "[Net] Failed to join " << ip << ":" << netPort << std::endl;
+                            std::cout << "[Net] Failed to join " << ip << ":" << netSession.getPort() << std::endl;
                         }
                     }
                 }
@@ -128,9 +128,9 @@ namespace Scenes {
             return;
         }
 
-        if (netEnabled && netIsClient) {
+        if (netSession.isEnabled() && netSession.isClient()) {
             Net::InputMsg input{};
-            input.tick = netClock.getTick();
+            input.tick = netSession.getTick();
             input.actions = 0;
             switch (keyCode) {
                 case GLFW_KEY_J: input.moveX = -1; input.moveY = 0; break;
@@ -141,7 +141,7 @@ namespace Scenes {
                 default: break;
             }
             if (input.moveX != 0 || input.moveY != 0 || input.actions != 0) {
-                const bool sent = netClient.sendInput(input);
+                const bool sent = netSession.sendInput(input);
                 if (!sent) {
                     if constexpr (isDebug) {
                         std::cout << "[Net] Failed to send input to server" << std::endl;
@@ -198,10 +198,10 @@ namespace Scenes {
     }
 
     void MainScene::physics() {
-        if (netEnabled && netIsClient) {
+        if (netSession.isEnabled() && netSession.isClient()) {
             return;
         }
-        if (menuVisible && !(netEnabled && netIsServer)) {
+        if (menuVisible && !(netSession.isEnabled() && netSession.isServer())) {
             return;
         }
         Scene::physics();
@@ -229,90 +229,14 @@ namespace Scenes {
     }
 
     void MainScene::initLights() {
-        constexpr auto spotAmbientColor = glm::vec3(0.5f, 0.5f, 0.5f);
-        constexpr auto spotSpecularColor = glm::vec3(0.1f, 0.1f, 0.1f);
-        const auto spotLight = make_shared<SpotLight>();
-        spotLight->setPosition({-1.7521, -0.75, -1.5f});
-        spotLight->setDirection({0.0, -1.0, 0.0f});
-        spotLight->setAmbient(spotAmbientColor);
-        spotLight->setDiffuse({0.0f, 0.0f, 0.0f});
-        spotLight->setSpecular(spotSpecularColor);
-        spotLight->setCutOff(12.5);
-        spotLight->setOuterCutOff(17.5);
-        spotLight->setPulse(true);
-
-        const auto spotLight2 = make_shared<SpotLight>();
-        spotLight2->setPosition({3.67, 2.81, -1.5f});
-        spotLight2->setDirection({1.9, 3.0, 0.0f});
-        spotLight2->setAmbient(spotAmbientColor);
-        spotLight2->setDiffuse({0.0f, 0.0f, 0.0f});
-        spotLight2->setSpecular(spotSpecularColor);
-        spotLight2->setCutOff(12.5);
-        spotLight2->setOuterCutOff(17.5);
-        spotLight2->setPulse(true);
-
-        const auto spotLight3 = make_shared<SpotLight>();
-        spotLight3->setPosition({-1.7521, 2.81, -1.5f});
-        spotLight3->setDirection({0.0, 3.0, 0.0f});
-        spotLight3->setAmbient(spotAmbientColor);
-        spotLight3->setDiffuse({0.0f, 0.0f, 0.0f});
-        spotLight3->setSpecular(spotSpecularColor);
-        spotLight3->setCutOff(12.5);
-        spotLight3->setOuterCutOff(17.5);
-        spotLight3->setPulse(true);
-
-        const auto spotLight4 = make_shared<SpotLight>();
-        spotLight4->setPosition({3.67, -0.75, -1.5f});
-        spotLight4->setDirection({2.0f, -1.0, 0.0f});
-        spotLight4->setAmbient(spotAmbientColor);
-        spotLight4->setDiffuse({0.0f, 0.0f, 0.0f});
-        spotLight4->setSpecular(spotSpecularColor);
-        spotLight4->setCutOff(12.5);
-        spotLight4->setOuterCutOff(17.5);
-        spotLight4->setPulse(true);
-
-        const auto spotLight5 = make_shared<SpotLight>();
-        spotLight5->setPosition({1.93, 0.43, -1.5f});
-        spotLight5->setDirection({1.93f, 0.43, 0.0f});
-        spotLight5->setAmbient(glm::vec3(1.0f, 0.95f, 0.8f));
-        spotLight5->setDiffuse({0.991f, 0.982f, 0.305f});
-        spotLight5->setSpecular({0.4f, 0.4f, 0.4f});
-        spotLight5->setConstant(0.9f);
-        spotLight5->setCutOff(7.5);
-        spotLight5->setOuterCutOff(13.5);
-        spotLight5->setPulse(true);
-        spotLight5->setVisible(false);
-
-        const auto pointLight1 = make_shared<PointLight>();
-        pointLight1->setPosition({-0.03, 0.201801, -0.656399});
-        pointLight1->setAmbient({0.05f, 0.05f, 0.05f});
-        pointLight1->setDiffuse({1.0f, 0.95f, 0.8f});
-        pointLight1->setSpecular({0.01f, 0.01f, 0.01f});
-        pointLight1->setConstant(1.0f);
-        pointLight1->setLinear(8.09f);
-        pointLight1->setQuadratic(0.032f);
-
-        const auto pointLight2 = make_shared<PointLight>();
-        pointLight2->setPosition({2.15, 1.2218, -0.656399});
-        pointLight2->setAmbient({0.1f, 0.0f, 0.0f});
-        pointLight2->setDiffuse({0.88f, 0.0f, 0.00f});
-        pointLight2->setSpecular({0.0f, 0.0f, 0.0f});
-        pointLight2->setConstant(1.0f);
-        pointLight2->setLinear(0.7f);
-        pointLight2->setQuadratic(20.8f);
-
-        this->spotLights.push_back(spotLight);
-        this->spotLights.push_back(spotLight2);
-        this->spotLights.push_back(spotLight3);
-        this->spotLights.push_back(spotLight4);
-        this->spotLights.push_back(spotLight5);
-
-        this->pointLights.push_back(pointLight1);
-        this->pointLights.push_back(pointLight2);
+        auto [spotLights, pointLights] = SceneLightFactory::create();
+        this->spotLights.insert(this->spotLights.end(), spotLights.begin(), spotLights.end());
+        this->pointLights.insert(this->pointLights.end(), pointLights.begin(), pointLights.end());
 
         if (manipulatorHandler) {
-            manipulatorHandler->getLightsHandler()->addItem(pointLight1);
-            manipulatorHandler->getLightsHandler()->addItem(pointLight2);
+            for (const auto &point : pointLights) {
+                manipulatorHandler->getLightsHandler()->addItem(point);
+            }
         }
     }
 
@@ -520,26 +444,7 @@ namespace Scenes {
     }
 
     void MainScene::initNetworking() {
-        netEnabled = false;
-        netIsServer = false;
-        netIsClient = false;
-        netPeerId = 0;
-        netSeed = 0;
-        netClock.reset(0);
-
-        netPort = 7777;
-        std::ifstream file("Assets/config.json");
-        if (file.is_open()) {
-            try {
-                nlohmann::json j;
-                file >> j;
-                if (j.contains("network") && j["network"].contains("port")) {
-                    netPort = j["network"]["port"].get<uint16_t>();
-                }
-            } catch (...) {
-                netPort = 7777;
-            }
-        }
+        netSession.loadConfig();
 
         if (mainMenuScene) {
             mainMenuScene->setLocalIp(Net::getLocalIpAddress());
@@ -548,24 +453,7 @@ namespace Scenes {
     }
 
     void MainScene::resetNetworkState() {
-        notifyNetworkDisconnect();
-        netManager.shutdown();
-        netEnabled = false;
-        netIsServer = false;
-        netIsClient = false;
-        netPeerId = 0;
-        netSeed = 0;
-        netLastSnapshotLevel = 0;
-        netLastSnapshotEatCounter = 0;
-        localRespawnSerial = 0;
-        remoteRespawnSerial = 0;
-        netLastSeenLocalRespawnSerial = 0;
-        netLastSeenRemoteRespawnSerial = 0;
-        netLastSeenLocalCrash = false;
-        netLastSeenRemoteCrash = false;
-        localMultiplayerSpawnPos = {23.0f, -3.0f, -23.0f};
-        pendingLocalRespawn = {};
-        netClock.reset(0);
+        netSession.reset();
         if (playerScene) {
             playerScene->setInputEnabled(true);
         }
@@ -578,20 +466,6 @@ namespace Scenes {
             mainMenuScene->setNetworkSessionState(MainMenuScene::NetworkSessionState::Idle);
             mainMenuScene->setMenuView(MainMenuScene::MenuView::Main);
         }
-    }
-
-    void MainScene::notifyNetworkDisconnect() const {
-        if (!netEnabled) {
-            return;
-        }
-
-        if (netIsServer) {
-            netManager.disconnectAllNow(0);
-        } else if (netIsClient) {
-            netManager.disconnectNow(0, 0);
-        }
-
-        netManager.flush();
     }
 
     void MainScene::rebuildRadarItems(const bool includeRemote) const {
@@ -608,35 +482,16 @@ namespace Scenes {
         radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
     }
 
-    void MainScene::sendClientPauseToggle() const {
-        if (!netEnabled || !netIsClient) {
-            return;
-        }
-
-        Net::InputMsg input{};
-        input.tick = netClock.getTick();
-        input.actions = 1;
-        input.moveX = 0;
-        input.moveY = 0;
-        const bool sent = netClient.sendInput(input);
-        if (!sent) {
-            if constexpr (isDebug) {
-                std::cout << "[Net] Failed to send pause toggle to server" << std::endl;
-            }
-        }
-    }
-
     void MainScene::initializeMultiplayerState() {
         gameStarted = true;
             if (playerScene) {
-                playerScene->setInputEnabled(!netIsClient);
+                playerScene->setInputEnabled(!netSession.isClient());
                 if (const auto snake = playerScene->getSnake()) {
                 snake->setDirection(SnakeMeshNode3D::NONE);
                 snake->setRotationX(90.0f);
-                snake->setRotationY(netIsClient ? 180.0f : 0.0f);
-                if (netIsClient) {
+                snake->setRotationY(netSession.isClient() ? 180.0f : 0.0f);
+                if (netSession.isClient()) {
                     const glm::vec3 clientHead = findRemoteSpawnPosition();
-                    localMultiplayerSpawnPos = clientHead;
                     snake->respawn();
                     if (const auto moveHandler = playerScene->getSnakeMoveHandler()) {
                         moveHandler->resetState();
@@ -646,16 +501,15 @@ namespace Scenes {
                                                                                 SnakeMeshNode3D::LEFT);
                     Net::applyExactSnakePositions(snake, spawnPositions, SnakeMeshNode3D::LEFT, false);
                 } else {
-                    localMultiplayerSpawnPos = {23.0f, -3.0f, -23.0f};
-                    pendingLocalRespawn = {};
+                    netSession.clearPendingLocalRespawn();
                     snake->respawn();
                 }
                 }
             }
         if (remoteSnakeScene) {
-            remoteSnakeScene->setServerControlled(netIsServer);
+            remoteSnakeScene->setServerControlled(netSession.isServer());
             remoteSnakeScene->setActive(true);
-            if (netIsServer) {
+            if (netSession.isServer()) {
                 remoteSnakeScene->setSpawnLayout(findRemoteSpawnPosition(), SnakeMeshNode3D::LEFT);
             } else {
                 remoteSnakeScene->setSpawnLayout({23.0f, -3.0f, -23.0f}, SnakeMeshNode3D::RIGHT);
@@ -663,7 +517,7 @@ namespace Scenes {
         }
         rebuildRadarItems(true);
         if (mainMenuScene) {
-            mainMenuScene->setNetworkSessionState(netIsServer ? MainMenuScene::NetworkSessionState::Hosting
+            mainMenuScene->setNetworkSessionState(netSession.isServer() ? MainMenuScene::NetworkSessionState::Hosting
                                                              : MainMenuScene::NetworkSessionState::Client);
             mainMenuScene->setMenuView(MainMenuScene::MenuView::Main);
         }
@@ -694,8 +548,8 @@ namespace Scenes {
             return;
         }
 
-        if (netEnabled && netIsServer) {
-            ++localRespawnSerial;
+        if (netSession.isEnabled() && netSession.isServer()) {
+            netSession.bumpLocalRespawnSerial();
         }
 
         if (eatManager) {
@@ -715,7 +569,7 @@ namespace Scenes {
                  "Points left:",
                  MAX_POINT - levelManager->getEatCounter());
         tilesCounterText->setText(buff);
-        if (!netEnabled) {
+        if (!netSession.isEnabled()) {
             coinScene->getCoin()->setVisible(false);
             coinScene->getCoin()->animationStop("coinRotation");
             radarMeshNode->hideItem("coin");
@@ -727,8 +581,8 @@ namespace Scenes {
         if (remoteSnakeScene) {
             remoteSnakeScene->respawnAt(findRemoteSpawnPosition(), SnakeMeshNode3D::LEFT);
         }
-        if (netEnabled && netIsServer) {
-            ++remoteRespawnSerial;
+        if (netSession.isEnabled() && netSession.isServer()) {
+            netSession.bumpRemoteRespawnSerial();
         }
         if (remoteEatManager) {
             remoteEatManager->run(EatManager::clean);
@@ -775,265 +629,158 @@ namespace Scenes {
         initializeMultiplayerState();
     }
 
-    void MainScene::updateNetworking() {
-        if (!netEnabled) {
+    bool MainScene::collectWorldSnapshot(Net::WorldSnapshotState &out) const {
+        if (!playerScene || !coinScene || !levelManager) {
+            return false;
+        }
+        const auto snake = playerScene->getSnake();
+        const auto coin = coinScene->getCoin();
+        const auto remoteSnake = remoteSnakeScene ? remoteSnakeScene->getSnake() : nullptr;
+        if (!snake || !coin || !remoteSnake) {
+            return false;
+        }
+
+        out.localSnake.positions = collectSnakePositions(snake);
+        out.localSnake.direction = snake->getDirection();
+        out.localSnake.segmentCount = static_cast<uint32_t>(snake->getChildren().size() + 1);
+        out.localSnake.crashActive = snake->isCrashing();
+        out.localSnake.stopped = snakeMoveHandler && snakeMoveHandler->isStopped();
+
+        out.remoteSnake.positions = remoteSnakeScene->collectPositions();
+        out.remoteSnake.direction = remoteSnake->getDirection();
+        out.remoteSnake.segmentCount = static_cast<uint32_t>(remoteSnake->getChildren().size() + 1);
+        out.remoteSnake.crashActive = remoteSnake->isCrashing();
+        out.remoteSnake.stopped = remoteSnakeScene->getMoveHandler() &&
+                                  remoteSnakeScene->getMoveHandler()->isStopped();
+
+        const glm::vec3 coinPos = coin->getPosition();
+        out.coinX = coinPos.x;
+        out.coinY = coinPos.y;
+        out.coinVisible = coin->isVisible();
+        out.level = static_cast<uint32_t>(levelManager->getLevel());
+        out.eatCounter = static_cast<uint32_t>(levelManager->getEatCounter());
+        out.lives = static_cast<uint32_t>(levelManager->getLive());
+        out.winning = winning;
+        return true;
+    }
+
+    void MainScene::onClientHello(uint32_t) {
+        if (mainMenuScene) {
+            mainMenuScene->setNetworkStatus("Status: client connected");
+        }
+        startNetworkGame();
+    }
+
+    void MainScene::onWelcomeReceived() {
+        if (mainMenuScene) {
+            mainMenuScene->setNetworkStatus("Status: connected");
+        }
+        startNetworkGame();
+    }
+
+    void MainScene::onPeerDisconnected() {
+        shutdownMultiplayerState(true);
+    }
+
+    void MainScene::onRemoteInput(const int8_t moveX, const int8_t moveY, const uint8_t actions) {
+        if (remoteSnakeScene) {
+            remoteSnakeScene->applyNetworkInput(moveX, moveY, actions);
+        }
+    }
+
+    void MainScene::requestLocalCrash() {
+        if (!playerScene) {
             return;
         }
+        if (const auto snake = playerScene->getSnake()) {
+            snake->crash();
+        }
+        playerScene->setInputEnabled(false);
+    }
 
-        netClock.advance(1);
+    void MainScene::requestRemoteCrash() {
+        if (!remoteSnakeScene) {
+            return;
+        }
+        if (const auto remoteSnake = remoteSnakeScene->getSnake()) {
+            remoteSnake->crash();
+        }
+    }
 
-        Net::NetEvent event{};
-        Net::PacketView packet{};
+    void MainScene::applyLocalSnakePositions(const Net::SnakeSnapshotState &snake) {
+        if (!playerScene) {
+            return;
+        }
+        if (const auto local = playerScene->getSnake()) {
+            Net::applyExactSnakePositions(local, snake.positions, snake.direction, snake.stopped);
+        }
+    }
 
-        if (netIsServer) {
-            while (netServer.poll(event, packet)) {
-                if (event.type == Net::NetEventType::Connect) {
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Client connected: " << event.peerId << std::endl;
-                    }
-                    continue;
-                }
-                if (event.type == Net::NetEventType::Disconnect) {
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Client disconnected: " << event.peerId << std::endl;
-                    }
-                    shutdownMultiplayerState(true);
-                    continue;
-                }
-                if (event.type != Net::NetEventType::Receive) {
-                    continue;
-                }
+    void MainScene::applyRemoteSnakePositions(const Net::SnakeSnapshotState &snake) {
+        if (!remoteSnakeScene) {
+            return;
+        }
+        if (const auto remote = remoteSnakeScene->getSnake()) {
+            Net::applyExactSnakePositions(remote, snake.positions, snake.direction, snake.stopped);
+        }
+        remoteSnakeScene->setActive(true);
+    }
 
-                const auto decoded = Net::NetDispatcher::decode(packet);
-                if (!decoded.has_value()) {
-                    continue;
-                }
-
-                if (auto *hello = std::get_if<Net::HelloMsg>(&decoded.value())) {
-                    Net::WelcomeMsg welcome{};
-                    welcome.protocolVersion = Net::Protocol::kProtocolVersion;
-                    welcome.assignedPeerId = event.peerId;
-                    welcome.serverTick = netClock.getTick();
-                    welcome.seed = netSeed;
-                    bool result = netServer.sendWelcome(event.peerId, welcome);
-                    if (mainMenuScene) {
-                        mainMenuScene->setNetworkStatus("Status: client connected");
-                    }
-                    startNetworkGame();
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Hello from peer " << event.peerId << " name=" << hello->name << std::endl;
-                    }
-                } else if (auto *input = std::get_if<Net::InputMsg>(&decoded.value())) {
-                    if (remoteSnakeScene) {
-                        remoteSnakeScene->applyNetworkInput(input->moveX, input->moveY, input->actions);
-                    }
-                } else if (auto *ping = std::get_if<Net::PingMsg>(&decoded.value())) {
-                    Net::PongMsg pong{};
-                    pong.timeMs = ping->timeMs;
-                    bool result = netServer.sendPong(event.peerId, pong);
-                }
-            }
-
-            if (netEnabled) {
-                if (playerScene && coinScene && levelManager) {
-                    const auto snake = playerScene->getSnake();
-                    const auto coin = coinScene->getCoin();
-                    const auto remoteSnake = remoteSnakeScene ? remoteSnakeScene->getSnake() : nullptr;
-                    if (snake && coin && remoteSnake) {
-                        const auto localPositions = collectSnakePositions(snake);
-                        const auto remotePositions = remoteSnakeScene->collectPositions();
-
-                        Net::BufferWriter writer(4096);
-                        Net::WorldSnapshotState snapshot{};
-                        snapshot.localSnake.positions = localPositions;
-                        snapshot.localSnake.direction = snake->getDirection();
-                        snapshot.localSnake.segmentCount = static_cast<uint32_t>(snake->getChildren().size() + 1);
-                        snapshot.localSnake.respawnSerial = localRespawnSerial;
-                        snapshot.localSnake.crashActive = snake->isCrashing();
-                        snapshot.localSnake.stopped = snakeMoveHandler && snakeMoveHandler->isStopped();
-                        snapshot.remoteSnake.positions = remotePositions;
-                        snapshot.remoteSnake.direction = remoteSnake->getDirection();
-                        snapshot.remoteSnake.segmentCount = static_cast<uint32_t>(remoteSnake->getChildren().size() + 1);
-                        snapshot.remoteSnake.respawnSerial = remoteRespawnSerial;
-                        snapshot.remoteSnake.crashActive = remoteSnake->isCrashing();
-                        snapshot.remoteSnake.stopped = remoteSnakeScene->getMoveHandler() &&
-                                                       remoteSnakeScene->getMoveHandler()->isStopped();
-                        const glm::vec3 coinPos = coin->getPosition();
-                        snapshot.coinX = coinPos.x;
-                        snapshot.coinY = coinPos.y;
-                        snapshot.coinVisible = coin->isVisible();
-                        snapshot.level = static_cast<uint32_t>(levelManager->getLevel());
-                        snapshot.eatCounter = static_cast<uint32_t>(levelManager->getEatCounter());
-                        snapshot.lives = static_cast<uint32_t>(levelManager->getLive());
-                        snapshot.winning = winning;
-                        Net::writeWorldSnapshotState(writer, snapshot);
-
-                        Net::SnapshotMsg snap{};
-                        snap.tick = netClock.getTick();
-                        snap.payload = writer.data();
-                        netServer.broadcastSnapshot(snap);
-                    }
-                }
-            }
-        } else if (netIsClient) {
-            while (netClient.poll(event, packet)) {
-                if (event.type == Net::NetEventType::Disconnect) {
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Disconnected from server" << std::endl;
-                    }
-                    shutdownMultiplayerState(true);
-                    continue;
-                }
-                if (event.type != Net::NetEventType::Receive) {
-                    continue;
-                }
-
-                const auto decoded = Net::NetDispatcher::decode(packet);
-                if (!decoded.has_value()) {
-                    continue;
-                }
-
-                if (auto *welcome = std::get_if<Net::WelcomeMsg>(&decoded.value())) {
-                    netPeerId = welcome->assignedPeerId;
-                    netSeed = welcome->seed;
-                    if (mainMenuScene) {
-                        mainMenuScene->setNetworkStatus("Status: connected");
-                    }
-                    startNetworkGame();
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Welcome: peerId=" << netPeerId << " seed=" << netSeed << std::endl;
-                    }
-                } else if (auto *ping = std::get_if<Net::PingMsg>(&decoded.value())) {
-                    Net::PongMsg pong{};
-                    pong.timeMs = ping->timeMs;
-                    bool result = netClient.sendPong(pong);
-                } else if (auto *pong = std::get_if<Net::PongMsg>(&decoded.value())) {
-                    if constexpr (isDebug) {
-                        std::cout << "[Net] Pong: " << pong->timeMs << std::endl;
-                    }
-                } else if (auto *snap = std::get_if<Net::SnapshotMsg>(&decoded.value())) {
-                    if (snap->payload.size() >= 4) {
-                        Net::BufferReader reader(snap->payload.data(), snap->payload.size());
-                        Net::WorldSnapshotState snapshot{};
-                        if (Net::readWorldSnapshotState(reader, snapshot)) {
-                            if (playerScene && coinScene) {
-                                const auto snake = playerScene->getSnake();
-                                const auto coin = coinScene->getCoin();
-                                const auto &authoritativeSnake = snapshot.localSnake;
-                                const auto &clientSnake = snapshot.remoteSnake;
-                                if (!snapshot.winning) {
-                                    if (snake && remoteSnakeScene && remoteSnakeScene->getSnake()) {
-                                        if (clientSnake.positions.empty()) {
-                                            continue;
-                                        }
-                                        const bool localRespawnDetected =
-                                            clientSnake.respawnSerial != netLastSeenLocalRespawnSerial;
-                                        const bool localCrashActive = clientSnake.crashActive;
-                                        const bool remoteCrashActive = authoritativeSnake.crashActive;
-                                        netLastSeenLocalRespawnSerial = clientSnake.respawnSerial;
-                                        netLastSeenRemoteRespawnSerial = authoritativeSnake.respawnSerial;
-                                        if (localRespawnDetected && !pendingLocalRespawn.active) {
-                                            if constexpr (isDebug) {
-                                                std::cout << "[Net][ClientRespawnDetected] serial=" << clientSnake.respawnSerial
-                                                          << " dir=" << static_cast<int>(clientSnake.direction)
-                                                          << " count=" << clientSnake.segmentCount
-                                                          << " positions=" << clientSnake.positions.size() << std::endl;
-                                            }
-                                            snake->crash();
-                                            playerScene->setInputEnabled(false);
-                                            pendingLocalRespawn.positions = clientSnake.positions;
-                                            pendingLocalRespawn.segmentCount = clientSnake.segmentCount;
-                                            pendingLocalRespawn.direction = clientSnake.direction;
-                                            pendingLocalRespawn.active = true;
-                                        } else if (localCrashActive) {
-                                            if (!netLastSeenLocalCrash) {
-                                                snake->crash();
-                                                playerScene->setInputEnabled(false);
-                                            }
-                                        } else if (!pendingLocalRespawn.active) {
-                                            Net::applyExactSnakePositions(snake, clientSnake.positions,
-                                                                         clientSnake.direction, clientSnake.stopped);
-                                        }
-                                        if (remoteCrashActive) {
-                                            if (const auto remoteSnake = remoteSnakeScene->getSnake()) {
-                                                if (!netLastSeenRemoteCrash) {
-                                                    remoteSnake->crash();
-                                                }
-                                            }
-                                        }
-                                        if (const auto remoteSnake = remoteSnakeScene->getSnake()) {
-                                            Net::applyExactSnakePositions(remoteSnake, authoritativeSnake.positions,
-                                                                         authoritativeSnake.direction,
-                                                                         authoritativeSnake.stopped);
-                                        }
-                                        netLastSeenLocalCrash = localCrashActive;
-                                        netLastSeenRemoteCrash = remoteCrashActive;
-                                        remoteSnakeScene->setActive(true);
-                                    } else if (snake) {
-                                        if (!authoritativeSnake.positions.empty()) {
-                                            Net::applyExactSnakePositions(snake, authoritativeSnake.positions,
-                                                                         authoritativeSnake.direction,
-                                                                         authoritativeSnake.stopped);
-                                        }
-                                    }
-                                }
-                                if (coin) {
-                                    const bool coinAdvanced = (snapshot.level == netLastSnapshotLevel &&
-                                                               snapshot.eatCounter != netLastSnapshotEatCounter);
-                                    if (coinAdvanced && snapshot.coinVisible) {
-                                        coinScene->getRemoveCoin()->setTransform(coin);
-                                        coinScene->getRemoveCoin()->setVisible(true);
-                                        coinScene->getRemoveCoin()->animationStart("eatenUp", false);
-                                    }
-                                    coin->setPosition({snapshot.coinX, snapshot.coinY, coin->getPosition().z});
-                                    coin->setVisible(snapshot.coinVisible);
-                                    if (snapshot.coinVisible) {
-                                        coin->animationStart("coinRotation", true);
-                                    } else {
-                                        coin->animationStop("coinRotation");
-                                        if (radarMeshNode) {
-                                            radarMeshNode->hideItem("coin");
-                                        }
-                                    }
-                                    if (eatLocationHandler) {
-                                        eatLocationHandler->fixVirtualPosition(coin->getPosition());
-                                    }
-                                    if (remoteEatLocationHandler) {
-                                        remoteEatLocationHandler->fixVirtualPosition(coin->getPosition());
-                                    }
-                                    if (snapshot.coinVisible && radarMeshNode) {
-                                        radarMeshNode->showItem("coin");
-                                    }
-                                }
-                                if (levelManager) {
-                                    levelManager->setLevel(static_cast<int>(snapshot.level));
-                                    levelManager->setEatCounter(static_cast<int>(snapshot.eatCounter));
-                                    levelManager->setLive(static_cast<int>(snapshot.lives));
-                                    char buff[100];
-                                    snprintf(buff, sizeof(buff),
-                                             "%s %d, %s %d, %s %d",
-                                             "Level:",
-                                             levelManager->getLevel(),
-                                             "Lives:",
-                                             levelManager->getLive(),
-                                             "Points left:",
-                                             MAX_POINT - levelManager->getEatCounter());
-                                    tilesCounterText->setText(buff);
-                                    if (!winning && tilesCounterNode) {
-                                        tilesCounterNode->setVisible(true);
-                                    }
-                                }
-                                if (snapshot.winning) {
-                                    enterWinningState();
-                                }
-                                netLastSnapshotLevel = snapshot.level;
-                                netLastSnapshotEatCounter = snapshot.eatCounter;
-                            }
-                        }
-                    }
-                }
+    void MainScene::applyCoin(const float x, const float y, const bool visible, const bool eatenAnim) {
+        if (!coinScene) {
+            return;
+        }
+        const auto coin = coinScene->getCoin();
+        if (!coin) {
+            return;
+        }
+        if (eatenAnim) {
+            coinScene->getRemoveCoin()->setTransform(coin);
+            coinScene->getRemoveCoin()->setVisible(true);
+            coinScene->getRemoveCoin()->animationStart("eatenUp", false);
+        }
+        coin->setPosition({x, y, coin->getPosition().z});
+        coin->setVisible(visible);
+        if (visible) {
+            coin->animationStart("coinRotation", true);
+        } else {
+            coin->animationStop("coinRotation");
+            if (radarMeshNode) {
+                radarMeshNode->hideItem("coin");
             }
         }
+        if (eatLocationHandler) {
+            eatLocationHandler->fixVirtualPosition(coin->getPosition());
+        }
+        if (remoteEatLocationHandler) {
+            remoteEatLocationHandler->fixVirtualPosition(coin->getPosition());
+        }
+        if (visible && radarMeshNode) {
+            radarMeshNode->showItem("coin");
+        }
+    }
+
+    void MainScene::applyHud(const uint32_t level, const uint32_t eatCounter, const uint32_t lives) {
+        if (!levelManager) {
+            return;
+        }
+        levelManager->setLevel(static_cast<int>(level));
+        levelManager->setEatCounter(static_cast<int>(eatCounter));
+        levelManager->setLive(static_cast<int>(lives));
+        char buff[100];
+        snprintf(buff, sizeof(buff),
+                 "%s %d, %s %d, %s %d",
+                 "Level:", levelManager->getLevel(),
+                 "Lives:", levelManager->getLive(),
+                 "Points left:", MAX_POINT - levelManager->getEatCounter());
+        tilesCounterText->setText(buff);
+        if (!winning && tilesCounterNode) {
+            tilesCounterNode->setVisible(true);
+        }
+    }
+
+    void MainScene::applyWinning() {
+        enterWinningState();
     }
 
     std::vector<glm::vec2> MainScene::collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake) {
@@ -1196,7 +943,7 @@ namespace Scenes {
     void MainScene::buildStartMoveCallback() const {
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (this->levelManager) {
-                if ((!netEnabled || netIsServer) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
+                if ((!netSession.isEnabled() || netSession.isServer()) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
                     this->eatManager->run(EatManager::firstPlace);
                 }
                 if (fadeOutUniform->getAlpha() != 0.0f) {
@@ -1226,7 +973,7 @@ namespace Scenes {
 
         if (remoteSnakeScene && remoteSnakeScene->getMoveHandler()) {
             remoteSnakeScene->getMoveHandler()->addStartMoveCallback([this]() {
-                if ((!netEnabled || netIsServer) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
+                if ((!netSession.isEnabled() || netSession.isServer()) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
                     this->eatManager->run(EatManager::firstPlace);
                 }
             });
@@ -1340,7 +1087,7 @@ namespace Scenes {
     void MainScene::nextLevel() {
         levelManager->setLevel(levelManager->getLevel() + 1);
         eatLocationHandler->clearBarriers();
-        rebuildRadarItems(netEnabled);
+        rebuildRadarItems(netSession.isEnabled());
         removeNode("barriers");
         barriersScene->nextLevel();
         addNode("barriers", barriersScene);
@@ -1360,27 +1107,28 @@ namespace Scenes {
 
     void MainScene::update() {
         multiplayerCrashInProgress = false;
-        updateNetworking();
-        if (netEnabled && netIsServer && remoteSnakeScene) {
+        netSession.tick(*this, *this);
+        if (netSession.isEnabled() && netSession.isServer() && remoteSnakeScene) {
             remoteSnakeScene->updateAuthoritative();
         }
         Scene::update();
-        if (pendingLocalRespawn.active && playerScene && playerScene->getSnake() && playerScene->getSnake()->isReady()) {
+        if (netSession.hasPendingLocalRespawn() && playerScene && playerScene->getSnake() && playerScene->getSnake()->isReady()) {
+            const auto &pending = netSession.getPendingLocalRespawn();
             if constexpr (isDebug) {
-                std::cout << "[Net][ClientRespawnApply] dir=" << static_cast<int>(pendingLocalRespawn.direction)
-                          << " count=" << pendingLocalRespawn.segmentCount
-                          << " positions=" << pendingLocalRespawn.positions.size() << std::endl;
+                std::cout << "[Net][ClientRespawnApply] dir=" << static_cast<int>(pending.direction)
+                          << " count=" << pending.segmentCount
+                          << " positions=" << pending.positions.size() << std::endl;
             }
             const auto snake = playerScene->getSnake();
             snake->respawn();
             if (const auto moveHandler = playerScene->getSnakeMoveHandler()) {
                 moveHandler->resetState();
                 moveHandler->setInitialBodyDirection(
-                    pendingLocalRespawn.direction == SnakeMeshNode3D::NONE ? SnakeMeshNode3D::LEFT : pendingLocalRespawn.direction);
+                    pending.direction == SnakeMeshNode3D::NONE ? SnakeMeshNode3D::LEFT : pending.direction);
             }
-            Net::applyExactSnakePositions(snake, pendingLocalRespawn.positions, pendingLocalRespawn.direction, false);
-            pendingLocalRespawn = {};
-            playerScene->setInputEnabled(!netIsClient);
+            Net::applyExactSnakePositions(snake, pending.positions, pending.direction, false);
+            netSession.clearPendingLocalRespawn();
+            playerScene->setInputEnabled(!netSession.isClient());
         }
         if (loading) {
             prepareScene();
@@ -1393,7 +1141,7 @@ namespace Scenes {
         }
 
         if (helpText != nullptr) {
-            if (!helpText->isVisible() && eatManager && (!netEnabled || netIsServer)) {
+            if (!helpText->isVisible() && eatManager && (!netSession.isEnabled() || netSession.isServer())) {
                 eatManager->run(EatManager::checkPlace);
             }
         }
@@ -1412,22 +1160,19 @@ namespace Scenes {
 
         switch (mainMenuScene->handleMouseButton(button, action)) {
             case MainMenuScene::MenuAction::Host: {
-                if (netEnabled) {
+                if (netSession.isEnabled()) {
                     this->resetNetworkState();
                 }
-                this->netIsServer = netServer.start(netPort);
-                if (netIsServer) {
-                    this->netEnabled = true;
-                    this->netSeed = static_cast<uint32_t>(std::random_device{}());
-                    mainMenuScene.get()->setNetworkStatus("Status: hosting");
-                    mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Hosting);
+                if (netSession.host()) {
+                    mainMenuScene->setNetworkStatus("Status: hosting");
+                    mainMenuScene->setNetworkSessionState(MainMenuScene::NetworkSessionState::Hosting);
                     if constexpr (isDebug) {
-                        std::cout << "[Net] Hosting on port " << netPort << std::endl;
+                        std::cout << "[Net] Hosting on port " << netSession.getPort() << std::endl;
                     }
                 } else {
-                    mainMenuScene.get()->setNetworkStatus("Status: host failed");
+                    mainMenuScene->setNetworkStatus("Status: host failed");
                     if constexpr (isDebug) {
-                        std::cout << "[Net] Failed to host on port " << netPort << std::endl;
+                        std::cout << "[Net] Failed to host on port " << netSession.getPort() << std::endl;
                     }
                 }
                 break;
@@ -1436,28 +1181,26 @@ namespace Scenes {
                 shutdownMultiplayerState(true);
                 break;
             case MainMenuScene::MenuAction::Join: {
-                if (netEnabled) {
+                if (netSession.isEnabled()) {
                     this->resetNetworkState();
                 }
                 const std::string ip = mainMenuScene->getJoinIp();
-                this->netIsClient = netClient.connect(ip, netPort, "Player");
-                if (netIsClient) {
-                    this->netEnabled = true;
-                    mainMenuScene.get()->setNetworkStatus("Status: connecting");
-                    mainMenuScene.get()->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
+                if (netSession.join(ip, "Player")) {
+                    mainMenuScene->setNetworkStatus("Status: connecting");
+                    mainMenuScene->setNetworkSessionState(MainMenuScene::NetworkSessionState::Client);
                     if constexpr (isDebug) {
-                        std::cout << "[Net] Joining " << ip << ":" << netPort << std::endl;
+                        std::cout << "[Net] Joining " << ip << ":" << netSession.getPort() << std::endl;
                     }
                 } else {
-                    mainMenuScene.get()->setNetworkStatus("Status: join failed");
+                    mainMenuScene->setNetworkStatus("Status: join failed");
                     if constexpr (isDebug) {
-                        std::cout << "[Net] Failed to join " << ip << ":" << netPort << std::endl;
+                        std::cout << "[Net] Failed to join " << ip << ":" << netSession.getPort() << std::endl;
                     }
                 }
                 break;
             }
             case MainMenuScene::MenuAction::Start:
-                if (netEnabled) {
+                if (netSession.isEnabled()) {
                     startNetworkGame();
                 } else {
                     gameStarted = true;
@@ -1472,7 +1215,7 @@ namespace Scenes {
                 hideMenu();
                 break;
             case MainMenuScene::MenuAction::NewGame:
-                if (netEnabled) {
+                if (netSession.isEnabled()) {
                     shutdownMultiplayerState(false);
                 }
                 gameStarted = false;
@@ -1497,8 +1240,8 @@ namespace Scenes {
                 showMenu(MainMenuScene::PrimaryAction::Start);
                 break;
             case MainMenuScene::MenuAction::Quit:
-                if (netEnabled) {
-                    notifyNetworkDisconnect();
+                if (netSession.isEnabled()) {
+                    netSession.notifyDisconnect();
                 }
                 glfwSetWindowShouldClose(window, true);
                 break;
@@ -1539,9 +1282,9 @@ namespace Scenes {
         if (playerScene) {
             camera->setStickyPoint(playerScene->getSnake());
         }
-        if (netEnabled && netIsClient) {
+        if (netSession.isEnabled() && netSession.isClient()) {
             if (resumeLocalMovementAfterMenu) {
-                sendClientPauseToggle();
+                netSession.sendPauseToggle();
             }
         } else if (snakeMoveHandler && resumeLocalMovementAfterMenu) {
             snakeMoveHandler->setStopped(false);

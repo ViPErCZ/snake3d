@@ -57,6 +57,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Network/Game/NetUtils.h
         Network/Game/SnakeSnapshotApplier.cpp
         Network/Game/SnakeSnapshotApplier.h
+        Network/Game/NetGameController.cpp
+        Network/Game/NetGameController.h
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
         Handler/Debug/PositionHandler.cpp
@@ -121,6 +123,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/SceneLightFactory.cpp
+        Scenes/SceneLightFactory.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
@@ -275,6 +279,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Network/Game/NetUtils.h
         Network/Game/SnakeSnapshotApplier.cpp
         Network/Game/SnakeSnapshotApplier.h
+        Network/Game/NetGameController.cpp
+        Network/Game/NetGameController.h
         Tools/BuildSettings.h
         Tools/Layers.h
         Manager/SoundManager.cpp
@@ -397,6 +403,8 @@ set(APP_SOURCES
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/SceneLightFactory.cpp
+        Scenes/SceneLightFactory.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
@@ -551,6 +559,8 @@ set(APP_SOURCES
         Network/Game/NetUtils.h
         Network/Game/SnakeSnapshotApplier.cpp
         Network/Game/SnakeSnapshotApplier.h
+        Network/Game/NetGameController.cpp
+        Network/Game/NetGameController.h
         Tools/BuildSettings.h
         Tools/Layers.h
         Manager/SoundManager.cpp
@@ -621,6 +631,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/SpinnerMesh.h
         Scenes/MainScene.cpp
         Scenes/MainScene.h
+        Scenes/SceneLightFactory.cpp
+        Scenes/SceneLightFactory.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
