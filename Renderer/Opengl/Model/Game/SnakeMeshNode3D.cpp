@@ -402,6 +402,14 @@ namespace Model {
         }
     }
 
+    void SnakeMeshNode3D::renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, const float dt,
+                                        const glm::mat4 &parentTransform) const {
+        if (isCrashing()) {
+            return;
+        }
+        MeshNode3D::renderShadows(camera, projection, dt, parentTransform);
+    }
+
     void SnakeMeshNode3D::stopRespawn() {
         mesh->setMaterial(tileMaterial);
         respawned = true;

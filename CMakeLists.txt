@@ -125,6 +125,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Scenes/MainScene.h
         Scenes/SceneLightFactory.cpp
         Scenes/SceneLightFactory.h
+        Scenes/SceneHud.cpp
+        Scenes/SceneHud.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp
@@ -405,6 +407,8 @@ set(APP_SOURCES
         Scenes/MainScene.h
         Scenes/SceneLightFactory.cpp
         Scenes/SceneLightFactory.h
+        Scenes/SceneHud.cpp
+        Scenes/SceneHud.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Scene/SceneRenderer.cpp
@@ -633,6 +637,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Scenes/MainScene.h
         Scenes/SceneLightFactory.cpp
         Scenes/SceneLightFactory.h
+        Scenes/SceneHud.cpp
+        Scenes/SceneHud.h
         Scenes/RemoteSnakeScene.cpp
         Scenes/RemoteSnakeScene.h
         Renderer/Opengl/Model/Standard/MeshNode3D.cpp

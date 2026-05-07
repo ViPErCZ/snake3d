@@ -45,6 +45,7 @@ namespace Scenes {
     void MainScene::init(const int priority) {
         Scene::init(priority);
 
+        hud = make_unique<SceneHud>(*this, contextState, resourceManager, width, height);
         initPreloader();
         initMainMenu();
         initNetworking();
@@ -179,17 +180,8 @@ namespace Scenes {
                 }
                 break;
             case GLFW_KEY_R:
-                if (radarMeshNode) {
-                    if (radarMeshNode->isVisible()) {
-                        radarNode->setMaterial(radarExpansionOut);
-                        radarFadeOutUniform->start();
-                        radarMeshNode->hideItems();
-                    } else {
-                        radarFadeOutUniform->setAlpha(1.0);
-                        radarMeshNode->setVisible(true);
-                        radarNode->setMaterial(radarExpansionIn);
-                        radarFadeInUniform->start();
-                    }
+                if (hud) {
+                    hud->toggleRadar();
                 }
                 break;
             default:
@@ -213,8 +205,8 @@ namespace Scenes {
         if (mainMenuScene) {
             mainMenuScene->resize(width, height, projection);
         }
-        if (radarMeshNode) {
-            radarMeshNode->setPosition({width - 240 + 100, 30.0f + 110, 0.0f});
+        if (hud) {
+            hud->resize(width, height);
         }
     }
 
@@ -345,88 +337,6 @@ namespace Scenes {
         }
     }
 
-    void MainScene::initRadar() {
-        radarFadeInUniform = make_shared<FadeInUniform>();
-        radarFadeInUniform->setStep(5.0f);
-        radarExpansionIn = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
-        radarExpansionIn->setUniform("quadSize", glm::vec2(200, 200));
-        radarExpansionIn->setUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionIn->setUniform("borderWidth", 11.9f);
-        radarExpansionIn->setUniform("radius", 8.0f);
-        radarExpansionIn->setUniform("expansion", radarFadeInUniform);
-        radarFadeInUniform->setFinishedCallback([this]() {
-            radarMeshNode->showItems();
-            if (coinScene->getCoin()->isVisible() == false) {
-                radarMeshNode->hideItem("coin");
-            }
-        });
-        radarFadeInUniform->start();
-
-        radarFadeOutUniform = make_shared<FadeOutUniform>();
-        radarFadeOutUniform->setStep(5.0f);
-        radarExpansionOut = make_shared<ShaderMaterial>(resourceManager->getShader("quadCorner"));
-        radarExpansionOut->setUniform("quadSize", glm::vec2(200, 200));
-        radarExpansionOut->setUniform("borderColor", glm::vec3(1.0,0.0,0.0));
-        radarExpansionOut->setUniform("borderWidth", 11.9f);
-        radarExpansionOut->setUniform("radius", 8.0f);
-        radarExpansionOut->setUniform("expansion", radarFadeOutUniform);
-
-        radarNode = make_shared<QuadNode2D>(220, 220, nullptr);
-        radarNode->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
-        radarNode->setMaterial(radarExpansionIn);
-        radarMeshNode = make_shared<RadarMeshNode2D>(contextState, radarNode, resourceManager);
-        radarNode->setBlending(Blending::Translucent);
-        radarMeshNode->setPosition({width - 240 + 100, 30.0 + 110, 0.0}); // + 100 kvuli tomu, ze stred neni 0,0 ale stred quadu
-        rebuildRadarItems(false);
-        radarMeshNode->hideItems();
-
-        addMeshNode2D(radarMeshNode);
-
-        if (menuVisible) {
-            radarMeshNode->setVisible(false);
-            hudRadarVisible = true;
-        }
-    }
-
-    void MainScene::initLabels() {
-        const auto shader = resourceManager->getShader("textShader");
-        const auto font = make_shared<Font>("Assets/Fonts/OCRAEXT.TTF", 26);
-        const auto settings = make_shared<LabelSettings>(font);
-        const auto label = make_shared<LabelNode2D>("Press start I, K or L...", shader, settings);
-        label->alignVerticalCenter(static_cast<float>(width), static_cast<float>(height));
-
-        fadeOutUniform = make_shared<FadeOutUniform>();
-        const auto shaderMaterial = make_shared<ShaderMaterial>(shader);
-        shaderMaterial->setUniform("alpha", fadeOutUniform);
-        shaderMaterial->setUniform("textColor", glm::vec3(1.0f));
-        shaderMaterial->setUniform("textTexture", 0);
-        fadeOutUniform->setFinishedCallback([this]() {
-            helpText->setVisible(false);
-        });
-
-        label->setMaterial(shaderMaterial);
-        helpText = make_shared<MeshNode2D>(contextState, label, resourceManager);
-
-        tilesCounterText = make_shared<LabelNode2D>("", shader, settings);
-        fadeInUniform = make_shared<FadeInUniform>();
-        const auto shaderMaterial2 = make_shared<ShaderMaterial>(shader);
-        shaderMaterial2->setUniform("alpha", fadeInUniform);
-        shaderMaterial2->setUniform("textColor", glm::vec3(1.0f));
-        shaderMaterial2->setUniform("textTexture", 0);
-
-        tilesCounterText->setMaterial(shaderMaterial2);
-        tilesCounterNode = make_shared<MeshNode2D>(contextState, tilesCounterText, resourceManager);
-        tilesCounterNode->setVisible(false);
-
-        addMeshNode2D(helpText);
-        addMeshNode2D(tilesCounterNode);
-
-        if (menuVisible) {
-            helpText->setVisible(false);
-            tilesCounterNode->setVisible(false);
-        }
-    }
-
     void MainScene::initPreloader() {
         preLoader = make_shared<Preloader2Scene>(nullptr,
             vector<shared_ptr<SpotLight> >{},
@@ -469,17 +379,17 @@ namespace Scenes {
     }
 
     void MainScene::rebuildRadarItems(const bool includeRemote) const {
-        if (!radarMeshNode || !playerScene || !coinScene || !barriersScene) {
+        if (!hud || !playerScene || !coinScene || !barriersScene) {
             return;
         }
 
-        radarMeshNode->clearItems();
-        radarMeshNode->addItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
+        hud->clearRadarItems();
+        hud->addRadarItem(playerScene->getSnake(), glm::vec3(0.0,1.0,0.0), "snake");
         if (includeRemote && remoteSnakeScene && remoteSnakeScene->getSnake()) {
-            radarMeshNode->addItem(remoteSnakeScene->getSnake(), glm::vec3(0.1f,0.45f,1.0f), "remote-snake");
+            hud->addRadarItem(remoteSnakeScene->getSnake(), glm::vec3(0.1f,0.45f,1.0f), "remote-snake");
         }
-        radarMeshNode->addItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
-        radarMeshNode->addItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
+        hud->addRadarItem(coinScene->getCoin(), glm::vec3(1.0,1.0,0.0), "coin");
+        hud->addRadarItem(barriersScene->getLevelBoxes(), glm::vec3(1.0,0.0,0.0), "barriers");
     }
 
     void MainScene::initializeMultiplayerState() {
@@ -559,20 +469,15 @@ namespace Scenes {
         levelManager->setLive(levelManager->getLive() - 1);
         levelManager->setEatCounter(0);
 
-        char buff[100];
-        snprintf(buff, sizeof(buff),
-                 "%s %d, %s %d, %s %d",
-                 "Level:",
-                 levelManager->getLevel(),
-                 "Lives:",
-                 levelManager->getLive(),
-                 "Points left:",
-                 MAX_POINT - levelManager->getEatCounter());
-        tilesCounterText->setText(buff);
+        if (hud) {
+            hud->setLevelText(levelManager->getLevel(), levelManager->getEatCounter(), levelManager->getLive(), MAX_POINT);
+        }
         if (!netSession.isEnabled()) {
             coinScene->getCoin()->setVisible(false);
             coinScene->getCoin()->animationStop("coinRotation");
-            radarMeshNode->hideItem("coin");
+            if (hud) {
+                hud->setCoinVisible(false);
+            }
         }
         playerScene->getSnake()->animationStop("KostraAction");
     }
@@ -745,9 +650,6 @@ namespace Scenes {
             coin->animationStart("coinRotation", true);
         } else {
             coin->animationStop("coinRotation");
-            if (radarMeshNode) {
-                radarMeshNode->hideItem("coin");
-            }
         }
         if (eatLocationHandler) {
             eatLocationHandler->fixVirtualPosition(coin->getPosition());
@@ -755,8 +657,8 @@ namespace Scenes {
         if (remoteEatLocationHandler) {
             remoteEatLocationHandler->fixVirtualPosition(coin->getPosition());
         }
-        if (visible && radarMeshNode) {
-            radarMeshNode->showItem("coin");
+        if (hud) {
+            hud->setCoinVisible(visible);
         }
     }
 
@@ -767,15 +669,11 @@ namespace Scenes {
         levelManager->setLevel(static_cast<int>(level));
         levelManager->setEatCounter(static_cast<int>(eatCounter));
         levelManager->setLive(static_cast<int>(lives));
-        char buff[100];
-        snprintf(buff, sizeof(buff),
-                 "%s %d, %s %d, %s %d",
-                 "Level:", levelManager->getLevel(),
-                 "Lives:", levelManager->getLive(),
-                 "Points left:", MAX_POINT - levelManager->getEatCounter());
-        tilesCounterText->setText(buff);
-        if (!winning && tilesCounterNode) {
-            tilesCounterNode->setVisible(true);
+        if (hud) {
+            hud->setLevelText(levelManager->getLevel(), levelManager->getEatCounter(), levelManager->getLive(), MAX_POINT);
+            if (!winning) {
+                hud->setTilesCounterVisible(true);
+            }
         }
     }
 
@@ -865,10 +763,12 @@ namespace Scenes {
         levelManager->setEatCounter(levelManager->getEatCounter() + 1);
 
         if (levelManager->getEatCounter() == MAX_POINT) {
-            fadeOutUniform->setAlpha(1.0f);
+            if (hud) {
+                hud->resetLabelFade();
+            }
             coinScene->getCoin()->setVisible(false);
-            if (radarMeshNode) {
-                radarMeshNode->hideItem("coin");
+            if (hud) {
+                hud->setCoinVisible(false);
             }
             if (levelManager->getLevel() < 9) {
                 nextLevel();
@@ -880,23 +780,15 @@ namespace Scenes {
             manager.run(EatManager::eatenUp);
             if (coinScene->getCoin()->isVisible()) {
                 coinScene->getCoin()->animationStart("coinRotation", true);
-                if (radarMeshNode) {
-                    radarMeshNode->showItem("coin");
+                if (hud) {
+                    hud->setCoinVisible(true);
                 }
             }
         }
 
-        char buff[100];
-        snprintf(buff, sizeof(buff),
-                 "%s %d, %s %d, %s %d",
-                 "Level:",
-                 levelManager->getLevel(),
-                 "Lives:",
-                 levelManager->getLive(),
-                 "Points left:",
-                 MAX_POINT - levelManager->getEatCounter()
-        );
-        tilesCounterText->setText(buff);
+        if (hud) {
+            hud->setLevelText(levelManager->getLevel(), levelManager->getEatCounter(), levelManager->getLive(), MAX_POINT);
+        }
     }
 
     void MainScene::enterWinningState() {
@@ -904,8 +796,9 @@ namespace Scenes {
             return;
         }
 
-        if (tilesCounterNode) {
-            tilesCounterNode->setVisible(false);
+        if (hud) {
+            hud->setTilesCounterVisible(false);
+            hud->setRadarVisible(false);
         }
         if (playerScene) {
             playerScene->setInputEnabled(false);
@@ -917,9 +810,6 @@ namespace Scenes {
         }
         if (winnerScene && !hasNode("winner")) {
             addNode("winner", winnerScene);
-        }
-        if (radarMeshNode) {
-            radarMeshNode->setVisible(false);
         }
         winning = true;
     }
@@ -946,26 +836,14 @@ namespace Scenes {
                 if ((!netSession.isEnabled() || netSession.isServer()) && this->eatManager && coinScene && !coinScene->getCoin()->isVisible()) {
                     this->eatManager->run(EatManager::firstPlace);
                 }
-                if (fadeOutUniform->getAlpha() != 0.0f) {
-                    fadeOutUniform->start();
+                if (hud) {
+                    hud->triggerLabelFadeOut();
+                    hud->setLevelText(this->levelManager->getLevel(), this->levelManager->getEatCounter(),
+                                      this->levelManager->getLive(), MAX_POINT);
+                    hud->setTilesCounterVisible(true);
+                    hud->triggerCounterFadeIn();
+                    hud->setCoinVisible(true);
                 }
-                char buff[100];
-                snprintf(buff, sizeof(buff),
-                         "%s %d, %s %d, %s %d",
-                         "Level:",
-                         this->levelManager->getLevel(),
-                         "Lives:",
-                         this->levelManager->getLive(),
-                         "Points left:",
-                         MAX_POINT - this->levelManager->getEatCounter()
-                );
-                const std::string buffAsStdStr = buff;
-                tilesCounterNode->setVisible(true);
-                tilesCounterText->setText(buffAsStdStr);
-                if (fadeInUniform->getAlpha() != 1.0f) {
-                    fadeInUniform->start();
-                }
-                radarMeshNode->showItem("coin");
                 coinScene->getCoin()->animationStart("coinRotation");
                 playerScene->getSnake()->animationStart("KostraAction", true);
             }
@@ -1024,7 +902,11 @@ namespace Scenes {
                 break;
             case 10:
                 initPlane();
-                initLabels();
+                hud->initLabels();
+                if (menuVisible) {
+                    hud->setHelpVisible(false);
+                    hud->setTilesCounterVisible(false);
+                }
                 break;
             case 20:
                 initPlayerScene();
@@ -1039,7 +921,13 @@ namespace Scenes {
                 initTorchScene();
                 break;
             case 60:
-                initRadar();
+                hud->initRadar();
+                rebuildRadarItems(false);
+                hud->hideRadarItems();
+                if (menuVisible) {
+                    hud->setRadarVisible(false);
+                    hud->markRadarVisibleForRestore();
+                }
                 break;
             case 70:
                 initEatManager();
@@ -1134,14 +1022,9 @@ namespace Scenes {
             prepareScene();
         }
 
-        if (radarMeshNode != nullptr) {
-            if (radarMeshNode->isVisible() && radarFadeOutUniform->getAlpha() <= 0) {
-                radarMeshNode->setVisible(false);
-            }
-        }
-
-        if (helpText != nullptr) {
-            if (!helpText->isVisible() && eatManager && (!netSession.isEnabled() || netSession.isServer())) {
+        if (hud) {
+            hud->tickRadarFade();
+            if (!hud->isHelpVisible() && eatManager && (!netSession.isEnabled() || netSession.isServer())) {
                 eatManager->run(EatManager::checkPlace);
             }
         }
@@ -1269,7 +1152,9 @@ namespace Scenes {
         if (!hasNode("mainMenu")) {
             addNode("mainMenu", mainMenuScene);
         }
-        saveHudVisibility();
+        if (hud) {
+            hud->saveVisibility();
+        }
     }
 
     void MainScene::hideMenu() {
@@ -1278,7 +1163,9 @@ namespace Scenes {
         }
         menuVisible = false;
         removeNode("mainMenu");
-        restoreHudVisibility();
+        if (hud) {
+            hud->restoreVisibility();
+        }
         if (playerScene) {
             camera->setStickyPoint(playerScene->getSnake());
         }
@@ -1292,43 +1179,4 @@ namespace Scenes {
         resumeLocalMovementAfterMenu = false;
     }
 
-    void MainScene::saveHudVisibility() {
-        if (hudStateSaved) {
-            return;
-        }
-
-        hudHelpVisible = helpText ? helpText->isVisible() : false;
-        hudTilesVisible = tilesCounterNode ? tilesCounterNode->isVisible() : false;
-        hudRadarVisible = radarMeshNode ? radarMeshNode->isVisible() : false;
-
-        if (helpText) {
-            helpText->setVisible(false);
-        }
-        if (tilesCounterNode) {
-            tilesCounterNode->setVisible(false);
-        }
-        if (radarMeshNode) {
-            radarMeshNode->setVisible(false);
-        }
-
-        hudStateSaved = true;
-    }
-
-    void MainScene::restoreHudVisibility() {
-        if (!hudStateSaved) {
-            return;
-        }
-
-        if (helpText) {
-            helpText->setVisible(hudHelpVisible);
-        }
-        if (tilesCounterNode) {
-            tilesCounterNode->setVisible(hudTilesVisible);
-        }
-        if (radarMeshNode) {
-            radarMeshNode->setVisible(hudRadarVisible);
-        }
-
-        hudStateSaved = false;
-    }
 } // Scenes

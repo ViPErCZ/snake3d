@@ -56,6 +56,9 @@ namespace Model {
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
+        void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                           const glm::mat4 &parentTransform) const override;
+
         bool isReady() const;
         bool isCrashing() const;
         bool isRespawning() const;

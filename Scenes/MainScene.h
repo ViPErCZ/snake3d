@@ -12,14 +12,10 @@
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
-#include "../Renderer/Opengl/Material/Uniform/FadeInUniform.h"
-#include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
-#include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 #include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
+#include "SceneHud.h"
 
 using namespace Uniform;
 using namespace Physic;
@@ -98,10 +94,6 @@ namespace Scenes {
         [[nodiscard]] glm::vec3 findRemoteSpawnPosition() const;
         static std::vector<glm::vec2> collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake);
 
-        void initRadar();
-
-        void initLabels();
-
         void initPreloader();
         void initMainMenu();
 
@@ -116,8 +108,6 @@ namespace Scenes {
         void nextLevel();
         void showMenu(MainMenuScene::PrimaryAction action);
         void hideMenu();
-        void saveHudVisibility();
-        void restoreHudVisibility();
         void initNetworking();
         void resetNetworkState();
         void startNetworkGame();
@@ -133,17 +123,7 @@ namespace Scenes {
         unique_ptr<EatManager> remoteEatManager;
         shared_ptr<LevelManager> levelManager;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
-        shared_ptr<FadeOutUniform> fadeOutUniform;
-        shared_ptr<FadeInUniform> fadeInUniform;
-        shared_ptr<LabelNode2D> tilesCounterText;
-        shared_ptr<MeshNode2D> helpText;
-        shared_ptr<MeshNode2D> tilesCounterNode;
-        shared_ptr<ShaderMaterial> radarExpansionIn;
-        shared_ptr<ShaderMaterial> radarExpansionOut;
-        shared_ptr<FadeInUniform> radarFadeInUniform;
-        shared_ptr<FadeOutUniform> radarFadeOutUniform;
-        shared_ptr<QuadNode2D> radarNode;
-        shared_ptr<RadarMeshNode2D> radarMeshNode;
+        unique_ptr<SceneHud> hud;
         shared_ptr<PlanarReflectionMaterial> planeMaterial;
         shared_ptr<Preloader2Scene> preLoader;
         shared_ptr<WinnerScene> winnerScene;
@@ -153,10 +133,6 @@ namespace Scenes {
         bool winning = false;
         bool menuVisible = false;
         bool gameStarted = false;
-        bool hudStateSaved = false;
-        bool hudHelpVisible = false;
-        bool hudTilesVisible = false;
-        bool hudRadarVisible = false;
         bool multiplayerCrashInProgress = false;
         bool resumeLocalMovementAfterMenu = false;
         int progress = 0;

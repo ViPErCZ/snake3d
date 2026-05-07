@@ -143,6 +143,12 @@ namespace Handler {
             crashLock = false;
         }
 
+        if (snakeMeshNode->isCrashing()) {
+            moveAccumulator = 0;
+            lastTime = glfwGetTime();
+            return;
+        }
+
         if (stop) {
             return;
         }
