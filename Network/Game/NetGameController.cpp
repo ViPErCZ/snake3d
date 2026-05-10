@@ -284,6 +284,7 @@ namespace Net {
                               << " count=" << clientSnake.segmentCount
                               << " positions=" << clientSnake.positions.size() << std::endl;
                 }
+                sink.scheduleLocalRespawnAfterCrash(clientSnake.positions, clientSnake.direction);
                 sink.requestLocalCrash();
                 pendingLocalRespawn.positions = clientSnake.positions;
                 pendingLocalRespawn.segmentCount = clientSnake.segmentCount;

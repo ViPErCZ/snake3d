@@ -151,12 +151,15 @@ namespace Scenes {
             return;
         }
 
-        snake->respawn();
-        if (snakeMoveHandler) {
-            snakeMoveHandler->resetState();
-        }
-        setSpawnLayout(headPosition, direction);
-        snake->animationStop("KostraAction");
+        snake->setPostCrashRespawnHandler([this, headPosition, direction]() {
+            snake->respawn();
+            if (snakeMoveHandler) {
+                snakeMoveHandler->resetState();
+            }
+            setSpawnLayout(headPosition, direction);
+            snake->animationStop("KostraAction");
+        });
+        snake->crash();
     }
 
     int RemoteSnakeScene::toVirtualCoord(const float worldCoord) {
@@ -166,7 +169,7 @@ namespace Scenes {
     void RemoteSnakeScene::initSnake() {
         const auto shader = resourceManager->getShader("basicShader");
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-        const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman"), shader, "KostraAction");
+        const auto pacmanMesh = make_shared<AnimationArrayMesh>(resourceManager->getAnimationModel("pacman")->clone(), shader, "KostraAction");
 
         const auto localDirectionalLight = make_shared<DirectionalLight>();
         localDirectionalLight->setDirection({1, 1.0, -3});

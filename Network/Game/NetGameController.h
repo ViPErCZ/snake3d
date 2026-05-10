@@ -37,6 +37,8 @@ namespace Net {
 
         virtual void requestLocalCrash() = 0;
         virtual void requestRemoteCrash() = 0;
+        virtual void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+                                                    SnakeMeshNode3D::eDIRECTION direction) = 0;
         virtual void applyLocalSnakePositions(const SnakeSnapshotState &snake) = 0;
         virtual void applyRemoteSnakePositions(const SnakeSnapshotState &snake) = 0;
 

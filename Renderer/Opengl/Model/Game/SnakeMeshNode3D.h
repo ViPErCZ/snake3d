@@ -1,6 +1,8 @@
 #ifndef SNAKE3_SNAKEMESHNODE3D_H
 #define SNAKE3_SNAKEMESHNODE3D_H
 
+#include <functional>
+
 #include "../../../../Physic/Algorithms/CollisionAlgorithms.h"
 #include "../../../../Tools/Timer.h"
 #include "../../Material/ShaderMaterial.h"
@@ -38,6 +40,8 @@ namespace Model {
         void respawn();
 
         void crash();
+
+        void setPostCrashRespawnHandler(std::function<void()> handler);
 
         void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override;
 
@@ -84,6 +88,7 @@ namespace Model {
         eDIRECTION direction = NONE;
         bool respawned = false;
         bool bodySegment = false;
+        std::function<void()> postCrashRespawnHandler;
     };
 } // Model
 

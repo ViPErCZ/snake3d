@@ -203,6 +203,34 @@ namespace Animations {
         return meta;
     }
 
+    shared_ptr<AnimationPlayer> AnimationPlayer::clone() const {
+        auto copy = make_shared<AnimationPlayer>();
+        copy->animations = animations;
+        copy->meshes = meshes;
+        copy->bones = bones;
+        copy->noBonesMeshes = noBonesMeshes;
+        copy->bones_map = bones_map;
+        copy->skeleton = skeleton;
+        copy->global_inverse = global_inverse;
+        copy->acceleration = acceleration;
+        copy->repeat = repeat;
+        copy->completed = false;
+
+        for (const auto &[name, meta] : metadata) {
+            auto newMeta = make_shared<AnimationMeta>();
+            newMeta->name = name;
+            newMeta->animation_duration = std::chrono::seconds(0);
+            newMeta->last_time = std::chrono::time_point<std::chrono::steady_clock>();
+            newMeta->bone_transform.resize(meta->bone_transform.size(), glm::mat4(1.0f));
+            newMeta->pause = true;
+            newMeta->alpha = 1.0f;
+            newMeta->world_transform = glm::mat4(1.0f);
+            copy->metadata.emplace(name, newMeta);
+        }
+
+        return copy;
+    }
+
     void AnimationPlayer::reset(const string &name) {
         completed = false;
         const auto meta = metadata.at(name);

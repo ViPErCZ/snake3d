@@ -69,6 +69,8 @@ namespace Animations {
 
         shared_ptr<AnimationMeta> getMetadata(const string &name) const;
 
+        shared_ptr<AnimationPlayer> clone() const;
+
     protected:
         void updateBonesAnimation(const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
         static shared_ptr<AnimationNode> findAnimationNode(const shared_ptr<Animation> &animation, const shared_ptr<Bone> &bone);

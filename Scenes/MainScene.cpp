@@ -16,17 +16,13 @@
 #include "SceneLightFactory.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
-#include "../Renderer/Opengl/Material/ShaderMaterial.h"
 #include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
-#include "../Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
 #include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "../Renderer/Opengl/Model/Game/MarkRingNode3D.h"
-#include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/SkyboxNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "../Tools/Layers.h"
 
@@ -618,6 +614,11 @@ namespace Scenes {
         }
         if (const auto local = playerScene->getSnake()) {
             Net::applyExactSnakePositions(local, snake.positions, snake.direction, snake.stopped);
+            if (snake.direction != SnakeMeshNode3D::NONE && !snake.stopped) {
+                local->animationStart("KostraAction", true);
+            } else {
+                local->animationPause("KostraAction");
+            }
         }
     }
 
@@ -627,8 +628,38 @@ namespace Scenes {
         }
         if (const auto remote = remoteSnakeScene->getSnake()) {
             Net::applyExactSnakePositions(remote, snake.positions, snake.direction, snake.stopped);
+            if (snake.direction != SnakeMeshNode3D::NONE && !snake.stopped) {
+                remote->animationStart("KostraAction", true);
+            } else {
+                remote->animationPause("KostraAction");
+            }
         }
         remoteSnakeScene->setActive(true);
+    }
+
+    void MainScene::scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+                                                   const SnakeMeshNode3D::eDIRECTION direction) {
+        if (!playerScene) {
+            return;
+        }
+        const auto snake = playerScene->getSnake();
+        if (!snake) {
+            return;
+        }
+        snake->setPostCrashRespawnHandler([this, positions, direction, snake]() {
+            if (!playerScene) {
+                return;
+            }
+            snake->respawn();
+            if (const auto moveHandler = playerScene->getSnakeMoveHandler()) {
+                moveHandler->resetState();
+                moveHandler->setInitialBodyDirection(
+                    direction == SnakeMeshNode3D::NONE ? SnakeMeshNode3D::LEFT : direction);
+            }
+            Net::applyExactSnakePositions(snake, positions, direction, false);
+            playerScene->setInputEnabled(!netSession.isClient());
+            netSession.clearPendingLocalRespawn();
+        });
     }
 
     void MainScene::applyCoin(const float x, const float y, const bool visible, const bool eatenAnim) {

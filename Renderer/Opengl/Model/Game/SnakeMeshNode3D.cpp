@@ -233,6 +233,10 @@ namespace Model {
         addNode(tile5);
     }
 
+    void SnakeMeshNode3D::setPostCrashRespawnHandler(std::function<void()> handler) {
+        postCrashRespawnHandler = std::move(handler);
+    }
+
     void SnakeMeshNode3D::crash() {
         if (timerUniform2->isRunning()) {
             return;
@@ -377,7 +381,13 @@ namespace Model {
         if (timerUniform2->isRunning() && timerUniform2->getElapsed() > 0.5f) {
             timerUniform2->stop();
             if (!bodySegment) {
-                respawn();
+                if (postCrashRespawnHandler) {
+                    auto handler = std::move(postCrashRespawnHandler);
+                    postCrashRespawnHandler = nullptr;
+                    handler();
+                } else {
+                    respawn();
+                }
             } else {
                 setVisible(false);
             }

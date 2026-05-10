@@ -56,6 +56,8 @@ namespace Scenes {
 
         void requestLocalCrash() override;
         void requestRemoteCrash() override;
+        void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+                                            SnakeMeshNode3D::eDIRECTION direction) override;
         void applyLocalSnakePositions(const Net::SnakeSnapshotState &snake) override;
         void applyRemoteSnakePositions(const Net::SnakeSnapshotState &snake) override;
 
