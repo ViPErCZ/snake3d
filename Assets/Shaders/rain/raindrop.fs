@@ -6,7 +6,7 @@ in vec3 fragPos;
 
 uniform float TIME;
 
-uniform float roughness = 0.2;
+// uniform float roughness = 0.2;
 uniform float normal_scale = 2.0;
 uniform float ring_width = 0.005;
 uniform float fadeout = 0.3;
@@ -42,9 +42,4 @@ void main()
     normap = mix(normap, vec3(inverted_nor, 0.0), ring_outer);
 
     FragColor = vec4(normap, 1);
-
-    //ALBEDO = water_color.rgb;
-    //ROUGHNESS = roughness;
-    //NORMALMAP = normap;
-    //NORMALMAP_DEPTH = clamp(fade, 0.0, 1.0) * normal_scale;
 }

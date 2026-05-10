@@ -1,21 +1,17 @@
 #include "BaseRenderer.h"
+#include "Model/Standard/PlaneMesh.h"
 
-namespace Manager {
-
-} // Manager
-Renderer::BaseRenderer::BaseRenderer(): item(nullptr), shadow(false), fog(false) {}
-Renderer::BaseRenderer::BaseRenderer(BaseItem *item) : item(item), shadow(false), fog(false) {}
-
-Renderer::BaseRenderer::~BaseRenderer() {
-    delete item;
+Renderer::BaseRenderer::BaseRenderer() : shadows(false), fog(false) {
 }
 
-void Renderer::BaseRenderer::setShadow(bool shadow) {
-    BaseRenderer::shadow = shadow;
+Renderer::BaseRenderer::~BaseRenderer() = default;
+
+void Renderer::BaseRenderer::setShadow(const bool shadow) {
+    shadows = shadow;
 }
 
 bool Renderer::BaseRenderer::isShadow() const {
-    return shadow;
+    return shadows;
 }
 
 void Renderer::BaseRenderer::setFog(bool fog) {
@@ -24,4 +20,12 @@ void Renderer::BaseRenderer::setFog(bool fog) {
 
 bool Renderer::BaseRenderer::isFog() const {
     return fog;
+}
+
+glm::vec3 Renderer::BaseRenderer::compareSceneMin(const glm::vec3 sceneMin) {
+    return sceneMin;
+}
+
+glm::vec3 Renderer::BaseRenderer::compareSceneMax(const glm::vec3 sceneMax) {
+    return sceneMax;
 }

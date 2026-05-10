@@ -1,48 +1,58 @@
 #ifndef SNAKE3_SNAKEMOVEHANDLER_H
 #define SNAKE3_SNAKEMOVEHANDLER_H
 
-#include "../ItemsDto/Snake.h"
-#include "../Renderer/Opengl/Model/AnimationModel.h"
-#include "../Physic/CollisionDetector.h"
-#include "BaseKeydownHandle.h"
+#define UNIT_MOVE 0.125
+#define VIRTUAL_MOVE 2 // kvuli nepresnosti float cislum pocitame virtualne v integer formatu
+#define CUBE_SIZE 32
 
-using namespace ItemsDto;
-using namespace Physic;
+#include "BaseKeydownHandle.h"
+#include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
+
 using namespace Model;
 
 namespace Handler {
 
-    class SnakeMoveHandler : public BaseKeydownHandle {
+    class SnakeMoveHandler final : public BaseKeydownHandle {
     public:
         ~SnakeMoveHandler() override;
-        explicit SnakeMoveHandler(Snake *snake, AnimationModel* animHead);
-        void onEventHandler(unsigned int key) override;
+        explicit SnakeMoveHandler(const shared_ptr<SnakeMeshNode3D> &snake_mesh_node);
+        void onEventHandler(unsigned int key, int scancode, int action, int mods, float deltaTime) override;
         void onDefaultHandler() override;
-        void setCollisionDetector(CollisionDetector *collisionDetector);
-        void setStartMoveCallback(const function<void(void)> &startMoveCallback);
+        void addStartMoveCallback(const function<void()> &startMoveCallback);
+        void setStopMoveCallback(const function<void(bool stop)> &stopMoveCallback);
         void setCrashCallback(const function<void()> &crashCallback);
         void setEatenUpCallback(const function<void()> &eatenUpCallback);
+        void setEnabled(bool enabled);
+        void setStopped(bool stopped);
+        void setInitialBodyDirection(SnakeMeshNode3D::eDIRECTION direction);
+        void resetState();
+        [[nodiscard]] bool isEnabled() const { return enabled; }
+        [[nodiscard]] bool isStopped() const { return stop; }
+        void stopMove();
 
     protected:
-        void ChangeMove(unsigned int direction);
-        void StopMove();
-        static eDIRECTION findDirection(sSNAKE_TILE* snakeTile, sSNAKE_TILE* mySelf);
+        void changeMove(unsigned int direction);
+        static void moveTile(const shared_ptr<SnakeMeshNode3D> &snakeMeshNode);
+        template<typename Iter>
+        [[nodiscard]] SnakeMeshNode3D::eDIRECTION findDirection(Iter iter) const;
         void createChangeCallback(unsigned int direction);
-        static bool isChangeDirectionAllowed(sSNAKE_TILE* snake);
-        static bool isNewDirectionCorrect(sSNAKE_TILE* headTile, unsigned int direction);
-        Snake* snake;
-        AnimationModel* animHead;
-        sSNAKE_TILE* snakeHead;
-        CollisionDetector* collisionDetector{};
-        double next_time{};
+        [[nodiscard]] bool isChangeDirectionAllowed() const;
+        [[nodiscard]] bool isNewDirectionCorrect(unsigned int direction) const;
+        shared_ptr<SnakeMeshNode3D> snakeMeshNode;
+        double lastTime{};
+        double moveAccumulator{};
+        double moveInterval = 0.1;
         bool stop;
+        bool enabled = true;
+        bool crashLock = false;
         bool eatenUpCallbackCalled;
-        std::function<bool(sSNAKE_TILE*)> changeCallback;
-        std::function<void()> startMoveCallback;
+        SnakeMeshNode3D::eDIRECTION initialBodyDirection = SnakeMeshNode3D::RIGHT;
+        std::function<bool(shared_ptr<SnakeMeshNode3D>)> changeCallback;
+        vector<std::function<void()>> startMoveCallbacks;
+        std::function<void(bool stop)> stopMoveCallback;
         std::function<void()> crashCallback;
         std::function<void()> eatenUpCallback;
     };
-
 } // Manager
 
 #endif //SNAKE3_SNAKEMOVEHANDLER_H

@@ -1,32 +1,60 @@
 #ifndef SNAKE3_BASERENDERER_H
 #define SNAKE3_BASERENDERER_H
 
-#include "../../ItemsDto/BaseItem.h"
-
-using namespace ItemsDto;
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_precision.inl>
+#include <memory>
 
 namespace Renderer {
+    class BaseRenderer;
+
+    struct RendererEntry {
+        std::shared_ptr<BaseRenderer> renderer;
+        int priority;
+    };
+
+    enum MODE {
+        standard = 0,
+        shadowMap = 1,
+        reflection = 2,
+        bloom = 3
+    };
 
     class BaseRenderer {
     public:
-        BaseRenderer();
-        explicit BaseRenderer(BaseItem *item);
+        explicit BaseRenderer();
+
         virtual ~BaseRenderer();
-        virtual void render() = 0;
+
+        virtual void render3D(float dt, uint64_t frameId) = 0;
+
+        virtual void render2D(float dt, uint64_t frameId) {};
+
         virtual void renderShadowMap() = 0;
-        virtual void beforeRender() = 0;
+
+        virtual void beforeRender(MODE mode) = 0;
+
         virtual void afterRender() = 0;
-        void setShadow(bool shadow);
+
+        virtual void setShadow(bool shadow);
+        virtual void resize(int width, int height, const glm::mat4 &projection) {}
+
         [[nodiscard]] bool isShadow() const;
+
         void setFog(bool fog);
+
         [[nodiscard]] bool isFog() const;
 
-    protected:
-        BaseItem* item{};
-        bool shadow;
-        bool fog;
-    };
+        glm::vec3 compareSceneMin(glm::vec3 sceneMin);
 
+        glm::vec3 compareSceneMax(glm::vec3 sceneMax);
+
+    protected:
+        bool shadows;
+        bool fog;
+        MODE mode;
+    };
 } // Manager
 
 #endif //SNAKE3_BASERENDERER_H

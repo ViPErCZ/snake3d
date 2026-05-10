@@ -5,23 +5,25 @@ in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec2 TexCoords;
-    vec4 FragPosLightSpace;
 } fs_in;
 
-uniform sampler2D diffuseMap;
-uniform sampler2D shadowMap;
-uniform sampler2D normalMap;
+uniform float uTime = 1;
 uniform sampler2D specularMap;
-
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-uniform bool shadowsEnable = true;
+uniform bool shadowsEnable;
 
-#include "pipeline/shading/shading.glsl"
-#include "pipeline/fog/fog.glsl"
+vec2 TexCoords = fs_in.TexCoords;
+
+#include "functions/shadows.glsl"
+#include "functions/fog.glsl"
+#include "functions/lights.glsl"
 
 void main()
 {
+    vec3 specularMapValue = texture(specularMap, fs_in.TexCoords).rgb;
     vec3 normal = texture(normalMap, fs_in.TexCoords).rgb;
     vec3 color = texture(diffuseMap, fs_in.TexCoords).rgb;
     if (length(normal) == 0.0) // normal texture is not set
@@ -33,6 +35,7 @@ void main()
     vec3 lightColor = vec3(0.3);
     if (shadowsEnable == false) {
         lightColor = texture(diffuseMap, fs_in.TexCoords).rgb;
+        lightColor /= 2;
     }
     // ambient
     vec3 ambient = 0.3 * lightColor;
@@ -48,15 +51,40 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;
 
-    if (shadowsEnable == false) {
-        spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-        specular = vec3(1.0, 1.0, 1.0) * spec * vec3(texture(specularMap, fs_in.TexCoords));
-        FragColor = vec4(ambient + diffuse + specular, 1.0);
-    } else {
+    if (shadowsEnable) {
         // calculate shadow
-        float shadow = ShadowCalculation(fs_in.FragPosLightSpace, shadowMap);
+        float viewDepth = length(fs_in.FragPos - viewPos);
+        int cascadeIndex = int(GetCascadeIndex(viewDepth));
+        float shadow = 0.0;
+        if(cascadeIndex == 0)
+            shadow = ShadowCalculation(fs_in.FragPos, cascadeIndex, lightSpaceMatrix0);
+        else if(cascadeIndex == 1)
+            shadow = ShadowCalculation(fs_in.FragPos, cascadeIndex, lightSpaceMatrix1);
+        else
+            shadow = ShadowCalculation(fs_in.FragPos, cascadeIndex, lightSpaceMatrix2);
+
+//         if(cascadeIndex == 0)
+//            shadow = ShadowCalculation2(fs_in.FragPos, normalize(fs_in.Normal), -lightDir, cascadeIndex, lightSpaceMatrix0);
+//         else if(cascadeIndex == 1)
+//            shadow = ShadowCalculation2(fs_in.FragPos, normalize(fs_in.Normal), -lightDir, cascadeIndex, lightSpaceMatrix1);
+//         else
+//            shadow = ShadowCalculation2(fs_in.FragPos, normalize(fs_in.Normal), -lightDir, cascadeIndex, lightSpaceMatrix2);
+
         vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
         FragColor = vec4(lighting, 1.0);
+    } else {
+        spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+        specular = vec3(1.0, 1.0, 1.0) * spec * specularMapValue;
+//         specular = vec3(0.0);
+
+        vec3 norm = normalize(fs_in.Normal);
+        vec3 result = vec3(0);
+
+//         for(int i = 0; i < numSpotLights; i++) {
+//            result += CalcSpotLight(spotLight[i], normal, fs_in.FragPos, viewDir, ambient, uTime);
+//         }
+
+        FragColor = vec4(result + lightColor / 4 + specular, 1.0);
     }
 
     if (fogEnable) {

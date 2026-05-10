@@ -1,10 +1,23 @@
 #include "AnimLoader.h"
+#include <assimp/postprocess.h>
+#include <functional>
+#include <iostream>
+
+#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 namespace Resource {
-    shared_ptr<AnimationModel> AnimLoader::loadObj(const fs::path &path) {
+    shared_ptr<AnimationPlayer> AnimLoader::loadObj(const fs::path &path) {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-                                                       aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        // Increase smoothing angle to better smooth low-poly assets and join duplicate vertices
+        importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 80.0f);
+        constexpr unsigned int pp_flags = aiProcess_Triangulate |
+                                          aiProcess_GenSmoothNormals |
+                                          aiProcess_FlipUVs |
+                                          aiProcess_CalcTangentSpace |
+                                          aiProcess_JoinIdenticalVertices |
+                                          aiProcess_ImproveCacheLocality |
+                                          aiProcess_OptimizeMeshes;
+        const aiScene *scene = importer.ReadFile(path, pp_flags);
         // check for errors
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -12,38 +25,38 @@ namespace Resource {
             exit(1);
         }
 
-        vector<Mesh*> meshes;
-        vector<Bone> bones;
+        vector<shared_ptr<Mesh> > meshes;
+        vector<shared_ptr<Bone> > bones;
         unordered_map<std::string, uint32_t> bone_map;
 
-        processNode(scene->mRootNode, scene, &meshes, glm::mat4(1.0f), bone_map, bones);
+        processNode(scene->mRootNode, scene, meshes, glm::mat4(1.0f), bone_map, bones);
         bones.reserve(bones.size() + 100);
 
         auto animations = loadAnimations(scene, bones, bone_map);
         auto animation_tree = loadAnimationTree(scene, bones, bone_map, animations);
-        auto global_matrix = convert(scene->mRootNode->mTransformation);
+        const auto global_matrix = convert(scene->mRootNode->mTransformation);
 
-        cout << "Loading OBJ file " << path << " success" << endl;
         importer.FreeScene();
 
-        return std::make_shared<AnimationModel>(new BaseItem(), meshes, std::move(animations), std::move(bones),
+        return std::make_shared<AnimationPlayer>(std::move(meshes), std::move(animations), bones,
                                                 std::move(animation_tree), std::move(bone_map),
                                                 glm::inverse(global_matrix));
     }
 
-    std::vector<Animation> AnimLoader::loadAnimations(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map) {
-        std::vector<Animation> animations;
+    map<string, shared_ptr<Animation> > AnimLoader::loadAnimations(
+        const aiScene* scene, std::vector<shared_ptr<Bone> > &bones, const unordered_map<std::string, uint32_t>& bone_map) {
+        map<string, shared_ptr<Animation> > animations;
 
         for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
             const auto* anim = scene->mAnimations[i];
 
             std::string anim_name(anim->mName.C_Str());
-            std::vector<AnimationNode> anim_nodes;
+            std::vector<shared_ptr<AnimationNode> > anim_nodes;
 
             for (uint32_t j = 0; j < anim->mNumChannels; ++j) {
                 const auto* channel = anim->mChannels[j];
 
-                auto bi = bone_map.find(channel->mNodeName.C_Str());
+                // auto bi = bone_map.find(channel->mNodeName.C_Str());
 //                transformace na objektu bez kosti (pohnu-li v animaci objektem a ne kosti) - zatim nepodporovano
 //                if (bi == bone_map.end()) {
 //                    bones.emplace_back("", channel->mNodeName.C_Str(), glm::mat4(1.f));
@@ -70,34 +83,35 @@ namespace Resource {
                     scale_frames.emplace_back(vec, channel->mScalingKeys[k].mTime);
                 }
 
-                anim_nodes.emplace_back(pos_frames, rot_frames, scale_frames, bone);
+                anim_nodes.emplace_back(make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, bone));
             }
 
-            animations.emplace_back(anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes);
+            animations.emplace(anim_name, make_shared<Animation>(
+                anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes));
         }
 
         return animations;
     }
 
-    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, std::vector<Bone>& bones, std::unordered_map<std::string, uint32_t>& bone_map, std::vector<Animation>& anim) {
-        auto bone_finder = [&] (const std::string& str, std::vector<Animation>& anim) {
-            if (auto bi = bone_map.find(str); bi != bone_map.end()) {
+    Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, vector<shared_ptr<Bone> > &bones,
+        unordered_map<std::string, uint32_t>& bone_map, map<string, shared_ptr<Animation> >& anim) {
+        auto bone_finder = [&] (const std::string& str, map<string, shared_ptr<Animation> >&) {
+            if (const auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
-            } else {
-                bones.emplace_back(str, "", glm::mat4(1.f));
-                bone_map.emplace(str, bones.size() - 1);
-                return static_cast<uint32_t>(bones.size() - 1);
             }
+            bones.emplace_back(make_shared<Bone>(str, "", glm::mat4(1.f)));
+            bone_map.emplace(str, bones.size() - 1);
+            return static_cast<uint32_t>(bones.size() - 1);
         };
 
         Tree<uint32_t> tree(bone_finder(scene->mRootNode->mName.C_Str(), anim));
 
-        std::function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
-        dfs = [&] (Tree<uint32_t>& tree, const aiNode* node, int depth) {
-            bones[*tree].node_transform = convert(node->mTransformation);
+        function<void(Tree<uint32_t>& tree, const aiNode*, int)> dfs;
+        dfs = [&] (Tree<uint32_t>& treeDfs, const aiNode* node, const int depth) {
+            bones[*treeDfs]->node_transform = convert(node->mTransformation);
 
             for (uint32_t i = 0; i < node->mNumChildren; ++i) {
-                auto& child = tree.add(bone_finder(node->mChildren[i]->mName.C_Str(), anim));
+                auto& child = treeDfs.add(bone_finder(node->mChildren[i]->mName.C_Str(), anim));
                 dfs(child, node->mChildren[i], depth + 1);
             }
         };
@@ -107,15 +121,17 @@ namespace Resource {
         return tree;
     }
 
-    void AnimLoader::processNode(aiNode *node, const aiScene *scene, vector<Mesh*>* meshes, glm::mat4 parentTransformation, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
-        glm::mat4 transformation = AiMatrix4x4ToGlm(&node->mTransformation);
-        glm::mat4 globalTransformation = parentTransformation * transformation;
+    void AnimLoader::processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
+        unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones)
+    {
+        const glm::mat4 transformation = AiMatrix4x4ToGlm(&node->mTransformation);
+        const glm::mat4 globalTransformation = parentTransformation * transformation;
 
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-            Mesh* myMesh = processMesh(mesh, scene, bone_map, bones);
+            auto myMesh = processMesh(mesh, scene, bone_map, bones);
             myMesh->setGlobalTransformation(globalTransformation);
-            meshes->push_back(myMesh);
+            meshes.push_back(myMesh);
         }
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
             processNode(node->mChildren[i], scene, meshes, globalTransformation, bone_map, bones);
@@ -134,7 +150,8 @@ namespace Resource {
         return to;
     }
 
-    Mesh* AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<Bone>& bones) {
+    shared_ptr<Mesh> AnimLoader::processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string,
+        uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones) {
 
         std::vector<VertexBoneWeight> bone_weights;
 
@@ -148,8 +165,7 @@ namespace Resource {
                 auto offset_mat = convert(mesh->mBones[j]->mOffsetMatrix);
                 uint32_t bone_index;
                 if (bi == bone_map.end()) {
-//                    bones.emplace_back(bone_name, offset_mat);
-                    bones.emplace_back(bone_name, mesh_name, offset_mat);
+                    bones.emplace_back(make_shared<Bone>(bone_name, mesh_name, offset_mat));
                     bone_index = bones.size() - 1;
                     bone_map.insert({bone_name, bone_index});
                 } else {
@@ -178,8 +194,7 @@ namespace Resource {
         // walk through each of the mesh's vertices
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex{};
-            glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-            // positions
+            glm::vec3 vector;
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;
             vector.z = mesh->mVertices[i].z;
@@ -220,10 +235,10 @@ namespace Resource {
                 vertex.Weights[1] = (bone_weights.begin() + i)->weight[1];
                 vertex.Weights[2] = (bone_weights.begin() + i)->weight[2];
                 vertex.Weights[3] = (bone_weights.begin() + i)->weight[3];
-                vertex.BoneIDs[0] = (int)(bone_weights.begin() + i)->bone_index[0];
-                vertex.BoneIDs[1] = (int)(bone_weights.begin() + i)->bone_index[1];
-                vertex.BoneIDs[2] = (int)(bone_weights.begin() + i)->bone_index[2];
-                vertex.BoneIDs[3] = (int)(bone_weights.begin() + i)->bone_index[3];
+                vertex.BoneIDs[0] = static_cast<int>((bone_weights.begin() + i)->bone_index[0]);
+                vertex.BoneIDs[1] = static_cast<int>((bone_weights.begin() + i)->bone_index[1]);
+                vertex.BoneIDs[2] = static_cast<int>((bone_weights.begin() + i)->bone_index[2]);
+                vertex.BoneIDs[3] = static_cast<int>((bone_weights.begin() + i)->bone_index[3]);
             }
             vertices.push_back(vertex);
         }
@@ -233,6 +248,39 @@ namespace Resource {
             // retrieve all indices of the face and store them in the indices vector
             for (unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
+        }
+
+        // Fallback: if mesh has no normals (or Assimp failed to generate), compute smooth normals
+        if (!mesh->HasNormals()) {
+            // Initialize normals to zero
+            for (auto &v : vertices) {
+                v.normal = glm::vec3(0.0f);
+            }
+            // Accumulate face normals (area-weighted by triangle area)
+            for (size_t i = 0; i + 2 < indices.size(); i += 3) {
+                const auto ia = indices[i];
+                const auto ib = indices[i + 1];
+                const auto ic = indices[i + 2];
+                const glm::vec3 &a = vertices[ia].position;
+                const glm::vec3 &b = vertices[ib].position;
+                const glm::vec3 &c = vertices[ic].position;
+                glm::vec3 n = glm::normalize(glm::cross(b - a, c - a));
+                // Use triangle area (length of cross) as weight
+                float area = glm::length(glm::cross(b - a, c - a));
+                if (area > 0.0f) {
+                    vertices[ia].normal += n * area;
+                    vertices[ib].normal += n * area;
+                    vertices[ic].normal += n * area;
+                }
+            }
+            // Normalize accumulated normals
+            for (auto &v : vertices) {
+                if (glm::length2(v.normal) > 0.0f) {
+                    v.normal = glm::normalize(v.normal);
+                } else {
+                    v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+                }
+            }
         }
 
         // TODO: implementovat ???
@@ -255,6 +303,6 @@ namespace Resource {
 //        std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
 //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-        return new Mesh(vertices, indices, mesh->HasBones(), mesh->mName.C_Str());
+        return make_shared<Mesh>(vertices, indices, mesh->HasBones(), mesh->mName.C_Str());
     }
 } // Resource

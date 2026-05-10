@@ -1,39 +1,50 @@
 #ifndef SNAKE3_EATLOCATIONHANDLER_H
 #define SNAKE3_EATLOCATIONHANDLER_H
 
-#include "../ItemsDto/Snake.h"
 #include "BaseHandler.h"
-#include "../Physic/CollisionDetector.h"
-#include "../ItemsDto/Eat.h"
-#include "../ItemsDto/Radar.h"
-#include <random>
+#include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
 using namespace ItemsDto;
 using namespace Physic;
 using namespace std;
 
 namespace Handler {
-
-    class EatLocationHandler : public BaseHandler {
+    class EatLocationHandler final : public BaseHandler {
     public:
         ~EatLocationHandler() override;
-        explicit EatLocationHandler(Barriers* barriers, Snake* snake, Eat* eat, Radar* radar);
-        void onDefaultHandler() override;
-        void onFirstPlaceHandler();
-        void onCheckPlaceHandler();
-        void onCleanHandler();
-        bool rePosition();
-        bool isFieldEmpty(int x, int y);
-    protected:
-        Radar* radar;
-        Snake* snake;
-        Barriers* barriers;
-        Eat* eat;
-        void addTile();
-        glm::vec2 getPosition();
-        int counter;
-    };
 
+        explicit EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                    const shared_ptr<CoinMeshNode3D> &eat);
+
+        void onDefaultHandler() override;
+
+        void onFirstPlaceHandler() const;
+
+        void onCheckPlaceHandler() const;
+
+        void onCleanHandler();
+
+        void rePosition() const;
+
+        void fixVirtualPosition(const glm::vec3 &pos) const;
+
+        [[nodiscard]] bool isFieldEmpty(int x, int y) const;
+
+        void clearBarriers();
+
+        void setBarriers(const shared_ptr<MeshNode3D> &barriers) { this->barriers = barriers; }
+
+    protected:
+        shared_ptr<MeshNode3D> barriers;
+        shared_ptr<SnakeMeshNode3D> snake;
+        shared_ptr<CoinMeshNode3D> eat;
+        int counter;
+
+        void addTile();
+
+        [[nodiscard]] glm::vec2 getPosition() const;
+    };
 } // Handler
 
 #endif //SNAKE3_EATLOCATIONHANDLER_H

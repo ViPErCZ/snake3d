@@ -1,45 +1,14 @@
 #ifndef SNAKE3_APP_H
 #define SNAKE3_APP_H
 
-#include "ItemsDto/GameField.h"
-#include "ItemsDto/Snake.h"
-#include "ItemsDto/ObjWall.h"
-#include "Resource/ObjModelLoader.h"
-#include "Resource/ShaderLoader.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/RenderManager.h"
 #include "Manager/KeyboardManager.h"
-#include "Renderer/Opengl/GameFieldRenderer.h"
-#include "Renderer/Opengl/SkyboxRenderer.h"
-#include "Renderer/Opengl/SnakeRenderer.h"
-#include "Renderer/Opengl/RadarRenderer.h"
-#include "Renderer/Opengl/DepthMapRenderer.h"
-#include "Handler/SnakeMoveHandler.h"
-#include "Handler/RadarHandler.h"
-#include "Handler/EatLocationHandler.h"
-#include "stdafx.h"
-#include "Renderer/Opengl/EatRenderer.h"
-#include "Renderer/Opengl/TextRenderer.h"
-#include "ItemsDto/Eat.h"
 #include "Manager/EatManager.h"
-#include "Renderer/Opengl/EatRemoveAnimateRenderer.h"
-#include "ItemsDto/Barriers.h"
-#include "Renderer/Opengl/BarrierRenderer.h"
 #include "Manager/LevelManager.h"
-#include "Renderer/Opengl/ObjWallRenderer.h"
 #include "Manager/Camera.h"
-#include "Renderer/Opengl/BloomRenderer.h"
-#include "Renderer/Opengl/RainRenderer.h"
-#include "Renderer/Opengl/RainDropRenderer.h"
-#include "Renderer/Opengl/AnimRenderer.h"
-#include <filesystem>
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
-
-#define MAX_POINT 6
-#define MAX_LIVES 4
-#define START_LEVEL 1
+#include "Scenes/MainScene.h"
+#include "Scenes/PreloaderScene.h"
 
 namespace fs = std::filesystem;
 using namespace ItemsDto;
@@ -47,61 +16,48 @@ using namespace Manager;
 using namespace Renderer;
 using namespace Handler;
 using namespace Resource;
+using namespace Model;
+using namespace Material;
 
 class App {
+    enum class SceneState {
+        LOADING,
+        RUNNING
+    };
 public:
-    App(Camera* camera, int width, int height);
-    ~App();
+    App(const shared_ptr<Camera> &camera, int width, int height);
+
     void Init();
     void run();
-    void processInput(int keyCode);
+    void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) const;
+    void mousePositionCallback(GLFWwindow* window, double x, double y) const;
+    void setKeyState(int key, bool pressed) const;
+    void cameraProcessKeyboard(GLFWwindow *window) const;
+    void resize(int width, int height);
 protected:
-    void InitResourceManager();
-    GameField* InitGameField();
-    Snake* InitSnake();
-    ObjWall* InitObjWall(); // outer wall
-    Barriers* InitBarriers(); // inter barriers
-    static Radar* CreateRadar();
-    void InitRadar();
-    Eat *InitEat();
-    void initTexts();
+    void initScene() const;
+    void InitResourceManager() const;
 private:
-    LevelManager* levelManager{};
-    ResourceManager* resourceManager{};
-    RenderManager* rendererManager;
-    GameField* gameField{};
-    GameFieldRenderer* gameFieldRenderer{};
-    SkyboxRenderer* skyboxRenderer{};
-    Snake* snake{};
-    Eat* animateEat{};
-    Eat* eat;
-    Radar* radar{};
-    ObjWall* objWall{};
-    Barriers* barriers{};
-    Cube* skybox{};
-    SnakeRenderer* snakeRenderer{};
-    ObjWallRenderer* objWallRenderer{};
-    BarrierRenderer* barrierRenderer{};
-    EatRenderer* eatRenderer{};
-    RadarRenderer* radarRenderer{};
-    TextRenderer* textRenderer{};
-    DepthMapRenderer* depthMapRenderer{};
-    BloomRenderer* bloomRenderer{};
-    EatRemoveAnimateRenderer* eatRemoveAnimateRenderer{};
-    RainRenderer* rainRenderer{};
-    AnimRenderer* animRenderer{};
-    RainDropRenderer* rainDropRenderer{};
-    KeyboardManager* keyboardManager;
-    CollisionDetector* collisionDetector{};
-    EatManager* eatManager;
-    Text* startText;
-    Text* tilesCounterText;
-    Camera* camera;
+    struct TextureEntry {
+        std::string name;
+        std::string path;
+        std::string category;
+    };
+    shared_ptr<Environment> environment;
+    shared_ptr<ResourceManager> resourceManager;
+    shared_ptr<RenderManager> rendererManager;
+    unique_ptr<KeyboardManager> keyboardManager;
+    unique_ptr<EatManager> eatManager;
+    shared_ptr<Camera> camera;
+    glm::mat4 projection{};
     int width;
     int height;
-    ALuint musicSource{}, coinSource{};
-    ALuint coinBuffer{}, musicBuffer{};
+    SceneState state = SceneState::LOADING;
+    std::atomic<bool> scanning = false;
+    shared_ptr<MainScene> mainScene;
+    shared_ptr<PreloaderScene> preloaderScene;
+    shared_ptr<ContextState> contextState;
 };
-
 
 #endif //SNAKE3_APP_H

@@ -1,104 +1,187 @@
 #include "DepthMapRenderer.h"
 
 namespace Renderer {
-    DepthMapRenderer::DepthMapRenderer(Camera *camera, glm::mat4 proj, ResourceManager *resManager) {
+    DepthMapRenderer::DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager) {
         resourceManager = resManager;
         this->camera = camera;
         this->projection = proj;
-        shader = resourceManager->getShader("shadowShader");
+        shader = resourceManager->getShader("shadowShader").get();
         shader->use();
         shader->setMat4("projection", projection);
         shader->setInt("diffuseMap", 0);
-        shader->setInt("shadowMap", 1);
+        shader->setInt("shadowMap", 4);
         shader->setInt("normalMap", 2);
         shader->setInt("specularMap", 3);
         shader->setFloat("alpha", 1.0);
 
         glGenFramebuffers(1, &depthMapFBO);
-        // create depth texture
-        glGenTextures(1, &depthMap);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                     nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glGenTextures(1, &depthMap); {
+            glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT,
+                         SHADOW_WIDTH, SHADOW_HEIGHT, 3, 0,
+                         GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        float borderColor[] = {1.0, 1.0, 1.0, 1.0};
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-        // attach depth texture as FBO's depth buffer
+            constexpr float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+            glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+            const auto texture = std::make_shared<TextureManager>();
+
+            texture->addTexture(depthMap);
+            resourceManager->replaceTexture("depth", texture);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void DepthMapRenderer::beforeRender(const int index) const {
+        glDisable(GL_BLEND);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                  depthMap, 0, index);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "Framebuffer not complete!" << std::endl;
+        }
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
 
-        auto texture = std::make_shared<TextureManager>();
-        texture->addTexture(depthMap);
-        resourceManager->addTexture("depth", texture);
-        lightPos = {0.0f, 7.0f, 11.0f};
+    void DepthMapRenderer::render(float dt) const {
+        shader->use();
 
-        glm::mat4 lightProjection, lightView;
-        float near_plane = 1.0f, far_plane = 17.5f;
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
-        auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
+        shader->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
+        shader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
+        shader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
+
+        const auto basicShader = resourceManager->getShader("basicShader");
+        basicShader->use();
+        int index = 0;
+        for (const auto &lightSpaceMatrice: lightSpaceMatrices) {
+            basicShader->setMat4("lightSpaceMatrix" + std::to_string(index), lightSpaceMatrice);
+            index++;
+        }
+
+        basicShader->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
+        basicShader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
+        basicShader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
+
+        const glm::vec3 shadowCenter = camera->getStickyPoint()
+            ? glm::vec3(camera->getStickyPoint()->getModelMatrix() * glm::vec4(0, 0, 0, 1))
+            : camera->getPosition();
+        basicShader->setVec3("shadowCenter", shadowCenter);
+    }
+
+    void DepthMapRenderer::bind(const int index, const glm::mat4 &lightSpaceMatrix) const {
+        shader->use();
+        shader->setMat4("lightSpaceMatrix" + std::to_string(index), lightSpaceMatrix);
+        const auto simpleDepthShader = resourceManager->getShader("shadowDepthShader");
         simpleDepthShader->use();
         simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
     }
 
-    void DepthMapRenderer::beforeRender() {
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-    }
+    std::vector<glm::mat4> DepthMapRenderer::computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light,
+                                                                      const glm::vec3 /*sceneMin*/, const glm::vec3 /*sceneMax*/) {
+        lightSpaceMatrices.clear();
+        lightSpaceMatrices.resize(NUM_CASCADES);
 
-    void DepthMapRenderer::render() {
-        shader->use();
-        shader->setMat4("view", camera->getViewMatrix());
-        shader->setVec3("viewPos", camera->getPosition());
-        shader->setVec3("lightPos", lightPos);
-        shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-    }
+        const glm::vec3 lightDir = glm::normalize(light->getDirection());
 
-    void DepthMapRenderer::renderShadowMap() {
-    }
+        constexpr float cameraFar = 80.0f;
+        constexpr float cameraNear = 0.1f;
 
-    void DepthMapRenderer::afterRender() {
-//        auto debugDepthQuad = resourceManager->getShader("debugQuadShader");
-//        debugDepthQuad->use();
-//        debugDepthQuad->setFloat("near_plane", 1.0f);
-//        debugDepthQuad->setFloat("far_plane", 7.5f);
-//        glActiveTexture(GL_TEXTURE0);
-//        glBindTexture(GL_TEXTURE_2D, depthMap);
-//        renderQuad();
-    }
+        for (int i = 0; i < NUM_CASCADES; ++i) {
+            const float cascadeNear = (i == 0) ? cameraNear : cameraNear + cascadeSplits[i - 1] * (cameraFar - cameraNear);
+            const float cascadeFar  = cameraNear + cascadeSplits[i] * (cameraFar - cameraNear);
+            cascadeEndsWorld[i] = cascadeFar;
 
-    void DepthMapRenderer::renderQuad() {
-        if (quadVAO == 0) {
-            float quadVertices[] = {
-                    // positions        // texture Coords
-                    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-                    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-                    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-                    1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-            };
-            // setup plane VAO
-            glGenVertexArrays(1, &quadVAO);
-            glGenBuffers(1, &quadVBO);
-            glBindVertexArray(quadVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) nullptr);
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+            auto frustumCorners = getFrustumCornersWorldSpace(cascadeNear, cascadeFar);
+
+            glm::vec3 center(0.0f);
+            for (auto &corner: frustumCorners) center += corner;
+            center /= static_cast<float>(frustumCorners.size());
+
+            glm::mat4 lightView = glm::lookAt(
+                center + lightDir,
+                center,
+                glm::vec3(0, 1, 0)
+            );
+
+            float minX = std::numeric_limits<float>::max();
+            float maxX = std::numeric_limits<float>::lowest();
+            float minY = std::numeric_limits<float>::max();
+            float maxY = std::numeric_limits<float>::lowest();
+            float minZ = std::numeric_limits<float>::max();
+            float maxZ = std::numeric_limits<float>::lowest();
+
+            for (auto &corner: frustumCorners) {
+                glm::vec4 trf = lightView * glm::vec4(corner, 1.0f);
+                minX = std::min(minX, trf.x);
+                maxX = std::max(maxX, trf.x);
+                minY = std::min(minY, trf.y);
+                maxY = std::max(maxY, trf.y);
+                minZ = std::min(minZ, trf.z);
+                maxZ = std::max(maxZ, trf.z);
+            }
+
+            constexpr float zMargin = 50.0f;
+            minZ -= zMargin;
+            maxZ += zMargin;
+
+            glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -maxZ, -minZ);
+
+            // Snap world origin to texel grid to eliminate shadow shimmer on camera movement
+            glm::mat4 shadowMatrix = lightProjection * lightView;
+            glm::vec4 shadowOrigin = shadowMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            shadowOrigin *= static_cast<float>(SHADOW_WIDTH) / 2.0f;
+            glm::vec4 roundOffset = (glm::round(shadowOrigin) - shadowOrigin) * (2.0f / static_cast<float>(SHADOW_WIDTH));
+            roundOffset.z = 0.0f;
+            roundOffset.w = 0.0f;
+            lightProjection[3] += roundOffset;
+
+            lightSpaceMatrices[i] = lightProjection * lightView;
         }
-        glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glBindVertexArray(0);
+
+        return lightSpaceMatrices;
     }
 
+    std::vector<glm::vec3> DepthMapRenderer::getFrustumCornersWorldSpace(
+        const float nearPlane,
+        const float farPlane
+    ) const {
+        constexpr float aspect = static_cast<float>(1920) / 1080;
+        const float fov = glm::radians(camera->getZoom());
+        const float tanHalfFov = tanf(fov * 0.5f);
+
+        std::vector<glm::vec3> corners(8);
+
+        const float nh = nearPlane * tanHalfFov;
+        const float nw = nh * aspect;
+        const float fh = farPlane * tanHalfFov;
+        const float fw = fh * aspect;
+
+        const glm::vec3 nc = camera->getPosition() + camera->getFront() * nearPlane;
+        const glm::vec3 fc = camera->getPosition() + camera->getFront() * farPlane;
+        const glm::vec3 camUp = camera->getUp();
+        const glm::vec3 camRight = camera->getRight();
+
+        // near plane
+        corners[0] = nc + camUp * nh - camRight * nw;
+        corners[1] = nc + camUp * nh + camRight * nw;
+        corners[2] = nc - camUp * nh + camRight * nw;
+        corners[3] = nc - camUp * nh - camRight * nw;
+
+        // far plane
+        corners[4] = fc + camUp * fh - camRight * fw;
+        corners[5] = fc + camUp * fh + camRight * fw;
+        corners[6] = fc - camUp * fh + camRight * fw;
+        corners[7] = fc - camUp * fh - camRight * fw;
+
+        return corners;
+    }
 } // Renderer

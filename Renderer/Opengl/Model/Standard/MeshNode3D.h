@@ -1,0 +1,103 @@
+#ifndef SNAKE3_NODE3D_H
+#define SNAKE3_NODE3D_H
+
+#include <memory>
+
+#include "StandardMesh.h"
+#include "../../../../Tools/Named.h"
+#include "../../../../Tools/Vector3i.h"
+#include "../../../../Tools/Tagged.h"
+#include "../../../../Tools/Visibility.h"
+#include "../../../../Manager/ResourceManager.h"
+#include "../../../../Tools/ContextState.h"
+
+using namespace Tools;
+using namespace std;
+
+namespace CollisionShape {
+    class CollisionShape3D;
+}
+
+namespace Model {
+    class MeshNode3D : public enable_shared_from_this<MeshNode3D>,
+        public Named, public Tagged, public Transform, public Visibility, public Vector3i {
+    public:
+        explicit MeshNode3D(const shared_ptr<ContextState> &contextState,
+            const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
+
+        ~MeshNode3D() override;
+
+        [[nodiscard]] virtual shared_ptr<StandardMesh> getMesh() const;
+
+        void addNode(const std::shared_ptr<MeshNode3D> &node);
+
+        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                    const glm::mat4 &parentTransform, bool shadows);
+
+        virtual void update(float dt, uint64_t frameId);
+
+        virtual void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+                           const glm::mat4 &parentTransform) const;
+
+        [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
+
+        shared_ptr<MeshNode3D> getParent() const { return parent.lock(); }
+
+        [[nodiscard]] const vector<shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
+
+        virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
+        
+        virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
+
+        virtual void setPointLights(const vector<shared_ptr<PointLight> > &point_light);
+
+        void setTransformDetached(bool transform_detached, bool recursive = true);
+
+        void make_unique();
+
+        bool hasChildrenChangedSignal() const;
+
+        void animationStart(const string &name, bool loop = true);
+
+        void animationStop(const string &name) const;
+
+        void animationPause(const string &name) const;
+
+        void animationResume(const string &name) const;
+
+        void disablePlanarReflection();
+
+        [[nodiscard]] bool isIncludeInPlanarReflection() const;
+
+        string getAnimation() { return animation; }
+
+        [[nodiscard]] virtual bool isCollisionShapeNode() const { return false; }
+
+        virtual void computeWorldMatrix(const glm::mat4 &parentTransform);
+
+        [[nodiscard]] const glm::mat4 &getWorldMatrix() const { return worldMatrixCache; };
+
+    protected:
+        shared_ptr<MeshNode3D> deepCopy() const;
+
+        shared_ptr<ContextState> contextState;
+        shared_ptr<StandardMesh> mesh;
+        weak_ptr<MeshNode3D> parent;
+        vector<shared_ptr<MeshNode3D> > children;
+        vector<shared_ptr<CollisionShape::CollisionShape3D> > collisionShapes;
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<DirectionalLight> directionalLight;
+        vector<shared_ptr<SpotLight> > spotLights;
+        vector<shared_ptr<PointLight> > pointLights;
+        int depth = 0;
+        bool transformDetached;
+        bool childrenChangedSignal;
+        bool includePlanarReflection = true;
+        int childrenChangedSignalCycles = 0;
+        string animation;
+        uint64_t lastUpdatedFrame;
+        glm::mat4 worldMatrixCache;
+    };
+} // Model
+
+#endif //SNAKE3_NODE3D_H

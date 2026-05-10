@@ -1,16 +1,12 @@
 #include "RadarHandler.h"
 
 namespace Handler {
-    RadarHandler::RadarHandler(Radar *radar) : radar(radar) {}
+    RadarHandler::RadarHandler(const shared_ptr<MeshNode3D> &radar) : radar(radar) {}
 
-    void RadarHandler::onEventHandler(unsigned int key) {
+    void RadarHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods, float deltaTime) {
         if (key == GLFW_KEY_R) {
-            radar->toggleVisible();
+            radar->setVisible(!radar->isVisible());
         }
-    }
-
-    void RadarHandler::onDefaultHandler() {
-        BaseKeydownHandle::onDefaultHandler();
     }
 
 } // Handler

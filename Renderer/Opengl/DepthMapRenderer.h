@@ -4,38 +4,53 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "../../Manager/Camera.h"
-#include "BaseRenderer.h"
-#include <glm/glm.hpp>
+#include "../../Lights/DirectionalLight.h"
 
 using namespace Manager;
+using namespace Lights;
 
 namespace Renderer {
+    constexpr int SHADOW_WIDTH = 4096;
+    constexpr int SHADOW_HEIGHT = 4096;
+    constexpr int NUM_CASCADES = 3;
 
-    const int SHADOW_WIDTH = 4096;
-    const int SHADOW_HEIGHT = 4096;
-
-    class DepthMapRenderer : public BaseRenderer {
+    class DepthMapRenderer  {
     public:
-        DepthMapRenderer(Camera* camera, glm::mat4 proj, ResourceManager* resManager);
-        void render() override;
-        void beforeRender() override;
-        void afterRender() override;
-        void renderQuad();
-        void renderShadowMap() override;
+        DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager);
+
+        ~DepthMapRenderer() = default;
+
+        void render(float dt) const;
+
+        void beforeRender(int index) const;
+
+        void afterRender() = delete;
+
+        void renderShadowMap();
+
+        void bind(int index, const glm::mat4 &lightSpaceMatrix) const;
+
+        std::vector<glm::mat4> computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light,
+                                                      glm::vec3 sceneMin, glm::vec3 sceneMax);
 
     protected:
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        Camera* camera;
+        ResourceManager *resourceManager;
+        ShaderManager *shader;
+        Camera *camera;
         glm::mat4 projection{};
-        unsigned int depthMapFBO{};
-        unsigned int depthMap{};
-        glm::mat4 lightSpaceMatrix{};
+        GLuint depthMapFBO{};
+        GLuint depthMap{};
+        std::vector<glm::mat4> lightSpaceMatrices;
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
-        glm::vec3 lightPos{};
-    };
+        float cascadeSplits[NUM_CASCADES] = {0.1f, 0.3f, 1.0f};
+        float cascadeEndsWorld[NUM_CASCADES] = {};
 
+        [[nodiscard]] std::vector<glm::vec3> getFrustumCornersWorldSpace(
+            float nearPlane,
+            float farPlane
+        ) const;
+    };
 } // Renderer
 
 #endif //SNAKE3_DEPTHMAPRENDERER_H

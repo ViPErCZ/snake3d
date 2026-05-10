@@ -2,12 +2,13 @@
 #define SNAKE3_OBJMODELLOADER_H
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 
-#include "../ItemsDto/ObjItem.h"
 #include <filesystem>
 #include <memory>
 
+#include "../Renderer/Opengl/Model/Utils/Mesh.h"
+
 using namespace std;
-using namespace ItemsDto;
+using namespace ModelUtils;
 
 namespace fs = std::filesystem;
 
@@ -15,7 +16,8 @@ namespace Resource {
 
     class ObjModelLoader {
     public:
-        static shared_ptr<ObjItem> loadObj(const fs::path& path);
+        static vector<shared_ptr<Mesh>> loadObj(const fs::path& path);
+        static vector<shared_ptr<Mesh>> loadObjFromStr(const fs::path& path, const string& str);
     };
 
 } // Resource

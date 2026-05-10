@@ -1,8 +1,11 @@
 #include "EatLocationHandler.h"
+#include <random>
+#include <cmath>
 
 namespace Handler {
-    EatLocationHandler::EatLocationHandler(Barriers* barriers, Snake *snake, Eat *eat, Radar* radar) :
-        barriers(barriers), eat(eat), snake(snake), counter(0), radar(radar) {
+    EatLocationHandler::EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
+                                           const shared_ptr<CoinMeshNode3D> &eat)
+        : barriers(barriers), snake(snake), eat(eat), counter(0) {
     }
 
     EatLocationHandler::~EatLocationHandler() = default;
@@ -13,39 +16,65 @@ namespace Handler {
         rePosition();
     }
 
-    bool EatLocationHandler::rePosition() {
+    void EatLocationHandler::rePosition() const {
         try {
-            glm::vec2 newPos = getPosition();
+            const glm::vec2 newPos = getPosition();
             glm::vec3 pos = eat->getPosition();
-            //cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
-            eat->setVirtualX((int)newPos.x * 32 + 16);
-            eat->setVirtualY((int)newPos.y * 32 + 16);
+            // cout << "Eat: X=" << newPos.x << ", Y=" << newPos.y << endl;
+            eat->x = static_cast<int>(newPos.x) * 32 + 16;
+            eat->y = static_cast<int>(newPos.y) * 32 + 16;
             eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
             eat->setVisible(true);
-
-            return true;
         } catch (const std::invalid_argument &e) {
             eat->setVisible(false);
-
-            return false;
         }
     }
 
-    bool EatLocationHandler::isFieldEmpty(int x, int y) {
+    void EatLocationHandler::fixVirtualPosition(const glm::vec3 &pos) const {
+        const float originalNewPosX = (pos.x + 69.0f) / 6.0f;
+        const float originalNewPosY = (pos.y + 69.0f) / 6.0f;
+        eat->x = static_cast<int>(originalNewPosX) * 32 + 16;
+        eat->y = static_cast<int>(originalNewPosY) * 32 + 16;
 
-        int posX = x * 32;
-        int posY = y * 32;
+        // cout << "coin: " << eat->x << ", " << eat->y << endl;
+    }
 
-        for (auto Iter = snake->getItems().begin(); Iter < snake->getItems().end(); Iter++) {
-            if ((int) (*Iter)->tile->getVirtualX() - 16 + 32 >= posX && (int) (*Iter)->tile->getVirtualX() - 16 <= posX
-                && (int) (*Iter)->tile->getVirtualY() - 16 + 32 >= posY && (int) (*Iter)->tile->getVirtualY() - 16 <= posY) {
+    bool EatLocationHandler::isFieldEmpty(const int x, const int y) const {
+        const int posX = x * 32;
+        const int posY = y * 32;
+        const float worldX = -25.0f + (static_cast<float>(x + 1) * 2.0f);
+        const float worldY = -25.0f + (static_cast<float>(y + 1) * 2.0f);
+
+        const auto isSameFieldAsWorldPos = [worldX, worldY](const shared_ptr<MeshNode3D> &node) {
+            constexpr float eps = 0.0001f;
+            const auto nodePos = node->getPosition();
+            return std::abs(nodePos.x - worldX) < eps && std::abs(nodePos.y - worldY) < eps;
+        };
+
+        if (snake->x - 16 + 32 >= posX && snake->x - 16 <= posX
+            && snake->y - 16 + 32 >= posY && snake->y - 16 <= posY) {
+            return false;
+        }
+
+        for (auto Iter = snake->getChildren().begin(); Iter < snake->getChildren().end(); ++Iter) {
+            if ((*Iter)->x - 16 + 32 >= posX && (*Iter)->x - 16 <= posX
+                && (*Iter)->y - 16 + 32 >= posY && (*Iter)->y - 16 <= posY) {
                 return false;
             }
         }
 
-        for (auto Iter = barriers->getItems().begin(); Iter < barriers->getItems().end(); Iter++) {
-            if ((int) (*Iter)->getVirtualX() - 16 + 32 > posX && (int) (*Iter)->getVirtualX() - 16 <= posX
-                && (int) (*Iter)->getVirtualY() - 16 + 32 > posY && (int) (*Iter)->getVirtualY() - 16 <= posY) {
+        if (isSameFieldAsWorldPos(barriers)) {
+            return false;
+        }
+        if (barriers->x == posX + 32 && barriers->y == posY + 32) {
+            return false;
+        }
+
+        for (auto Iter = barriers->getChildren().begin(); Iter < barriers->getChildren().end(); ++Iter) {
+            if (isSameFieldAsWorldPos(*Iter)) {
+                return false;
+            }
+            if ((*Iter)->x == posX + 32 && (*Iter)->y == posY + 32) {
                 return false;
             }
         }
@@ -53,14 +82,19 @@ namespace Handler {
         return true;
     }
 
-    void EatLocationHandler::onFirstPlaceHandler() {
+    void EatLocationHandler::clearBarriers() {
+        barriers = nullptr;
+    }
+
+    void EatLocationHandler::onFirstPlaceHandler() const {
         while (true) {
             try {
-                glm::vec2 newPos = getPosition();
+                const glm::vec2 newPos = getPosition();
                 glm::vec3 pos = eat->getPosition();
-                eat->setVirtualX((int)newPos.x * 32 + 16);
-                eat->setVirtualY((int)newPos.y * 32 + 16);
+                eat->x = static_cast<int>(newPos.x) * 32 + 16;
+                eat->y = static_cast<int>(newPos.y) * 32 + 16;
                 eat->setPosition({-69 + (newPos.x * 6), -69 + (newPos.y * 6), pos.z});
+                eat->setScale({0.013888889, 0.013888889, 0.013888889});
                 eat->setVisible(true);
                 break;
             } catch (const std::invalid_argument &e) {
@@ -68,28 +102,25 @@ namespace Handler {
         }
     }
 
-    glm::vec2 EatLocationHandler::getPosition() {
+    glm::vec2 EatLocationHandler::getPosition() const {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<> fields(0, 47);
 
-        random_device rd; // obtain a random number from hardware
-        mt19937 gen(rd()); // seed the generator
-        uniform_int_distribution<> fields(0, 47); // define the range
-
-        int numberX = fields(gen);
-        int numberY = fields(gen);
+        const int numberX = fields(gen);
+        const int numberY = fields(gen);
 
         // tady musim checknout, ze je to policko prazdne, jinak musim najit jine
-        glm::vec3 pos = eat->getPosition();
         if (isFieldEmpty(numberX, numberY)) {
-            glm::vec2 pos = {numberX, numberY};
-
-            return pos;
+            return {numberX, numberY};
         }
 
         throw std::invalid_argument("");
     }
 
-    void EatLocationHandler::onCheckPlaceHandler() {
-        if (!eat->isVisible() && (*snake->getItems().begin())->direction > STOP && (*snake->getItems().begin())->direction < CRASH) {
+    void EatLocationHandler::onCheckPlaceHandler() const {
+        if (!eat->isVisible() &&
+            snake->getDirection() > SnakeMeshNode3D::STOP && snake->getDirection() < SnakeMeshNode3D::CRASH) {
             rePosition();
         }
     }
@@ -97,16 +128,12 @@ namespace Handler {
     void EatLocationHandler::addTile() {
         counter++;
 
-        for(int x = 0; x < counter + 1; x++) {
-            auto tile = snake->addTile((*snake->getItems().begin())->direction);
-            if (tile != nullptr) {
-                radar->addItem(tile->tile, {0.278, 1., 0.});
-            }
+        for (int x = 0; x < counter + 1; x++) {
+            snake->addTile(snake->getDirection());
         }
     }
 
     void EatLocationHandler::onCleanHandler() {
         counter = 0;
     }
-
 } // Handler

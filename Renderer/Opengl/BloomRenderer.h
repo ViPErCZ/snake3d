@@ -4,30 +4,33 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderManager.h"
 #include "BaseRenderer.h"
-#include <glm/glm.hpp>
-#include <vector>
 
 using namespace Manager;
 using namespace std;
 
 namespace Renderer {
-    class BloomRenderer : public BaseRenderer {
+    class BloomRenderer final : public BaseRenderer {
     public:
-        explicit BloomRenderer(ResourceManager* resManager, int width, int height);
-        void beforeRender() override;
+        explicit BloomRenderer(const shared_ptr<ResourceManager> &resManager, int width, int height);
+        ~BloomRenderer() override;
+        void beforeRender(MODE mode) override;
         void afterRender() override;
-        void render() override;
+        void render3D(float dt, uint64_t frameId) override;
         void renderShadowMap() override;
+        void resize(int width, int height, const glm::mat4 &projection) override;
     protected:
         void renderQuad();
-        ResourceManager* resourceManager;
-        ShaderManager* shader;
-        ShaderManager* shaderBlur;
-        ShaderManager* shaderBloomFinal;
+        void initializeFramebuffers();
+        void destroyFramebuffers();
+        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<ShaderManager> shader;
+        shared_ptr<ShaderManager> shaderBlur;
+        shared_ptr<ShaderManager> shaderBloomFinal;
         unsigned int hdrFBO{};
         unsigned int pingpongFBO[2]{};
         unsigned int colorBuffers[2]{};
-        unsigned int pingpongColorbuffers[2]{};
+        unsigned int pingpongColorBuffers[2]{};
+        unsigned int rboDepth{};
         unsigned int quadVAO = 0;
         unsigned int quadVBO{};
         int width;

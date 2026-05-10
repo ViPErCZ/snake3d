@@ -1,42 +1,77 @@
 #include "SnakeMoveHandler.h"
 
 namespace Handler {
-    SnakeMoveHandler::SnakeMoveHandler(Snake *snake, AnimationModel* animHead) : snake(snake), animHead(animHead), eatenUpCallbackCalled(false) {
-        snakeHead = (*snake->getItems().begin());
+    SnakeMoveHandler::SnakeMoveHandler(const shared_ptr<SnakeMeshNode3D> &snake_mesh_node)
+        : snakeMeshNode(snake_mesh_node), eatenUpCallbackCalled(false) {
         stop = false;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
+        constexpr double stepsPerTile = static_cast<double>(CUBE_SIZE) / static_cast<double>(VIRTUAL_MOVE);
+        constexpr double tilesPerSecond = 3.5;
+        moveInterval = 1.0 / (tilesPerSecond * stepsPerTile);
     }
 
     SnakeMoveHandler::~SnakeMoveHandler() = default;
 
-    void SnakeMoveHandler::onEventHandler(unsigned int key) {
+    void SnakeMoveHandler::onEventHandler(const unsigned int key, int scancode, const int action, int mods, float deltaTime) {
+        if (!enabled) {
+            return;
+        }
         switch (key) {
             case GLFW_KEY_L:
             case GLFW_KEY_I:
             case GLFW_KEY_J:
             case GLFW_KEY_K:
-                if (!stop) {
-                    ChangeMove(key);
+                if (!stop && snakeMeshNode->isReady()) {
+                    changeMove(key);
                 }
                 break;
             case GLFW_KEY_SPACE:
-                StopMove();
+                stopMove();
                 break;
             default:
                 break;
         }
     }
 
-    void SnakeMoveHandler::StopMove() {
+    void SnakeMoveHandler::stopMove() {
         if (!changeCallback) {
             stop = !stop;
-            animHead->setGlobalPause(stop);
+            stopMoveCallback(stop);
         }
     }
 
-    void SnakeMoveHandler::ChangeMove(unsigned int direction) {
+    void SnakeMoveHandler::moveTile(const shared_ptr<SnakeMeshNode3D> &snakeMeshNode) {
+        glm::vec3 pos = snakeMeshNode->getPosition();
+        switch (snakeMeshNode->getDirection()) {
+            case SnakeMeshNode3D::LEFT:
+                pos.x -= UNIT_MOVE;
+                snakeMeshNode->x = snakeMeshNode->x - VIRTUAL_MOVE;
+                break;
+            case SnakeMeshNode3D::RIGHT:
+                pos.x += UNIT_MOVE;
+                snakeMeshNode->x = snakeMeshNode->x + VIRTUAL_MOVE;
+                break;
+            case SnakeMeshNode3D::UP:
+                pos.y += UNIT_MOVE;
+                snakeMeshNode->y = snakeMeshNode->y + VIRTUAL_MOVE;
+                break;
+            case SnakeMeshNode3D::DOWN:
+                pos.y -= UNIT_MOVE;
+                snakeMeshNode->y = snakeMeshNode->y - VIRTUAL_MOVE;
+                break;
+            case SnakeMeshNode3D::CRASH:
+            case SnakeMeshNode3D::PAUSE:
+            case SnakeMeshNode3D::STOP:
+            case SnakeMeshNode3D::NONE:
+                break;
+        }
+        snakeMeshNode->setPosition(pos);
+    }
 
+    void SnakeMoveHandler::changeMove(const unsigned int direction) {
         if (changeCallback ||
-            !isNewDirectionCorrect(snakeHead, direction)) {
+            !isNewDirectionCorrect(direction)) {
             return;
         }
 
@@ -44,40 +79,46 @@ namespace Handler {
     }
 
     void SnakeMoveHandler::createChangeCallback(unsigned int direction) {
-        changeCallback = [this, direction](sSNAKE_TILE *head) {
-            if (isChangeDirectionAllowed(head)) {
-
-                int x = (int) head->tile->getPosition().x - 1;
-                int y = (int) head->tile->getPosition().y - 1;
-                if (x % CUBE_SIZE == 0 && y % CUBE_SIZE == 0) {
-                    cout << "Zmena smeru povolena: " << head->tile->getPosition().x << ", " << head->tile->getPosition().y << endl;
-                }
-
-                if (head->direction == STOP && startMoveCallback) { // start hry
-                    startMoveCallback();
+        changeCallback = [this, direction](const shared_ptr<SnakeMeshNode3D> &snakeMeshNode) {
+            if (isChangeDirectionAllowed()) {
+                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::NONE && !startMoveCallbacks.empty()) {
+                    // start hry
+                    for (auto &startMoveCallback: startMoveCallbacks) {
+                        startMoveCallback();
+                    }
                 }
 
                 switch (direction) {
                     case GLFW_KEY_J: // left
-                        head->direction = ItemsDto::LEFT;
+                        snakeMeshNode->setDirection(SnakeMeshNode3D::LEFT);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(180);
                         break;
                     case GLFW_KEY_L: // right
-                        head->direction = ItemsDto::RIGHT;
+                        snakeMeshNode->setDirection(SnakeMeshNode3D::RIGHT);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(0);
                         break;
                     case GLFW_KEY_I:
-                        head->direction = UP;
+                        snakeMeshNode->setDirection(SnakeMeshNode3D::UP);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(90);
                         break;
                     case GLFW_KEY_K:
-                        head->direction = DOWN;
+                        snakeMeshNode->setDirection(SnakeMeshNode3D::DOWN);
+                        snakeMeshNode->setRotationX(90);
+                        snakeMeshNode->setRotationY(-90);
                         break;
                     default:
                         break;
                 }
 
-                for (auto Iter = snake->getItems().begin() + 1; Iter < snake->getItems().end(); Iter++) {
-                    // prvni rozbehnuti tela je vzdy vpravo, protoze na startu je hlava vpravo od tela
-                    if ((*Iter)->direction == NONE) {
-                        (*Iter)->direction = ItemsDto::RIGHT;
+                for (auto &node: snakeMeshNode->getChildren()) {
+                    // Initial body direction depends on the spawn layout.
+                    const auto snakeMesh = dynamic_pointer_cast<SnakeMeshNode3D>(node);
+                    const auto nodeDirection = snakeMesh->getDirection();
+                    if (nodeDirection == SnakeMeshNode3D::NONE) {
+                        snakeMesh->setDirection(initialBodyDirection);
                     }
                 }
 
@@ -89,120 +130,156 @@ namespace Handler {
     }
 
     void SnakeMoveHandler::onDefaultHandler() {
+        if (!enabled) {
+            lastTime = glfwGetTime();
+            return;
+        }
+
+        const double now = glfwGetTime();
+        const double deltaTime = now - lastTime;
+        lastTime = now;
+
+        if (crashLock && snakeMeshNode->isReady()) {
+            crashLock = false;
+        }
+
+        if (snakeMeshNode->isCrashing()) {
+            moveAccumulator = 0;
+            lastTime = glfwGetTime();
+            return;
+        }
+
         if (stop) {
             return;
         }
 
-        double now = glfwGetTime();
+        moveAccumulator += deltaTime;
 
-        if (now - next_time >= 0.005) {
+        while (moveAccumulator >= moveInterval) {
+            moveAccumulator -= moveInterval;
+
             if (changeCallback) {
-                if (changeCallback(snakeHead)) {
+                if (changeCallback(snakeMeshNode)) {
                     changeCallback = nullptr;
                 }
             }
 
-            if (snakeHead->direction == NONE || snakeHead->direction == STOP) {
+            if (snakeMeshNode->getDirection() == SnakeMeshNode3D::NONE || snakeMeshNode->getDirection() ==
+                SnakeMeshNode3D::STOP) {
+                moveAccumulator = 0;
                 return;
             }
 
-            bool allowed = isChangeDirectionAllowed(snakeHead);
+            const bool allowed = isChangeDirectionAllowed();
+            const auto &children = snakeMeshNode->getChildren();
 
-            for (auto Iter = snake->getItems().end() - 1; Iter >= snake->getItems().begin(); Iter--) {
-                eDIRECTION direction = (*Iter)->direction;
+            for (auto Iter = children.rbegin(); Iter != children.rend(); ++Iter) {
+                const auto &tile = dynamic_pointer_cast<SnakeMeshNode3D>(*Iter);
 
-                if (snake->getItems().begin() != Iter && allowed) {
-                    auto PrevIter = Iter - 1;
-                    direction = findDirection((*PrevIter), (*Iter));
-                    (*Iter)->direction = direction;
+                if (allowed) {
+                    tile->setDirection(findDirection(std::next(Iter).base()));
                 }
 
-                glm::vec3 pos = (*Iter)->tile->getPosition();
-                switch (direction) {
-                    case ItemsDto::LEFT:
-                        pos.x -= UNIT_MOVE;
-                        (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() - VIRTUAL_MOVE);
-                        break;
-                    case ItemsDto::RIGHT:
-                        pos.x += UNIT_MOVE;
-                        (*Iter)->tile->setVirtualX((*Iter)->tile->getVirtualX() + VIRTUAL_MOVE);
-                        break;
-                    case UP:
-                        pos.y += UNIT_MOVE;
-                        (*Iter)->tile->setVirtualY((*Iter)->tile->getVirtualY() + VIRTUAL_MOVE);
-                        break;
-                    case DOWN:
-                        pos.y -= UNIT_MOVE;
-                        (*Iter)->tile->setVirtualY((*Iter)->tile->getVirtualY() - VIRTUAL_MOVE);
-                        break;
-                    case CRASH:
-                    case PAUSE:
-                    case STOP:
-                    case NONE:
-                        break;
-                }
-                (*Iter)->tile->setPosition(pos);
-
+                moveTile(tile);
             }
-            next_time = now;
 
-            // detekujeme jen kdyz je predmet na kterem detekujeme v pohybu
-            if (snakeHead->direction > STOP && snakeHead->direction < CRASH) {
-                // pokud je hlava a pohnula se, tak checkneme zda je komplet v hraci kosticce
-                // pokud ano, tak checkneme kolizi s jidlem
-                bool allowed = isChangeDirectionAllowed(snakeHead);
-                if (allowed && collisionDetector->detectWithStaticItem(snakeHead->tile)) {
-                    cout << "Head position(eaten): " << snakeHead->tile->getPosition().x << ", " << snakeHead->tile->getPosition().y << endl;
-                    eatenUpCallback();
-                    if (snakeHead->direction == STOP) { // doslo k postupu do dalsiho level
-                        changeCallback = nullptr;
-                    }
-                }
+            moveTile(snakeMeshNode);
 
-                if (collisionDetector->perimeterDetect(snakeHead->tile)
-                    || collisionDetector->barrierCollision(snakeHead->tile)
-                    || Physic::CollisionDetector::intoHimSelf(snake)
-                ) {
-                    if (crashCallback) {
-                        crashCallback(); // doslo k narazu
+            // check only, when snake is moving
+            if (snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
+                const auto isRealSnakeCollision = [this](const shared_ptr<MeshNode3D> &body) {
+                    const auto snakeBody = dynamic_pointer_cast<SnakeMeshNode3D>(body);
+                    if (!snakeBody) {
+                        return true;
                     }
-                    changeCallback = nullptr;
+                    return snakeMeshNode->x == snakeBody->x && snakeMeshNode->y == snakeBody->y;
+                };
+
+                if (isChangeDirectionAllowed()) {
+                    for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
+                        for (const auto &body : shapeNode->getCollidingBodies()) {
+                            if (isDebug) {
+                                cout << "Had narazil do objektu: " << body->getName() << endl;
+                            }
+                            if (body->getName() == "coin") {
+                                if (eatenUpCallback) {
+                                    eatenUpCallback();
+                                }
+                                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP) { // level completed
+                                    changeCallback = nullptr;
+                                }
+                                return;
+                            }
+                            if (!isRealSnakeCollision(body)) {
+                                continue;
+                            }
+                            if (!crashLock && crashCallback) {
+                                crashLock = true;
+                                crashCallback();
+                            }
+                            return;
+                        }
+                    }
+                } else { // check death
+                    for (const auto &shapeNode: snakeMeshNode->getCollisionShapes()) {
+                        for (const auto &body : shapeNode->getCollidingBodies()) {
+                            if (body->getName() == "coin") {
+                                continue;
+                            }
+                            if (!isRealSnakeCollision(body)) {
+                                continue;
+                            }
+                            if (!crashLock && crashCallback) {
+                                if (isDebug) {
+                                    cout << "Had narazil do objektu: " << body->getName() << endl;
+                                }
+                                crashLock = true;
+                                crashCallback();
+                                return;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    bool SnakeMoveHandler::isChangeDirectionAllowed(sSNAKE_TILE *snake) {
-        int x = (int) snake->tile->getVirtualX() - 16;
-        int y = (int) snake->tile->getVirtualY() - 16;
+    bool SnakeMoveHandler::isChangeDirectionAllowed() const {
+        const int x = snakeMeshNode->x - 16;
+        const int y = snakeMeshNode->y - 16;
 
         return x % CUBE_SIZE == 0 && y % CUBE_SIZE == 0;
     }
 
-    bool SnakeMoveHandler::isNewDirectionCorrect(sSNAKE_TILE *headTile, unsigned int direction) {
-
-        if (headTile->direction == PAUSE) {
+    bool SnakeMoveHandler::isNewDirectionCorrect(const unsigned int direction) const {
+        if (snakeMeshNode->getDirection() == SnakeMeshNode3D::PAUSE) {
             return false;
         }
 
         switch (direction) {
             case GLFW_KEY_L:
-                if (headTile->direction == ItemsDto::LEFT || headTile->direction == ItemsDto::RIGHT) {
+                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::LEFT || snakeMeshNode->getDirection() ==
+                    SnakeMeshNode3D::RIGHT) {
                     return false;
                 }
                 return true;
             case GLFW_KEY_I:
-                if (headTile->direction == DOWN || headTile->direction == UP) {
+                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::DOWN || snakeMeshNode->getDirection() ==
+                    SnakeMeshNode3D::UP) {
                     return false;
                 }
                 return true;
             case GLFW_KEY_J:
-                if (headTile->direction == ItemsDto::RIGHT || headTile->direction == ItemsDto::LEFT || headTile->direction == STOP || headTile->direction == CRASH) {
+                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::RIGHT ||
+                    snakeMeshNode->getDirection() == SnakeMeshNode3D::LEFT ||
+                    snakeMeshNode->getDirection() == SnakeMeshNode3D::STOP ||
+                    snakeMeshNode->getDirection() == SnakeMeshNode3D::CRASH) {
                     return false;
                 }
                 return true;
             case GLFW_KEY_K:
-                if (headTile->direction == UP || headTile->direction == DOWN) {
+                if (snakeMeshNode->getDirection() == SnakeMeshNode3D::UP || snakeMeshNode->getDirection() ==
+                    SnakeMeshNode3D::DOWN) {
                     return false;
                 }
                 return true;
@@ -211,12 +288,12 @@ namespace Handler {
         }
     }
 
-    void SnakeMoveHandler::setCollisionDetector(CollisionDetector *collisionDetector) {
-        SnakeMoveHandler::collisionDetector = collisionDetector;
+    void SnakeMoveHandler::addStartMoveCallback(const function<void()> &startMoveCallback) {
+        startMoveCallbacks.push_back(startMoveCallback);
     }
 
-    void SnakeMoveHandler::setStartMoveCallback(const function<void(void)> &startMoveCallback) {
-        SnakeMoveHandler::startMoveCallback = startMoveCallback;
+    void SnakeMoveHandler::setStopMoveCallback(const function<void(bool stop)> &stopMoveCallback) {
+        SnakeMoveHandler::stopMoveCallback = stopMoveCallback;
     }
 
     void SnakeMoveHandler::setCrashCallback(const function<void()> &crashCallback) {
@@ -227,19 +304,56 @@ namespace Handler {
         SnakeMoveHandler::eatenUpCallback = eatenUpCallback;
     }
 
-    eDIRECTION SnakeMoveHandler::findDirection(sSNAKE_TILE* snakeTile, sSNAKE_TILE* mySelf) {
-        // najdi kosticku co je hned vedle
-        if (snakeTile->tile->getPosition().x > mySelf->tile->getPosition().x) {
-            return ItemsDto::RIGHT;
-        } else if (snakeTile->tile->getPosition().x < mySelf->tile->getPosition().x) {
-            return ItemsDto::LEFT;
-        } else if (snakeTile->tile->getPosition().y < mySelf->tile->getPosition().y) {
-            return DOWN;
-        } else if (snakeTile->tile->getPosition().y > mySelf->tile->getPosition().y) {
-            return UP;
-        }
-
-        return NONE;
+    void SnakeMoveHandler::setEnabled(const bool enabled) {
+        SnakeMoveHandler::enabled = enabled;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
     }
 
+    void SnakeMoveHandler::setStopped(const bool stopped) {
+        if (changeCallback) {
+            return;
+        }
+        if (stop == stopped) {
+            return;
+        }
+        stop = stopped;
+        stopMoveCallback(stop);
+    }
+
+    void SnakeMoveHandler::setInitialBodyDirection(const SnakeMeshNode3D::eDIRECTION direction) {
+        initialBodyDirection = direction;
+    }
+
+    void SnakeMoveHandler::resetState() {
+        changeCallback = nullptr;
+        crashLock = false;
+        stop = false;
+        eatenUpCallbackCalled = false;
+        lastTime = glfwGetTime();
+        moveAccumulator = 0.0;
+    }
+
+    template<typename Iter>
+    SnakeMeshNode3D::eDIRECTION SnakeMoveHandler::findDirection(Iter iter) const {
+        const auto &children = snakeMeshNode->getChildren();
+        const shared_ptr<SnakeMeshNode3D> tile = iter == children.begin()
+                                                     ? snakeMeshNode
+                                                     : dynamic_pointer_cast<SnakeMeshNode3D>(*(iter - 1));
+
+        if (tile->getPosition().x > iter->get()->getPosition().x) {
+            return SnakeMeshNode3D::RIGHT;
+        }
+        if (tile->getPosition().x < iter->get()->getPosition().x) {
+            return SnakeMeshNode3D::LEFT;
+        }
+        if (tile->getPosition().y < iter->get()->getPosition().y) {
+            return SnakeMeshNode3D::DOWN;
+        }
+        if (tile->getPosition().y > iter->get()->getPosition().y) {
+            return SnakeMeshNode3D::UP;
+        }
+
+        return SnakeMeshNode3D::NONE;
+    }
 } // Handler

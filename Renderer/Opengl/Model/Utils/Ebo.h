@@ -12,7 +12,7 @@ namespace ModelUtils {
     class Ebo {
     public:
         // Constructor that generates a Elements Buffer Object and links it to indices
-        explicit Ebo(vector<GLuint>& indices);
+        explicit Ebo(const vector<GLuint>& indices);
         // ID reference of Elements Buffer Object
         GLuint ID{};
         // Binds the EBO

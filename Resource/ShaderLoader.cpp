@@ -1,51 +1,156 @@
 #include "ShaderLoader.h"
+#include <iostream>
+#include <GL/glew.h>
 
 namespace Resource {
+    unsigned int ShaderLoader::loadShader(const fs::path &vertexPath) {
+        const auto vertex = loadShaderToBuffer(vertexPath);
+        const string vertexStr(vertex.vertex.begin(), vertex.vertex.end());
+
+        return compileShader(vertexStr);
+    }
+
     unsigned int ShaderLoader::loadShader(const fs::path &vertexPath, const fs::path &fragmentPath) {
-        GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-        GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+        const auto [fragment, vertex] = loadShaderToBuffer(vertexPath, fragmentPath);
+        const string vertexStr(vertex.begin(), vertex.end());
+        const string fragmentStr(fragment.begin(), fragment.end());
 
-        // Read shaders
-        string vertShaderStr = readFile(vertexPath);
-        string fragShaderStr = readFile(fragmentPath);
-        cout << fragmentPath.parent_path() << endl;
-        replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragShaderStr);
-        replaceIncludes(vertexPath.parent_path(), vertexPath, vertShaderStr);
-        const char *vertShaderSrc = vertShaderStr.c_str();
-        const char *fragShaderSrc = fragShaderStr.c_str();
+        return compileShader(vertexStr, fragmentStr);
+    }
 
-        GLint result = GL_FALSE;
-        int logLength;
+    unsigned int ShaderLoader::loadShader(const fs::path &vertexPath,
+                                          const fs::path &geometryPath,
+                                          const fs::path &fragmentPath) {
+        const fgvShader shader = loadShaderToBuffer(vertexPath, geometryPath, fragmentPath);
+        const string vertexStr(shader.vertex.begin(), shader.vertex.end());
+        const string fragmentStr(shader.fragment.begin(), shader.fragment.end());
+        const string geomStr(shader.geometry.begin(), shader.geometry.end());
+
+        return compileShader(vertexStr, fragmentStr, geomStr);
+    }
+
+    vShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath) {
+        vShader shader;
+        string vertex = readFile(vertexPath);
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertex);
+        shader.vertex.insert(shader.vertex.end(), vertex.begin(), vertex.end());
+
+        return shader;
+    }
+
+    fvShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath, const fs::path &fragmentPath) {
+        fvShader shader;
+        string vertex = readFile(vertexPath);
+        string fragment = readFile(fragmentPath);
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertex);
+        replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragment);
+        shader.vertex.insert(shader.vertex.end(), vertex.begin(), vertex.end());
+        shader.fragment.insert(shader.fragment.end(), fragment.begin(), fragment.end());
+
+        return shader;
+    }
+
+    fgvShader ShaderLoader::loadShaderToBuffer(const fs::path &vertexPath, const fs::path &geometryPath,
+        const fs::path &fragmentPath) {
+        fgvShader shader;
+        string vertex = readFile(vertexPath);
+        string fragment = readFile(fragmentPath);
+        string geom = readFile(geometryPath);
+        replaceIncludes(vertexPath.parent_path(), vertexPath, vertex);
+        replaceIncludes(fragmentPath.parent_path(), fragmentPath, fragment);
+        replaceIncludes(geometryPath.parent_path(), geometryPath, geom);
+        shader.vertex.insert(shader.vertex.end(), vertex.begin(), vertex.end());
+        shader.fragment.insert(shader.fragment.end(), fragment.begin(), fragment.end());
+        shader.geometry.insert(shader.geometry.end(), geom.begin(), geom.end());
+
+        return shader;
+    }
+
+    unsigned int ShaderLoader::bindFromBuffer(const string &vertexStr, const string &fragmentStr) {
+        return compileShader(vertexStr, fragmentStr);
+    }
+
+    unsigned int ShaderLoader::bindFromBuffer(
+        const string &vertexStr,
+        const string &geometryStr,
+        const string &fragmentStr)
+    {
+        return compileShader(vertexStr, fragmentStr, geometryStr);
+    }
+
+    void ShaderLoader::checkCompileErrors(const unsigned int shader, const string &type) {
+        GLint success;
+        GLchar infoLog[1024];
+        if (type != "PROGRAM") {
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+            if (!success) {
+                glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
+                cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog
+                        << "\n -- --------------------------------------------------- -- " << endl;
+            }
+        } else {
+            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+            if (!success) {
+                glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
+                cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog
+                        << "\n -- --------------------------------------------------- -- " << endl;
+            }
+        }
+    }
+
+    unsigned int ShaderLoader::compileShader(const string &vertexStr) {
+        const GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 
         // Compile vertex shader
-        cout << "Compiling vertex shader." << endl;
-        glShaderSource(vertShader, 1, &vertShaderSrc, nullptr);
+        const char* vertexSource = vertexStr.c_str();
+        glShaderSource(vertShader, 1, &vertexSource, nullptr);
         glCompileShader(vertShader);
         checkCompileErrors(vertShader, "VERTEX");
 
-        // Check vertex shader
-        glGetShaderiv(vertShader, GL_COMPILE_STATUS, &result);
-        glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &logLength);
+        const GLuint program = glCreateProgram();
+        glAttachShader(program, vertShader);
+
+        // Transform Feedback pro stav částic (interleaved do jednoho VBO)
+        const char* varyings[] = {
+            "outPos",
+            "outVel",
+            "outLife",
+            "outSeed"
+        };
+
+        glTransformFeedbackVaryings(program, 4, varyings, GL_INTERLEAVED_ATTRIBS);
+        glLinkProgram(program);
+
+        glLinkProgram(program);
+        checkCompileErrors(program, "PROGRAM");
+
+        glDetachShader(program, vertShader);
+        glDeleteShader(vertShader);
+
+        return program;
+    }
+
+    unsigned int ShaderLoader::compileShader(const string &vertexStr, const string &fragmentStr) {
+        const GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+        const GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+        // Compile vertex shader
+        const char* vertexSource = vertexStr.c_str();
+        glShaderSource(vertShader, 1, &vertexSource, nullptr);
+        glCompileShader(vertShader);
+        checkCompileErrors(vertShader, "VERTEX");
 
         // Compile fragment shader
-        cout << "Compiling fragment shader." << endl;
-        glShaderSource(fragShader, 1, &fragShaderSrc, nullptr);
+        const char* fragmentSource = fragmentStr.c_str();
+        glShaderSource(fragShader, 1, &fragmentSource, nullptr);
         glCompileShader(fragShader);
         checkCompileErrors(fragShader, "FRAGMENT");
 
-        // Check fragment shader
-        glGetShaderiv(fragShader, GL_COMPILE_STATUS, &result);
-        glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength);
-
-        cout << "Linking program" << endl;
-        GLuint program = glCreateProgram();
+        const GLuint program = glCreateProgram();
         glAttachShader(program, vertShader);
         glAttachShader(program, fragShader);
         glLinkProgram(program);
         checkCompileErrors(program, "PROGRAM");
-
-        glGetProgramiv(program, GL_LINK_STATUS, &result);
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 
         glDetachShader(program, vertShader);
         glDetachShader(program, fragShader);
@@ -56,24 +161,47 @@ namespace Resource {
         return program;
     }
 
-    void ShaderLoader::checkCompileErrors(unsigned int shader, const string &type) {
-        GLint success;
-        GLchar infoLog[1024];
-        if (type != "PROGRAM") {
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-            if (!success) {
-                glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-                cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog
-                     << "\n -- --------------------------------------------------- -- " << endl;
-            }
-        } else {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-            if (!success) {
-                glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-                cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog
-                     << "\n -- --------------------------------------------------- -- " << endl;
-            }
-        }
+    unsigned int ShaderLoader::compileShader(const string &vertexStr, const string &fragmentStr,
+        const string &geometryStr) {
+        const GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+        const GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+        const GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+
+        // Compile vertex shader
+        const char* vertexSource = vertexStr.c_str();
+        glShaderSource(vertShader, 1, &vertexSource, nullptr);
+        glCompileShader(vertShader);
+        checkCompileErrors(vertShader, "VERTEX");
+
+        // Compile fragment shader
+        const char* fragmentSource = fragmentStr.c_str();
+        glShaderSource(fragShader, 1, &fragmentSource, nullptr);
+        glCompileShader(fragShader);
+        checkCompileErrors(fragShader, "FRAGMENT");
+
+        // Compile fragment shader
+        const char* geometrySource = geometryStr.c_str();
+        glShaderSource(geomShader, 1, &geometrySource, nullptr);
+        glCompileShader(geomShader);
+        checkCompileErrors(geomShader, "GEOMETRY");
+
+        const GLuint program = glCreateProgram();
+        glAttachShader(program, vertShader);
+        glAttachShader(program, fragShader);
+        glAttachShader(program, geomShader);
+        glLinkProgram(program);
+        checkCompileErrors(program, "PROGRAM");
+
+        glDetachShader(program, vertShader);
+        glDetachShader(program, fragShader);
+        glDetachShader(program, geomShader);
+
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+        glDeleteShader(geomShader);
+
+        return program;
+
     }
 
     string ShaderLoader::readFile(const string &filePath) {
@@ -99,7 +227,7 @@ namespace Resource {
     void ShaderLoader::replaceIncludes(const fs::path &base_dir, const string &path, string &source) {
         try {
             resolveIncludes(base_dir, source);
-        } catch (const shader_file_not_found& not_found) {
+        } catch (const shader_file_not_found &not_found) {
             throw shader_include_not_found("Failed to resolve include for " + path + ": " + not_found.what());
         }
     }
@@ -107,7 +235,7 @@ namespace Resource {
     void ShaderLoader::resolveIncludes(const fs::path &base_dir, string &src) {
         static constexpr std::string_view include = "#include";
 
-        std::size_t found {};
+        std::size_t found{};
         while (true) {
             found = src.find(include, found);
 
@@ -115,9 +243,9 @@ namespace Resource {
                 return;
             }
 
-            size_t beg = found + include.length() + 2;
-            size_t end = src.find('"', beg);
-            size_t name_length = end - beg;
+            const size_t beg = found + include.length() + 2;
+            const size_t end = src.find('"', beg);
+            const size_t name_length = end - beg;
 
             fs::path file_name = src.substr(beg, name_length);
 
@@ -128,5 +256,4 @@ namespace Resource {
             src.replace(found, include.length() + 3 + name_length, include_src);
         }
     }
-
 } // Resource

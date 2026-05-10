@@ -1,0 +1,339 @@
+#include "StandardMaterial.h"
+
+Material::StandardMaterial::StandardMaterial(shared_ptr<ShaderManager> baseShader,
+                                             shared_ptr<ShaderManager> shadowDepthShader,
+                                             const shared_ptr<WorldEnvironment> &worldEnv)
+    : shader(std::move(baseShader)), shadowDepthShader(std::move(shadowDepthShader)), worldEnvironment(worldEnv) {
+    timer = make_shared<Timer>(true);
+};
+
+Material::StandardMaterial::~StandardMaterial() = default;
+
+std::shared_ptr<TextureManager> Material::StandardMaterial::getAlbedo() const {
+    return albedo;
+}
+
+void Material::StandardMaterial::setAlbedo(const std::shared_ptr<TextureManager> &albedo) {
+    this->albedo = albedo;
+}
+
+std::shared_ptr<TextureManager> Material::StandardMaterial::getNormal() const {
+    return normal;
+}
+
+shared_ptr<TextureManager> Material::StandardMaterial::getShadow() const {
+    return shadow;
+}
+
+void Material::StandardMaterial::setNormalEnabled(const bool normal_enabled) {
+    this->normal_enabled = normal_enabled;
+}
+
+void Material::StandardMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
+                                      const glm::mat4 &model, const bool shadows) const {
+    shader->use();
+    shader->setMat4("view", view);
+    shader->setMat4("projection", projection);
+    shader->setMat4("model", model);
+    shader->setVec3("viewPos", posView);
+    shader->setBool("useMaterial", true);
+    shader->setBool("useBones", false);
+    shader->setBool("shadowsEnable", false);
+    shader->setBool("iblEnabled", false);
+    shader->setBool("pbrEnabled", false);
+    shader->setBool("overrideColorMesh", false);
+    shader->setBool("hasAlbedoTexture", false);
+    shader->setFloat("ambientLightColorIntensity", ambientLightColorIntensity);
+    shader->setBool("fogEnable", false);
+    shader->setVec2("uvScale", UVScale);
+    shader->setVec2("uvOffset", UVOffset);
+    shader->setInt("material.ambient", 0);
+    shader->setInt("material.diffuse", 1);
+    shader->setInt("material.specular", 2);
+    shader->setInt("shadowMap", 3);
+    shader->setInt("metalness", 4);
+    shader->setInt("roughness", 5);
+    shader->setInt("environmentMap", 6);
+    shader->setInt("aoMap", 7);
+    shader->setFloat("alpha", alpha);
+    shader->setBool("reflectionEnable", false);
+    shader->setFloat("uTime", static_cast<float>(timer->getNow()));
+
+    if (shadowsEnabled && shadows) {
+        shader->setBool("shadowsEnable", true);
+        if (shadow && shadow->hasTexture()) {
+            shadow->bindArr(3, 0);
+        }
+    }
+
+    if (worldEnvironment) {
+        if (worldEnvironment->getEnvironment()) {
+            shader->setVec3("ambientLightColor", worldEnvironment->getEnvironment()->getAmbientLight().color);
+            shader->setFloat("ambientLightColorIntensity",
+                             worldEnvironment->getEnvironment()->getAmbientLight().intensity);
+        } else if (color) {
+            shader->setVec3("ambientLightColor", *color.get());
+            shader->setBool("overrideColorMesh", true);
+        }
+    } else if (color) {
+        shader->setVec3("ambientLightColor", *color.get());
+        shader->setBool("overrideColorMesh", true);
+    } else {
+        shader->setVec3("ambientLightColor", {1.0f, 1.0f, 1.0f});
+    }
+
+    shader->setFloat("material.shininess", shininess);
+
+    // DIRECTIONAL LIGHT
+    // --------------------------------
+    if (directionalLight) {
+        directionalLight->bind(shader.get());
+        shader->setBool("directionLightEnable", true);
+    } else {
+        shader->setBool("directionLightEnable", false);
+        shader->setVec3("lightPos", {0, 0, 0});
+    }
+
+    // POINT LIGHT
+    // --------------------------------
+    int index = 0;
+    for (const auto &pointLight: pointLights) {
+        if (pointLight->isVisible()) {
+            pointLight->bind(shader.get(), index);
+            index++;
+        }
+    }
+    shader->setInt("numPointLights", index);
+    // --------------------------------
+    // END POINT LIGHT
+
+    // SPOT LIGHT
+    // --------------------------------
+    index = 0;
+    for (const auto &spotLight: spotLights) {
+        if (spotLight->isVisible()) {
+            spotLight->bind(shader.get(), index);
+            index++;
+        }
+    }
+    shader->setInt("numSpotLights", index);
+    // -----------------------------------------------
+    // END SPOT LIGHT
+
+    if (albedo && albedo->hasTexture()) {
+        shader->setBool("useMaterial", false);
+        shader->setBool("hasAlbedoTexture", true);
+        albedo->bind(0);
+    } else {
+        shader->setBool("useMaterial", true);
+    }
+    const bool shaderNormal = normal_enabled && normal && normal->hasTexture();
+    shader->setBool("normalMapEnabled", shaderNormal);
+    if (shaderNormal) {
+        normal->bind(1);
+    }
+
+    if (specular && specular->hasTexture()) {
+        specular->bind(2);
+        shader->setBool("specularMapEnabled", true);
+    } else {
+        shader->setBool("specularMapEnabled", false);
+    }
+
+    if (metalness && metalness->hasTexture()) {
+        shader->setInt("metalness", 4);
+        shader->setBool("pbrEnabled", true);
+        metalness->bind(4);
+    }
+
+    if (roughness && roughness->hasTexture()) {
+        shader->setInt("roughness", 5);
+        shader->setBool("pbrEnabled", true);
+        roughness->bind(5);
+    }
+
+    if (aoMap && aoMap->hasTexture()) {
+        shader->setInt("aoMap", 7);
+        aoMap->bind(7);
+    }
+
+    if (environmentMap && environmentMap->hasTexture()) {
+        shader->setBool("iblEnabled", true);
+        environmentMap->cubeBind(6);
+    }
+
+    timer->update();
+}
+
+void Material::StandardMaterial::bindShadow(const glm::mat4 &model) const {
+    shadowDepthShader->use();
+    shadowDepthShader->setMat4("model", model);
+}
+
+void Material::StandardMaterial::unbind() const {
+    if (albedo) {
+        albedo->unbind(0);
+    }
+    if (normal_enabled) {
+        normal->unbind(1);
+    }
+    if (specular) {
+        specular->unbind(2);
+    }
+    if (shadow) {
+        shadow->unbind(3);
+    }
+    if (metalness) {
+        metalness->unbind(4);
+    }
+    if (roughness) {
+        roughness->unbind(5);
+    }
+    if (environmentMap) {
+        environmentMap->unbind(6);
+    }
+    if (aoMap) {
+        aoMap->unbind(7);
+    }
+}
+
+glm::vec3 Material::StandardMaterial::getColor() const {
+    return *color.get();
+}
+
+bool Material::StandardMaterial::hasColor() const {
+    return color != nullptr;
+}
+
+void Material::StandardMaterial::setColor(const glm::vec3 &color) {
+    this->color = make_shared<glm::vec3>(color);
+}
+
+bool Material::StandardMaterial::isShadowEnabled() const {
+    return shadowsEnabled;
+}
+
+void Material::StandardMaterial::setShadow(const bool shadow_enabled) {
+    shadowsEnabled = shadow_enabled;
+}
+
+void Material::StandardMaterial::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
+    directionalLight = directional_light;
+}
+
+void Material::StandardMaterial::addSpotLight(const shared_ptr<SpotLight> &spot_light) {
+    spotLights.push_back(spot_light);
+}
+
+void Material::StandardMaterial::addPointLight(const shared_ptr<PointLight> &point_light) {
+    pointLights.push_back(point_light);
+}
+
+void Material::StandardMaterial::setSpotLights(const vector<shared_ptr<SpotLight>> &spotLights) {
+    this->spotLights = spotLights;
+}
+
+void Material::StandardMaterial::setPointLights(const vector<shared_ptr<PointLight>> &pointLights) {
+    this->pointLights = pointLights;
+}
+
+void Material::StandardMaterial::setShininess(const float shininess) {
+    this->shininess = shininess;
+}
+
+shared_ptr<TextureManager> Material::StandardMaterial::getRoughness() const {
+    return roughness;
+}
+
+void Material::StandardMaterial::setRoughness(const shared_ptr<TextureManager> &roughness) {
+    this->roughness = roughness;
+}
+
+void Material::StandardMaterial::setAlpha(const float alpha) {
+    this->alpha = alpha;
+}
+
+shared_ptr<TextureManager> Material::StandardMaterial::getMetalness() const {
+    return metalness;
+}
+
+void Material::StandardMaterial::setMetalness(const shared_ptr<TextureManager> &metalness) {
+    this->metalness = metalness;
+}
+
+void Material::StandardMaterial::setEnvironmentMap(const shared_ptr<TextureManager> &environment_map) {
+    environmentMap = environment_map;
+}
+
+void Material::StandardMaterial::setAoMap(const shared_ptr<TextureManager> &ao_map) {
+    aoMap = ao_map;
+}
+
+void Material::StandardMaterial::set_uv_scale(const glm::vec2 &uv_scale) {
+    UVScale = uv_scale;
+}
+
+void Material::StandardMaterial::set_uv_offset(const glm::vec2 &uv_offset) {
+    UVOffset = uv_offset;
+}
+
+void Material::StandardMaterial::setAmbientLightColorIntensity(const float intensity) {
+    ambientLightColorIntensity = intensity;
+}
+
+std::shared_ptr<Material::BaseMaterial> Material::StandardMaterial::clone() const {
+    auto copy = std::make_shared<StandardMaterial>(*this);
+
+    if (albedo) copy->albedo = std::make_shared<TextureManager>(*albedo);
+    if (normal) copy->normal = std::make_shared<TextureManager>(*normal);
+    if (specular) copy->specular = std::make_shared<TextureManager>(*specular);
+    if (roughness) copy->roughness = std::make_shared<TextureManager>(*roughness);
+    if (metalness) copy->metalness = std::make_shared<TextureManager>(*metalness);
+    if (shadow) copy->shadow = std::make_shared<TextureManager>(*shadow);
+    if (aoMap) copy->aoMap = std::make_shared<TextureManager>(*aoMap);
+    if (environmentMap) copy->environmentMap = std::make_shared<TextureManager>(*environmentMap);
+
+    copy->directionalLight = directionalLight;
+    copy->spotLights = spotLights;
+    copy->pointLights = pointLights;
+    copy->worldEnvironment = worldEnvironment;
+    copy->shader = shader;
+    copy->shadowDepthShader = shadowDepthShader;
+
+    if (color) copy->color = std::make_shared<glm::vec3>(*color);
+
+    return copy;
+}
+
+void Material::StandardMaterial::bindUseBones(const bool useBones) const {
+    shader->setBool("useBones", useBones);
+}
+
+void Material::StandardMaterial::bindBonesMatrices(const int index, const glm::mat4 &matrice) const {
+    shader->setMat4("finalBonesMatrices[" + std::to_string(index) + "]", matrice);
+}
+
+void Material::StandardMaterial::bindModel(const glm::mat4 &model) const {
+    shader->setMat4("model", model);
+}
+
+void Material::StandardMaterial::bindShadowModel(const glm::mat4 &model) const {
+    shadowDepthShader->setMat4("model", model);
+}
+
+void Material::StandardMaterial::setNormal(const std::shared_ptr<TextureManager> &normal) {
+    this->normal = normal;
+}
+
+std::shared_ptr<TextureManager> Material::StandardMaterial::getSpecular() const {
+    return specular;
+}
+
+void Material::StandardMaterial::setSpecular(const std::shared_ptr<TextureManager> &specular) {
+    this->specular = specular;
+}
+
+void Material::StandardMaterial::setShadow(const std::shared_ptr<TextureManager> &shadow) {
+    this->shadow = shadow;
+    this->shadowsEnabled = true;
+}
