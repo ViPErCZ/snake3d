@@ -5,7 +5,12 @@
 #define VIRTUAL_MOVE 2 // kvuli nepresnosti float cislum pocitame virtualne v integer formatu
 #define CUBE_SIZE 32
 
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
 #include "BaseKeydownHandle.h"
+#include "../Physic/Jump/JumpTrajectory.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
 using namespace Model;
@@ -29,6 +34,7 @@ namespace Handler {
         [[nodiscard]] bool isEnabled() const { return enabled; }
         [[nodiscard]] bool isStopped() const { return stop; }
         void stopMove();
+        void tryStartJump();
 
     protected:
         void changeMove(unsigned int direction);
@@ -38,6 +44,11 @@ namespace Handler {
         void createChangeCallback(unsigned int direction);
         [[nodiscard]] bool isChangeDirectionAllowed() const;
         [[nodiscard]] bool isNewDirectionCorrect(unsigned int direction) const;
+        void startHeadJump();
+        void claimBodyJumps();
+        void advanceAllJumps(double dt);
+        void clearAllJumps();
+        [[nodiscard]] bool isHeadAirborne() const;
         shared_ptr<SnakeMeshNode3D> snakeMeshNode;
         double lastTime{};
         double moveAccumulator{};
@@ -52,6 +63,20 @@ namespace Handler {
         std::function<void(bool stop)> stopMoveCallback;
         std::function<void()> crashCallback;
         std::function<void()> eatenUpCallback;
+        struct TileJumpState {
+            std::shared_ptr<Physic::Jump::JumpTrajectory> trajectory;
+            double elapsed;
+            float groundZ;
+        };
+        struct PendingTakeoff {
+            int virtualX;
+            int virtualY;
+            int tilesRemaining;
+            std::shared_ptr<Physic::Jump::JumpTrajectory> trajectory;
+        };
+        std::unordered_map<SnakeMeshNode3D *, TileJumpState> activeJumps;
+        std::vector<PendingTakeoff> pendingTakeoffs;
+        bool jumpRequested = false;
     };
 } // Manager
 

@@ -235,6 +235,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Physic/CollisionCheck.cpp
         Physic/Algorithms/CollisionAlgorithms.cpp
         Physic/Algorithms/CollisionAlgorithms.h
+        Physic/Jump/JumpTrajectory.cpp
+        Physic/Jump/JumpTrajectory.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp
@@ -517,6 +519,8 @@ set(APP_SOURCES
         Physic/CollisionCheck.cpp
         Physic/Algorithms/CollisionAlgorithms.cpp
         Physic/Algorithms/CollisionAlgorithms.h
+        Physic/Jump/JumpTrajectory.cpp
+        Physic/Jump/JumpTrajectory.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp
@@ -745,6 +749,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Physic/CollisionCheck.cpp
         Physic/Algorithms/CollisionAlgorithms.cpp
         Physic/Algorithms/CollisionAlgorithms.h
+        Physic/Jump/JumpTrajectory.cpp
+        Physic/Jump/JumpTrajectory.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp

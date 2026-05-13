@@ -26,8 +26,13 @@ namespace Handler {
                     changeMove(key);
                 }
                 break;
-            case GLFW_KEY_SPACE:
+            case GLFW_KEY_PAUSE:
                 stopMove();
+                break;
+            case GLFW_KEY_SPACE:
+                if (!stop && snakeMeshNode->isReady()) {
+                    tryStartJump();
+                }
                 break;
             default:
                 break;
@@ -39,6 +44,119 @@ namespace Handler {
             stop = !stop;
             stopMoveCallback(stop);
         }
+    }
+
+    void SnakeMoveHandler::tryStartJump() {
+        if (jumpRequested || isHeadAirborne()) {
+            return;
+        }
+        const auto dir = snakeMeshNode->getDirection();
+        if (dir != SnakeMeshNode3D::LEFT && dir != SnakeMeshNode3D::RIGHT &&
+            dir != SnakeMeshNode3D::UP && dir != SnakeMeshNode3D::DOWN) {
+            return;
+        }
+        // Fires once the head reaches the next cell center - same gate as direction change.
+        jumpRequested = true;
+    }
+
+    bool SnakeMoveHandler::isHeadAirborne() const {
+        return activeJumps.find(snakeMeshNode.get()) != activeJumps.end();
+    }
+
+    void SnakeMoveHandler::startHeadJump() {
+        glm::vec3 directionVector(0.0f);
+        switch (snakeMeshNode->getDirection()) {
+            case SnakeMeshNode3D::LEFT:  directionVector = {-1.0f, 0.0f, 0.0f}; break;
+            case SnakeMeshNode3D::RIGHT: directionVector = { 1.0f, 0.0f, 0.0f}; break;
+            case SnakeMeshNode3D::UP:    directionVector = { 0.0f, 1.0f, 0.0f}; break;
+            case SnakeMeshNode3D::DOWN:  directionVector = { 0.0f,-1.0f, 0.0f}; break;
+            default:
+                jumpRequested = false;
+                return;
+        }
+        constexpr float tileWorldUnits = static_cast<float>(CUBE_SIZE) * static_cast<float>(UNIT_MOVE)
+                                         / static_cast<float>(VIRTUAL_MOVE);
+        // Skip one cell: peak above the next cell center, land at the cell after.
+        constexpr float distance = 2.0f * tileWorldUnits;
+        constexpr float peakHeight = 1.5f * tileWorldUnits;
+        constexpr double stepsPerTile = static_cast<double>(CUBE_SIZE) / static_cast<double>(VIRTUAL_MOVE);
+        const auto duration = static_cast<float>(2.0 * stepsPerTile * moveInterval);
+
+        const auto headPos = snakeMeshNode->getPosition();
+        const glm::vec3 endPos = headPos + directionVector * distance;
+        auto trajectory = std::make_shared<Physic::Jump::JumpTrajectory>(headPos, endPos, duration, peakHeight);
+
+        // Body tiles will claim a slot as they each visit this exact cell.
+        PendingTakeoff event{};
+        event.virtualX = snakeMeshNode->x;
+        event.virtualY = snakeMeshNode->y;
+        event.tilesRemaining = static_cast<int>(snakeMeshNode->getChildren().size());
+        event.trajectory = trajectory;
+        if (event.tilesRemaining > 0) {
+            pendingTakeoffs.push_back(event);
+        }
+
+        activeJumps[snakeMeshNode.get()] = TileJumpState{trajectory, 0.0, headPos.z};
+        jumpRequested = false;
+    }
+
+    void SnakeMoveHandler::claimBodyJumps() {
+        if (pendingTakeoffs.empty()) {
+            return;
+        }
+        for (const auto &child : snakeMeshNode->getChildren()) {
+            const auto bodyTile = dynamic_pointer_cast<SnakeMeshNode3D>(child);
+            if (!bodyTile) {
+                continue;
+            }
+            if (activeJumps.find(bodyTile.get()) != activeJumps.end()) {
+                continue; // already arcing
+            }
+            // First pending event matching this tile's exact cell wins (FIFO).
+            for (auto it = pendingTakeoffs.begin(); it != pendingTakeoffs.end(); ++it) {
+                if (it->tilesRemaining <= 0) {
+                    continue;
+                }
+                if (bodyTile->x == it->virtualX && bodyTile->y == it->virtualY) {
+                    activeJumps[bodyTile.get()] = TileJumpState{it->trajectory, 0.0, bodyTile->getPosition().z};
+                    it->tilesRemaining -= 1;
+                    break;
+                }
+            }
+        }
+        std::erase_if(pendingTakeoffs, [](const PendingTakeoff &e) { return e.tilesRemaining <= 0; });
+    }
+
+    void SnakeMoveHandler::advanceAllJumps(const double dt) {
+        for (auto it = activeJumps.begin(); it != activeJumps.end();) {
+            auto *tile = it->first;
+            auto &state = it->second;
+            state.elapsed += dt;
+            const auto t = static_cast<float>(state.elapsed);
+            const auto trajPos = state.trajectory->positionAt(t);
+            // Only the vertical (up) axis is overridden; horizontal motion stays driven by moveTile.
+            auto pos = tile->getPosition();
+            pos.z = state.groundZ + (trajPos.z - state.trajectory->positionAt(0.0f).z);
+            tile->setPosition(pos);
+            if (state.trajectory->isFinished(t)) {
+                pos.z = state.groundZ;
+                tile->setPosition(pos);
+                it = activeJumps.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    void SnakeMoveHandler::clearAllJumps() {
+        for (auto &[tile, state] : activeJumps) {
+            auto pos = tile->getPosition();
+            pos.z = state.groundZ;
+            tile->setPosition(pos);
+        }
+        activeJumps.clear();
+        pendingTakeoffs.clear();
+        jumpRequested = false;
     }
 
     void SnakeMoveHandler::moveTile(const shared_ptr<SnakeMeshNode3D> &snakeMeshNode) {
@@ -71,6 +189,7 @@ namespace Handler {
 
     void SnakeMoveHandler::changeMove(const unsigned int direction) {
         if (changeCallback ||
+            isHeadAirborne() ||
             !isNewDirectionCorrect(direction)) {
             return;
         }
@@ -146,6 +265,7 @@ namespace Handler {
         if (snakeMeshNode->isCrashing()) {
             moveAccumulator = 0;
             lastTime = glfwGetTime();
+            clearAllJumps();
             return;
         }
 
@@ -183,7 +303,14 @@ namespace Handler {
                 moveTile(tile);
             }
 
+            if (allowed && jumpRequested && !isHeadAirborne()) {
+                startHeadJump();
+            }
+
             moveTile(snakeMeshNode);
+
+            claimBodyJumps();
+            advanceAllJumps(moveInterval);
 
             // check only, when snake is moving
             if (snakeMeshNode->getDirection() > SnakeMeshNode3D::STOP && snakeMeshNode->getDirection() < SnakeMeshNode3D::CRASH) {
@@ -332,6 +459,7 @@ namespace Handler {
         eatenUpCallbackCalled = false;
         lastTime = glfwGetTime();
         moveAccumulator = 0.0;
+        clearAllJumps();
     }
 
     template<typename Iter>
