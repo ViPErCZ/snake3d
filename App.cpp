@@ -108,13 +108,16 @@ void App::Init() {
                 "Assets/Shaders/shadow_map_depth.fs"
             ))
     );
+    // B3a: basicShader je legacy materiál - kompiluje basic.fs se VŠEMI
+    // features aktivními, takže nový `#ifdef FEATURE_*` blok se chová jako
+    // dříve. Až materiály v B5+ začnou kompilovat skrze registry s
+    // upraveným feature mask, tahle paralelní cesta zmizí.
+    constexpr ShaderFeatureMask legacyBasicFeatures =
+        ShaderFeature::PBR | ShaderFeature::NormalMap | ShaderFeature::Shadows |
+        ShaderFeature::DirectionalLight | ShaderFeature::Fog | ShaderFeature::IBL;
     resourceManager->addShader(
         "basicShader",
-        std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader(
-                "Assets/Shaders/basic.vs",
-                "Assets/Shaders/basic.fs"
-            ))
+        shaderRegistry->get({"basicShader", legacyBasicFeatures})
     );
     resourceManager->addShader(
         "planeShader",

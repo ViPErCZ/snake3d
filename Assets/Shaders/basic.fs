@@ -55,11 +55,13 @@ void main()
     float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).g : 0.5;
     vec3 F0 = vec3(0.04);
 
+#ifdef FEATURE_PBR
     if (pbrEnabled) {
         roughness = clamp(roughness, 0.05, 1.0);
         metalness = clamp(metalness, 0.0, 1.0);
         F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
     }
+#endif
 
     vec2 rippleOffset = vec2(0.0);
     if (rainDropEnable) {
@@ -68,6 +70,7 @@ void main()
     }
 
     vec3 normal = Normal;
+#ifdef FEATURE_NORMAL_MAP
     if (normalMapEnabled) {
         vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
         tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
@@ -79,7 +82,9 @@ void main()
         }
 
         normal = TBN * tangentNormal;
-    } else if (rainDropEnable) {
+    }
+#endif
+    if (!normalMapEnabled && rainDropEnable) {
         // Pokud není normal mapa, vytvoříme normálu jen z vlnek
         normal = normalize(TBN * vec3(rippleOffset, 1.0));
     }
@@ -88,6 +93,7 @@ void main()
     vec3 viewDir = normalize(camPos - fragPos);
     vec3 ambient = vec3(0.0);
 
+#ifdef FEATURE_PBR
     if (pbrEnabled) {
         // A) PBR Ambient (IBL)
         vec3 kS = fresnelSchlick(max(dot(normal, viewDir), 0.0), F0);
@@ -97,12 +103,15 @@ void main()
         vec3 irradiance = vec3(0.03);
         vec3 reflections = vec3(0.0);
 
+    #ifdef FEATURE_IBL
         if (iblEnabled) {
             irradiance = CalcIBLDiffuse(normal);
             vec3 R = reflect(-viewDir, normal);
             reflections = CalcIBLSpecular(R, roughness, F0) * kS;
-        } else {
-             irradiance = ambientLightColor * 0.1;
+        }
+    #endif
+        if (!iblEnabled) {
+            irradiance = ambientLightColor * 0.1;
         }
 
         vec3 diffusePart = irradiance * albedoTexture.rgb;
@@ -113,39 +122,49 @@ void main()
 
         // Výsledný ambient scény
         ambient = (kD * diffusePart + reflections) * ao * ambientLightColorIntensity;
-
-    } else {
+    }
+#endif
+    if (!pbrEnabled) {
         vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
         ambient = useMaterial ? color : ambientLightColor * ambientLightColorIntensity * color;
     }
 
     vec3 final = ambient;
 
+#ifdef FEATURE_DIRECTIONAL_LIGHT
     if (directionLightEnable) {
+    #ifdef FEATURE_PBR
         if (pbrEnabled) {
             final += CalcDirLightPBR(dirLight, normal, fragPos, viewDir, ambient, roughness, metalness, F0);
-        } else {
+        }
+    #endif
+        if (!pbrEnabled) {
+    #ifdef FEATURE_SHADOWS
             if (shadowsEnable) {
                 vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
                 float viewDepth = -fragPosView.z;
                 vec3 shadowNormal = normalMapEnabled ? Normal : worldNormal;
                 shadow = ShadowBlended(fragPos, shadowNormal, -dirLight.direction, viewDepth);
             }
-
+    #endif
             final = CalcDirLight(dirLight, normal, viewDir, ambient, shadow);
         }
     }
+#endif
 
     vec3 lightAlbedo = vec3(texture(material.ambient, TexCoords));
     vec3 lightSpecular = vec3(texture(material.specular, TexCoords));
 
+#ifdef FEATURE_PBR
     if (pbrEnabled) {
         for(int i = 0; i < numPointLights; i++)
         {
             final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir,
                                  ambient, roughness, metalness, F0);
         }
-    } else {
+    }
+#endif
+    if (!pbrEnabled) {
         for(int i = 0; i < numPointLights; i++)
         {
             final += CalcPointLight(pointLight[i], normal, fragPos, viewDir, ambient, lightAlbedo, lightSpecular);
@@ -157,11 +176,14 @@ void main()
        final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
     }
 
+#ifdef FEATURE_FOG
     if (fogEnable) {
        float d = distance(viewPos, fragPos);
        float alpha = getFogFactor(d);
        FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
-    } else {
+    }
+#endif
+    if (!fogEnable) {
        FragColor = alphaBlending(pow(final, vec3(1.0/2.2)));
     }
 
