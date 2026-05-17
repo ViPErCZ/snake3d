@@ -307,6 +307,11 @@ endif()
 
 target_compile_definitions(Snake3 PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
+# Ensure `cmake --build --target Snake3` triggers the copy_assets target.
+# Without this, only `cmake --build` (which builds ALL) copies updated
+# assets to the build dir, and partial rebuilds run with stale shaders.
+add_dependencies(Snake3 copy_assets)
+
 file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
 ### TESTING #################################################
