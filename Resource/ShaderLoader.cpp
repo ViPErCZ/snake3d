@@ -68,6 +68,12 @@ namespace Resource {
         return shader;
     }
 
+    string ShaderLoader::loadShaderSource(const fs::path &path) {
+        string source = readFile(path);
+        replaceIncludes(path.parent_path(), path, source);
+        return source;
+    }
+
     unsigned int ShaderLoader::bindFromBuffer(const string &vertexStr, const string &fragmentStr) {
         return compileShader(vertexStr, fragmentStr);
     }

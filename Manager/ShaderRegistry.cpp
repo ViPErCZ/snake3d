@@ -37,24 +37,32 @@ namespace Manager {
             return cached->second;
         }
 
-        // B1 fáze: features != 0 ještě nemá kdo by je realizoval (v shaderech
-        // nejsou #ifdef bloky). Assert nás zachytí pokud něco volá features
-        // before B3 landne.
-        assert(handle.features == 0 && "ShaderFeature support arrives in B3 - feature mask must be 0 for now");
-
-        // Načtení + preprocess + kompilace. Master volíme podle existujících
-        // stage paths.
+        // B2: features se injektují jako `#define FEATURE_*` přes preprocessor.
+        // V B2 fázi `basic.fs` ještě nemá odpovídající `#ifdef` bloky, takže
+        // features != 0 zatím nemění funkci shaderu - jen ověřuje že cache klíč
+        // a injekce fungují. `#ifdef` bloky přidá B3.
         const Master& m = it->second;
+        const auto defines = definesForMask(handle.features);
+
         GLuint programId = 0;
 
         if (!m.fragmentPath.has_value()) {
-            // Vertex-only shader (transform feedback path v ShaderLoaderu).
+            // Vertex-only (transform feedback). Žádný preprocess - features na
+            // particle update shadery nejsou aplikovatelné.
             programId = Resource::ShaderLoader::loadShader(m.vertexPath);
-        } else if (m.geometryPath.has_value()) {
-            programId = Resource::ShaderLoader::loadShader(
-                m.vertexPath, *m.geometryPath, *m.fragmentPath);
         } else {
-            programId = Resource::ShaderLoader::loadShader(m.vertexPath, *m.fragmentPath);
+            std::string vsSrc = Resource::ShaderLoader::loadShaderSource(m.vertexPath);
+            std::string fsSrc = Resource::ShaderLoader::loadShaderSource(*m.fragmentPath);
+            vsSrc = Resource::ShaderPreprocessor::injectDefines(vsSrc, defines);
+            fsSrc = Resource::ShaderPreprocessor::injectDefines(fsSrc, defines);
+
+            if (m.geometryPath.has_value()) {
+                std::string gsSrc = Resource::ShaderLoader::loadShaderSource(*m.geometryPath);
+                gsSrc = Resource::ShaderPreprocessor::injectDefines(gsSrc, defines);
+                programId = Resource::ShaderLoader::bindFromBuffer(vsSrc, gsSrc, fsSrc);
+            } else {
+                programId = Resource::ShaderLoader::bindFromBuffer(vsSrc, fsSrc);
+            }
         }
 
         auto program = std::make_shared<ShaderManager>(programId);

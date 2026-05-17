@@ -44,6 +44,11 @@ namespace Resource {
         static fgvShader loadShaderToBuffer(const fs::path& vertexPath,
                                                         const fs::path& geometryPath,
                                                         const fs::path& fragmentPath);
+
+        // Načte zdroj a vyresolveuje `#include` direktivy. Bez kompilace.
+        // Použití: ShaderRegistry potřebuje string před `injectDefines`.
+        static string loadShaderSource(const fs::path& path);
+
         static unsigned int bindFromBuffer(const string& vertexStr, const string& fragmentStr);
         static unsigned int bindFromBuffer(const string& vertexStr, const string& geometryStr, const string& fragmentStr);
     protected:

@@ -195,6 +195,32 @@ void App::Init() {
             ))
     );
 
+#ifdef IS_DEBUG
+    // B2 smoke test: ověř že registry zkompiluje shader, cachuje, a že
+    // permutation klíč rozlišuje různé feature masky. Zkompiluje basicShader
+    // dvakrát navíc (0 + PBR|Shadows) - dočasné, padne v B6 kdy registry
+    // převezme roli single source of truth a addShader cesta zmizí.
+    {
+        const auto p0a = shaderRegistry->get({"basicShader", 0});
+        const auto p0b = shaderRegistry->get({"basicShader", 0});
+        if (!p0a || p0a != p0b) {
+            std::cerr << "[ShaderRegistry] smoke test FAIL - basicShader|0 cache miss\n";
+        } else {
+            std::cout << "[ShaderRegistry] basicShader|0 ok (id=" << p0a->getId() << ")\n";
+        }
+
+        const ShaderFeatureMask mask = ShaderFeature::PBR | ShaderFeature::Shadows;
+        const auto pMasked = shaderRegistry->get({"basicShader", mask});
+        if (!pMasked) {
+            std::cerr << "[ShaderRegistry] smoke test FAIL - basicShader|PBR|Shadows compile failed\n";
+        } else if (pMasked == p0a) {
+            std::cerr << "[ShaderRegistry] smoke test FAIL - permutation cache collision\n";
+        } else {
+            std::cout << "[ShaderRegistry] basicShader|PBR|Shadows ok (id=" << pMasked->getId() << ")\n";
+        }
+    }
+#endif
+
     rendererManager->initBloom();
     rendererManager->initShadowMapping();
     rendererManager->initReflection();
