@@ -78,6 +78,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
         Renderer/Opengl/Material/PlanarReflectionMaterial.h
+        Renderer/Opengl/Material/PlaneMaterial.cpp
+        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -237,6 +239,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/Jump/JumpTrajectory.cpp
         Physic/Jump/JumpTrajectory.h
+        Physic/Dynamics/DynamicBody.cpp
+        Physic/Dynamics/DynamicBody.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp
@@ -368,6 +372,8 @@ set(APP_SOURCES
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
         Renderer/Opengl/Material/PlanarReflectionMaterial.h
+        Renderer/Opengl/Material/PlaneMaterial.cpp
+        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -521,6 +527,8 @@ set(APP_SOURCES
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/Jump/JumpTrajectory.cpp
         Physic/Jump/JumpTrajectory.h
+        Physic/Dynamics/DynamicBody.cpp
+        Physic/Dynamics/DynamicBody.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp
@@ -587,6 +595,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/PlanarReflectionRenderer.h
         Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
         Renderer/Opengl/Material/PlanarReflectionMaterial.h
+        Renderer/Opengl/Material/PlaneMaterial.cpp
+        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Model/Standard/BoxMesh.cpp
         Renderer/Opengl/Model/Standard/BoxMesh.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp
@@ -751,6 +761,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Physic/Algorithms/CollisionAlgorithms.h
         Physic/Jump/JumpTrajectory.cpp
         Physic/Jump/JumpTrajectory.h
+        Physic/Dynamics/DynamicBody.cpp
+        Physic/Dynamics/DynamicBody.h
         Physic/SphereShape.cpp
         Physic/SphereShape.h
         Physic/CapsuleShape.cpp

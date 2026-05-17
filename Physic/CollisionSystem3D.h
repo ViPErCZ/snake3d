@@ -3,25 +3,57 @@
 
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include "Dynamics/DynamicBody.h"
 #include <vector>
 
 using namespace Model;
 using namespace CollisionShape;
+using namespace Dynamics;
 
 namespace Physic {
     struct CollisionEntry {
         shared_ptr<CollisionShape3D> shapeNode;
         shared_ptr<MeshNode3D> parentObject;
+        // Static entries (floor cells, level walls) never move - they skip
+        // pair-tests against each other and reuse their world AABB across frames.
+        bool isStatic = false;
+        mutable bool aabbCached = false;
+        mutable AABB cachedAABB{};
+    };
+
+    struct DynamicBodyEntry {
+        shared_ptr<MeshNode3D> node;
+        shared_ptr<DynamicBody> body;
+        // Cached at the start of each step() so resolveTopContact can tell whether
+        // we just landed on a surface from above (vs penetrating it sideways).
+        float previousBottomZ = 0.0f;
     };
 
     class CollisionSystem3D {
         std::vector<shared_ptr<MeshNode3D> > colliders;
         std::vector<CollisionEntry> flatEntries;
+        std::vector<DynamicBodyEntry> dynamicBodies;
+        glm::vec3 worldGravity{0.0f, 0.0f, -9.81f};
     public:
-        void addCollider(const shared_ptr<MeshNode3D> &collider);
+        void addCollider(const shared_ptr<MeshNode3D> &collider, bool isStatic = false);
         void update() const;
         void removeCollider(const std::shared_ptr<MeshNode3D> &collider);
         void clearColliders();
+
+        void addDynamicBody(const shared_ptr<MeshNode3D> &node,
+                            const shared_ptr<DynamicBody> &body);
+        void removeDynamicBody(const shared_ptr<MeshNode3D> &node);
+        void clearDynamicBodies();
+
+        void setWorldGravity(const glm::vec3 &g) { worldGravity = g; }
+        [[nodiscard]] const glm::vec3 &getWorldGravity() const { return worldGravity; }
+
+        // One physics tick. Order: snapshot pre-state -> integrate enabled bodies ->
+        // run broad/narrow phase (update()) -> resolve "landing from above" contacts.
+        // Safe to call with no dynamic bodies registered (degenerates to plain update()).
+        void step(float dt);
+    private:
+        static void resolveTopContact(const DynamicBodyEntry &entry) ;
     };
 } // Physic
 

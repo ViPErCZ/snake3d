@@ -71,6 +71,11 @@ namespace Handler {
         }
 
         for (auto Iter = barriers->getChildren().begin(); Iter < barriers->getChildren().end(); ++Iter) {
+            // Floor cells share the barriers parent but are pass-through surfaces -
+            // they must not count as "occupied" for coin placement.
+            if ((*Iter)->getName().rfind("Floor ", 0) == 0) {
+                continue;
+            }
             if (isSameFieldAsWorldPos(*Iter)) {
                 return false;
             }

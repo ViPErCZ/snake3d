@@ -6,6 +6,8 @@
 #define START_LEVEL 9
 
 #include <memory>
+#include <vector>
+#include <glm/glm.hpp>
 
 #include "../Physic/CollisionSystem3D.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
@@ -29,15 +31,19 @@ namespace Manager {
         [[nodiscard]] int getEatCounter() const;
         void setEatCounter(int eatCounter);
         void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
+        [[nodiscard]] const std::vector<glm::ivec2> &getHoles() const { return holes; }
+        [[nodiscard]] bool isVoidAt(int virtualX, int virtualY) const;
 
     protected:
         void resolveBoxShape(const shared_ptr<MeshNode3D> &boxNode3D);
+        void resolveFloorShape(const shared_ptr<MeshNode3D> &floorNode);
         int level;
         int live;
         int eatCounter;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<ContextState> contextState;
         shared_ptr<CollisionSystem3D> collisionSystem;
+        std::vector<glm::ivec2> holes;
     };
 
 } // Manager

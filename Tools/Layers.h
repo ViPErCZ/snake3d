@@ -7,7 +7,8 @@ enum Layers {
     PLAYER_BODY = 4,
     ENEMY = 8,
     ENEMY_BODY = 16,
-    //PROJECTILE = 32
+    FLOOR = 32,
+    //PROJECTILE = 64
 };
 
 #endif //SNAKE3_LAYERS_H

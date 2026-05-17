@@ -14,7 +14,7 @@
 
 namespace Net {
     struct PendingRespawnState {
-        std::vector<glm::vec2> positions;
+        std::vector<glm::vec3> positions;
         size_t segmentCount = 0;
         SnakeMeshNode3D::eDIRECTION direction = SnakeMeshNode3D::NONE;
         bool active = false;
@@ -37,7 +37,7 @@ namespace Net {
 
         virtual void requestLocalCrash() = 0;
         virtual void requestRemoteCrash() = 0;
-        virtual void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+        virtual void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec3> &positions,
                                                     SnakeMeshNode3D::eDIRECTION direction) = 0;
         virtual void applyLocalSnakePositions(const SnakeSnapshotState &snake) = 0;
         virtual void applyRemoteSnakePositions(const SnakeSnapshotState &snake) = 0;

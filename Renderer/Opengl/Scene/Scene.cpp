@@ -55,9 +55,15 @@ namespace Scenes {
     }
 
     void Scene::physics() {
-        if (collisionSystem != nullptr) {
-            collisionSystem->update();
+        if (collisionSystem == nullptr) {
+            return;
         }
+        static double lastPhysicsTime = glfwGetTime();
+        const double now = glfwGetTime();
+        // Clamp dt to avoid huge integration jumps after a loading hitch or pause.
+        const float dt = std::min(static_cast<float>(now - lastPhysicsTime), 0.05f);
+        lastPhysicsTime = now;
+        collisionSystem->step(dt);
     }
 
     void Scene::render() {

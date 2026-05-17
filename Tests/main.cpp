@@ -6,6 +6,7 @@
 #include "../Physic/SphereShape.h"
 #include "../Physic/CapsuleShape.h"
 #include "../Physic/CylinderShape.h"
+#include "../Physic/Dynamics/DynamicBody.h"
 #include "../Manager/LevelManager.h"
 #include "../Handler/EatLocationHandler.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
@@ -343,4 +344,103 @@ TEST_CASE("Eat spawn does not allow level 3 middle walls") {
             break;
         }
     }
+}
+
+TEST_CASE("DynamicBody integrates linear velocity") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body({0.0f, 0.0f, 5.0f});
+    body.setUseGravity(false);
+    body.setVelocity({1.0f, -2.0f, 0.5f});
+
+    body.integrate(0.5f, {0.0f, 0.0f, -9.81f}); // gravity ignored because useGravity=false
+
+    const auto &p = body.getPosition();
+    CHECK(p.x == Catch::Approx(0.5f));
+    CHECK(p.y == Catch::Approx(-1.0f));
+    CHECK(p.z == Catch::Approx(5.25f));
+    // Velocity is unchanged (no gravity, no other forces).
+    CHECK(body.getVelocity().z == Catch::Approx(0.5f));
+}
+
+TEST_CASE("DynamicBody applies gravity via symplectic Euler") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body({0.0f, 0.0f, 10.0f});
+    // start at rest under -Z gravity
+    constexpr glm::vec3 g{0.0f, 0.0f, -10.0f};
+
+    body.integrate(1.0f, g);
+
+    // Symplectic: velocity += g*dt first (=> -10), then position += v*dt (=> 10 - 10 = 0).
+    CHECK(body.getVelocity().z == Catch::Approx(-10.0f));
+    CHECK(body.getPosition().z == Catch::Approx(0.0f));
+
+    body.integrate(1.0f, g);
+    CHECK(body.getVelocity().z == Catch::Approx(-20.0f));
+    CHECK(body.getPosition().z == Catch::Approx(-20.0f));
+}
+
+TEST_CASE("DynamicBody gravityScale tunes per-body acceleration") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody slow({0.0f, 0.0f, 0.0f});
+    slow.setGravityScale(0.25f);
+    DynamicBody fast({0.0f, 0.0f, 0.0f});
+    fast.setGravityScale(2.0f);
+
+    constexpr glm::vec3 g{0.0f, 0.0f, -10.0f};
+    slow.integrate(1.0f, g);
+    fast.integrate(1.0f, g);
+
+    CHECK(slow.getVelocity().z == Catch::Approx(-2.5f));
+    CHECK(fast.getVelocity().z == Catch::Approx(-20.0f));
+}
+
+TEST_CASE("DynamicBody disabled body is frozen") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body({1.0f, 2.0f, 3.0f});
+    body.setVelocity({5.0f, 0.0f, 0.0f});
+    body.setEnabled(false);
+
+    body.integrate(1.0f, {0.0f, 0.0f, -9.81f});
+
+    CHECK(body.getPosition().x == Catch::Approx(1.0f));
+    CHECK(body.getPosition().z == Catch::Approx(3.0f));
+    CHECK(body.getVelocity().x == Catch::Approx(5.0f));
+    CHECK(body.getVelocity().z == Catch::Approx(0.0f));
+}
+
+TEST_CASE("DynamicBody useGravity=false still integrates explicit velocity") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body({0.0f, 0.0f, 0.0f});
+    body.setUseGravity(false);
+    body.setVelocity({0.0f, 0.0f, 4.0f});
+
+    body.integrate(2.0f, {0.0f, 0.0f, -9.81f});
+
+    CHECK(body.getPosition().z == Catch::Approx(8.0f));
+    CHECK(body.getVelocity().z == Catch::Approx(4.0f));
+}
+
+TEST_CASE("DynamicBody addImpulse adjusts velocity additively") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body;
+    body.setVelocity({1.0f, 0.0f, 0.0f});
+    body.addImpulse({0.0f, 0.0f, 3.0f});
+    body.addImpulse({0.5f, 0.0f, 0.0f});
+
+    CHECK(body.getVelocity().x == Catch::Approx(1.5f));
+    CHECK(body.getVelocity().z == Catch::Approx(3.0f));
+}
+
+TEST_CASE("DynamicBody integrate is a no-op for non-positive dt") {
+    using Physic::Dynamics::DynamicBody;
+    DynamicBody body({0.0f, 0.0f, 0.0f});
+    body.setVelocity({1.0f, 0.0f, 0.0f});
+
+    body.integrate(0.0f, {0.0f, 0.0f, -9.81f});
+    CHECK(body.getPosition().x == Catch::Approx(0.0f));
+    CHECK(body.getVelocity().z == Catch::Approx(0.0f));
+
+    body.integrate(-0.1f, {0.0f, 0.0f, -9.81f});
+    CHECK(body.getPosition().x == Catch::Approx(0.0f));
+    CHECK(body.getVelocity().z == Catch::Approx(0.0f));
 }

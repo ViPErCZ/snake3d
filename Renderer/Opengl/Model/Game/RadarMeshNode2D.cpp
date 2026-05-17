@@ -49,7 +49,7 @@ namespace Model {
                 // create new radar items for a new snake tile
                 int index = 0;
                 for (const auto& child: snd->getChildren()) {
-                    if (child->isCollisionShapeNode()) {
+                    if (child->isCollisionShapeNode() || !child->getMesh()) {
                         continue;
                     }
                     addItem(child, snd->getColor(), snd->getName() + "-" + std::to_string(index++));
@@ -66,7 +66,10 @@ namespace Model {
         int index = 0;
 
         for (const auto &child: item->getChildren()) {
-            if (child->isCollisionShapeNode()) {
+            // Skip pure colliders (no mesh): e.g. invisible floor tiles added by
+            // LevelManager only have a collision shape and would otherwise pile
+            // up at radar coords (0,0) as a phantom red dot.
+            if (child->isCollisionShapeNode() || !child->getMesh()) {
                 continue;
             }
             const std::string itemName = name + "-" + std::to_string(index++);

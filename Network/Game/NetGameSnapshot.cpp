@@ -16,6 +16,7 @@ namespace Net {
         for (const auto &position : state.positions) {
             writer.writeF32(position.x);
             writer.writeF32(position.y);
+            writer.writeF32(position.z);
         }
         writer.writeU8(encodeNetDirection(state.direction));
         writer.writeU32(state.segmentCount);
@@ -38,10 +39,11 @@ namespace Net {
         for (uint32_t i = 0; i < positionCount; ++i) {
             float x = 0.0f;
             float y = 0.0f;
-            if (!reader.readF32(x) || !reader.readF32(y)) {
+            float z = 0.0f;
+            if (!reader.readF32(x) || !reader.readF32(y) || !reader.readF32(z)) {
                 return false;
             }
-            state.positions.emplace_back(x, y);
+            state.positions.emplace_back(x, y, z);
         }
 
         if (!reader.readU8(direction) ||

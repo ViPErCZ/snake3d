@@ -11,7 +11,8 @@
 #include "WinnerScene.h"
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
-#include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
+#include "../Manager/TextureManager.h"
+#include "../Renderer/Opengl/Material/PlaneMaterial.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 #include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
@@ -56,7 +57,7 @@ namespace Scenes {
 
         void requestLocalCrash() override;
         void requestRemoteCrash() override;
-        void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+        void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec3> &positions,
                                             SnakeMeshNode3D::eDIRECTION direction) override;
         void applyLocalSnakePositions(const Net::SnakeSnapshotState &snake) override;
         void applyRemoteSnakePositions(const Net::SnakeSnapshotState &snake) override;
@@ -94,7 +95,7 @@ namespace Scenes {
         [[nodiscard]] bool localSnakeHitRemote() const;
         [[nodiscard]] bool remoteSnakeHitLocal() const;
         [[nodiscard]] glm::vec3 findRemoteSpawnPosition() const;
-        static std::vector<glm::vec2> collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake);
+        static std::vector<glm::vec3> collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake);
 
         void initPreloader();
         void initMainMenu();
@@ -106,6 +107,8 @@ namespace Scenes {
         void buildCrashCallback();
 
         void prepareScene();
+
+        void applyHolesToPlane();
 
         void nextLevel();
         void showMenu(MainMenuScene::PrimaryAction action);
@@ -126,7 +129,8 @@ namespace Scenes {
         shared_ptr<LevelManager> levelManager;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         unique_ptr<SceneHud> hud;
-        shared_ptr<PlanarReflectionMaterial> planeMaterial;
+        shared_ptr<PlaneMaterial> planeMaterial;
+        shared_ptr<Manager::TextureManager> holeMapTexture;
         shared_ptr<Preloader2Scene> preLoader;
         shared_ptr<WinnerScene> winnerScene;
         shared_ptr<MainMenuScene> mainMenuScene;

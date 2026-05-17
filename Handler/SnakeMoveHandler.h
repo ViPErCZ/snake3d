@@ -35,6 +35,13 @@ namespace Handler {
         [[nodiscard]] bool isStopped() const { return stop; }
         void stopMove();
         void tryStartJump();
+        void setDynamicBody(const std::shared_ptr<Physic::Dynamics::DynamicBody> &body);
+        void setFallDeathThreshold(const float z) { fallDeathThresholdZ = z; }
+        // Predicate that answers "is there no floor at this snake-virtual cell?".
+        // Used to drive the segment-by-segment fall when the snake crosses a hole edge.
+        void setVoidPredicate(std::function<bool(int virtualX, int virtualY)> predicate) {
+            voidPredicate = std::move(predicate);
+        }
 
     protected:
         void changeMove(unsigned int direction);
@@ -49,6 +56,25 @@ namespace Handler {
         void advanceAllJumps(double dt);
         void clearAllJumps();
         [[nodiscard]] bool isHeadAirborne() const;
+        // Chain-fall model with per-tile entry:
+        //  * the head triggers chain mode the moment its center lands on a hole
+        //    cell, whether via moveTile or at the end of a jump arc;
+        //  * other tiles keep doing what they were doing - finishing arcs or
+        //    walking toward the kink via moveTile - and each one joins the
+        //    chain individually the moment it reaches the kink;
+        //  * `chainProgress` advances at `chainVelocity`; once every tile has
+        //    joined, gravity starts accelerating the chain ("drape" stays at
+        //    the entry velocity so the chain feeds in without slowdowns).
+        // Per-tile Z is `groundZ - (chainProgress - tileJoinProgress[tile])`,
+        // so tiles that joined later are higher in the chain - exactly what a
+        // chain dropping at uniform speed looks like.
+        void checkAndStartHanging(const std::shared_ptr<SnakeMeshNode3D> &tile);
+        void enterChainMode(float entryVelocity);
+        void joinChain(SnakeMeshNode3D *tile);
+        void updateChainMotion(double dt);
+        void clearChainFall();
+        [[nodiscard]] bool isInChain(const SnakeMeshNode3D *tile) const;
+        [[nodiscard]] bool allTilesInChain() const;
         shared_ptr<SnakeMeshNode3D> snakeMeshNode;
         double lastTime{};
         double moveAccumulator{};
@@ -76,7 +102,34 @@ namespace Handler {
         };
         std::unordered_map<SnakeMeshNode3D *, TileJumpState> activeJumps;
         std::vector<PendingTakeoff> pendingTakeoffs;
+        // Chain-mode state. Active from the moment the head's center first
+        // reaches a void cell (whether on foot or at the end of a jump arc).
+        bool chainActive = false;
+        // Cumulative chain advance from chain start. Per-tile depth is
+        // `chainProgress - tileJoinProgress[tile]`.
+        float chainProgress = 0.0f;
+        // Rate of chain advance (setPos/s, >= 0). Stays at the entry velocity
+        // through the drape, accelerates after every tile has joined.
+        float chainVelocity = 0.0f;
+        // True once every snake tile has joined - from then on gravity kicks in.
+        bool chainAccelerating = false;
+        // The kink: where the chain bends. Sampled from head's position when
+        // chain mode begins (the hole cell center the head is on).
+        float chainKinkX = 0.0f;
+        float chainKinkY = 0.0f;
+        int chainKinkVirtualX = 0;
+        int chainKinkVirtualY = 0;
+        // Per-tile join progress: chainProgress at the moment the tile joined.
+        // Tile's current depth past the kink is `chainProgress - joinProgress`.
+        std::unordered_map<SnakeMeshNode3D *, float> tileJoinProgress;
         bool jumpRequested = false;
+        std::shared_ptr<Physic::Dynamics::DynamicBody> dynamicBody;
+        // The fall must last long enough for (a) every tile to drape over the
+        // edge and (b) the camera to descend below the play plane so the player
+        // sees the chain disappear. Threshold and gravity are tuned together -
+        // see implementation comments.
+        float fallDeathThresholdZ = -150.0f;
+        std::function<bool(int virtualX, int virtualY)> voidPredicate;
     };
 } // Manager
 

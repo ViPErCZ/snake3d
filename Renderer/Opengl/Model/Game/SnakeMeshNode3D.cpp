@@ -112,6 +112,7 @@ namespace Model {
         this->y = (-3 - -23) / 2 * 32 + 16;
         this->setRotationX(90);
         this->setRotationY(0);
+        this->setRotationZ(0);
         this->setPosition({23, -3, -23});
         this->setDirection(NONE);
 
@@ -393,7 +394,11 @@ namespace Model {
             }
         }
 
-        if (timerUniform->isRunning() && timerUniform->getElapsed() > 0.5f) {
+        // 0.8s matches the respawn shader's visible duration
+        // (u_Delay + pi/u_Speed = 0.1 + pi/4.7 ~= 0.77s). The previous 0.5s
+        // gate let input through while the spawn-in effect was still mid-way,
+        // so the snake could be started before the animation finished.
+        if (timerUniform->isRunning() && timerUniform->getElapsed() > 0.8f) {
             timerUniform->stop();
             mesh->setMaterial(headMaterial);
             for (auto &child: children) {

@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "../Physic/Dynamics/DynamicBody.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
@@ -40,6 +41,7 @@ namespace Scenes {
 
         shared_ptr<SnakeMeshNode3D> snake;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
+        shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
     };
 } // Scenes
 

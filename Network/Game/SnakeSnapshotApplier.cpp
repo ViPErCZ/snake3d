@@ -70,27 +70,27 @@ namespace Net {
         return static_cast<int>(std::lround((worldCoord + 23.0f) * 16.0f)) + 16;
     }
 
-    std::vector<glm::vec2> buildStraightSnakePositions(const glm::vec2 &headPosition,
+    std::vector<glm::vec3> buildStraightSnakePositions(const glm::vec3 &headPosition,
                                                        const size_t segmentCount,
                                                        const SnakeMeshNode3D::eDIRECTION direction) {
-        std::vector<glm::vec2> positions;
+        std::vector<glm::vec3> positions;
         positions.reserve(segmentCount);
         positions.push_back(headPosition);
 
-        glm::vec2 tailDelta{-2.0f, 0.0f};
+        glm::vec3 tailDelta{-2.0f, 0.0f, 0.0f};
         switch (direction) {
             case SnakeMeshNode3D::LEFT:
-                tailDelta = {2.0f, 0.0f};
+                tailDelta = {2.0f, 0.0f, 0.0f};
                 break;
             case SnakeMeshNode3D::RIGHT:
             case SnakeMeshNode3D::NONE:
-                tailDelta = {-2.0f, 0.0f};
+                tailDelta = {-2.0f, 0.0f, 0.0f};
                 break;
             case SnakeMeshNode3D::UP:
-                tailDelta = {0.0f, -2.0f};
+                tailDelta = {0.0f, -2.0f, 0.0f};
                 break;
             case SnakeMeshNode3D::DOWN:
-                tailDelta = {0.0f, 2.0f};
+                tailDelta = {0.0f, 2.0f, 0.0f};
                 break;
             default:
                 break;
@@ -103,7 +103,7 @@ namespace Net {
     }
 
     void applyExactSnakePositions(const std::shared_ptr<SnakeMeshNode3D> &snake,
-                                  const std::vector<glm::vec2> &positions,
+                                  const std::vector<glm::vec3> &positions,
                                   const SnakeMeshNode3D::eDIRECTION direction,
                                   const bool stopped) {
         if (!snake || positions.empty()) {
@@ -113,7 +113,7 @@ namespace Net {
         ensureSnakeLength(snake, positions.size());
 
         const auto &headPosition = positions.front();
-        snake->setPosition({headPosition.x, headPosition.y, snake->getPosition().z});
+        snake->setPosition({headPosition.x, headPosition.y, headPosition.z});
         snake->x = worldToVirtualCoord(headPosition.x);
         snake->y = worldToVirtualCoord(headPosition.y);
 
@@ -125,7 +125,7 @@ namespace Net {
             }
 
             const auto &position = positions[index];
-            tile->setPosition({position.x, position.y, tile->getPosition().z});
+            tile->setPosition({position.x, position.y, position.z});
             tile->x = worldToVirtualCoord(position.x);
             tile->y = worldToVirtualCoord(position.y);
             tile->setDirection(SnakeMeshNode3D::NONE);

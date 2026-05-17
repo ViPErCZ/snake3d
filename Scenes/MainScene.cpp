@@ -6,7 +6,9 @@
 #include <iostream>
 #include <random>
 #include <fstream>
+#include <vector>
 #include <nlohmann/json.hpp>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "../Network/Game/NetUtils.h"
@@ -16,7 +18,7 @@
 #include "SceneLightFactory.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
-#include "../Renderer/Opengl/Material/PlanarReflectionMaterial.h"
+#include "../Renderer/Opengl/Material/PlaneMaterial.h"
 #include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "../Renderer/Opengl/Model/Game/MarkRingNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
@@ -170,11 +172,6 @@ namespace Scenes {
                     soundManager->play("music", {{AL_LOOPING, AL_TRUE}});
                 }
                 break;
-            case GLFW_KEY_N:
-                if (playerScene) {
-                    playerScene->getSnake()->respawn();
-                }
-                break;
             case GLFW_KEY_R:
                 if (hud) {
                     hud->toggleRadar();
@@ -189,7 +186,10 @@ namespace Scenes {
         if (netSession.isEnabled() && netSession.isClient()) {
             return;
         }
-        if (menuVisible && !(netSession.isEnabled() && netSession.isServer())) {
+        // Skip physics while the menu is up (incl. server lobby waiting for a
+        // client). Avoids the orbital camera stutter caused by running the full
+        // collision step every frame before the game has actually started.
+        if (menuVisible || !gameStarted) {
             return;
         }
         Scene::physics();
@@ -234,13 +234,13 @@ namespace Scenes {
     }
 
     void MainScene::initPlane() {
-        auto basicShader = resourceManager->getShader("basicShader");
+        auto planeShader = resourceManager->getShader("planeShader");
         auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
         const auto shadowMap = resourceManager->getTexture("depth");
         const auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
         const auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
         const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
-        planeMaterial = make_shared<PlanarReflectionMaterial>(basicShader, shadowDepthShader);
+        planeMaterial = make_shared<PlaneMaterial>(planeShader, shadowDepthShader);
         planeMaterial->setReflectionTexture(resourceManager->getTexture("PlanarReflectionTexture"));
         planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
 
@@ -255,7 +255,7 @@ namespace Scenes {
         planeMaterial->setSpotLights(spotLights);
         planeMaterial->setPointLights(pointLights);
 
-        auto planeMesh = make_shared<PlaneMesh>(basicShader, 4, 4);
+        auto planeMesh = make_shared<PlaneMesh>(planeShader, 4, 4);
         planeMesh->setMaterial(planeMaterial);
         const auto node3d = make_shared<MeshNode3D>(contextState, planeMesh, resourceManager);
         node3d->disablePlanarReflection();
@@ -291,6 +291,50 @@ namespace Scenes {
         barriersScene->init(3);
         levelManager = barriersScene->getLevelManager();
         addNode("barriers", barriersScene);
+        applyHolesToPlane();
+        // Both snake handlers exist by now (they were built earlier in
+        // initPlayerScene/initRemoteSnakeScene at progress 20). The predicate
+        // closes over levelManager, which is mutated in place across level
+        // changes, so a single wire-up here is enough.
+        const auto predicate = [lm = levelManager](const int virtualX, const int virtualY) {
+            return lm->isVoidAt(virtualX, virtualY);
+        };
+        if (snakeMoveHandler) {
+            snakeMoveHandler->setVoidPredicate(predicate);
+        }
+        if (remoteSnakeScene && remoteSnakeScene->getMoveHandler()) {
+            remoteSnakeScene->getMoveHandler()->setVoidPredicate(predicate);
+        }
+    }
+
+    void MainScene::applyHolesToPlane() {
+        if (!planeMaterial || !levelManager) {
+            return;
+        }
+        constexpr int gridSize = 48;
+        std::vector<unsigned char> data(gridSize * gridSize, 0);
+        for (const auto &cell : levelManager->getHoles()) {
+            if (cell.x < 0 || cell.x >= gridSize || cell.y < 0 || cell.y >= gridSize) continue;
+            data[cell.y * gridSize + cell.x] = 255; // marker for "hole" cell
+        }
+
+        GLuint texId = 0;
+        glGenTextures(1, &texId);
+        glBindTexture(GL_TEXTURE_2D, texId);
+        // Single-channel: 1 byte per cell is enough (0 / 255).
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, gridSize, gridSize, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+        // NEAREST keeps the per-cell boolean sharp; CLAMP_TO_EDGE so plane corners don't sample
+        // wrapped data when UV tangentially touches 0 or 1.
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // TextureManager owns the GL id - destructor calls glDeleteTextures.
+        holeMapTexture = std::make_shared<Manager::TextureManager>(texId);
+        planeMaterial->setHoleMap(holeMapTexture);
     }
 
     void MainScene::initCoinScene() {
@@ -403,7 +447,7 @@ namespace Scenes {
                         moveHandler->resetState();
                         moveHandler->setInitialBodyDirection(SnakeMeshNode3D::LEFT);
                     }
-                    const auto spawnPositions = Net::buildStraightSnakePositions({clientHead.x, clientHead.y}, 6,
+                    const auto spawnPositions = Net::buildStraightSnakePositions(clientHead, 6,
                                                                                 SnakeMeshNode3D::LEFT);
                     Net::applyExactSnakePositions(snake, spawnPositions, SnakeMeshNode3D::LEFT, false);
                 } else {
@@ -637,7 +681,7 @@ namespace Scenes {
         remoteSnakeScene->setActive(true);
     }
 
-    void MainScene::scheduleLocalRespawnAfterCrash(const std::vector<glm::vec2> &positions,
+    void MainScene::scheduleLocalRespawnAfterCrash(const std::vector<glm::vec3> &positions,
                                                    const SnakeMeshNode3D::eDIRECTION direction) {
         if (!playerScene) {
             return;
@@ -712,15 +756,15 @@ namespace Scenes {
         enterWinningState();
     }
 
-    std::vector<glm::vec2> MainScene::collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake) {
-        std::vector<glm::vec2> positions;
+    std::vector<glm::vec3> MainScene::collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake) {
+        std::vector<glm::vec3> positions;
         if (!snake) {
             return positions;
         }
 
-        positions.emplace_back(snake->getPosition().x, snake->getPosition().y);
+        positions.push_back(snake->getPosition());
         for (const auto &child : snake->getChildren()) {
-            positions.emplace_back(child->getPosition().x, child->getPosition().y);
+            positions.push_back(child->getPosition());
         }
         return positions;
     }
@@ -729,6 +773,11 @@ namespace Scenes {
         const auto isBlocked = [this](const glm::vec2 &pos) {
             auto matchesNode = [&pos](const shared_ptr<MeshNode3D> &node) {
                 if (!node) {
+                    return false;
+                }
+                // Floor cells share the levelBoxes parent but are pass-through
+                // surfaces - they must not count as occupied when picking a spawn.
+                if (node->getName().rfind("Floor ", 0) == 0) {
                     return false;
                 }
                 constexpr float epsilon = 0.01f;
@@ -1010,6 +1059,7 @@ namespace Scenes {
         removeNode("barriers");
         barriersScene->nextLevel();
         addNode("barriers", barriersScene);
+        applyHolesToPlane();
         eatLocationHandler->setBarriers(barriersScene->getLevelBoxes());
         if (remoteEatLocationHandler) {
             remoteEatLocationHandler->setBarriers(barriersScene->getLevelBoxes());

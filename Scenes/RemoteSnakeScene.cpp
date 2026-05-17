@@ -103,15 +103,15 @@ namespace Scenes {
         configureCollisionLayers();
     }
 
-    std::vector<glm::vec2> RemoteSnakeScene::collectPositions() const {
-        std::vector<glm::vec2> positions;
+    std::vector<glm::vec3> RemoteSnakeScene::collectPositions() const {
+        std::vector<glm::vec3> positions;
         if (!snake) {
             return positions;
         }
 
-        positions.emplace_back(snake->getPosition().x, snake->getPosition().y);
+        positions.push_back(snake->getPosition());
         for (const auto &child : snake->getChildren()) {
-            positions.emplace_back(child->getPosition().x, child->getPosition().y);
+            positions.push_back(child->getPosition());
         }
         return positions;
     }
@@ -197,19 +197,30 @@ namespace Scenes {
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState, 0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
         shape->setCollisionLayer(ENEMY);
-        shape->setCollisionMask(WORLD | PLAYER | PLAYER_BODY | ENEMY_BODY);
+        // Add FLOOR to the mask so this snake also sits on the floor cells and
+        // falls through holes - same physics behaviour as the local snake.
+        shape->setCollisionMask(WORLD | PLAYER | PLAYER_BODY | ENEMY_BODY | FLOOR);
         snake->setCollisionShape(shape);
 
         addMeshNode3D(snake);
 
         if (collisionSystem != nullptr) {
             collisionSystem->addCollider(snake);
+            snakeBody = make_shared<Physic::Dynamics::DynamicBody>();
+            snakeBody->setUseGravity(true);
+            // Stay disabled until SnakeMoveHandler opts the body in (= snake is
+            // server-controlled and out of respawn). Avoids gravity running
+            // in the lobby / menu phase before startNetworkGame swaps the
+            // handler on, which used to slingshot the head off into the void.
+            snakeBody->setEnabled(false);
+            collisionSystem->addDynamicBody(snake, snakeBody);
         }
         configureCollisionLayers();
     }
 
     void RemoteSnakeScene::initMoveHandler() {
         snakeMoveHandler = make_shared<SnakeMoveHandler>(snake);
+        snakeMoveHandler->setDynamicBody(snakeBody);
         snakeMoveHandler->addStartMoveCallback([this]() {
             if (snake) {
                 snake->animationStart("KostraAction");
@@ -244,15 +255,18 @@ namespace Scenes {
             return;
         }
 
+        // FLOOR must stay in both masks so gravity-driven snap-to-floor works
+        // (this function is called from init / ensureLength / respawnAt and
+        // would otherwise overwrite the FLOOR bit set in initSnake).
         for (const auto &shapeNode : snake->getCollisionShapes()) {
             shapeNode->setCollisionLayer(ENEMY);
-            shapeNode->setCollisionMask(WORLD | PLAYER | PLAYER_BODY | ENEMY_BODY);
+            shapeNode->setCollisionMask(WORLD | PLAYER | PLAYER_BODY | ENEMY_BODY | FLOOR);
         }
 
         for (const auto &child : snake->getChildren()) {
             for (const auto &shapeNode : child->getCollisionShapes()) {
                 shapeNode->setCollisionLayer(ENEMY_BODY);
-                shapeNode->setCollisionMask(WORLD | PLAYER | ENEMY);
+                shapeNode->setCollisionMask(WORLD | PLAYER | ENEMY | FLOOR);
             }
         }
     }

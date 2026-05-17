@@ -12,9 +12,12 @@ namespace CollisionShape {
             glm::mat4 finalTransform = worldMatrixCache;
             const auto parent = getParent();
             if (parent != nullptr) {
-                const auto animationPlayer = parent->getMesh()->getAnimationPlayer();
-                if (animationPlayer != nullptr && !parent->getAnimation().empty()) {
-                    finalTransform *= animationPlayer->getMetadata(parent->getAnimation())->world_transform;
+                const auto parentMesh = parent->getMesh();
+                if (parentMesh != nullptr) {
+                    const auto animationPlayer = parentMesh->getAnimationPlayer();
+                    if (animationPlayer != nullptr && !parent->getAnimation().empty()) {
+                        finalTransform *= animationPlayer->getMetadata(parent->getAnimation())->world_transform;
+                    }
                 }
             }
             // contextState->setBlendingMode(mesh->getBlending());

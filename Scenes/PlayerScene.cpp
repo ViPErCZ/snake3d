@@ -2,6 +2,7 @@
 
 #include "../Physic/BoxShape.h"
 #include "../Physic/SphereShape.h"
+#include "../Physic/Dynamics/DynamicBody.h"
 #include "../Tools/Layers.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
@@ -73,7 +74,7 @@ namespace Scenes {
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
         shape->setCollisionLayer(PLAYER);
-        shape->setCollisionMask(WORLD | ENEMY | ENEMY_BODY | PLAYER_BODY);
+        shape->setCollisionMask(WORLD | ENEMY | ENEMY_BODY | PLAYER_BODY | FLOOR);
 
         snake->setCollisionShape(shape);
 
@@ -81,6 +82,15 @@ namespace Scenes {
 
         if (collisionSystem != nullptr) {
             collisionSystem->addCollider(snake);
+            // The head is the only segment with a dynamic body - gravity catches
+            // it the moment there's no floor underneath (level holes, board edge).
+            snakeBody = make_shared<Physic::Dynamics::DynamicBody>();
+            snakeBody->setUseGravity(true);
+            // SnakeMoveHandler opts the body in once the snake is out of respawn
+            // and (in multiplayer) under server control. Keeping it disabled here
+            // prevents gravity from running before that handshake completes.
+            snakeBody->setEnabled(false);
+            collisionSystem->addDynamicBody(snake, snakeBody);
         }
 
         if (manipulatorHandler != nullptr) {
@@ -90,6 +100,7 @@ namespace Scenes {
 
     void PlayerScene::initSnakeMoveHandler() {
         snakeMoveHandler = make_shared<SnakeMoveHandler>(snake);
+        snakeMoveHandler->setDynamicBody(snakeBody);
         keyboardManager->addEventHandler(snakeMoveHandler);
 
         buildStartMoveCallback();

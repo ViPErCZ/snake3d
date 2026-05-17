@@ -3,14 +3,16 @@
 
 #include <vector>
 
-#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 
 #include "../../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 #include "../NetProtocol.h"
 
 namespace Net {
     struct SnakeSnapshotState {
-        std::vector<glm::vec2> positions;
+        // Per-segment world position. Z is replicated so clients see jump arcs
+        // and falls through holes the same way the server does.
+        std::vector<glm::vec3> positions;
         SnakeMeshNode3D::eDIRECTION direction = SnakeMeshNode3D::NONE;
         uint32_t segmentCount = 0;
         uint32_t respawnSerial = 0;

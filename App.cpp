@@ -82,6 +82,14 @@ void App::Init() {
             ))
     );
     resourceManager->addShader(
+        "planeShader",
+        std::make_shared<ShaderManager>(
+            ShaderLoader::loadShader(
+                "Assets/Shaders/basic.vs",
+                "Assets/Shaders/plane.fs"
+            ))
+    );
+    resourceManager->addShader(
         "arrowGizmo",
         std::make_shared<ShaderManager>(
             ShaderLoader::loadShader(
@@ -216,6 +224,14 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
 
     if (camera) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            // Disable the cursor while holding RMB so the spectator camera gets
+            // unbounded mouse deltas - otherwise the cursor hits the screen edge
+            // and yaw stops accumulating after ~half a turn.
+            if (action == GLFW_PRESS) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else if (action == GLFW_RELEASE) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
             camera->onMouseDown(button, action, mods);
         }
     }

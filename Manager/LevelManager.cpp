@@ -36,7 +36,24 @@ namespace Manager {
         shape->setName(boxNode3D->getName() + " - shape");
         boxNode3D->addNode(shape);
         if (collisionSystem) {
-            collisionSystem->addCollider(boxNode3D);
+            collisionSystem->addCollider(boxNode3D, true);
+        }
+    }
+
+    void LevelManager::resolveFloorShape(const shared_ptr<MeshNode3D> &floorNode) {
+        // Thin slab: 2x2 horizontal footprint matches the cell, 0.5 vertical so the
+        // collider has just enough depth to be testable but does not push barriers up.
+        const auto floorShape = make_shared<BoxShape>(resourceManager, contextState, glm::vec3(2.0, 2.0, 0.5));
+        const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, floorShape);
+        shape->setCollisionLayer(FLOOR);
+        // Floor pairs with dynamic bodies that opted in by adding FLOOR to their
+        // own mask (e.g. snake head). Floor-floor pairs are short-circuited via
+        // the static-static skip in CollisionSystem3D::update().
+        shape->setCollisionMask(PLAYER | ENEMY);
+        shape->setName(floorNode->getName() + " - shape");
+        floorNode->addNode(shape);
+        if (collisionSystem) {
+            collisionSystem->addCollider(floorNode, true);
         }
     }
 
@@ -72,6 +89,7 @@ namespace Manager {
 
         this->level = level;
         this->eatCounter = 0;
+        holes.clear();
 
         string filename = "Assets/Levels/level";
         filename += std::to_string(level);
@@ -82,11 +100,34 @@ namespace Manager {
             bool isFirst = true;
             std::string line;
             int y = 0;
+            constexpr float floorTopSetPosZ = -23.77f;
+            constexpr float floorHalfExtentLocalZ = 0.25f;
+            constexpr float floorCenterZ = floorTopSetPosZ - floorHalfExtentLocalZ;
+            constexpr float barrierScale = 0.041666667f;
             while (std::getline(infile, line)) {
                 int x = 0;
                 for (char &c: line) {
-                    if (c == 49) {
-                        // "1"
+                    // '2' = hole: no floor, no barrier - body falls through.
+                    if (c == '2') {
+                        holes.emplace_back(x, y);
+                        x++;
+                        continue;
+                    }
+
+                    // Every non-hole cell gets a floor collider (passable from above,
+                    // catches falling bodies). Sits in its own FLOOR layer so the
+                    // existing snake handler doesn't see it as a wall.
+                    const float worldX = -25.0f + (static_cast<float>(x) + 1.0f) * 2.0f;
+                    const float worldY = -25.0f + (static_cast<float>(y) + 1.0f) * 2.0f;
+                    const auto floorNode = make_shared<MeshNode3D>(contextState, nullptr, resourceManager);
+                    floorNode->setPosition({worldX, worldY, floorCenterZ});
+                    floorNode->setScale({barrierScale, barrierScale, barrierScale});
+                    floorNode->setName("Floor " + std::to_string(x) + "," + std::to_string(y));
+                    floorNode->setVisible(false); // collider only - never rendered
+                    resolveFloorShape(floorNode);
+                    boxNode3D->addNode(floorNode);
+
+                    if (c == '1') {
                         if (isFirst) {
                             boxNode3D->setPosition({-25 + ((x + 1) * 2), -25 + ((y + 1) * 2), -23.0});
                             boxNode3D->x = (x+1) * 32;
@@ -114,6 +155,25 @@ namespace Manager {
         }
 
         return boxNode3D;
+    }
+
+    bool LevelManager::isVoidAt(const int virtualX, const int virtualY) const {
+        // Snake virtual coords use (gridX*32 + 16, gridY*32 + 16) for cell centers.
+        // Anything outside the 48x48 grid is treated as void so the snake also
+        // falls when it walks off the board edge.
+        constexpr int gridSize = 48;
+        const int gridX = (virtualX - 16) / 32;
+        const int gridY = (virtualY - 16) / 32;
+        if (gridX < 0 || gridX >= gridSize || gridY < 0 || gridY >= gridSize) {
+            return true;
+        }
+
+        for (const auto &cell : holes) {
+            if (cell.x == gridX && cell.y == gridY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     int LevelManager::getEatCounter() const {

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../Handler/SnakeMoveHandler.h"
+#include "../Physic/Dynamics/DynamicBody.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 
@@ -28,7 +29,7 @@ namespace Scenes {
         void setServerControlled(bool enabled) const;
         void setActive(bool active) const;
         void setSpawnLayout(const glm::vec3 &headPosition, SnakeMeshNode3D::eDIRECTION direction) const;
-        [[nodiscard]] std::vector<glm::vec2> collectPositions() const;
+        [[nodiscard]] std::vector<glm::vec3> collectPositions() const;
         void applyNetworkInput(int moveX, int moveY, uint8_t actions) const;
         void updateAuthoritative() const;
         void respawnAt(const glm::vec3 &headPosition, SnakeMeshNode3D::eDIRECTION direction) const;
@@ -45,6 +46,7 @@ namespace Scenes {
 
         shared_ptr<SnakeMeshNode3D> snake;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
+        shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
     };
 } // Scenes
 

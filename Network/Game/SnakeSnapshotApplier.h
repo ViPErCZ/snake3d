@@ -8,12 +8,12 @@
 namespace Net {
     int worldToVirtualCoord(float worldCoord);
 
-    std::vector<glm::vec2> buildStraightSnakePositions(const glm::vec2 &headPosition,
+    std::vector<glm::vec3> buildStraightSnakePositions(const glm::vec3 &headPosition,
                                                        size_t segmentCount,
                                                        SnakeMeshNode3D::eDIRECTION direction);
 
     void applyExactSnakePositions(const std::shared_ptr<SnakeMeshNode3D> &snake,
-                                  const std::vector<glm::vec2> &positions,
+                                  const std::vector<glm::vec3> &positions,
                                   SnakeMeshNode3D::eDIRECTION direction,
                                   bool stopped);
 } // Net
