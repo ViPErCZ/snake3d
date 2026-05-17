@@ -110,22 +110,22 @@ void App::Init() {
     );
     // B3a: basicShader je legacy materiál - kompiluje basic.fs se VŠEMI
     // features aktivními, takže nový `#ifdef FEATURE_*` blok se chová jako
-    // dříve. Až materiály v B5+ začnou kompilovat skrze registry s
-    // upraveným feature mask, tahle paralelní cesta zmizí.
+    // dříve. B3b: přidána Bones (basic.vs nyní gate-uje bone transform).
+    // Až materiály v B5+ začnou kompilovat skrze registry s upraveným
+    // feature mask, tahle paralelní cesta zmizí.
     constexpr ShaderFeatureMask legacyBasicFeatures =
         ShaderFeature::PBR | ShaderFeature::NormalMap | ShaderFeature::Shadows |
-        ShaderFeature::DirectionalLight | ShaderFeature::Fog | ShaderFeature::IBL;
+        ShaderFeature::DirectionalLight | ShaderFeature::Fog | ShaderFeature::IBL |
+        ShaderFeature::Bones;
     resourceManager->addShader(
         "basicShader",
         shaderRegistry->get({"basicShader", legacyBasicFeatures})
     );
+    // B3b: planeShader migrován z direct loadShader na registry. Sdílí
+    // basic.vs s basicShader, takže potřebuje stejnou feature mask.
     resourceManager->addShader(
         "planeShader",
-        std::make_shared<ShaderManager>(
-            ShaderLoader::loadShader(
-                "Assets/Shaders/basic.vs",
-                "Assets/Shaders/plane.fs"
-            ))
+        shaderRegistry->get({"planeShader", legacyBasicFeatures})
     );
     resourceManager->addShader(
         "arrowGizmo",

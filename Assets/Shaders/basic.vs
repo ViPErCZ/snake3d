@@ -28,7 +28,10 @@ uniform vec3 viewPos;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform bool useBones = true;
+// Default false: when FEATURE_BONES isn't injected and a caller forgets to
+// set useBones explicitly, the non-bones path runs (gl_Position from aPos).
+// Skeletal materials (AnimationArrayMesh) set useBones=true explicitly.
+uniform bool useBones = false;
 uniform vec2 uvScale = vec2(1.0, 1.0);
 uniform vec2 uvOffset = vec2(0.0, 0.0);
 uniform vec3 lightPos = vec3(0.0, 0.0, 0.0);
@@ -40,9 +43,12 @@ void main()
 {
     mat4 viewModel = view * model;
 
+#ifdef FEATURE_BONES
     if (useBones) {
         gl_Position = projection * viewModel * boneTransform(boneIds, weights);
-    } else {
+    }
+#endif
+    if (!useBones) {
         gl_Position = projection * viewModel * vec4(aPos, 1.0);
     }
 
