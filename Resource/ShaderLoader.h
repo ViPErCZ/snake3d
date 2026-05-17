@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <set>
 #include <vector>
 
 using namespace std;
@@ -46,8 +47,24 @@ namespace Resource {
         static unsigned int bindFromBuffer(const string& vertexStr, const string& fragmentStr);
         static unsigned int bindFromBuffer(const string& vertexStr, const string& geometryStr, const string& fragmentStr);
     protected:
+        // Backward-compatible wrapper kolem stateful resolveru. Inicializuje
+        // file table prázdně, neguarduje proti dvojímu includu globálně mezi
+        // sebou-volajícími.
         static void replaceIncludes(const fs::path& base_dir, const string &path, string &source);
+
+        // Rozresolvuje `#include "..."` direktivy v `src`. Stará verze.
+        // Necháváme dostupné pro místa která nepotřebují file table.
         static void resolveIncludes(const fs::path& base_dir, std::string& src);
+
+        // Stateful varianta - eviduje již zahrnuté soubory (ochrana před
+        // dvojím includem) a buduje `fileTable` pro GLSL `#line` direktivy.
+        // `currentFileIndex` je index v `fileTable` pro `src` (== 0 pro root).
+        static void resolveIncludesWithState(const fs::path& base_dir,
+                                             std::string& src,
+                                             std::set<fs::path>& alreadyIncluded,
+                                             std::vector<fs::path>& fileTable,
+                                             int currentFileIndex);
+
         static void checkCompileErrors(unsigned int shader, const string &type);
         static unsigned int compileShader(const string &vertexStr);
         static unsigned int compileShader(const string &vertexStr, const string &fragmentStr);

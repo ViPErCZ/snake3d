@@ -9,6 +9,7 @@
 
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
+    shaderRegistry = make_shared<ShaderRegistry>();
     keyboardManager = make_unique<KeyboardManager>();
 
     projection = glm::perspective(
@@ -39,6 +40,40 @@ void App::initScene() const {
 
 void App::Init() {
     InitResourceManager();
+
+    // B1: paralelní registrace masters v ShaderRegistry. GL kompilace je
+    // lazy v get(), takže registrace samotná je čistě metadata a nezpůsobí
+    // dvojí kompilaci.
+    shaderRegistry->registerMaster("blur",
+        "Assets/Shaders/bloom/blur.vs", "Assets/Shaders/bloom/blur.fs");
+    shaderRegistry->registerMaster("bloomFinal",
+        "Assets/Shaders/bloom/bloom_final.vs", "Assets/Shaders/bloom/bloom_final.fs");
+    shaderRegistry->registerMaster("shadowShader",
+        "Assets/Shaders/shadow_map.vs", "Assets/Shaders/shadow_map.fs");
+    shaderRegistry->registerMaster("shadowDepthShader",
+        "Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs");
+    shaderRegistry->registerMaster("basicShader",
+        "Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
+    shaderRegistry->registerMaster("planeShader",
+        "Assets/Shaders/basic.vs", "Assets/Shaders/plane.fs");
+    shaderRegistry->registerMaster("arrowGizmo",
+        "Assets/Shaders/gizmo/arrow.vert", "Assets/Shaders/gizmo/arrow.frag");
+    shaderRegistry->registerMaster("preloadShader",
+        "Assets/Shaders/preloader/dots/dots.vs", "Assets/Shaders/preloader/dots/dots.fs");
+    shaderRegistry->registerMaster("preloadShader2",
+        "Assets/Shaders/preloader/dots2/dots2.vs", "Assets/Shaders/preloader/dots2/dots2.fs");
+    shaderRegistry->registerMasterVertexOnly("particle_update",
+        "Assets/Shaders/particle/particle_update.vs");
+    shaderRegistry->registerMasterVertexOnly("particle_update_2d",
+        "Assets/Shaders/particle/particle_update.vs");
+    shaderRegistry->registerMaster("particle_3d_render",
+        "Assets/Shaders/particle/particle_3d_render.vs", "Assets/Shaders/particle/particle_3d_render.fs");
+    shaderRegistry->registerMaster("particle_render_2d",
+        "Assets/Shaders/particle/particle_render_2d.vs", "Assets/Shaders/particle/particle_render_2d.fs");
+    shaderRegistry->registerMaster("particle_3d_render_tex",
+        "Assets/Shaders/particle/particle_3d_render_tex.vs", "Assets/Shaders/particle/particle_3d_render_tex.fs");
+    shaderRegistry->registerMaster("particle_render_2d_tex",
+        "Assets/Shaders/particle/particle_render_2d_tex.vs", "Assets/Shaders/particle/particle_render_2d_tex.fs");
 
     resourceManager->addShader("blur",
         std::make_shared<ShaderManager>(

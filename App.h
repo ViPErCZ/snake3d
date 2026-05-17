@@ -7,6 +7,7 @@
 #include "Manager/EatManager.h"
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
+#include "Manager/ShaderRegistry.h"
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
 
@@ -46,6 +47,9 @@ private:
     };
     shared_ptr<Environment> environment;
     shared_ptr<ResourceManager> resourceManager;
+    // B1: paralelní registry vedle ResourceManager::addShader. V dalších PR
+    // (B2+) převezme roli single source of truth pro shader programy.
+    shared_ptr<ShaderRegistry> shaderRegistry;
     shared_ptr<RenderManager> rendererManager;
     unique_ptr<KeyboardManager> keyboardManager;
     unique_ptr<EatManager> eatManager;
