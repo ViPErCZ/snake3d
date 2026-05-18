@@ -34,6 +34,13 @@ uniform bool rainDropEnable = false;
 uniform float rainSpeed = 0.2;
 uniform float rainDensity = 20.0;
 
+// Hole map: greyscale grid (e.g. 48x48) where r > 0.5 marks a "hole" -
+// the fragment is discarded so the player can see through the surface.
+// Gated by FEATURE_HOLE_MAP - materials must request the feature in
+// their mask AND set hasHoleMap=true at runtime to activate.
+uniform bool hasHoleMap = false;
+uniform sampler2D holeMap;
+
 #include "functions/fog.glsl"
 #include "functions/lights.glsl"
 #include "functions/reflection.glsl"
@@ -43,6 +50,21 @@ uniform float rainDensity = 20.0;
 
 void main()
 {
+#ifdef FEATURE_HOLE_MAP
+    if (hasHoleMap) {
+        // TexCoords is aTexCoords * uvScale, so dividing by uvScale gives the
+        // raw 0..1 coords across the mesh. Plane UVs are flipped on Y relative
+        // to the level row indexing, so invert v before sampling.
+        vec2 cellUV = outUvScale.x > 0.0 && outUvScale.y > 0.0
+            ? TexCoords / outUvScale
+            : TexCoords;
+        vec2 sampleUV = vec2(cellUV.x, 1.0 - cellUV.y);
+        if (texture(holeMap, sampleUV).r > 0.5) {
+            discard;
+        }
+    }
+#endif
+
     float shadow = 0.0;
     vec3 ambientColor = ambientLightColor * ambientLightColorIntensity;
     vec4 albedoTexture = useMaterial ? vec4(meshColor, 1.0) : texture(material.ambient, TexCoords);

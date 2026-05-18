@@ -54,8 +54,8 @@ void App::Init() {
         "Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs");
     shaderRegistry->registerMaster("basicShader",
         "Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
-    shaderRegistry->registerMaster("planeShader",
-        "Assets/Shaders/basic.vs", "Assets/Shaders/plane.fs");
+    // B3d: planeShader už není samostatný master - je to permutace basicShader
+    // s FEATURE_HOLE_MAP. plane.fs smazán, hole map logika přesunuta do basic.fs.
     shaderRegistry->registerMaster("arrowGizmo",
         "Assets/Shaders/gizmo/arrow.vert", "Assets/Shaders/gizmo/arrow.frag");
     shaderRegistry->registerMaster("preloadShader",
@@ -121,11 +121,11 @@ void App::Init() {
         "basicShader",
         shaderRegistry->get({"basicShader", legacyBasicFeatures})
     );
-    // B3b: planeShader migrován z direct loadShader na registry. Sdílí
-    // basic.vs s basicShader, takže potřebuje stejnou feature mask.
+    // B3d: planeShader je alias v ResourceManager - sdílí basicShader master,
+    // přidává jen FEATURE_HOLE_MAP. plane.fs jako samostatný soubor zmizel.
     resourceManager->addShader(
         "planeShader",
-        shaderRegistry->get({"planeShader", legacyBasicFeatures})
+        shaderRegistry->get({"basicShader", legacyBasicFeatures | ShaderFeature::HoleMap})
     );
     resourceManager->addShader(
         "arrowGizmo",
