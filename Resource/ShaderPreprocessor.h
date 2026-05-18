@@ -26,6 +26,16 @@ namespace Resource {
         // Stejné jako výše, ale s hodnotou (#define name value).
         static std::string injectDefinesKv(const std::string& source,
                                            const std::vector<std::pair<std::string, std::string>>& defines);
+
+        // Najde řádek obsahující `marker` (typicky `// @MATERIAL_FRAGMENT_PRE`)
+        // a nahradí ho obsahem `snippet`. Marker se hledá jako substring -
+        // řádek může mít odsazení nebo doprovodné komentáře, jen musí marker
+        // obsahovat. Pokud marker nenajde, vrací zdroj beze změny (no-op);
+        // pokud `snippet` je prázdný, taktéž no-op (efektivně ponechá marker
+        // řádek). Nahrazuje pouze první výskyt - další ponechá jako-jsou.
+        static std::string injectSnippet(const std::string& source,
+                                         const std::string& marker,
+                                         const std::string& snippet);
     };
 } // Resource
 

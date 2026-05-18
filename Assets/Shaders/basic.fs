@@ -50,6 +50,12 @@ uniform sampler2D holeMap;
 
 void main()
 {
+    // @MATERIAL_FRAGMENT_PRE
+    // ^ Snippet injection slot - ShaderPreprocessor::injectSnippet replaces
+    //   this line with material-specific GLSL when a material declares a
+    //   fragment-pre snippet. Until B5 wires up the registry to inject,
+    //   this stays a no-op comment.
+
 #ifdef FEATURE_HOLE_MAP
     if (hasHoleMap) {
         // TexCoords is aTexCoords * uvScale, so dividing by uvScale gives the

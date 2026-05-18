@@ -46,6 +46,42 @@ namespace Resource {
         return result;
     }
 
+    std::string ShaderPreprocessor::injectSnippet(const std::string& source,
+                                                  const std::string& marker,
+                                                  const std::string& snippet) {
+        if (marker.empty() || snippet.empty()) {
+            return source;
+        }
+
+        const auto markerPos = source.find(marker);
+        if (markerPos == std::string::npos) {
+            return source;
+        }
+
+        // Najdi začátek řádku obsahujícího marker (znak za posledním '\n'
+        // před marker pozicí, případně začátek zdroje).
+        const auto lineStart = (markerPos == 0)
+            ? 0
+            : source.rfind('\n', markerPos - 1);
+        const size_t replaceFrom = (lineStart == std::string::npos) ? 0 : lineStart + 1;
+
+        // Konec řádku - znak za '\n' za marker pozicí (nebo konec zdroje).
+        const auto newlinePos = source.find('\n', markerPos);
+        const size_t replaceTo = (newlinePos == std::string::npos)
+            ? source.size()
+            : newlinePos + 1;
+
+        std::string result;
+        result.reserve(source.size() - (replaceTo - replaceFrom) + snippet.size() + 1);
+        result.append(source, 0, replaceFrom);
+        result.append(snippet);
+        if (!snippet.empty() && snippet.back() != '\n') {
+            result.push_back('\n');
+        }
+        result.append(source, replaceTo, std::string::npos);
+        return result;
+    }
+
     std::string ShaderPreprocessor::injectDefinesKv(const std::string& source,
                                                     const std::vector<std::pair<std::string, std::string>>& defines) {
         if (defines.empty()) {
