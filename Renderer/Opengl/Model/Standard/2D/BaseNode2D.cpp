@@ -1,5 +1,6 @@
 #include "BaseNode2D.h"
 
+#include "../../../Material/ShaderMaterial.h"
 #include "../../../Material/StandardMaterial.h"
 
 namespace Model {
@@ -17,7 +18,15 @@ namespace Model {
     void BaseNode2D::render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
                             const glm::mat4 &parentTransform) const {
 
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+        if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
+            shaderMaterial->bind(
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                ortho,
+                parentTransform,
+                false
+            );
+        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->bind(
                 camera->getPosition(),
                 camera->getViewMatrix(),
@@ -39,7 +48,9 @@ namespace Model {
         mesh->bind();
         glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+        if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
+            shaderMaterial->unbind();
+        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial.get()->unbind();
         }
     }
