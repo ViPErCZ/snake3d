@@ -2,8 +2,23 @@
 #define SNAKE3_SHADERMATERIAL_H
 
 #include <map>
+#include <memory>
+#include <variant>
+#include <vector>
+
+#include <glm/glm.hpp>
+
+#include "BaseMaterial.h"
 #include "IUniform.h"
-#include "StandardMaterial.h"
+#include "../../../Lights/DirectionalLight.h"
+#include "../../../Lights/PointLight.h"
+#include "../../../Lights/SpotLight.h"
+#include "../../../Manager/ShaderManager.h"
+#include "../../../Manager/TextureManager.h"
+
+using namespace Manager;
+using namespace Lights;
+using namespace std;
 
 namespace Material {
 
@@ -20,23 +35,84 @@ namespace Material {
             shared_ptr<IUniform>
         >;
 
-    class ShaderMaterial final : public StandardMaterial {
+    // Free-form material for shaders that don't fit the main3D feature
+    // composition (snake respawn/crash dissolve, bolt flash, ring, corner
+    // UI buttons, 2D text, skybox). Drives an arbitrary shader through a
+    // generic uniforms map plus light/texture members the legacy code
+    // relied on.
+    //
+    // After B7a this class no longer inherits StandardMaterial; the fields
+    // it actually needs live here directly. clone() is a deep copy: program
+    // and shadowDepthShader stay shared (GL handles), uniforms map values
+    // implementing IUniform are cloned via IUniform::clone, textures and
+    // light objects are shared like everywhere else in the engine.
+    class ShaderMaterial final : public BaseMaterial {
     public:
         explicit ShaderMaterial(shared_ptr<ShaderManager> baseShader,
-                                shared_ptr<ShaderManager> shadowDepthShader = nullptr,
-                                const shared_ptr<WorldEnvironment> &worldEnv = nullptr);
+                                shared_ptr<ShaderManager> shadowDepthShader = nullptr);
 
-        ~ShaderMaterial() override;
+        ~ShaderMaterial() override = default;
 
         void setUniform(const string &name, const UniformValue &value);
 
         void bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
-                  const glm::mat4 &model, bool shadows) const override;
+                  const glm::mat4 &model, bool shadows) const;
+        void unbind() const;
+        void bindShadow(const glm::mat4 &model) const;
+
+        [[nodiscard]] bool isShadowEnabled() const { return shadowsEnabled; }
+        [[nodiscard]] shared_ptr<ShaderManager> getShader() const           { return shader; }
+        [[nodiscard]] shared_ptr<ShaderManager> getShadowDepthShader() const{ return shadowDepthShader; }
 
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
+        // Textures (shared resources, owned externally).
+        void setAlbedo(const shared_ptr<TextureManager> &tex)   { albedo = tex; }
+        void setNormal(const shared_ptr<TextureManager> &tex)   { normal = tex; }
+        void setSpecular(const shared_ptr<TextureManager> &tex) { specular = tex; }
+        void setMetalness(const shared_ptr<TextureManager> &tex){ metalness = tex; }
+        void setRoughness(const shared_ptr<TextureManager> &tex){ roughness = tex; }
+        void setShadow(const shared_ptr<TextureManager> &tex)   { shadow = tex; shadowsEnabled = true; }
+
+        [[nodiscard]] shared_ptr<TextureManager> getAlbedo() const   { return albedo; }
+        [[nodiscard]] shared_ptr<TextureManager> getNormal() const   { return normal; }
+        [[nodiscard]] shared_ptr<TextureManager> getSpecular() const { return specular; }
+        [[nodiscard]] shared_ptr<TextureManager> getMetalness() const{ return metalness; }
+        [[nodiscard]] shared_ptr<TextureManager> getRoughness() const{ return roughness; }
+        [[nodiscard]] shared_ptr<TextureManager> getShadow() const   { return shadow; }
+
+        // Lighting (mirrors what StandardMaterial::bind used to do).
+        void setDirectionalLight(const shared_ptr<DirectionalLight> &d) { directionalLight = d; }
+        void setSpotLights(const vector<shared_ptr<SpotLight>> &s)      { spotLights = s; }
+        void setPointLights(const vector<shared_ptr<PointLight>> &p)    { pointLights = p; }
+        void addSpotLight(const shared_ptr<SpotLight> &s)               { spotLights.push_back(s); }
+        void addPointLight(const shared_ptr<PointLight> &p)             { pointLights.push_back(p); }
+
+        // Color / scalar params used by some legacy custom shaders.
+        void setColor(const glm::vec3 &c)        { color = make_shared<glm::vec3>(c); }
+        [[nodiscard]] bool hasColor() const      { return color != nullptr; }
+        [[nodiscard]] glm::vec3 getColor() const { return color ? *color : glm::vec3(0.0f); }
+        void setAlpha(const float a)             { alpha = a; }
+
     protected:
+        shared_ptr<ShaderManager> shader;
+        shared_ptr<ShaderManager> shadowDepthShader;
         std::map<std::string, UniformValue> uniforms;
+
+        shared_ptr<TextureManager> albedo;
+        shared_ptr<TextureManager> normal;
+        shared_ptr<TextureManager> specular;
+        shared_ptr<TextureManager> metalness;
+        shared_ptr<TextureManager> roughness;
+        shared_ptr<TextureManager> shadow;
+
+        shared_ptr<DirectionalLight> directionalLight;
+        vector<shared_ptr<SpotLight>> spotLights;
+        vector<shared_ptr<PointLight>> pointLights;
+
+        shared_ptr<glm::vec3> color;
+        float alpha = 1.0f;
+        bool shadowsEnabled = false;
     };
 } // Material
 

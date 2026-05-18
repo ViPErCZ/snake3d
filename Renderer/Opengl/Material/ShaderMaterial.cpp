@@ -5,12 +5,10 @@
 
 namespace Material {
     ShaderMaterial::ShaderMaterial(shared_ptr<ShaderManager> baseShader,
-                                   shared_ptr<ShaderManager> shadowDepthShader,
-                                   const shared_ptr<WorldEnvironment> &worldEnv) : StandardMaterial(
-        std::move(baseShader), std::move(shadowDepthShader), worldEnv) {
+                                   shared_ptr<ShaderManager> shadowDepthShader)
+        : shader(std::move(baseShader)),
+          shadowDepthShader(std::move(shadowDepthShader)) {
     }
-
-    ShaderMaterial::~ShaderMaterial() = default;
 
     void ShaderMaterial::setUniform(const string &name, const UniformValue &value) {
         uniforms[name] = value;
@@ -73,10 +71,38 @@ namespace Material {
         }
     }
 
+    void ShaderMaterial::unbind() const {
+        // Conservative cleanup: legacy StandardMaterial::unbind released
+        // texture slots 0-7. For ShaderMaterial those textures might not
+        // even be bound by the custom shader, so leaving things as-is is
+        // safer. If a specific shader needs slot resets, do them through
+        // the uniforms map / a per-feature mechanism later.
+    }
+
+    void ShaderMaterial::bindShadow(const glm::mat4 &model) const {
+        if (shadowDepthShader) {
+            shadowDepthShader->use();
+            shadowDepthShader->setMat4("model", model);
+        }
+    }
+
     std::shared_ptr<BaseMaterial> ShaderMaterial::clone() const {
-        auto cloned = std::make_shared<ShaderMaterial>(
-            shader, shadowDepthShader, worldEnvironment
-        );
+        auto cloned = std::make_shared<ShaderMaterial>(shader, shadowDepthShader);
+
+        // Shared resources (textures, lights) - intentionally copied by
+        // shared_ptr value; they're immutable engine resources.
+        cloned->albedo = albedo;
+        cloned->normal = normal;
+        cloned->specular = specular;
+        cloned->metalness = metalness;
+        cloned->roughness = roughness;
+        cloned->shadow = shadow;
+        cloned->shadowsEnabled = shadowsEnabled;
+        cloned->directionalLight = directionalLight;
+        cloned->spotLights = spotLights;
+        cloned->pointLights = pointLights;
+        if (color) cloned->color = std::make_shared<glm::vec3>(*color);
+        cloned->alpha = alpha;
 
         for (const auto& [name, value] : uniforms) {
             cloned->setUniform(name, std::visit([]<typename T0>(T0&& v) -> UniformValue {

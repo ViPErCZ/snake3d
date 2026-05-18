@@ -5,6 +5,7 @@
 #include "../../../../Tools/ContextState.h"
 #include "../../Material/MaterialInstance.h"
 #include "../../Material/RenderContext.h"
+#include "../../Material/ShaderMaterial.h"
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
@@ -53,6 +54,14 @@ namespace Model {
                 shadows
             };
             materialInstance->bind(ctx);
+        } else if (const auto shaderMaterial = std::dynamic_pointer_cast<ShaderMaterial>(material)) {
+            shaderMaterial->bind(
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                projection,
+                worldTransform,
+                shadows
+            );
         } else if (const auto standardMaterial = std::dynamic_pointer_cast<StandardMaterial>(material)) {
             if (nullptr != animationPlayer) {
                 standardMaterial->setAlpha(alpha);
@@ -89,6 +98,8 @@ namespace Model {
                        nullptr);
         if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
             materialInstance->unbind();
+        } else if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
+            shaderMaterial->unbind();
         } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
             standardMaterial->unbind();
         }
@@ -101,6 +112,16 @@ namespace Model {
                 mesh->bind();
                 glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                                nullptr);
+            }
+            return;
+        }
+        if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
+            if (shaderMaterial->isShadowEnabled() && shaderMaterial->getShadowDepthShader()) {
+                shaderMaterial->bindShadow(parentTransform);
+                mesh->bind();
+                glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
+                               nullptr);
+                shaderMaterial->unbind();
             }
             return;
         }
