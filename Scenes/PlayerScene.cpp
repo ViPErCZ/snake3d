@@ -3,6 +3,11 @@
 #include "../Physic/BoxShape.h"
 #include "../Physic/SphereShape.h"
 #include "../Physic/Dynamics/DynamicBody.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Tools/Layers.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
@@ -52,12 +57,13 @@ namespace Scenes {
         directionalLight->setDiffuse({0.1f, 0.1f, 0.1f});
         directionalLight->setSpecular({.091f, .091f, .091f});
 
-        const auto material = make_shared<StandardMaterial>(shader, shadowsShader);
-        material->setShadow(resourceManager->getTexture("depth"));
-        material->setNormalEnabled(true);
-        material->setDirectionalLight(directionalLight);
-        material->setSpotLights(spotLights);
-        material->setPointLights(pointLights);
+        const auto material = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
+            .with(make_shared<Feature::NormalMapFeature>(nullptr))
+            .with(make_shared<Feature::AlbedoFeature>(nullptr))
+            .build(*resourceManager->getShaderRegistry());
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);
 
