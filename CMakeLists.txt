@@ -104,6 +104,7 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Material/Feature/IblFeature.cpp
         Renderer/Opengl/Material/Feature/IblFeature.h
         Renderer/Opengl/Material/Feature/BonesFeature.h
+        Renderer/Opengl/Material/Feature/RainRippleFeature.h
         Tools/CameraOrbit.cpp
         Tools/CameraOrbit.h
         Tools/Timer.cpp
@@ -426,6 +427,7 @@ set(APP_SOURCES
         Renderer/Opengl/Material/Feature/IblFeature.cpp
         Renderer/Opengl/Material/Feature/IblFeature.h
         Renderer/Opengl/Material/Feature/BonesFeature.h
+        Renderer/Opengl/Material/Feature/RainRippleFeature.h
         Tools/Timer.cpp
         Tools/Timer.h
         Tools/WorldEnvironment.cpp

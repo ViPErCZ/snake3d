@@ -91,11 +91,16 @@ void main()
     }
 #endif
 
+    // rippleOffset declaration stays unconditional - the planar reflection
+    // snippet references it. Without FEATURE_RAIN_RIPPLE it just stays zero
+    // and no distortion is applied anywhere.
     vec2 rippleOffset = vec2(0.0);
+#ifdef FEATURE_RAIN_RIPPLE
     if (rainDropEnable) {
         vec2 cleanUV = TexCoords / outUvScale * 2;
         rippleOffset = getRainRippleDistortion(cleanUV, uTime, rainSpeed, rainDensity);
     }
+#endif
 
     vec3 normal = Normal;
 #ifdef FEATURE_NORMAL_MAP
@@ -103,19 +108,23 @@ void main()
         vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
         tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
 
+    #ifdef FEATURE_RAIN_RIPPLE
         if (rainDropEnable) {
             // Modifikujeme normálovou mapu před převodem do World Space
             tangentNormal.xy += rippleOffset * 2.0;
             tangentNormal = normalize(tangentNormal);
         }
+    #endif
 
         normal = TBN * tangentNormal;
     }
 #endif
+#ifdef FEATURE_RAIN_RIPPLE
     if (!normalMapEnabled && rainDropEnable) {
         // Pokud není normal mapa, vytvoříme normálu jen z vlnek
         normal = normalize(TBN * vec3(rippleOffset, 1.0));
     }
+#endif
 
     vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
     vec3 viewDir = normalize(camPos - fragPos);

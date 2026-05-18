@@ -27,6 +27,7 @@ namespace Manager {
         AlphaBlend       = 1u << 9,
         EmissiveBloom    = 1u << 10,
         HoleMap          = 1u << 11,
+        RainRipple       = 1u << 12,
     };
 
     using ShaderFeatureMask = uint32_t;
@@ -59,6 +60,7 @@ namespace Manager {
             case ShaderFeature::AlphaBlend:       return "FEATURE_ALPHA_BLEND";
             case ShaderFeature::EmissiveBloom:    return "FEATURE_EMISSIVE_BLOOM";
             case ShaderFeature::HoleMap:          return "FEATURE_HOLE_MAP";
+            case ShaderFeature::RainRipple:       return "FEATURE_RAIN_RIPPLE";
             case ShaderFeature::None:             return "";
         }
         return "";
