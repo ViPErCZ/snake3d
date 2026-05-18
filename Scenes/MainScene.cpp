@@ -266,7 +266,12 @@ namespace Scenes {
             .with(make_shared<Feature::NormalMapFeature>(gamefieldNormal))
             .with(make_shared<Feature::SpecularFeature>(gamefieldSpecular))
             .with(make_shared<Feature::UvTransformFeature>(glm::vec2(48.0f)))
-            .with(make_shared<Feature::FogFeature>(true))
+            // FogFeature záměrně vynechané - původní StandardMaterial::bind
+            // vždy nastavoval fogEnable=false (F klávesa nikdy do shaderu
+            // nepsala true), takže plane nikdy fog neměl. Můj B5c omylem
+            // FogFeature zapnul a podlahu zamlžil v dálce. Když se fog
+            // časem zapojí do skutečné pipeline (toggleFog by měl psát
+            // do shaderu), tady se přidá zpátky s odpovídajícím handle.
             .with(albedoFeature)
             .with(planeReflectionFeature)
             .with(planeHoleMapFeature)
