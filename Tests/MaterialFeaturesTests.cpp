@@ -1,9 +1,12 @@
 #include <catch2/catch_all.hpp>
 
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+#include "../Renderer/Opengl/Material/Feature/IblFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/PbrFeature.h"
 #include "../Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
 #include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
@@ -132,4 +135,51 @@ TEST_CASE("LightingFeature::clone shares directional light") {
     const auto cloned = std::dynamic_pointer_cast<Feature::LightingFeature>(original.clone());
     REQUIRE(cloned != nullptr);
     CHECK(cloned->getDirectional().get() == dir.get());
+}
+
+// B6a additions: PBR / IBL / Bones features.
+
+TEST_CASE("PbrFeature reports FEATURE_PBR") {
+    Feature::PbrFeature f(nullptr, nullptr);
+    CHECK(f.flag() == static_cast<ShaderFeatureMask>(ShaderFeature::PBR));
+}
+
+TEST_CASE("PbrFeature::clone shares textures") {
+    const auto metal = std::make_shared<Manager::TextureManager>();
+    const auto rough = std::make_shared<Manager::TextureManager>();
+    const auto ao    = std::make_shared<Manager::TextureManager>();
+    Feature::PbrFeature original(metal, rough, ao);
+    const auto cloned = std::dynamic_pointer_cast<Feature::PbrFeature>(original.clone());
+    REQUIRE(cloned != nullptr);
+    CHECK(cloned->getMetalness().get() == metal.get());
+    CHECK(cloned->getRoughness().get() == rough.get());
+    CHECK(cloned->getAoMap().get() == ao.get());
+}
+
+TEST_CASE("IblFeature reports FEATURE_IBL") {
+    Feature::IblFeature f(nullptr);
+    CHECK(f.flag() == static_cast<ShaderFeatureMask>(ShaderFeature::IBL));
+}
+
+TEST_CASE("IblFeature::clone shares environment cubemap") {
+    const auto env = std::make_shared<Manager::TextureManager>();
+    Feature::IblFeature original(env);
+    const auto cloned = std::dynamic_pointer_cast<Feature::IblFeature>(original.clone());
+    REQUIRE(cloned != nullptr);
+    CHECK(cloned->getEnvironmentMap().get() == env.get());
+}
+
+TEST_CASE("BonesFeature reports FEATURE_BONES") {
+    Feature::BonesFeature f;
+    CHECK(f.flag() == static_cast<ShaderFeatureMask>(ShaderFeature::Bones));
+}
+
+TEST_CASE("BonesFeature::clone copies useBones state") {
+    Feature::BonesFeature original(true);
+    const auto cloned = std::dynamic_pointer_cast<Feature::BonesFeature>(original.clone());
+    REQUIRE(cloned != nullptr);
+    CHECK(cloned->getUseBones());
+
+    original.setUseBones(false);
+    CHECK(cloned->getUseBones());  // independent
 }
