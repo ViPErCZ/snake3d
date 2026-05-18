@@ -50,12 +50,14 @@ TEST_CASE("PlanarReflectionFeature has no shader flag") {
     CHECK(f.flag() == 0);
 }
 
-TEST_CASE("LightingFeature flag depends on directional light presence") {
-    // No directional - no flag.
+TEST_CASE("LightingFeature flag always advertises DirectionalLight") {
+    // Even with no directional light, the flag is set so the shader compiles
+    // the FEATURE_DIRECTIONAL_LIGHT block. A late setDirectional() call then
+    // just toggles the runtime directionLightEnable uniform without needing
+    // a recompile.
     Feature::LightingFeature noDir(nullptr, {}, {});
-    CHECK(noDir.flag() == 0);
+    CHECK(noDir.flag() == static_cast<ShaderFeatureMask>(ShaderFeature::DirectionalLight));
 
-    // With directional - DirectionalLight bit set.
     auto dir = std::make_shared<Lights::DirectionalLight>();
     Feature::LightingFeature withDir(dir, {}, {});
     CHECK(withDir.flag() == static_cast<ShaderFeatureMask>(ShaderFeature::DirectionalLight));

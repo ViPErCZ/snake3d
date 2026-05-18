@@ -1,5 +1,9 @@
 #include "SnakeMeshNode3D.h"
 
+#include "../../Material/MaterialBuilder.h"
+#include "../../Material/Feature/AlbedoFeature.h"
+#include "../../Material/Feature/ShadowFeature.h"
+
 #include "../../../../Physic/SphereShape.h"
 #include "../../Material/StandardMaterial.h"
 #include "../../Material/Uniform/TextureUniform.h"
@@ -12,6 +16,33 @@ namespace Model {
     namespace {
         void copyExplosionSourceMaterial(const shared_ptr<ShaderMaterial>& crashMaterial,
             const shared_ptr<BaseMaterial>& sourceMaterial) {
+            // B6b: source may now be a MaterialInstance (snake body tile) or
+            // still a StandardMaterial (head loaded from gltf). We extract
+            // albedo / fallback color from whichever path applies and feed
+            // the explosion shader the same uniforms as before.
+            if (const auto sourceInstance = dynamic_pointer_cast<Material::MaterialInstance>(sourceMaterial)) {
+                std::shared_ptr<Manager::TextureManager> albedoTex;
+                std::optional<glm::vec3> color;
+                for (const auto& feature : sourceInstance->getFeatures()) {
+                    if (const auto albedoFeature = dynamic_pointer_cast<Feature::AlbedoFeature>(feature)) {
+                        albedoTex = albedoFeature->getAlbedo();
+                        color = albedoFeature->getColor();
+                        break;
+                    }
+                }
+                const bool hasAlbedoTexture = albedoTex && albedoTex->hasTexture();
+                crashMaterial->setUniform("hasAlbedoTexture", hasAlbedoTexture);
+                crashMaterial->setUniform("useMaterial", !hasAlbedoTexture);
+                crashMaterial->setUniform("hasFallbackColor", color.has_value());
+                if (color.has_value()) {
+                    crashMaterial->setUniform("fallbackColor", *color);
+                }
+                if (hasAlbedoTexture) {
+                    crashMaterial->setAlbedo(albedoTex);
+                }
+                return;
+            }
+
             const auto sourceStandard = dynamic_pointer_cast<StandardMaterial>(sourceMaterial);
             if (!sourceStandard) {
                 crashMaterial->setUniform("hasAlbedoTexture", false);
@@ -45,11 +76,22 @@ namespace Model {
         timerUniform = make_shared<TimerUniform>(true);
         timerUniform2 = make_shared<TimerUniform>(false);
         if (resourceManager) {
-            const auto shader = resourceManager->getShader("basicShader");
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
-            tileMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-            tileMaterial->setColor({0.88, 0.05, 0.05});
-            tileMaterial->setShadow(resourceManager->getTexture("depth"));
+
+            // Tile material: red flat-colored snake segment. Migrated to
+            // MaterialBuilder in B6b. Lighting feature handle is retained so
+            // the SnakeMeshNode3D::setDirectionalLight/Spot/Point setters can
+            // mutate the directional + light arrays without rebuilding.
+            tileLightingFeature = make_shared<Feature::LightingFeature>(nullptr, std::vector<std::shared_ptr<Lights::PointLight>>{}, std::vector<std::shared_ptr<Lights::SpotLight>>{});
+            auto tileAlbedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
+            tileAlbedoFeature->setColor({0.88f, 0.05f, 0.05f});
+            tileMaterial = Material::MaterialBuilder()
+                .useMaster("basicShader")
+                .with(tileLightingFeature)
+                .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
+                .with(tileAlbedoFeature)
+                .build(*resourceManager->getShaderRegistry());
+
             headMaterial = mesh->getMaterial();
 
             timer = std::make_unique<Timer>(false);
@@ -261,7 +303,7 @@ namespace Model {
     void SnakeMeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
         directionalLight = directional_light;
         if (resourceManager) {
-            tileMaterial->setDirectionalLight(directional_light);
+            if (tileLightingFeature) tileLightingFeature->setDirectional(directional_light);
             respawnMaterial->setDirectionalLight(directionalLight);
             headRespawnMaterial->setDirectionalLight(directionalLight);
             crashMaterial->setDirectionalLight(directionalLight);
@@ -274,7 +316,7 @@ namespace Model {
     void SnakeMeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
         MeshNode3D::setSpotLights(spot_light);
         if (resourceManager) {
-            tileMaterial->setSpotLights(spotLights);
+            if (tileLightingFeature) tileLightingFeature->setSpots(spotLights);
             respawnMaterial->setSpotLights(spotLights);
             headRespawnMaterial->setSpotLights(spotLights);
             crashMaterial->setSpotLights(spotLights);
@@ -287,7 +329,7 @@ namespace Model {
     void SnakeMeshNode3D::setPointLights(const vector<shared_ptr<PointLight>> &point_light) {
         MeshNode3D::setPointLights(point_light);
         if (resourceManager) {
-            tileMaterial->setPointLights(point_light);
+            if (tileLightingFeature) tileLightingFeature->setPoints(pointLights);
             respawnMaterial->setPointLights(point_light);
             headRespawnMaterial->setPointLights(point_light);
             crashMaterial->setPointLights(point_light);
@@ -307,7 +349,10 @@ namespace Model {
 
     shared_ptr<SphereMesh> SnakeMeshNode3D::createTileNode() const {
         const auto sphere = make_shared<SphereMesh>(nullptr, 1.5, 0.75);
-        sphere->setMaterial(timerUniform->isRunning() == false ? tileMaterial : respawnMaterial);
+        const shared_ptr<BaseMaterial> material = timerUniform->isRunning() == false
+            ? static_pointer_cast<BaseMaterial>(tileMaterial)
+            : static_pointer_cast<BaseMaterial>(respawnMaterial);
+        sphere->setMaterial(material);
 
         return sphere;
     }

@@ -5,7 +5,9 @@
 
 #include "../../../../Physic/Algorithms/CollisionAlgorithms.h"
 #include "../../../../Tools/Timer.h"
+#include "../../Material/MaterialInstance.h"
 #include "../../Material/ShaderMaterial.h"
+#include "../../Material/Feature/LightingFeature.h"
 #include "../../Material/Uniform/TimerUniform.h"
 #include "../Standard/MeshNode3D.h"
 #include "../Standard/SphereMesh.h"
@@ -77,7 +79,8 @@ namespace Model {
         void stopRespawn();
         unique_ptr<Timer> timer;
         shared_ptr<SphereMesh> createTileNode() const;
-        shared_ptr<StandardMaterial> tileMaterial;
+        shared_ptr<Material::MaterialInstance> tileMaterial;
+        shared_ptr<Feature::LightingFeature> tileLightingFeature;
         shared_ptr<BaseMaterial> headMaterial;
         shared_ptr<ShaderMaterial> crashMaterial;
         shared_ptr<ShaderMaterial> respawnMaterial;

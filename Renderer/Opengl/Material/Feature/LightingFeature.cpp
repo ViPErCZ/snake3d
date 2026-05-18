@@ -10,15 +10,17 @@ namespace Feature {
     }
 
     Manager::ShaderFeatureMask LightingFeature::flag() const {
-        Manager::ShaderFeatureMask mask = 0;
-        if (directional) {
-            mask |= static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::DirectionalLight);
-        }
+        // Always advertise DirectionalLight so the FEATURE_DIRECTIONAL_LIGHT
+        // block compiles even when directional is set later than build() (e.g.
+        // SnakeMeshNode3D ctor builds the tile material, then setDirectional
+        // hooks up the scene light). At runtime `directionLightEnable` skips
+        // the block when no light is bound. The cost is a few KB of compiled
+        // shader code per permutation that never runs, which is negligible.
+        //
         // PointLights / SpotLights aren't gated by #ifdef in basic.fs (their
         // loops run unconditionally driven by numPointLights/numSpotLights);
-        // adding their flags would compile identical programs but split the
-        // permutation cache pointlessly.
-        return mask;
+        // adding their flags would split the permutation cache pointlessly.
+        return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::DirectionalLight);
     }
 
     void LightingFeature::bind(Manager::ShaderManager& shader,
