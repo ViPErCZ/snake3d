@@ -5,6 +5,7 @@
 #include "../Physic/SphereShape.h"
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
@@ -187,6 +188,8 @@ namespace Scenes {
             .with(make_shared<Feature::LightingFeature>(localDirectionalLight, pointLights, spotLights))
             .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
             .with(make_shared<Feature::NormalMapFeature>(nullptr))
+            // Same as PlayerScene: skeletal head needs FEATURE_BONES gated in.
+            .with(make_shared<Feature::BonesFeature>())
             .with(make_shared<Feature::AlbedoFeature>(nullptr))
             .build(*resourceManager->getShaderRegistry());
         pacmanMesh->setMaterial(material);

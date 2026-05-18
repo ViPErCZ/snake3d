@@ -5,6 +5,7 @@
 #include "../Physic/Dynamics/DynamicBody.h"
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
@@ -62,6 +63,12 @@ namespace Scenes {
             .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
             .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
             .with(make_shared<Feature::NormalMapFeature>(nullptr))
+            // Skeletal head needs FEATURE_BONES compiled in - basic.vs bones
+            // branch is gated by it, and AnimationArrayMesh::renderMesh flips
+            // useBones=true per skeletal sub-mesh. Without this the bones
+            // transform path is stripped and the head renders half-broken
+            // with no animation.
+            .with(make_shared<Feature::BonesFeature>())
             .with(make_shared<Feature::AlbedoFeature>(nullptr))
             .build(*resourceManager->getShaderRegistry());
         pacmanMesh->setMaterial(material);
