@@ -215,14 +215,10 @@ void main()
        FragColor = alphaBlending(pow(final, vec3(1.0/2.2)));
     }
 
-    if (reflectionEnable) {
-        vec4 distortedClipPos = clipSpacePos;
-        if (rainDropEnable) {
-            // Planární reflexe se rozvlní
-            distortedClipPos.xy += rippleOffset * 0.05;
-        }
-        FragColor = vec4(calcReflexion(clipSpacePos, FragColor.rgb), FragColor.a);
-    }
+    // @MATERIAL_FRAGMENT_POST
+    // ^ Snippet injection slot for post-shading effects (planar reflection,
+    //   future: tonemap tweaks, color grading). PlanarReflectionFeature
+    //   provides the reflection blob; without it the line stays a comment.
 
     gColor = FragColor;
     float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));

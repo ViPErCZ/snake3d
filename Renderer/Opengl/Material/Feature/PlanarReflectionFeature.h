@@ -31,6 +31,10 @@ namespace Feature {
         void unbind(Manager::ShaderManager& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
+        [[nodiscard]] std::map<std::string, std::string> snippetPaths() const override {
+            return {{"@MATERIAL_FRAGMENT_POST", "Assets/Shaders/snippets/planar_reflection.glsl"}};
+        }
+
         void setEnabled(const bool e) { enabled = e; }
         [[nodiscard]] bool isEnabled() const { return enabled; }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getTexture() const { return reflection; }
