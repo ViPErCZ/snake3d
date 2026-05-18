@@ -68,6 +68,14 @@ namespace Manager {
         // pro hot reload v budoucnu, zatím dostupné jako API hook.
         void clearCache();
 
+        // Iterace přes všechny cached programy. Užívá to např. DepthMapRenderer,
+        // který musí broadcastnout shadow-map uniformy (lightSpaceMatrix0/1/2,
+        // cascadeEnds, shadowCenter) všem 3D programům - každá permutace
+        // (basicShader|features, basicShader|features|HoleMap, ...) je jiné
+        // GL program ID. setMat4/setFloat na neexistující uniform je silent
+        // no-op, takže můžeme procházet všechny bez ohledu na obsah.
+        const std::unordered_map<uint64_t, std::shared_ptr<ShaderManager>>& cachedPrograms() const { return programs; }
+
         // Přístup k tabulce masters - debug introspekce.
         [[nodiscard]] bool hasMaster(const std::string& name) const;
 

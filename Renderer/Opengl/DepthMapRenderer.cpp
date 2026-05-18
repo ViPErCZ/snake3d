@@ -59,22 +59,34 @@ namespace Renderer {
         shader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
         shader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
 
-        const auto basicShader = resourceManager->getShader("basicShader");
-        basicShader->use();
-        int index = 0;
-        for (const auto &lightSpaceMatrice: lightSpaceMatrices) {
-            basicShader->setMat4("lightSpaceMatrix" + std::to_string(index), lightSpaceMatrice);
-            index++;
-        }
-
-        basicShader->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
-        basicShader->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
-        basicShader->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
-
         const glm::vec3 shadowCenter = camera->getStickyPoint()
             ? glm::vec3(camera->getStickyPoint()->getModelMatrix() * glm::vec4(0, 0, 0, 1))
             : camera->getPosition();
-        basicShader->setVec3("shadowCenter", shadowCenter);
+
+        // Shadow-map uniforms must reach every 3D program that reads them.
+        // After B fáze each material permutation (basicShader|features,
+        // basicShader|features|HoleMap, basicShader|features|Bones, ...) is
+        // a distinct GL program; writing only to ResourceManager's
+        // "basicShader" entry left plane / snake-tile / props with stale
+        // matrices, which is why plane shadows disappeared after the hole
+        // map split. Iterating the registry's cache broadcasts to all of
+        // them. setMat4 / setFloat / setVec3 on a uniform that doesn't
+        // exist in a given program is a silent no-op (location -1), so
+        // particle / 2D / skybox shaders also pass through harmlessly.
+        const auto registry = resourceManager->getShaderRegistry();
+        if (!registry) {
+            return;
+        }
+        for (const auto& [key, program] : registry->cachedPrograms()) {
+            program->use();
+            for (int i = 0; i < static_cast<int>(lightSpaceMatrices.size()); ++i) {
+                program->setMat4("lightSpaceMatrix" + std::to_string(i), lightSpaceMatrices[i]);
+            }
+            program->setFloat("cascadeEnds0", cascadeEndsWorld[0]);
+            program->setFloat("cascadeEnds1", cascadeEndsWorld[1]);
+            program->setFloat("cascadeEnds2", cascadeEndsWorld[2]);
+            program->setVec3("shadowCenter", shadowCenter);
+        }
     }
 
     void DepthMapRenderer::bind(const int index, const glm::mat4 &lightSpaceMatrix) const {
