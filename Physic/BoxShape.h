@@ -3,6 +3,8 @@
 
 #include "Shape.h"
 
+#include "../Renderer/Opengl/Material/MaterialInstance.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
 using namespace Model;
@@ -38,7 +40,8 @@ namespace Physic {
 
         glm::vec3 size;
 
-        shared_ptr<StandardMaterial> material;
+        shared_ptr<Material::MaterialInstance> material;
+        shared_ptr<Feature::AlbedoFeature> albedoFeature;
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<ContextState> contextState;
     };

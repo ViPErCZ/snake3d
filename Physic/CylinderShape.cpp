@@ -1,4 +1,5 @@
 #include "CylinderShape.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Model/Standard/CylinderMesh.h"
 
 namespace Physic {
@@ -8,12 +9,14 @@ namespace Physic {
         : radius(radius), height(height), contextState(contextState), resourceManager(resourceManager) {
 
         if constexpr (isDebug) {
-            const auto shader = resourceManager ? resourceManager->getShader("basicShader") : nullptr;
-            const auto shadowsShader = resourceManager ? resourceManager->getShader("shadowDepthShader") : nullptr;
-
-            material = make_shared<StandardMaterial>(shader, shadowsShader);
-            material->setNormalEnabled(false);
-            material->setAlpha(0.2);
+            if (!resourceManager) return;
+            const auto shader = resourceManager->getShader("basicShader");
+            albedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
+            albedoFeature->setAlpha(0.2f);
+            material = Material::MaterialBuilder()
+                .useMaster("basicShader")
+                .with(albedoFeature)
+                .build(*resourceManager->getShaderRegistry());
             material->setBlending(Blending::Translucent);
 
             auto cylinderMesh = make_shared<CylinderMesh>(shader, radius, radius, height, 8, 32);
@@ -58,7 +61,7 @@ namespace Physic {
     void CylinderShape::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) {
         if constexpr (isDebug) {
             const glm::vec3 color = isColliding() ? glm::vec3(1.0f, 0.2f, 0.2f) : glm::vec3(0.2f, 1.0f, 1.0f);
-            material->setColor(color);
+            albedoFeature->setColor(color);
 
             meshNode->setScale(glm::vec3(1.0f));
             meshNode->setPosition(glm::vec3(0.0f));

@@ -1,6 +1,12 @@
 #include "CoinScene.h"
 
 #include "../Physic/BoxShape.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/IblFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/PbrFeature.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Tools/Layers.h"
 
@@ -47,14 +53,23 @@ namespace Scenes {
         const auto coinAlbedo = resourceManager->getTexture("Coin_Gold_albedo.png");
         const auto coinNormal = resourceManager->getTexture("Coin_Gold_nm.png");
         const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
-        auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
-        const auto coinMaterial = make_shared<StandardMaterial>(shader, shadowsShader);
-        coinMaterial->setAlbedo(coinAlbedo);
-        coinMaterial->setNormal(coinNormal);
-        coinMaterial->setSpecular(coinMetalness);
-        coinMaterial->setNormalEnabled(true);
-        coinMaterial->setDirectionalLight(directionalLight);
-        coinMaterial->setBlending(Blending::Translucent);
+        const auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
+
+        // Spots are added per-light below; LightingFeature handle lets us
+        // mutate the vector after build instead of rebuilding the material.
+        auto coinLighting = make_shared<Feature::LightingFeature>(
+            directionalLight,
+            std::vector<std::shared_ptr<Lights::PointLight>>{},
+            std::vector<std::shared_ptr<Lights::SpotLight>>{});
+        const auto coinMaterial = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(coinLighting)
+            .with(make_shared<Feature::NormalMapFeature>(coinNormal))
+            .with(make_shared<Feature::PbrFeature>(coinMetalness, coinRoughness))
+            .with(make_shared<Feature::IblFeature>(resourceManager->getTexture("skybox")))
+            .with(make_shared<Feature::AlbedoFeature>(coinAlbedo))
+            .build(*resourceManager->getShaderRegistry());
+        coinMaterial->setBlending(Blending::Opaque);
 
         const auto boxShape = make_shared<BoxShape>(resourceManager, contextState,glm::vec3(2.8, 2.8, 1.0));
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, boxShape);
@@ -72,11 +87,7 @@ namespace Scenes {
             manipulatorHandler->getCollisionShapeHandler()->addItem(shape);
         }
 
-        int index = 0;
-        for (auto &spotLight : spotLights) {
-            coinMaterial->addSpotLight(spotLight);
-            index++;
-        }
+        coinLighting->setSpots(spotLights);
 
         coinMesh->setMaterial(coinMaterial);
 
