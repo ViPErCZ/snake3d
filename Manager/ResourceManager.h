@@ -9,6 +9,7 @@
 #include <queue>
 #include "TextureManager.h"
 #include "ShaderManager.h"
+#include "ShaderRegistry.h"
 #include "../Resource/ResourceLoader.h"
 
 using namespace std;
@@ -39,6 +40,12 @@ namespace Manager {
         bool hasTexture(const string &name) const;
 
         shared_ptr<ShaderManager> getShader(const string &name) const;
+
+        // B5c: optional handle to the shader registry. App sets it during
+        // bootstrap; scenes use it through MaterialBuilder. Will become the
+        // primary shader API in B6 once ResourceManager::getShader is retired.
+        void setShaderRegistry(shared_ptr<ShaderRegistry> registry) { shaderRegistry = std::move(registry); }
+        [[nodiscard]] shared_ptr<ShaderRegistry> getShaderRegistry() const { return shaderRegistry; }
 
         shared_ptr<Mesh> getModel(const string &name) const;
 
@@ -108,6 +115,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<ShaderManager> > shader;
         std::unordered_map<std::string, std::shared_ptr<Mesh> > model;
         std::unordered_map<std::string, std::shared_ptr<AnimationPlayer> > animationModel;
+        std::shared_ptr<ShaderRegistry> shaderRegistry;
         std::unique_ptr<ResourceLoader> loader;
 
         mutable std::mutex pendingMutex;

@@ -18,7 +18,16 @@
 #include "SceneLightFactory.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
-#include "../Renderer/Opengl/Material/PlaneMaterial.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+#include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
+#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
+#include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
+#include "../Renderer/Opengl/Material/Feature/UvTransformFeature.h"
 #include "../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "../Renderer/Opengl/Model/Game/MarkRingNode3D.h"
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
@@ -157,9 +166,9 @@ namespace Scenes {
                 rendererManager->toggleShadows();
                 break;
             case GLFW_KEY_F2:
-                if (planeMaterial) {
+                if (planeReflectionFeature) {
                     rendererManager->toggleReflections();
-                    planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
+                    planeReflectionFeature->setEnabled(rendererManager->isReflectionsEnabled());
                 }
                 break;
             case GLFW_KEY_F:
@@ -234,28 +243,36 @@ namespace Scenes {
     }
 
     void MainScene::initPlane() {
-        auto planeShader = resourceManager->getShader("planeShader");
         auto shadowDepthShader = resourceManager->getShader("shadowDepthShader");
         const auto shadowMap = resourceManager->getTexture("depth");
         const auto gamefieldAlbedo = resourceManager->getTexture("tile.png");
         const auto gamefieldNormal = resourceManager->getTexture("gamefield_normal.jpg");
         const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
-        planeMaterial = make_shared<PlaneMaterial>(planeShader, shadowDepthShader);
-        planeMaterial->setReflectionTexture(resourceManager->getTexture("PlanarReflectionTexture"));
-        planeMaterial->setReflectionEnabled(rendererManager->isReflectionsEnabled());
+        const auto reflectionTexture = resourceManager->getTexture("PlanarReflectionTexture");
 
-        planeMaterial->setDirectionalLight(directionalLight);
-        planeMaterial->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
-        planeMaterial->setShadow(shadowMap);
-        planeMaterial->setNormalEnabled(true);
-        planeMaterial->setAlbedo(gamefieldAlbedo);
-        planeMaterial->setNormal(gamefieldNormal);
-        planeMaterial->setSpecular(gamefieldSpecular);
-        planeMaterial->set_uv_scale(glm::vec2(48.0f, 48.0f));
-        planeMaterial->setSpotLights(spotLights);
-        planeMaterial->setPointLights(pointLights);
+        // Feature handles we want to mutate later (hole map texture rebuild
+        // per level, F2 reflection toggle).
+        planeHoleMapFeature = make_shared<Feature::HoleMapFeature>(nullptr);
+        planeReflectionFeature = make_shared<Feature::PlanarReflectionFeature>(
+            reflectionTexture, rendererManager->isReflectionsEnabled());
 
-        auto planeMesh = make_shared<PlaneMesh>(planeShader, 4, 4);
+        auto albedoFeature = make_shared<Feature::AlbedoFeature>(gamefieldAlbedo);
+        albedoFeature->setColor(glm::vec3(0.0f));
+
+        planeMaterial = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+            .with(make_shared<Feature::ShadowFeature>(shadowMap, shadowDepthShader))
+            .with(make_shared<Feature::NormalMapFeature>(gamefieldNormal))
+            .with(make_shared<Feature::SpecularFeature>(gamefieldSpecular))
+            .with(make_shared<Feature::UvTransformFeature>(glm::vec2(48.0f)))
+            .with(make_shared<Feature::FogFeature>(true))
+            .with(albedoFeature)
+            .with(planeReflectionFeature)
+            .with(planeHoleMapFeature)
+            .build(*resourceManager->getShaderRegistry());
+
+        auto planeMesh = make_shared<PlaneMesh>(planeMaterial->getProgram(), 4, 4);
         planeMesh->setMaterial(planeMaterial);
         const auto node3d = make_shared<MeshNode3D>(contextState, planeMesh, resourceManager);
         node3d->disablePlanarReflection();
@@ -308,7 +325,7 @@ namespace Scenes {
     }
 
     void MainScene::applyHolesToPlane() {
-        if (!planeMaterial || !levelManager) {
+        if (!planeHoleMapFeature || !levelManager) {
             return;
         }
         constexpr int gridSize = 48;
@@ -334,7 +351,7 @@ namespace Scenes {
 
         // TextureManager owns the GL id - destructor calls glDeleteTextures.
         holeMapTexture = std::make_shared<Manager::TextureManager>(texId);
-        planeMaterial->setHoleMap(holeMapTexture);
+        planeHoleMapFeature->setTexture(holeMapTexture);
     }
 
     void MainScene::initCoinScene() {

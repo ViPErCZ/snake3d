@@ -76,10 +76,6 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.h
-        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
-        Renderer/Opengl/Material/PlanarReflectionMaterial.h
-        Renderer/Opengl/Material/PlaneMaterial.cpp
-        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -400,10 +396,6 @@ set(APP_SOURCES
         Renderer/Opengl/Material/StandardMaterial.cpp
         Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.h
-        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
-        Renderer/Opengl/Material/PlanarReflectionMaterial.h
-        Renderer/Opengl/Material/PlaneMaterial.cpp
-        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
@@ -646,10 +638,6 @@ set(APP_SOURCES
 add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
-        Renderer/Opengl/Material/PlanarReflectionMaterial.cpp
-        Renderer/Opengl/Material/PlanarReflectionMaterial.h
-        Renderer/Opengl/Material/PlaneMaterial.cpp
-        Renderer/Opengl/Material/PlaneMaterial.h
         Renderer/Opengl/Model/Standard/BoxMesh.cpp
         Renderer/Opengl/Model/Standard/BoxMesh.h
         Renderer/Opengl/Model/Standard/StandardMesh.cpp

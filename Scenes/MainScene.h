@@ -12,7 +12,9 @@
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
 #include "../Manager/TextureManager.h"
-#include "../Renderer/Opengl/Material/PlaneMaterial.h"
+#include "../Renderer/Opengl/Material/MaterialInstance.h"
+#include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 #include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
@@ -129,7 +131,13 @@ namespace Scenes {
         shared_ptr<LevelManager> levelManager;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         unique_ptr<SceneHud> hud;
-        shared_ptr<PlaneMaterial> planeMaterial;
+        // B5c: plane is now a builder-built MaterialInstance. Feature handles
+        // are kept so runtime mutations (applyHolesToPlane texture rebuild,
+        // F2 reflection toggle) can poke the specific feature without rebuilding
+        // the whole material.
+        shared_ptr<Material::MaterialInstance> planeMaterial;
+        shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;
+        shared_ptr<Feature::PlanarReflectionFeature> planeReflectionFeature;
         shared_ptr<Manager::TextureManager> holeMapTexture;
         shared_ptr<Preloader2Scene> preLoader;
         shared_ptr<WinnerScene> winnerScene;

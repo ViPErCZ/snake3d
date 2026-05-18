@@ -19,6 +19,7 @@ namespace Feature {
         void unbind(Manager::ShaderManager& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
+        void setTexture(std::shared_ptr<Manager::TextureManager> texture) { holeMap = std::move(texture); }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getTexture() const { return holeMap; }
 
     private:

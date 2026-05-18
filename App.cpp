@@ -10,6 +10,7 @@
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
     shaderRegistry = make_shared<ShaderRegistry>();
+    resourceManager->setShaderRegistry(shaderRegistry);
     keyboardManager = make_unique<KeyboardManager>();
 
     projection = glm::perspective(
@@ -121,12 +122,8 @@ void App::Init() {
         "basicShader",
         shaderRegistry->get({"basicShader", legacyBasicFeatures})
     );
-    // B3d: planeShader je alias v ResourceManager - sdílí basicShader master,
-    // přidává jen FEATURE_HOLE_MAP. plane.fs jako samostatný soubor zmizel.
-    resourceManager->addShader(
-        "planeShader",
-        shaderRegistry->get({"basicShader", legacyBasicFeatures | ShaderFeature::HoleMap})
-    );
+    // B5c: planeShader alias smazán - plane jde přes MaterialBuilder a získá
+    // svůj program (basicShader + HoleMap) přímo z shaderRegistry->get.
     resourceManager->addShader(
         "arrowGizmo",
         std::make_shared<ShaderManager>(
