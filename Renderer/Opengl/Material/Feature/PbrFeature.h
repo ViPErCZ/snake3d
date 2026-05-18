@@ -27,6 +27,9 @@ namespace Feature {
         void unbind(Manager::ShaderManager& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
+        void setMetalness(std::shared_ptr<Manager::TextureManager> t) { metalness = std::move(t); }
+        void setRoughness(std::shared_ptr<Manager::TextureManager> t) { roughness = std::move(t); }
+        void setAoMap(std::shared_ptr<Manager::TextureManager> t) { aoMap = std::move(t); }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getMetalness() const { return metalness; }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getRoughness() const { return roughness; }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getAoMap() const { return aoMap; }

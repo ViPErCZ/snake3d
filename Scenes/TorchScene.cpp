@@ -5,6 +5,10 @@
 #include "../Handler/Debug/PositionHandler.h"
 #include "../Physic/BoxShape.h"
 #include "../Physic/CylinderShape.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
@@ -67,19 +71,16 @@ namespace Scenes {
 
         const auto torchAlbedo = resourceManager->getTexture("torch.png");
         const auto torchNormal = resourceManager->getTexture("torch_normal.png");
-        const auto torchMaterial = make_shared<StandardMaterial>(
-            resourceManager->getShader("basicShader"),
-            resourceManager->getShader("shadowDepthShader")
-        );
-        torchMaterial->setAlbedo(torchAlbedo);
-        torchMaterial->setNormal(torchNormal);
-        torchMaterial->setNormalEnabled(true);
-        torchMaterial->setDirectionalLight(directionalLight);
-        torchMaterial->setBlending(Blending::Opaque);
 
-        for (auto &spotLight : spotLights) {
-            torchMaterial->addSpotLight(spotLight);
-        }
+        const auto torchMaterial = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight,
+                                                       std::vector<std::shared_ptr<Lights::PointLight>>{},
+                                                       spotLights))
+            .with(make_shared<Feature::NormalMapFeature>(torchNormal))
+            .with(make_shared<Feature::AlbedoFeature>(torchAlbedo))
+            .build(*resourceManager->getShaderRegistry());
+        torchMaterial->setBlending(Blending::Opaque);
 
         torch->setMaterial(torchMaterial);
 

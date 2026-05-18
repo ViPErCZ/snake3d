@@ -24,6 +24,7 @@ namespace Feature {
         void unbind(Manager::ShaderManager& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
+        void setEnvironmentMap(std::shared_ptr<Manager::TextureManager> t) { environmentMap = std::move(t); }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getEnvironmentMap() const { return environmentMap; }
 
     private:

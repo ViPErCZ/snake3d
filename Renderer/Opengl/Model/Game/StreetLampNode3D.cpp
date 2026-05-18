@@ -1,5 +1,9 @@
 #include "StreetLampNode3D.h"
 
+#include "../../Material/MaterialBuilder.h"
+#include "../../Material/Feature/IblFeature.h"
+#include "../../Material/Feature/LightingFeature.h"
+#include "../../Material/Feature/ShadowFeature.h"
 #include "../Standard/ArrayMesh.h"
 
 namespace Model {
@@ -31,33 +35,54 @@ namespace Model {
         mesh = streetLampMesh1;
         addNode(streetLamp2);
 
-        material1 = make_shared<StandardMaterial>(shader, shadowsShader);
-        material1->setNormalEnabled(true);
-        material1->setDirectionalLight(directionalLight);
-        material1->setBlending(Blending::Opaque);
-        material1->setShadow(resourceManager->getTexture("depth"));
+        const auto depthTex = resourceManager->getTexture("depth");
+        const std::vector<std::shared_ptr<Lights::SpotLight>> emptySpots;
 
-        material1->setEnvironmentMap(resourceManager->getTexture("skybox"));
-        material1->setPointLights(pointLights);
-        material1->setAmbientLightColorIntensity(2.5f);
+        // Material 1 - lamp post body. Albedo + normal + PBR + IBL.
+        albedo1 = make_shared<Feature::AlbedoFeature>(nullptr);
+        albedo1->setAmbientIntensity(2.5f);
+        normal1 = make_shared<Feature::NormalMapFeature>(nullptr);
+        pbr1 = make_shared<Feature::PbrFeature>(nullptr, nullptr, nullptr);
+        auto ibl1 = make_shared<Feature::IblFeature>(resourceManager->getTexture("skybox"));
+        material1 = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, emptySpots))
+            .with(make_shared<Feature::ShadowFeature>(depthTex, shadowsShader))
+            .with(normal1)
+            .with(pbr1)
+            .with(ibl1)
+            .with(albedo1)
+            .build(*resourceManager->getShaderRegistry());
+        material1->setBlending(Blending::Opaque);
         mesh->setMaterial(material1);
 
-        material2 = make_shared<StandardMaterial>(shader, shadowsShader);
-        material2->setDirectionalLight(directionalLight);
+        // Material 2 - lamp glass shade. Additive blending for bloom.
+        albedo2 = make_shared<Feature::AlbedoFeature>(nullptr);
+        albedo2->setAmbientIntensity(2.0f);
+        normal2 = make_shared<Feature::NormalMapFeature>(nullptr);
+        pbr2 = make_shared<Feature::PbrFeature>(nullptr, nullptr, nullptr);
+        material2 = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, emptySpots))
+            .with(make_shared<Feature::ShadowFeature>(depthTex, shadowsShader))
+            .with(normal2)
+            .with(pbr2)
+            .with(albedo2)
+            .build(*resourceManager->getShaderRegistry());
         material2->setBlending(Blending::Additive);
-        material2->setNormalEnabled(true);
-        material2->setShadow(resourceManager->getTexture("depth"));
-
-        material2->setPointLights(pointLights);
-        material2->setAmbientLightColorIntensity(2);
         mesh2->setMaterial(material2);
 
-        material3 = make_shared<StandardMaterial>(shader, shadowsShader);
-        material3->setDirectionalLight(directionalLight);
+        // Material 3 - lamp bulb. HDR color drives bloom, no albedo texture.
+        albedo3 = make_shared<Feature::AlbedoFeature>(nullptr);
+        albedo3->setColor({0.98f * 200, 0.99f * 200, 0.007f * 200});
+        normal3 = make_shared<Feature::NormalMapFeature>(nullptr);
+        material3 = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, emptySpots))
+            .with(normal3)
+            .with(albedo3)
+            .build(*resourceManager->getShaderRegistry());
         material3->setBlending(Blending::Opaque);
-        material3->setNormalEnabled(true);
-        material3->setColor({0.98 * 200, 0.99 * 200, 0.007 * 200});
-        material3->setPointLights(pointLights);
         mesh3->setMaterial(material3);
     }
 
@@ -89,20 +114,20 @@ namespace Model {
                 const auto normalTexture = resourceManager->getTexture("streetlamp_" + mesh->getMesh()->getTextures()[1].path); // 2
                 const auto pbrTexture = resourceManager->getTexture("streetlamp_" + mesh->getMesh()->getTextures()[2].path); // 1
 
-                material1->setAlbedo(albedoTexture);
-                material1->setNormal(normalTexture);
-                material1->setRoughness(pbrTexture);
-                material1->setMetalness(pbrTexture);
-                material1->setAoMap(pbrTexture);
+                albedo1->setAlbedo(albedoTexture);
+                normal1->setTexture(normalTexture);
+                pbr1->setRoughness(pbrTexture);
+                pbr1->setMetalness(pbrTexture);
+                pbr1->setAoMap(pbrTexture);
 
                 const auto albedoTexture2 = resourceManager->getTexture("streetlamp_" + mesh2->getMesh()->getTextures()[0].path);
-                material2->setNormal(normalTexture);
-                material2->setAlbedo(albedoTexture2);
-                material2->setRoughness(pbrTexture);
-                material2->setMetalness(pbrTexture);
-                material2->setAoMap(pbrTexture);
+                normal2->setTexture(normalTexture);
+                albedo2->setAlbedo(albedoTexture2);
+                pbr2->setRoughness(pbrTexture);
+                pbr2->setMetalness(pbrTexture);
+                pbr2->setAoMap(pbrTexture);
 
-                material3->setNormal(normalTexture);
+                normal3->setTexture(normalTexture);
             }
         }
     }

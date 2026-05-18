@@ -1,6 +1,9 @@
 #ifndef SNAKE3_BARRELNODE3D_H
 #define SNAKE3_BARRELNODE3D_H
 
+#include "../../Material/MaterialInstance.h"
+#include "../../Material/Feature/AlbedoFeature.h"
+#include "../../Material/Feature/NormalMapFeature.h"
 #include "../Standard/MeshNode3D.h"
 
 namespace Model {
@@ -14,7 +17,9 @@ namespace Model {
         void update(float dt, uint64_t frameId) override;
 
     protected:
-        shared_ptr<StandardMaterial> material;
+        shared_ptr<Material::MaterialInstance> material;
+        shared_ptr<Feature::AlbedoFeature> albedoFeature;
+        shared_ptr<Feature::NormalMapFeature> normalFeature;
         bool initialized = false;
     };
 } // Model

@@ -1,5 +1,8 @@
 #include "BarrelNode3D.h"
 
+#include "../../Material/MaterialBuilder.h"
+#include "../../Material/Feature/LightingFeature.h"
+#include "../../Material/Feature/ShadowFeature.h"
 #include "../Standard/ArrayMesh.h"
 
 namespace Model {
@@ -16,12 +19,20 @@ namespace Model {
         setPosition({0.6, 0.0f, -7.2f});
         setScale({0.13888889, 0.13888889, 0.13888889});
         setRotationX(90);
-        material = make_shared<StandardMaterial>(shader, shadowsShader);
-        material->setDirectionalLight(directionalLight);
+
+        albedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
+        albedoFeature->setAmbientIntensity(2.5f);
+        normalFeature = make_shared<Feature::NormalMapFeature>(nullptr);
+        material = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight,
+                                                       pointLights,
+                                                       std::vector<std::shared_ptr<Lights::SpotLight>>{}))
+            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
+            .with(normalFeature)
+            .with(albedoFeature)
+            .build(*resourceManager->getShaderRegistry());
         material->setBlending(Blending::Opaque);
-        material->setShadow(resourceManager->getTexture("depth"));
-        material->setPointLights(pointLights);
-        material->setAmbientLightColorIntensity(2.5f);
         barrel->setMaterial(material);
 
         mesh = barrel;
@@ -33,18 +44,17 @@ namespace Model {
         MeshNode3D::update(dt, frameId);
 
         if (!initialized) {
-            if (material->getAlbedo() == nullptr) {
+            if (albedoFeature->getAlbedo() == nullptr) {
                 const auto barrelAlbedoTexture = mesh->getMesh()->getTextures()[0].texture;
                 barrelAlbedoTexture->lazyLoad(true);
-                material->setAlbedo(barrelAlbedoTexture);
-            } else if (material->getNormal() == nullptr) {
+                albedoFeature->setAlbedo(barrelAlbedoTexture);
+            } else if (normalFeature->getTexture() == nullptr) {
                 const auto barrelNormalTexture = mesh->getMesh()->getTextures()[1].texture;
                 barrelNormalTexture->lazyLoad(true);
-                material->setNormal(barrelNormalTexture);
-                material->setNormalEnabled(true);
+                normalFeature->setTexture(barrelNormalTexture);
             }
 
-            if (material->getAlbedo() != nullptr && material->getNormal() != nullptr) {
+            if (albedoFeature->getAlbedo() != nullptr && normalFeature->getTexture() != nullptr) {
                 initialized = true;
                 setVisible(true);
             }
