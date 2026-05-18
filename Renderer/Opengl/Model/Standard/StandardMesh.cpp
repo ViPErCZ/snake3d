@@ -96,6 +96,14 @@ namespace Model {
 
     void StandardMesh::renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
         const glm::mat4 &parentTransform) const {
+        if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
+            if (materialInstance->bindShadow(parentTransform)) {
+                mesh->bind();
+                glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
+                               nullptr);
+            }
+            return;
+        }
         const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
         if (standardMaterial) {
             standardMaterial.get()->bindShadow(parentTransform);

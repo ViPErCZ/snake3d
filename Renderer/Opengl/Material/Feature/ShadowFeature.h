@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "IMaterialFeature.h"
 #include "../../../../Manager/ShaderManager.h"
 #include "../../../../Manager/TextureManager.h"
@@ -26,6 +28,12 @@ namespace Feature {
                   const Material::RenderContext& ctx) const override;
         void unbind(Manager::ShaderManager& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
+
+        // Pro shadow-map pre-pass: aktivuje vlastní shadowDepthShader a zapíše
+        // model matrix. Vrátí true pokud opravdu shadow shader bind. Volá z
+        // MaterialInstance::bindShadow, který je hostován z StandardMesh::
+        // renderShadowMap.
+        bool bindShadow(const glm::mat4& model) const;
 
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getShadowArray() const { return shadowArray; }
         [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getShadowDepthShader() const { return shadowDepthShader; }

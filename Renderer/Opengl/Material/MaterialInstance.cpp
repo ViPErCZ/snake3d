@@ -1,5 +1,7 @@
 #include "MaterialInstance.h"
 
+#include "Feature/ShadowFeature.h"
+
 namespace Material {
     MaterialInstance::MaterialInstance(std::shared_ptr<Manager::ShaderManager> program,
                                        std::vector<std::shared_ptr<Feature::IMaterialFeature>> features)
@@ -33,6 +35,15 @@ namespace Material {
         for (const auto& f : features) {
             if (f) f->unbind(*program);
         }
+    }
+
+    bool MaterialInstance::bindShadow(const glm::mat4& model) const {
+        for (const auto& f : features) {
+            if (const auto shadow = std::dynamic_pointer_cast<Feature::ShadowFeature>(f)) {
+                return shadow->bindShadow(model);
+            }
+        }
+        return false;
     }
 
     std::shared_ptr<BaseMaterial> MaterialInstance::clone() const {

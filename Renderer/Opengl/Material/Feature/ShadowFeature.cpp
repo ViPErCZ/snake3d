@@ -29,4 +29,13 @@ namespace Feature {
     std::shared_ptr<IMaterialFeature> ShadowFeature::clone() const {
         return std::make_shared<ShadowFeature>(shadowArray, shadowDepthShader);
     }
+
+    bool ShadowFeature::bindShadow(const glm::mat4& model) const {
+        if (!shadowDepthShader) {
+            return false;
+        }
+        shadowDepthShader->use();
+        shadowDepthShader->setMat4("model", model);
+        return true;
+    }
 } // Feature

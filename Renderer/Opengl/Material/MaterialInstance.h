@@ -27,6 +27,12 @@ namespace Material {
         void bind(const RenderContext& ctx) const;
         void unbind() const;
 
+        // Shadow-map pre-pass entry: hledá ShadowFeature ve features a
+        // deleguje na něj. Vrací true pokud feature shadow shader nabindla
+        // (a tedy je smysluplné nasledně volat glDrawElements). Bez ShadowFeature
+        // materiál do shadow mapy nepřispívá - materiál není shadow caster.
+        bool bindShadow(const glm::mat4& model) const;
+
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
         [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getProgram() const { return program; }
