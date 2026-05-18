@@ -1,7 +1,10 @@
 #include "StandardMesh.h"
 #include <glm/gtx/string_cast.hpp>
+#include <GLFW/glfw3.h>
 
 #include "../../../../Tools/ContextState.h"
+#include "../../Material/MaterialInstance.h"
+#include "../../Material/RenderContext.h"
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
@@ -40,7 +43,17 @@ namespace Model {
             alpha = metadata->alpha;
         }
 
-        if (const auto standardMaterial = std::dynamic_pointer_cast<StandardMaterial>(material)) {
+        if (const auto materialInstance = std::dynamic_pointer_cast<MaterialInstance>(material)) {
+            const RenderContext ctx{
+                camera->getPosition(),
+                camera->getViewMatrix(),
+                projection,
+                worldTransform,
+                static_cast<float>(glfwGetTime()),
+                shadows
+            };
+            materialInstance->bind(ctx);
+        } else if (const auto standardMaterial = std::dynamic_pointer_cast<StandardMaterial>(material)) {
             if (nullptr != animationPlayer) {
                 standardMaterial->setAlpha(alpha);
             }
@@ -74,8 +87,10 @@ namespace Model {
         mesh->bind();
         glDrawElements(static_cast<GLenum>(drawElement), static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
-        if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->unbind();
+        if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
+            materialInstance->unbind();
+        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
+            standardMaterial->unbind();
         }
     }
 
