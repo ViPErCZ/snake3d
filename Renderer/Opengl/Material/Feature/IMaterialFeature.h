@@ -1,7 +1,9 @@
 #ifndef SNAKE3_IMATERIALFEATURE_H
 #define SNAKE3_IMATERIALFEATURE_H
 
+#include <map>
 #include <memory>
+#include <string>
 
 #include "../../../../Manager/ShaderFeature.h"
 #include "../../../../Manager/ShaderManager.h"
@@ -38,6 +40,16 @@ namespace Feature {
         // se klonují, sdílené resources (textury, lights) se nesdílejí
         // přes shared_ptr.
         [[nodiscard]] virtual std::shared_ptr<IMaterialFeature> clone() const = 0;
+
+        // Volitelně: snippety, které tato feature injektuje do master shaderu.
+        // Klíč je marker (např. `@MATERIAL_FRAGMENT_POST`), hodnota je cesta
+        // k .glsl souboru. Cache klíč v ShaderRegistry zahrnuje cestu, takže
+        // různé snippety produkují různé permutace programu. Default je prázdná
+        // mapa - většina features funguje přes `#ifdef FEATURE_X` v master
+        // shaderu, ne přes snippet injection.
+        [[nodiscard]] virtual std::map<std::string, std::string> snippetPaths() const {
+            return {};
+        }
     };
 } // Feature
 

@@ -2,6 +2,7 @@
 #define SNAKE3_SHADERREGISTRY_H
 
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -13,15 +14,23 @@
 namespace fs = std::filesystem;
 
 namespace Manager {
-    // Identifikuje konkrétní permutaci shaderu (master + zapnuté features).
-    // Materiály drží `ShaderHandle` místo přímého `ShaderManager` - registry
-    // vrátí program lazy-kompilovaný při prvním requestu.
+    // Identifikuje konkrétní permutaci shaderu (master + zapnuté features +
+    // snippets). Materiály drží `ShaderHandle` místo přímého `ShaderManager` -
+    // registry vrátí program lazy-kompilovaný při prvním requestu.
+    //
+    // snippets mapuje marker (např. `@MATERIAL_FRAGMENT_POST`) na cestu k
+    // .glsl souboru, jehož obsah se injektuje do master shaderu na místě
+    // marker komentáře. Cesta je součástí cache klíče, takže různé materiály
+    // s různými snippety dostanou různé GL programy.
     struct ShaderHandle {
         std::string master;
         ShaderFeatureMask features = 0;
+        std::map<std::string, std::string> snippets;
 
         bool operator==(const ShaderHandle& other) const {
-            return master == other.master && features == other.features;
+            return master == other.master
+                && features == other.features
+                && snippets == other.snippets;
         }
     };
 
@@ -64,7 +73,9 @@ namespace Manager {
 
     private:
         // FNV-1a 64bit hash pro cache klíč. Stabilní napříč běhy aplikace.
-        static uint64_t makeKey(const std::string& master, ShaderFeatureMask features);
+        static uint64_t makeKey(const std::string& master,
+                                ShaderFeatureMask features,
+                                const std::map<std::string, std::string>& snippets);
 
         std::unordered_map<std::string, Master> masters;
         std::unordered_map<uint64_t, std::shared_ptr<ShaderManager>> programs;

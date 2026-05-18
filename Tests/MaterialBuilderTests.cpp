@@ -70,6 +70,58 @@ TEST_CASE("MaterialBuilder::with ignores nullptr feature") {
     CHECK(b.featureMask() == 0);
 }
 
+namespace {
+    // GL-free test feature: declares a snippet path so we can exercise
+    // MaterialBuilder's snippet collection without touching real shaders.
+    class TestSnippetFeature final : public Feature::IMaterialFeature {
+    public:
+        explicit TestSnippetFeature(std::string marker, std::string path)
+            : marker_(std::move(marker)), path_(std::move(path)) {}
+
+        [[nodiscard]] ShaderFeatureMask flag() const override { return 0; }
+        void bind(Manager::ShaderManager&, const Material::RenderContext&) const override {}
+        [[nodiscard]] std::shared_ptr<Feature::IMaterialFeature> clone() const override {
+            return std::make_shared<TestSnippetFeature>(marker_, path_);
+        }
+        [[nodiscard]] std::map<std::string, std::string> snippetPaths() const override {
+            return {{marker_, path_}};
+        }
+
+    private:
+        std::string marker_;
+        std::string path_;
+    };
+}
+
+TEST_CASE("IMaterialFeature default snippetPaths returns empty") {
+    Feature::HoleMapFeature feat(nullptr);
+    CHECK(feat.snippetPaths().empty());
+}
+
+TEST_CASE("MaterialBuilder collects snippets from features") {
+    MaterialBuilder b;
+    b.useMaster("main3D");
+    b.with(std::make_shared<TestSnippetFeature>("@SLOT_A", "snippets/a.glsl"));
+    b.with(std::make_shared<TestSnippetFeature>("@SLOT_B", "snippets/b.glsl"));
+
+    // Builder itself doesn't expose snippets directly; we verify through
+    // featureMask + the snippetPaths() of the stored features.
+    REQUIRE(b.featuresView().size() == 2);
+    CHECK(b.featuresView()[0]->snippetPaths().at("@SLOT_A") == "snippets/a.glsl");
+    CHECK(b.featuresView()[1]->snippetPaths().at("@SLOT_B") == "snippets/b.glsl");
+}
+
+TEST_CASE("ShaderHandle equality includes snippets") {
+    Manager::ShaderHandle a{"main3D", 0, {{"@X", "p1.glsl"}}};
+    Manager::ShaderHandle b{"main3D", 0, {{"@X", "p1.glsl"}}};
+    Manager::ShaderHandle c{"main3D", 0, {{"@X", "p2.glsl"}}};
+    Manager::ShaderHandle d{"main3D", 0, {}};
+
+    CHECK(a == b);
+    CHECK_FALSE(a == c);
+    CHECK_FALSE(a == d);
+}
+
 TEST_CASE("TextureSlots values are unique") {
     // Compile-time sanity check that we haven't accidentally collided slots.
     using namespace Material::TextureSlots;

@@ -1,6 +1,4 @@
 #include "ShaderRegistry.h"
-
-#include <cassert>
 #include <iostream>
 
 #include "../Resource/ShaderLoader.h"
@@ -32,15 +30,13 @@ namespace Manager {
             return nullptr;
         }
 
-        const uint64_t key = makeKey(handle.master, handle.features);
+        const uint64_t key = makeKey(handle.master, handle.features, handle.snippets);
         if (const auto cached = programs.find(key); cached != programs.end()) {
             return cached->second;
         }
 
-        // B2: features se injektují jako `#define FEATURE_*` přes preprocessor.
-        // V B2 fázi `basic.fs` ještě nemá odpovídající `#ifdef` bloky, takže
-        // features != 0 zatím nemění funkci shaderu - jen ověřuje že cache klíč
-        // a injekce fungují. `#ifdef` bloky přidá B3.
+        // Features se injektují jako `#define FEATURE_*` a snippets jako
+        // text substituce za `// @MARKER` komentáři v master shaderu.
         const Master& m = it->second;
         const auto defines = definesForMask(handle.features);
 
@@ -56,9 +52,22 @@ namespace Manager {
             vsSrc = Resource::ShaderPreprocessor::injectDefines(vsSrc, defines);
             fsSrc = Resource::ShaderPreprocessor::injectDefines(fsSrc, defines);
 
+            // Aplikuj snippets na vertex i fragment - injectSnippet je no-op
+            // pokud marker není přítomen. Snippety mohou samy mít `#include`
+            // direktivy, ty se rozresolvují v loadShaderSource.
+            for (const auto& [marker, path] : handle.snippets) {
+                const std::string snippet = Resource::ShaderLoader::loadShaderSource(path);
+                vsSrc = Resource::ShaderPreprocessor::injectSnippet(vsSrc, marker, snippet);
+                fsSrc = Resource::ShaderPreprocessor::injectSnippet(fsSrc, marker, snippet);
+            }
+
             if (m.geometryPath.has_value()) {
                 std::string gsSrc = Resource::ShaderLoader::loadShaderSource(*m.geometryPath);
                 gsSrc = Resource::ShaderPreprocessor::injectDefines(gsSrc, defines);
+                for (const auto& [marker, path] : handle.snippets) {
+                    const std::string snippet = Resource::ShaderLoader::loadShaderSource(path);
+                    gsSrc = Resource::ShaderPreprocessor::injectSnippet(gsSrc, marker, snippet);
+                }
                 programId = Resource::ShaderLoader::bindFromBuffer(vsSrc, gsSrc, fsSrc);
             } else {
                 programId = Resource::ShaderLoader::bindFromBuffer(vsSrc, fsSrc);
@@ -82,7 +91,9 @@ namespace Manager {
         return masters.contains(name);
     }
 
-    uint64_t ShaderRegistry::makeKey(const std::string& master, const ShaderFeatureMask features) {
+    uint64_t ShaderRegistry::makeKey(const std::string& master,
+                                     const ShaderFeatureMask features,
+                                     const std::map<std::string, std::string>& snippets) {
         // FNV-1a 64bit. Stačí, kolize jsou v praxi nulové při <1000 entries.
         constexpr uint64_t prime  = 1099511628211ull;
         constexpr uint64_t offset = 14695981039346656037ull;
@@ -96,6 +107,17 @@ namespace Manager {
         for (int byte = 0; byte < 4; ++byte) {
             hash ^= (features >> (byte * 8)) & 0xFFu;
             hash *= prime;
+        }
+        // Snippets - map je seřazená, takže iterace je deterministická.
+        for (const auto& [marker, path] : snippets) {
+            for (const char c : marker) {
+                hash ^= static_cast<uint64_t>(static_cast<unsigned char>(c));
+                hash *= prime;
+            }
+            for (const char c : path) {
+                hash ^= static_cast<uint64_t>(static_cast<unsigned char>(c));
+                hash *= prime;
+            }
         }
         return hash;
     }

@@ -22,7 +22,16 @@ namespace Material {
     }
 
     std::shared_ptr<MaterialInstance> MaterialBuilder::build(Manager::ShaderRegistry& registry) const {
-        auto program = registry.get({master, featureMask()});
+        Manager::ShaderHandle handle{master, featureMask(), {}};
+        // Sesbírej snippety od všech features. Pokud více features sdílí marker,
+        // poslední vyhraje (deterministic per vector order).
+        for (const auto& f : features) {
+            if (!f) continue;
+            for (const auto& [marker, path] : f->snippetPaths()) {
+                handle.snippets[marker] = path;
+            }
+        }
+        auto program = registry.get(handle);
         return std::make_shared<MaterialInstance>(std::move(program), features);
     }
 } // Material
