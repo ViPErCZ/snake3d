@@ -2,6 +2,11 @@
 #include <fstream>
 
 #include "../Physic/BoxShape.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Tools//Layers.h"
@@ -69,15 +74,16 @@ namespace Manager {
             const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
             const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
             const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
-            const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-            boxMaterial->setColor({1.0, 1.0, 1.0});
-            boxMaterial->setNormalEnabled(true);
-            boxMaterial->setAlbedo(brickWall);
-            boxMaterial->setNormal(brickWallNormal);
-            boxMaterial->setSpecular(brickWallSpecular);
-            boxMaterial->setDirectionalLight(directionalLight);
-            boxMaterial->setSpotLights(spotLights);
-            boxMaterial->setPointLights(pointLights);
+
+            auto albedoFeature = make_shared<Feature::AlbedoFeature>(brickWall);
+            albedoFeature->setColor(glm::vec3(1.0f));
+            const auto boxMaterial = Material::MaterialBuilder()
+                .useMaster("basicShader")
+                .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+                .with(make_shared<Feature::NormalMapFeature>(brickWallNormal))
+                .with(make_shared<Feature::SpecularFeature>(brickWallSpecular))
+                .with(albedoFeature)
+                .build(*resourceManager->getShaderRegistry());
             boxMesh->setMaterial(boxMaterial);
         }
 
@@ -168,12 +174,9 @@ namespace Manager {
             return true;
         }
 
-        for (const auto &cell : holes) {
-            if (cell.x == gridX && cell.y == gridY) {
-                return true;
-            }
-        }
-        return false;
+        return std::ranges::any_of(holes, [gridX, gridY](const auto &cell) {
+            return cell.x == gridX && cell.y == gridY;
+        });
     }
 
     int LevelManager::getEatCounter() const {

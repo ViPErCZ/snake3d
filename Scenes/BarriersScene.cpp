@@ -1,6 +1,11 @@
 #include "BarriersScene.h"
 
 #include "../Physic/BoxShape.h"
+#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
+#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Tools/Layers.h"
 
@@ -30,20 +35,20 @@ namespace Scenes {
 
     void BarriersScene::initBarriers() {
         const auto shader = resourceManager->getShader("basicShader");
-        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
         const auto brickWallSpecular = resourceManager->getTexture("brickwork-bump-map.jpg");
-        const auto boxMaterial = make_shared<StandardMaterial>(StandardMaterial(shader, shadowsShader));
-        boxMaterial->setNormalEnabled(true);
-        boxMaterial->setAlbedo(brickWall);
-        boxMaterial->setNormal(brickWallNormal);
-        boxMaterial->setSpecular(brickWallSpecular);
-        boxMaterial->setAmbientLightColorIntensity(0.1);
-        boxMaterial->setDirectionalLight(directionalLight);
-        boxMaterial->setSpotLights(spotLights);
-        boxMaterial->setPointLights(pointLights);
+
+        auto albedoFeature = make_shared<Feature::AlbedoFeature>(brickWall);
+        albedoFeature->setAmbientIntensity(0.1f);
+        const auto boxMaterial = Material::MaterialBuilder()
+            .useMaster("basicShader")
+            .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+            .with(make_shared<Feature::NormalMapFeature>(brickWallNormal))
+            .with(make_shared<Feature::SpecularFeature>(brickWallSpecular))
+            .with(albedoFeature)
+            .build(*resourceManager->getShaderRegistry());
 
         boxMesh->setMaterial(boxMaterial);
 
