@@ -92,6 +92,20 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Material/Feature/IMaterialFeature.h
         Renderer/Opengl/Material/Feature/HoleMapFeature.cpp
         Renderer/Opengl/Material/Feature/HoleMapFeature.h
+        Renderer/Opengl/Material/Feature/FogFeature.h
+        Renderer/Opengl/Material/Feature/UvTransformFeature.h
+        Renderer/Opengl/Material/Feature/AlbedoFeature.cpp
+        Renderer/Opengl/Material/Feature/AlbedoFeature.h
+        Renderer/Opengl/Material/Feature/NormalMapFeature.cpp
+        Renderer/Opengl/Material/Feature/NormalMapFeature.h
+        Renderer/Opengl/Material/Feature/SpecularFeature.cpp
+        Renderer/Opengl/Material/Feature/SpecularFeature.h
+        Renderer/Opengl/Material/Feature/ShadowFeature.cpp
+        Renderer/Opengl/Material/Feature/ShadowFeature.h
+        Renderer/Opengl/Material/Feature/LightingFeature.cpp
+        Renderer/Opengl/Material/Feature/LightingFeature.h
+        Renderer/Opengl/Material/Feature/PlanarReflectionFeature.cpp
+        Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h
         Tools/CameraOrbit.cpp
         Tools/CameraOrbit.h
         Tools/Timer.cpp
@@ -402,6 +416,20 @@ set(APP_SOURCES
         Renderer/Opengl/Material/Feature/IMaterialFeature.h
         Renderer/Opengl/Material/Feature/HoleMapFeature.cpp
         Renderer/Opengl/Material/Feature/HoleMapFeature.h
+        Renderer/Opengl/Material/Feature/FogFeature.h
+        Renderer/Opengl/Material/Feature/UvTransformFeature.h
+        Renderer/Opengl/Material/Feature/AlbedoFeature.cpp
+        Renderer/Opengl/Material/Feature/AlbedoFeature.h
+        Renderer/Opengl/Material/Feature/NormalMapFeature.cpp
+        Renderer/Opengl/Material/Feature/NormalMapFeature.h
+        Renderer/Opengl/Material/Feature/SpecularFeature.cpp
+        Renderer/Opengl/Material/Feature/SpecularFeature.h
+        Renderer/Opengl/Material/Feature/ShadowFeature.cpp
+        Renderer/Opengl/Material/Feature/ShadowFeature.h
+        Renderer/Opengl/Material/Feature/LightingFeature.cpp
+        Renderer/Opengl/Material/Feature/LightingFeature.h
+        Renderer/Opengl/Material/Feature/PlanarReflectionFeature.cpp
+        Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h
         Tools/Timer.cpp
         Tools/Timer.h
         Tools/WorldEnvironment.cpp
