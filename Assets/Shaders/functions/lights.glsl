@@ -78,7 +78,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 #ifdef FEATURE_PBR
 vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
 vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0);
-vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir,
+                      float timer, vec3 albedo, float roughness, float metalness, vec3 F0);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
@@ -304,41 +305,64 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     return (ambient + diffuse + specular);
 }
 
-//vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-//{
-//    vec3 N = normalize(normal);
-//    vec3 V = normalize(viewDir);
-//    vec3 L = normalize(light.position - fragPos);
-//    vec3 H = normalize(V + L);
-//
-//    float NdotL = max(dot(N, L), 0.0);
-//
-//    // PBR Fresnel, NDF, Geometry
-//    float NDF = DistributionGGX(N, H, roughness);
-//    float G   = GeometrySmith(N, V, L, roughness);
-//    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
-//
-//    vec3 specular = (NDF * G * F) / max(4.0 * max(dot(N, V),0.0) * NdotL, 0.001);
-//    vec3 kS = F;
-//    vec3 kD = vec3(1.0) - kS;
-//    kD *= 1.0 - metalness;
-//
-//    vec3 diffuse = kD * albedo / 3.141592;
-//
-//    // attenuation
-//    float distance = length(light.position - fragPos);
-//    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
-//
-//    // spotlight intensity
-//    float theta = dot(L, normalize(-light.direction));
-//    float epsilon = light.cutOff - light.outerCutOff;
-//    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-//
-//    // ambient
-//    vec3 ambient = light.ambient * albedo;
-//
-//    return (ambient + (diffuse + specular) * light.diffuse * NdotL) * attenuation * intensity;
-//}
+#ifdef FEATURE_PBR
+vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir,
+                      float timer, vec3 albedo, float roughness, float metalness, vec3 F0)
+{
+    roughness = max(roughness, 0.05);
+
+    // Cone falloff with optional pulse-driven angle wobble (mirrors
+    // CalcSpotLight's behaviour so a pulsing lamp looks the same on PBR
+    // materials as on Phong ones).
+    float currentCutOff = light.cutOff;
+    float currentOuterCutOff = light.outerCutOff;
+    if (light.pulse) {
+        float baseAngle = acos(light.cutOff);
+        float baseOuterAngle = acos(light.outerCutOff);
+        float angleDelta = radians(0.5) * sin(timer * 3.5);
+        currentCutOff = cos(baseAngle + angleDelta);
+        currentOuterCutOff = cos(baseOuterAngle + angleDelta);
+    }
+
+    vec3 L = normalize(light.position - fragPos);
+    float theta = dot(L, normalize(-light.direction));
+    float epsilon = currentCutOff - currentOuterCutOff;
+    float intensity = clamp((theta - currentOuterCutOff) / epsilon, 0.0, 1.0);
+    if (intensity <= 0.0) {
+        return vec3(0.0);
+    }
+
+    // Distance attenuation (same form as point light PBR).
+    float distance = length(light.position - fragPos);
+    distance = max(distance, 0.05);
+    float ld = (light.constant + light.linear * distance + light.quadratic * distance * distance);
+    ld = max(ld, 0.05);
+    float attenuation = 1.0 / ld;
+
+    vec3 radiance = light.diffuse * attenuation * intensity;
+
+    vec3 H = normalize(viewDir + L);
+    float NDF = DistributionGGX(normal, H, roughness);
+    float G   = GeometrySmith(normal, viewDir, L, roughness);
+    vec3 F    = fresnelSchlick(max(dot(H, viewDir), 0.0), F0);
+
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metalness;
+
+    float NdotL = max(dot(normal, L), 0.001);
+    vec3 contribution = (kD * albedo / 3.14159265 + specular) * radiance * NdotL;
+
+    if (light.pulse) {
+        contribution *= computePulse(timer);
+    }
+    return contribution;
+}
+#endif
 
 #ifdef FEATURE_PBR
 vec3 fresnelSchlick(float cosTheta, vec3 F0)

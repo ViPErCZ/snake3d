@@ -208,9 +208,20 @@ void main()
         }
     }
 
-    for(int i = 0; i < numSpotLights; i++)
-    {
-       final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
+#ifdef FEATURE_PBR
+    if (pbrEnabled) {
+        for(int i = 0; i < numSpotLights; i++)
+        {
+            final += CalcSpotLightPBR(spotLight[i], normal, fragPos, viewDir,
+                                      uTime, ambient, roughness, metalness, F0);
+        }
+    }
+#endif
+    if (!pbrEnabled) {
+        for(int i = 0; i < numSpotLights; i++)
+        {
+            final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
+        }
     }
 
 #ifdef FEATURE_FOG
