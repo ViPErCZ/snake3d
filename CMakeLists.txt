@@ -83,6 +83,15 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
+        Renderer/Opengl/Material/RenderContext.h
+        Renderer/Opengl/Material/TextureSlots.h
+        Renderer/Opengl/Material/MaterialInstance.cpp
+        Renderer/Opengl/Material/MaterialInstance.h
+        Renderer/Opengl/Material/MaterialBuilder.cpp
+        Renderer/Opengl/Material/MaterialBuilder.h
+        Renderer/Opengl/Material/Feature/IMaterialFeature.h
+        Renderer/Opengl/Material/Feature/HoleMapFeature.cpp
+        Renderer/Opengl/Material/Feature/HoleMapFeature.h
         Tools/CameraOrbit.cpp
         Tools/CameraOrbit.h
         Tools/Timer.cpp
@@ -384,6 +393,15 @@ set(APP_SOURCES
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
         Renderer/Opengl/Material/IAlbedoMaterial.h
+        Renderer/Opengl/Material/RenderContext.h
+        Renderer/Opengl/Material/TextureSlots.h
+        Renderer/Opengl/Material/MaterialInstance.cpp
+        Renderer/Opengl/Material/MaterialInstance.h
+        Renderer/Opengl/Material/MaterialBuilder.cpp
+        Renderer/Opengl/Material/MaterialBuilder.h
+        Renderer/Opengl/Material/Feature/IMaterialFeature.h
+        Renderer/Opengl/Material/Feature/HoleMapFeature.cpp
+        Renderer/Opengl/Material/Feature/HoleMapFeature.h
         Tools/Timer.cpp
         Tools/Timer.h
         Tools/WorldEnvironment.cpp
