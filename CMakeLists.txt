@@ -73,12 +73,9 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Renderer/Opengl/Model/Standard/CylinderMesh.h
         Renderer/Opengl/Node3DRenderer.cpp
         Renderer/Opengl/Node3DRenderer.h
-        Renderer/Opengl/Material/StandardMaterial.cpp
-        Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
-        Renderer/Opengl/Material/IAlbedoMaterial.h
         Renderer/Opengl/Material/RenderContext.h
         Renderer/Opengl/Material/TextureSlots.h
         Renderer/Opengl/Material/MaterialInstance.cpp
@@ -398,12 +395,9 @@ set(APP_SOURCES
         Renderer/Opengl/Model/Standard/StandardMesh.h
         Renderer/Opengl/Node3DRenderer.cpp
         Renderer/Opengl/Node3DRenderer.h
-        Renderer/Opengl/Material/StandardMaterial.cpp
-        Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
-        Renderer/Opengl/Material/IAlbedoMaterial.h
         Renderer/Opengl/Material/RenderContext.h
         Renderer/Opengl/Material/TextureSlots.h
         Renderer/Opengl/Material/MaterialInstance.cpp
@@ -654,12 +648,9 @@ add_library(snake3d_lib ${APP_SOURCES}
         Renderer/Opengl/Model/Standard/StandardMesh.h
         Renderer/Opengl/Node3DRenderer.cpp
         Renderer/Opengl/Node3DRenderer.h
-        Renderer/Opengl/Material/StandardMaterial.cpp
-        Renderer/Opengl/Material/StandardMaterial.h
         Renderer/Opengl/Material/BaseMaterial.h
         Renderer/Opengl/Material/ShaderMaterial.cpp
         Renderer/Opengl/Material/ShaderMaterial.h
-        Renderer/Opengl/Material/IAlbedoMaterial.h
         Tools/Timer.cpp
         Tools/Timer.h
         Tools/WorldEnvironment.cpp

@@ -1,7 +1,6 @@
 #include "BaseNode2D.h"
 
 #include "../../../Material/ShaderMaterial.h"
-#include "../../../Material/StandardMaterial.h"
 
 namespace Model {
     BaseNode2D::BaseNode2D(const shared_ptr<ShaderManager> &baseShader) : baseShader(baseShader), color(1.0f) {
@@ -26,14 +25,6 @@ namespace Model {
                 parentTransform,
                 false
             );
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->bind(
-                camera->getPosition(),
-                camera->getViewMatrix(),
-                ortho,
-                parentTransform,
-                false
-            );
         } else if (baseShader) {
             baseShader->use();
             baseShader->setMat4("projection", ortho);
@@ -50,8 +41,6 @@ namespace Model {
                        nullptr);
         if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
             shaderMaterial->unbind();
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->unbind();
         }
     }
 

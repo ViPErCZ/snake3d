@@ -13,6 +13,7 @@
 #include "../../../Manager/SoundManager.h"
 #include "../../../Physic/CollisionSystem3D.h"
 #include "../../../Tools/BuildSettings.h"
+#include "../../../Tools/Environment.h"
 
 using namespace std;
 using namespace Model;

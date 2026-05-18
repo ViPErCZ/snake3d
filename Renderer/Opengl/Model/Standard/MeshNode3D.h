@@ -9,9 +9,13 @@
 #include "../../../../Tools/Tagged.h"
 #include "../../../../Tools/Visibility.h"
 #include "../../../../Manager/ResourceManager.h"
+#include "../../../../Lights/DirectionalLight.h"
+#include "../../../../Lights/PointLight.h"
+#include "../../../../Lights/SpotLight.h"
 #include "../../../../Tools/ContextState.h"
 
 using namespace Tools;
+using namespace Lights;
 using namespace std;
 
 namespace CollisionShape {

@@ -1,6 +1,5 @@
 #include <nlohmann/json.hpp>
 #include "App.h"
-#include "Renderer/Opengl/Material/StandardMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Resource/AnimLoader.h"

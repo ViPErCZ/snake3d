@@ -4,7 +4,6 @@
 #include <iostream>
 #include "../../../../../Manager/VboIndexer.h"
 #include "../../../Material/ShaderMaterial.h"
-#include "../../../Material/StandardMaterial.h"
 #include "../../Utils/TextMesh.h"
 
 namespace Model {
@@ -36,14 +35,6 @@ namespace Model {
 
         if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
             shaderMaterial->bind(
-                camera->getPosition(),
-                camera->getViewMatrix(),
-                ortho,
-                model,
-                false
-            );
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->bind(
                 camera->getPosition(),
                 camera->getViewMatrix(),
                 ortho,

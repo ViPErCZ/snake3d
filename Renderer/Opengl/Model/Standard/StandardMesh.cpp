@@ -62,17 +62,6 @@ namespace Model {
                 worldTransform,
                 shadows
             );
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<StandardMaterial>(material)) {
-            if (nullptr != animationPlayer) {
-                standardMaterial->setAlpha(alpha);
-            }
-            standardMaterial->bind(
-                camera->getPosition(),
-                camera->getViewMatrix(),
-                projection,
-                worldTransform,
-                shadows
-            );
         } else {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
@@ -100,8 +89,6 @@ namespace Model {
             materialInstance->unbind();
         } else if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
             shaderMaterial->unbind();
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial->unbind();
         }
     }
 
@@ -123,17 +110,6 @@ namespace Model {
                                nullptr);
                 shaderMaterial->unbind();
             }
-            return;
-        }
-        const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
-        if (standardMaterial) {
-            standardMaterial.get()->bindShadow(parentTransform);
-
-            mesh->bind();
-            glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
-                           nullptr);
-
-            standardMaterial.get()->unbind();
         }
     }
 

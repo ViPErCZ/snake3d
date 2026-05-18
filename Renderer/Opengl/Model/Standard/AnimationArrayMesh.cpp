@@ -35,14 +35,6 @@ namespace Model {
                 parentTransform,
                 shadows
             );
-        } else if (const auto standardMaterial = dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->bind(
-                camera->getPosition(),
-                camera->getViewMatrix(),
-                projection,
-                parentTransform,
-                shadows
-            );
         } else {
             baseShader->use();
             baseShader->setMat4("view", camera->getViewMatrix());
@@ -58,8 +50,6 @@ namespace Model {
             materialInstance->unbind();
         } else if (const auto shaderMaterial = dynamic_pointer_cast<const ShaderMaterial>(material)) {
             shaderMaterial->unbind();
-        } else if (const auto standardMaterial = dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->unbind();
         }
     }
 
@@ -77,15 +67,6 @@ namespace Model {
                 renderMesh(parentTransform * glm::mat4(1.0f), false);
                 shaderMaterial->unbind();
             }
-            return;
-        }
-        const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material);
-        if (standardMaterial && standardMaterial->isShadowEnabled()) {
-            standardMaterial.get()->bindShadow(parentTransform);
-
-            renderMesh(parentTransform * glm::mat4(1.0f), false);
-
-            standardMaterial.get()->unbind();
         }
     }
 
@@ -114,8 +95,6 @@ namespace Model {
         for (int i = 0; i < metadata->bone_transform.size(); ++i) {
             if (activeProgram) {
                 activeProgram->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
-            } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial->bindBonesMatrices(i, metadata->bone_transform[i]);
             } else {
                 baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
             }
@@ -127,17 +106,9 @@ namespace Model {
                 if (activeProgram) {
                     activeProgram->setBool("useBones", animMesh->isHasBones());
                     activeProgram->setMat4("model", finalTransform);
-                } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                    standardMaterial->bindUseBones(animMesh->isHasBones());
-                    if (animPlay) {
-                        standardMaterial->bindModel(finalTransform);
-                    } else {
-                        standardMaterial->bindShadowModel(finalTransform);
-                    }
                 } else {
                     baseShader->setBool("useBones", animMesh->isHasBones());
-                    baseShader->setMat4(
-                        "model", finalTransform);
+                    baseShader->setMat4("model", finalTransform);
                 }
 
                 animMesh->bind();
@@ -152,13 +123,6 @@ namespace Model {
             if (activeProgram) {
                 activeProgram->setBool("useBones", false);
                 activeProgram->setMat4("model", worldTransform);
-            } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-                standardMaterial->bindUseBones(false);
-                if (animPlay) {
-                    standardMaterial->bindModel(worldTransform);
-                } else {
-                    standardMaterial->bindShadowModel(worldTransform);
-                }
             } else {
                 baseShader->setBool("useBones", false);
                 baseShader->setMat4("model", worldTransform);

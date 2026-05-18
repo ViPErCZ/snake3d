@@ -1,7 +1,6 @@
 #include "ImageNode2D.h"
 
 #include "../../../Material/ShaderMaterial.h"
-#include "../../../Material/StandardMaterial.h"
 
 namespace Model {
     ImageNode2D::ImageNode2D(const float width, const float height,
@@ -38,14 +37,6 @@ namespace Model {
                 parentTransform,
                 false
             );
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->bind(
-                camera->getPosition(),
-                camera->getViewMatrix(),
-                ortho,
-                parentTransform,
-                false
-            );
         } else if (baseShader) {
             baseShader->use();
             baseShader->setMat4("projection", ortho);
@@ -68,8 +59,6 @@ namespace Model {
 
         if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
             shaderMaterial->unbind();
-        } else if (const auto standardMaterial = std::dynamic_pointer_cast<const StandardMaterial>(material)) {
-            standardMaterial.get()->unbind();
         }
     }
 

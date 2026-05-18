@@ -5,7 +5,6 @@
 #include "../../Material/Feature/ShadowFeature.h"
 
 #include "../../../../Physic/SphereShape.h"
-#include "../../Material/StandardMaterial.h"
 #include "../../Material/Uniform/TextureUniform.h"
 #include "../../Material/Uniform/TimerUniform.h"
 #include "../../../../Tools/Layers.h"
@@ -16,57 +15,37 @@ namespace Model {
     namespace {
         void copyExplosionSourceMaterial(const shared_ptr<ShaderMaterial>& crashMaterial,
             const shared_ptr<BaseMaterial>& sourceMaterial) {
-            // B6b: source may now be a MaterialInstance (snake body tile) or
-            // still a StandardMaterial (head loaded from gltf). We extract
-            // albedo / fallback color from whichever path applies and feed
-            // the explosion shader the same uniforms as before.
-            if (const auto sourceInstance = dynamic_pointer_cast<Material::MaterialInstance>(sourceMaterial)) {
-                std::shared_ptr<Manager::TextureManager> albedoTex;
-                std::optional<glm::vec3> color;
-                for (const auto& feature : sourceInstance->getFeatures()) {
-                    if (const auto albedoFeature = dynamic_pointer_cast<Feature::AlbedoFeature>(feature)) {
-                        albedoTex = albedoFeature->getAlbedo();
-                        color = albedoFeature->getColor();
-                        break;
-                    }
-                }
-                const bool hasAlbedoTexture = albedoTex && albedoTex->hasTexture();
-                crashMaterial->setUniform("hasAlbedoTexture", hasAlbedoTexture);
-                crashMaterial->setUniform("useMaterial", !hasAlbedoTexture);
-                crashMaterial->setUniform("hasFallbackColor", color.has_value());
-                if (color.has_value()) {
-                    crashMaterial->setUniform("fallbackColor", *color);
-                }
-                if (hasAlbedoTexture) {
-                    crashMaterial->setAlbedo(albedoTex);
-                }
-                return;
-            }
-
-            const auto sourceStandard = dynamic_pointer_cast<StandardMaterial>(sourceMaterial);
-            if (!sourceStandard) {
+            // All snake materials are MaterialInstance after B6. Walk its
+            // feature pack to pick up albedo / color and feed the explosion
+            // shader the same uniforms it used to read from
+            // StandardMaterial::getAlbedo / getColor.
+            const auto sourceInstance = dynamic_pointer_cast<Material::MaterialInstance>(sourceMaterial);
+            if (!sourceInstance) {
                 crashMaterial->setUniform("hasAlbedoTexture", false);
                 crashMaterial->setUniform("hasFallbackColor", false);
                 crashMaterial->setUniform("useMaterial", true);
                 return;
             }
 
-            const auto albedo = sourceStandard->getAlbedo();
-            const bool hasAlbedoTexture = albedo && albedo->hasTexture();
+            std::shared_ptr<Manager::TextureManager> albedoTex;
+            std::optional<glm::vec3> color;
+            for (const auto& feature : sourceInstance->getFeatures()) {
+                if (const auto albedoFeature = dynamic_pointer_cast<Feature::AlbedoFeature>(feature)) {
+                    albedoTex = albedoFeature->getAlbedo();
+                    color = albedoFeature->getColor();
+                    break;
+                }
+            }
+            const bool hasAlbedoTexture = albedoTex && albedoTex->hasTexture();
             crashMaterial->setUniform("hasAlbedoTexture", hasAlbedoTexture);
             crashMaterial->setUniform("useMaterial", !hasAlbedoTexture);
-            const bool hasFallbackColor = sourceStandard->hasColor();
-            crashMaterial->setUniform("hasFallbackColor", hasFallbackColor);
-            if (hasFallbackColor) {
-                crashMaterial->setUniform("fallbackColor", sourceStandard->getColor());
+            crashMaterial->setUniform("hasFallbackColor", color.has_value());
+            if (color.has_value()) {
+                crashMaterial->setUniform("fallbackColor", *color);
             }
             if (hasAlbedoTexture) {
-                crashMaterial->setAlbedo(albedo);
+                crashMaterial->setAlbedo(albedoTex);
             }
-            crashMaterial->setNormal(sourceStandard->getNormal());
-            crashMaterial->setSpecular(sourceStandard->getSpecular());
-            crashMaterial->setMetalness(sourceStandard->getMetalness());
-            crashMaterial->setRoughness(sourceStandard->getRoughness());
         }
     }
 

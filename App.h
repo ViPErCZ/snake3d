@@ -8,6 +8,7 @@
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
 #include "Manager/ShaderRegistry.h"
+#include "Tools/Environment.h"
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
 

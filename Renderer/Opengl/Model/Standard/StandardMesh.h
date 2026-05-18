@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "../Utils/Mesh.h"
-#include "../../Material/StandardMaterial.h"
+#include "../../Material/BaseMaterial.h"
 #include "../../../../Manager/ShaderManager.h"
 #include "../../../../Tools/DrawElement.h"
 #include "../../../../Manager/Camera.h"
