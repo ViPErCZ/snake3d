@@ -33,6 +33,11 @@ namespace Material {
         // materiál do shadow mapy nepřispívá - materiál není shadow caster.
         bool bindShadow(const glm::mat4& model) const;
 
+        // Vrátí shadowDepthShader z ShadowFeature, nebo nullptr pokud tato
+        // feature není v sestavě. AnimationArrayMesh::renderMesh ho potřebuje
+        // pro per-mesh model uniform v shadow pass.
+        [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getShadowProgram() const;
+
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
         [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getProgram() const { return program; }

@@ -46,6 +46,15 @@ namespace Material {
         return false;
     }
 
+    std::shared_ptr<Manager::ShaderManager> MaterialInstance::getShadowProgram() const {
+        for (const auto& f : features) {
+            if (const auto shadow = std::dynamic_pointer_cast<Feature::ShadowFeature>(f)) {
+                return shadow->getShadowDepthShader();
+            }
+        }
+        return nullptr;
+    }
+
     std::shared_ptr<BaseMaterial> MaterialInstance::clone() const {
         // Program (GL handle) je shared - klonujeme jen kompozici features.
         std::vector<std::shared_ptr<Feature::IMaterialFeature>> clonedFeatures;
