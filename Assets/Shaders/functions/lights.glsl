@@ -72,18 +72,22 @@ uniform float uShadowDesaturateStrength = 1.0; // how strong the gray shift is i
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float shadow);
-vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor);
-vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer, vec3 albedoColor, vec3 specularColor);
+#ifdef FEATURE_PBR
+vec3 CalcDirLightPBR(DirLight light, vec3 fragPos, vec3 normal, vec3 viewDir, vec3 ambientColor, float roughness, float metalness, vec3 F0);
+vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0);
 vec3 CalcSpotLightPBR(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+#endif
+#ifdef FEATURE_IBL
 vec3 CalcIBLSpecular(vec3 R, float roughness, vec3 F0);
 vec3 CalcIBLDiffuse(vec3 N);
+#endif
 
 // calculates the color when using a directional light.
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float shadow)
@@ -127,6 +131,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
     return ambientAdjusted + (diffuse + specular) * (1.0 - shadow);
 }
 
+#ifdef FEATURE_PBR
 vec3 CalcDirLightPBR(
     DirLight light,
     vec3 normal,
@@ -162,6 +167,7 @@ vec3 CalcDirLightPBR(
     // Výsledek je jen Diffuse + Specular od SLUNCE
     return (kD * albedo / 3.14159265 + specular) * light.diffuse * NdotL;
 }
+#endif
 
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient)
 {
@@ -202,6 +208,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     return (ambient + diffuse + specular) * attenuation;
 }
 
+#ifdef FEATURE_PBR
 vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 albedo, float roughness, float metalness, vec3 F0)
 {
     roughness = max(roughness, 0.05);
@@ -234,6 +241,7 @@ vec3 CalcPointLightPBR(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
     return (kD * albedo / 3.14159265 + specular) * radiance * NdotL;
 }
+#endif
 
 float computePulse(float timer)
 {
@@ -332,6 +340,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 //    return (ambient + (diffuse + specular) * light.diffuse * NdotL) * attenuation * intensity;
 //}
 
+#ifdef FEATURE_PBR
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
@@ -369,7 +378,9 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
     return ggx1 * ggx2;
 }
+#endif
 
+#ifdef FEATURE_IBL
 vec3 CalcIBLSpecular(vec3 R, float roughness, vec3 F0) {
     vec3 prefilteredColor;
     if (iblEnabled) {
@@ -385,3 +396,4 @@ vec3 CalcIBLDiffuse(vec3 N) {
     vec3 irradiance = texture(environmentMap, N).rgb;
     return irradiance;
 }
+#endif
