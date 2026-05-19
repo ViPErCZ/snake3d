@@ -49,7 +49,7 @@ namespace Lights {
         this->pulse = pulse;
     }
 
-    void SpotLight::bind(const ShaderManager *shader, const int index = 0) const {
+    void SpotLight::bind(const ShaderProgram *shader, const int index = 0) const {
         shader->use();
         const string name = "spotLight[" + std::to_string(index) + "]";
         shader->setVec3(name + ".position", position);

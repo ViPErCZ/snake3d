@@ -18,7 +18,7 @@ namespace Feature {
 
         [[nodiscard]] Manager::ShaderFeatureMask flag() const override { return 0; }
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& /*ctx*/) const override {
             shader.setVec2("uvScale", scale);
             shader.setVec2("uvOffset", offset);

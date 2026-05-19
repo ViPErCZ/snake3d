@@ -6,7 +6,7 @@ namespace Uniform {
         timer = make_unique<Timer>(false);
     }
 
-    void FadeOutUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
+    void FadeOutUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         if (timer->isRunning()) {
             if (isFinished() == false) {
                 alpha -= step * static_cast<float>(timer->getDeltaTime());

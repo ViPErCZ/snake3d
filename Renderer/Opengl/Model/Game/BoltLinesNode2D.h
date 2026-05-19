@@ -16,7 +16,7 @@ namespace Model {
             float brightness;
         };
 
-        BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderManager> &shader);
+        BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderProgram> &shader);
         ~BoltLinesNode2D() override;
 
         void setSegments(const vector<Segment> &segs);

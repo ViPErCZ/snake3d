@@ -1,7 +1,7 @@
 #include "TringleMesh3D.h"
 
 namespace Model {
-    TringleMesh3D::TringleMesh3D(shared_ptr<ShaderManager> baseShader, const float width, const float height)
+    TringleMesh3D::TringleMesh3D(shared_ptr<ShaderProgram> baseShader, const float width, const float height)
         : StandardMesh(std::move(baseShader)) {
         std::vector<Vertex> vertices(3);
 

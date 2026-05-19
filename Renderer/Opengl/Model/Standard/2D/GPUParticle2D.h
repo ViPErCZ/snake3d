@@ -33,8 +33,8 @@ namespace Model {
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
         void setAspectRatio(const float ratio) { this->aspectRatio = ratio; }
-        void setRenderShader(const shared_ptr<ShaderManager> &shader) { render_shader = shader; }
-        void setRenderTextureShader(const shared_ptr<ShaderManager> &shader) { render_texture_shader = shader; }
+        void setRenderShader(const shared_ptr<ShaderProgram> &shader) { render_shader = shader; }
+        void setRenderTextureShader(const shared_ptr<ShaderProgram> &shader) { render_texture_shader = shader; }
 
     private:
         void initBuffers();
@@ -50,9 +50,9 @@ namespace Model {
         int maxParticles;
 
         shared_ptr<ParticleProcessMaterial> material;
-        shared_ptr<ShaderManager> update_shader;
-        shared_ptr<ShaderManager> render_shader;
-        shared_ptr<ShaderManager> render_texture_shader;
+        shared_ptr<ShaderProgram> update_shader;
+        shared_ptr<ShaderProgram> render_shader;
+        shared_ptr<ShaderProgram> render_texture_shader;
     };
 }
 

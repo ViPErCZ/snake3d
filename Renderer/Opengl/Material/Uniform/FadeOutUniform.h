@@ -15,7 +15,7 @@ namespace Uniform {
     class FadeOutUniform : public IUniform {
     public:
         explicit FadeOutUniform();
-        void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
+        void bind(const shared_ptr<ShaderProgram>& shader, const string& name) override;
         void setAlpha(float alpha);
         [[nodiscard]] float getAlpha() const;
         virtual void start();

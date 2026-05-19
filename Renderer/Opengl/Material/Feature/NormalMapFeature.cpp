@@ -7,7 +7,7 @@ namespace Feature {
         : normal(std::move(normal)) {
     }
 
-    void NormalMapFeature::bind(Manager::ShaderManager& shader,
+    void NormalMapFeature::bind(Manager::ShaderProgram& shader,
                                 const Material::RenderContext& /*ctx*/) const {
         shader.setInt("material.diffuse", Material::TextureSlots::Normal);
         const bool active = normal && normal->hasTexture();
@@ -17,7 +17,7 @@ namespace Feature {
         }
     }
 
-    void NormalMapFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void NormalMapFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (normal) {
             normal->unbind(Material::TextureSlots::Normal);
         }

@@ -18,9 +18,9 @@ namespace Feature {
             return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::NormalMap);
         }
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& ctx) const override;
-        void unbind(Manager::ShaderManager& shader) const override;
+        void unbind(Manager::ShaderProgram& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
         void setTexture(std::shared_ptr<Manager::TextureManager> texture) { normal = std::move(texture); }

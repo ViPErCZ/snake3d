@@ -1,7 +1,7 @@
 #include "QuadMesh3D.h"
 
 namespace Model {
-    QuadMesh3D::QuadMesh3D(shared_ptr<ShaderManager> baseShader, const float width, const float height)
+    QuadMesh3D::QuadMesh3D(shared_ptr<ShaderProgram> baseShader, const float width, const float height)
         : StandardMesh(std::move(baseShader)) {
         std::vector<Vertex> vertices(4);
 

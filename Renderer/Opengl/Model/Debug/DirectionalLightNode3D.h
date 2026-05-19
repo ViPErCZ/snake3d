@@ -10,7 +10,7 @@ namespace Model {
     class DirectionalLightNode3D : public LightNode3D, public MeshNode3D {
     public:
         DirectionalLightNode3D(const shared_ptr<ContextState> &contextState,
-                               const shared_ptr<ShaderManager> &baseShader,
+                               const shared_ptr<ShaderProgram> &baseShader,
                                const shared_ptr<ResourceManager> &resourceManager);
 
         ~DirectionalLightNode3D() override;

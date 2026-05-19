@@ -23,7 +23,7 @@ namespace Manager {
         masters[name] = Master{vertexPath, std::nullopt, std::nullopt};
     }
 
-    std::shared_ptr<ShaderManager> ShaderRegistry::get(const ShaderHandle& handle) {
+    std::shared_ptr<ShaderProgram> ShaderRegistry::get(const ShaderHandle& handle) {
         const auto it = masters.find(handle.master);
         if (it == masters.end()) {
             std::cerr << "ShaderRegistry::get - unknown master '" << handle.master << "'\n";
@@ -74,7 +74,7 @@ namespace Manager {
             }
         }
 
-        auto program = std::make_shared<ShaderManager>(programId);
+        auto program = std::make_shared<ShaderProgram>(programId);
         programs.emplace(key, program);
         return program;
     }

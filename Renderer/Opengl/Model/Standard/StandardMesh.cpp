@@ -8,7 +8,7 @@
 #include "../../Material/ShaderMaterial.h"
 
 namespace Model {
-    StandardMesh::StandardMesh(shared_ptr<ShaderManager> baseShader)
+    StandardMesh::StandardMesh(shared_ptr<ShaderProgram> baseShader)
         : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN), worldMin(+FLT_MAX), worldMax(-FLT_MIN) {
     }
 

@@ -8,7 +8,7 @@ using namespace std;
 namespace Model {
     class CylinderMesh final : public StandardMesh {
     public:
-        CylinderMesh(shared_ptr<ShaderManager> baseShader,
+        CylinderMesh(shared_ptr<ShaderProgram> baseShader,
                      float topRadius, float bottomRadius,
                      float height, int rings, int segments);
     };

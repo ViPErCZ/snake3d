@@ -79,7 +79,7 @@ namespace {
             : marker_(std::move(marker)), path_(std::move(path)) {}
 
         [[nodiscard]] ShaderFeatureMask flag() const override { return 0; }
-        void bind(Manager::ShaderManager&, const Material::RenderContext&) const override {}
+        void bind(Manager::ShaderProgram&, const Material::RenderContext&) const override {}
         [[nodiscard]] std::shared_ptr<Feature::IMaterialFeature> clone() const override {
             return std::make_shared<TestSnippetFeature>(marker_, path_);
         }

@@ -3,7 +3,7 @@
 #include "Feature/ShadowFeature.h"
 
 namespace Material {
-    MaterialInstance::MaterialInstance(std::shared_ptr<Manager::ShaderManager> program,
+    MaterialInstance::MaterialInstance(std::shared_ptr<Manager::ShaderProgram> program,
                                        std::vector<std::shared_ptr<Feature::IMaterialFeature>> features)
         : program(std::move(program)), features(std::move(features)) {
     }
@@ -46,7 +46,7 @@ namespace Material {
         return false;
     }
 
-    std::shared_ptr<Manager::ShaderManager> MaterialInstance::getShadowProgram() const {
+    std::shared_ptr<Manager::ShaderProgram> MaterialInstance::getShadowProgram() const {
         for (const auto& f : features) {
             if (const auto shadow = std::dynamic_pointer_cast<Feature::ShadowFeature>(f)) {
                 return shadow->getShadowDepthShader();

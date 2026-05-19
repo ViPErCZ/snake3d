@@ -11,7 +11,7 @@ namespace Feature {
           clipPlane(clipPlane) {
     }
 
-    void PlanarReflectionFeature::bind(Manager::ShaderManager& shader,
+    void PlanarReflectionFeature::bind(Manager::ShaderProgram& shader,
                                        const Material::RenderContext& /*ctx*/) const {
         shader.setBool("reflectionEnable", enabled);
         shader.setVec4("clipPlane", clipPlane);
@@ -22,7 +22,7 @@ namespace Feature {
         }
     }
 
-    void PlanarReflectionFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void PlanarReflectionFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (reflection) {
             reflection->unbind(Material::TextureSlots::PlanarReflection);
         }

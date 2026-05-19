@@ -2,7 +2,7 @@
 #include "CapsuleMesh.h"
 
 namespace Model {
-    CapsuleMesh::CapsuleMesh(shared_ptr<ShaderManager> baseShader,
+    CapsuleMesh::CapsuleMesh(shared_ptr<ShaderProgram> baseShader,
                              const float height, const float radius, const int rings,
                              const int segments) : StandardMesh(std::move(baseShader)) {
         std::vector<Vertex> vertices;

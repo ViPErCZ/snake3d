@@ -12,7 +12,7 @@ namespace Uniform {
     class TextureArrayUniform final : public IUniform {
     public:
         TextureArrayUniform(int index, const shared_ptr<TextureManager> &texture);
-        void bind(const shared_ptr<ShaderManager>& shader, const string& name) override;
+        void bind(const shared_ptr<ShaderProgram>& shader, const string& name) override;
 
         [[nodiscard]] shared_ptr<IUniform> clone() const override;
 

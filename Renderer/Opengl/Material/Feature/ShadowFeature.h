@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/ShaderManager.h"
+#include "../../../../Manager/ShaderProgram.h"
 #include "../../../../Manager/TextureManager.h"
 
 namespace Feature {
@@ -18,15 +18,15 @@ namespace Feature {
     class ShadowFeature final : public IMaterialFeature {
     public:
         explicit ShadowFeature(std::shared_ptr<Manager::TextureManager> shadowArray,
-                               std::shared_ptr<Manager::ShaderManager> shadowDepthShader = nullptr);
+                               std::shared_ptr<Manager::ShaderProgram> shadowDepthShader = nullptr);
 
         [[nodiscard]] Manager::ShaderFeatureMask flag() const override {
             return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::Shadows);
         }
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& ctx) const override;
-        void unbind(Manager::ShaderManager& shader) const override;
+        void unbind(Manager::ShaderProgram& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
         // Pro shadow-map pre-pass: aktivuje vlastní shadowDepthShader a zapíše
@@ -36,11 +36,11 @@ namespace Feature {
         bool bindShadow(const glm::mat4& model) const;
 
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getShadowArray() const { return shadowArray; }
-        [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getShadowDepthShader() const { return shadowDepthShader; }
+        [[nodiscard]] std::shared_ptr<Manager::ShaderProgram> getShadowDepthShader() const { return shadowDepthShader; }
 
     private:
         std::shared_ptr<Manager::TextureManager> shadowArray;
-        std::shared_ptr<Manager::ShaderManager> shadowDepthShader;
+        std::shared_ptr<Manager::ShaderProgram> shadowDepthShader;
     };
 } // Feature
 

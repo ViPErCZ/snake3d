@@ -11,7 +11,7 @@ namespace Feature {
           aoMap(std::move(aoMap)) {
     }
 
-    void PbrFeature::bind(Manager::ShaderManager& shader,
+    void PbrFeature::bind(Manager::ShaderProgram& shader,
                           const Material::RenderContext& /*ctx*/) const {
         const bool hasMetal = metalness && metalness->hasTexture();
         const bool hasRough = roughness && roughness->hasTexture();
@@ -40,7 +40,7 @@ namespace Feature {
         }
     }
 
-    void PbrFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void PbrFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (metalness) metalness->unbind(Material::TextureSlots::Metalness);
         if (roughness) roughness->unbind(Material::TextureSlots::Roughness);
         if (aoMap)     aoMap->unbind(Material::TextureSlots::AoMap);

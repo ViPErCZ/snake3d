@@ -8,7 +8,7 @@ namespace Feature {
         : specular(std::move(specular)), shininess(shininess) {
     }
 
-    void SpecularFeature::bind(Manager::ShaderManager& shader,
+    void SpecularFeature::bind(Manager::ShaderProgram& shader,
                                const Material::RenderContext& /*ctx*/) const {
         shader.setInt("material.specular", Material::TextureSlots::Specular);
         shader.setFloat("material.shininess", shininess);
@@ -20,7 +20,7 @@ namespace Feature {
         }
     }
 
-    void SpecularFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void SpecularFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (specular) {
             specular->unbind(Material::TextureSlots::Specular);
         }

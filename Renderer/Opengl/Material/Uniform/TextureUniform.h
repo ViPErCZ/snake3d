@@ -13,7 +13,7 @@ namespace Uniform {
     public:
         TextureUniform(int index, const shared_ptr<TextureManager> &texture, bool use_cube = false);
 
-        void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
+        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
 
         [[nodiscard]] shared_ptr<IUniform> clone() const override;
 

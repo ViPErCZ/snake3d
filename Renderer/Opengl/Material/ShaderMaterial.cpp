@@ -4,8 +4,8 @@
 #include <variant>
 
 namespace Material {
-    ShaderMaterial::ShaderMaterial(shared_ptr<ShaderManager> baseShader,
-                                   shared_ptr<ShaderManager> shadowDepthShader)
+    ShaderMaterial::ShaderMaterial(shared_ptr<ShaderProgram> baseShader,
+                                   shared_ptr<ShaderProgram> shadowDepthShader)
         : shader(std::move(baseShader)),
           shadowDepthShader(std::move(shadowDepthShader)) {
     }

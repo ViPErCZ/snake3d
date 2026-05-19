@@ -7,11 +7,11 @@
 #include "BaseMaterial.h"
 #include "Feature/IMaterialFeature.h"
 #include "RenderContext.h"
-#include "../../../Manager/ShaderManager.h"
+#include "../../../Manager/ShaderProgram.h"
 
 namespace Material {
     // Materiál sestavený z features přes MaterialBuilder. Drží konkrétní
-    // ShaderManager program (returnem z ShaderRegistry pro daný feature
+    // ShaderProgram program (returnem z ShaderRegistry pro daný feature
     // mask) a list features. bind() iteruje features v pořadí přidání;
     // features zapisují své uniformy a binduje textury.
     //
@@ -21,7 +21,7 @@ namespace Material {
     // builder.
     class MaterialInstance final : public BaseMaterial {
     public:
-        MaterialInstance(std::shared_ptr<Manager::ShaderManager> program,
+        MaterialInstance(std::shared_ptr<Manager::ShaderProgram> program,
                          std::vector<std::shared_ptr<Feature::IMaterialFeature>> features);
 
         void bind(const RenderContext& ctx) const;
@@ -36,15 +36,15 @@ namespace Material {
         // Vrátí shadowDepthShader z ShadowFeature, nebo nullptr pokud tato
         // feature není v sestavě. AnimationArrayMesh::renderMesh ho potřebuje
         // pro per-mesh model uniform v shadow pass.
-        [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getShadowProgram() const;
+        [[nodiscard]] std::shared_ptr<Manager::ShaderProgram> getShadowProgram() const;
 
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
-        [[nodiscard]] std::shared_ptr<Manager::ShaderManager> getProgram() const { return program; }
+        [[nodiscard]] std::shared_ptr<Manager::ShaderProgram> getProgram() const { return program; }
         [[nodiscard]] const std::vector<std::shared_ptr<Feature::IMaterialFeature>>& getFeatures() const { return features; }
 
     private:
-        std::shared_ptr<Manager::ShaderManager> program;
+        std::shared_ptr<Manager::ShaderProgram> program;
         std::vector<std::shared_ptr<Feature::IMaterialFeature>> features;
     };
 } // Material

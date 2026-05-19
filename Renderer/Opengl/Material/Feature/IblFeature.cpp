@@ -7,7 +7,7 @@ namespace Feature {
         : environmentMap(std::move(environmentMap)) {
     }
 
-    void IblFeature::bind(Manager::ShaderManager& shader,
+    void IblFeature::bind(Manager::ShaderProgram& shader,
                           const Material::RenderContext& /*ctx*/) const {
         const bool active = environmentMap && environmentMap->hasTexture();
         shader.setBool("iblEnabled", active);
@@ -17,7 +17,7 @@ namespace Feature {
         }
     }
 
-    void IblFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void IblFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (environmentMap) {
             environmentMap->unbind(Material::TextureSlots::EnvironmentMap);
         }

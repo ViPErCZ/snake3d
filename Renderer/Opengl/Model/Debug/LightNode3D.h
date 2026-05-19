@@ -8,7 +8,7 @@
 namespace Model {
     class LightNode3D {
     public:
-        explicit LightNode3D(const shared_ptr<ShaderManager> &baseShader);
+        explicit LightNode3D(const shared_ptr<ShaderProgram> &baseShader);
 
         virtual ~LightNode3D() = default;
 

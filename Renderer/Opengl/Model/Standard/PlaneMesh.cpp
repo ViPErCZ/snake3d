@@ -5,7 +5,7 @@
 
 
 namespace Model {
-    PlaneMesh::PlaneMesh(shared_ptr<ShaderManager> baseShader, const float width,
+    PlaneMesh::PlaneMesh(shared_ptr<ShaderProgram> baseShader, const float width,
                          const float height) : StandardMesh(std::move(baseShader)) {
         float hw = width * 0.5f;
         float hd = height * 0.5f;

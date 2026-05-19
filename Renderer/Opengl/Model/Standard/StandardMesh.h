@@ -4,7 +4,7 @@
 #include <memory>
 #include "../Utils/Mesh.h"
 #include "../../Material/BaseMaterial.h"
-#include "../../../../Manager/ShaderManager.h"
+#include "../../../../Manager/ShaderProgram.h"
 #include "../../../../Tools/DrawElement.h"
 #include "../../../../Manager/Camera.h"
 #include "Animation/AnimationPlayer.h"
@@ -20,7 +20,7 @@ namespace Model {
     public:
         virtual ~StandardMesh() = default;
 
-        explicit StandardMesh(shared_ptr<ShaderManager> baseShader);
+        explicit StandardMesh(shared_ptr<ShaderProgram> baseShader);
 
         [[nodiscard]] shared_ptr<Mesh> getMesh() const;
 
@@ -76,7 +76,7 @@ namespace Model {
     protected:
         shared_ptr<Mesh> mesh;
         shared_ptr<BaseMaterial> material;
-        shared_ptr<ShaderManager> baseShader;
+        shared_ptr<ShaderProgram> baseShader;
         shared_ptr<AnimationPlayer> animationPlayer;
         glm::vec3 localMin;
         glm::vec3 localMax;

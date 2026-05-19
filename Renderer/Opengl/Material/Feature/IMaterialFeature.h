@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../../../../Manager/ShaderFeature.h"
-#include "../../../../Manager/ShaderManager.h"
+#include "../../../../Manager/ShaderProgram.h"
 #include "../RenderContext.h"
 
 namespace Feature {
@@ -30,11 +30,11 @@ namespace Feature {
         // Volá se z MaterialInstance::bind před každým draw call. Program
         // už je aktivní (`use()` zavolán). Feature zapíše své uniformy a
         // bindne textury.
-        virtual void bind(Manager::ShaderManager& shader,
+        virtual void bind(Manager::ShaderProgram& shader,
                           const Material::RenderContext& ctx) const = 0;
 
         // Volitelně odbinduje textury / resetuje state. Volá se po draw.
-        virtual void unbind(Manager::ShaderManager& shader) const { (void)shader; }
+        virtual void unbind(Manager::ShaderProgram& shader) const { (void)shader; }
 
         // Hluboká kopie instance featury - hodnoty (color, enabled, ...)
         // se klonují, sdílené resources (textury, lights) se nesdílejí

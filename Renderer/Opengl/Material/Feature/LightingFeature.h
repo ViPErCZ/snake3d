@@ -24,7 +24,7 @@ namespace Feature {
 
         [[nodiscard]] Manager::ShaderFeatureMask flag() const override;
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& ctx) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 

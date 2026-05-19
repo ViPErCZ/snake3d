@@ -9,13 +9,13 @@
 #include <unordered_map>
 
 #include "ShaderFeature.h"
-#include "ShaderManager.h"
+#include "ShaderProgram.h"
 
 namespace fs = std::filesystem;
 
 namespace Manager {
     // Identifikuje konkrétní permutaci shaderu (master + zapnuté features +
-    // snippets). Materiály drží `ShaderHandle` místo přímého `ShaderManager` -
+    // snippets). Materiály drží `ShaderHandle` místo přímého `ShaderProgram` -
     // registry vrátí program lazy-kompilovaný při prvním requestu.
     //
     // snippets mapuje marker (např. `@MATERIAL_FRAGMENT_POST`) na cestu k
@@ -62,7 +62,7 @@ namespace Manager {
 
         // Vrátí program pro daný handle. Při prvním requestu kompiluje a
         // cachuje. Vrací nullptr pokud master není registrován.
-        std::shared_ptr<ShaderManager> get(const ShaderHandle& handle);
+        std::shared_ptr<ShaderProgram> get(const ShaderHandle& handle);
 
         // Smaže cache - vynutí re-kompilaci při dalším `get()`. Užitečné
         // pro hot reload v budoucnu, zatím dostupné jako API hook.
@@ -74,7 +74,7 @@ namespace Manager {
         // (basicShader|features, basicShader|features|HoleMap, ...) je jiné
         // GL program ID. setMat4/setFloat na neexistující uniform je silent
         // no-op, takže můžeme procházet všechny bez ohledu na obsah.
-        const std::unordered_map<uint64_t, std::shared_ptr<ShaderManager>>& cachedPrograms() const { return programs; }
+        const std::unordered_map<uint64_t, std::shared_ptr<ShaderProgram>>& cachedPrograms() const { return programs; }
 
         // Přístup k tabulce masters - debug introspekce.
         [[nodiscard]] bool hasMaster(const std::string& name) const;
@@ -86,7 +86,7 @@ namespace Manager {
                                 const std::map<std::string, std::string>& snippets);
 
         std::unordered_map<std::string, Master> masters;
-        std::unordered_map<uint64_t, std::shared_ptr<ShaderManager>> programs;
+        std::unordered_map<uint64_t, std::shared_ptr<ShaderProgram>> programs;
     };
 } // Manager
 

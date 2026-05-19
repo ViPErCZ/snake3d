@@ -14,9 +14,9 @@ namespace Feature {
         explicit HoleMapFeature(std::shared_ptr<Manager::TextureManager> holeMap);
 
         [[nodiscard]] Manager::ShaderFeatureMask flag() const override;
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& ctx) const override;
-        void unbind(Manager::ShaderManager& shader) const override;
+        void unbind(Manager::ShaderProgram& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
         void setTexture(std::shared_ptr<Manager::TextureManager> texture) { holeMap = std::move(texture); }

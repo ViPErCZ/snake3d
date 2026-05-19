@@ -13,7 +13,7 @@
 #include "../../../Lights/DirectionalLight.h"
 #include "../../../Lights/PointLight.h"
 #include "../../../Lights/SpotLight.h"
-#include "../../../Manager/ShaderManager.h"
+#include "../../../Manager/ShaderProgram.h"
 #include "../../../Manager/TextureManager.h"
 
 using namespace Manager;
@@ -48,8 +48,8 @@ namespace Material {
     // light objects are shared like everywhere else in the engine.
     class ShaderMaterial final : public BaseMaterial {
     public:
-        explicit ShaderMaterial(shared_ptr<ShaderManager> baseShader,
-                                shared_ptr<ShaderManager> shadowDepthShader = nullptr);
+        explicit ShaderMaterial(shared_ptr<ShaderProgram> baseShader,
+                                shared_ptr<ShaderProgram> shadowDepthShader = nullptr);
 
         ~ShaderMaterial() override = default;
 
@@ -61,8 +61,8 @@ namespace Material {
         void bindShadow(const glm::mat4 &model) const;
 
         [[nodiscard]] bool isShadowEnabled() const { return shadowsEnabled; }
-        [[nodiscard]] shared_ptr<ShaderManager> getShader() const           { return shader; }
-        [[nodiscard]] shared_ptr<ShaderManager> getShadowDepthShader() const{ return shadowDepthShader; }
+        [[nodiscard]] shared_ptr<ShaderProgram> getShader() const           { return shader; }
+        [[nodiscard]] shared_ptr<ShaderProgram> getShadowDepthShader() const{ return shadowDepthShader; }
 
         [[nodiscard]] std::shared_ptr<BaseMaterial> clone() const override;
 
@@ -95,8 +95,8 @@ namespace Material {
         void setAlpha(const float a)             { alpha = a; }
 
     protected:
-        shared_ptr<ShaderManager> shader;
-        shared_ptr<ShaderManager> shadowDepthShader;
+        shared_ptr<ShaderProgram> shader;
+        shared_ptr<ShaderProgram> shadowDepthShader;
         std::map<std::string, UniformValue> uniforms;
 
         shared_ptr<TextureManager> albedo;

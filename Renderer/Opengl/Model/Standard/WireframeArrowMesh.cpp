@@ -1,7 +1,7 @@
 #include "WireframeArrowMesh.h"
 
 namespace Model {
-    WireframeArrowMesh::WireframeArrowMesh(shared_ptr<ShaderManager> baseShader)
+    WireframeArrowMesh::WireframeArrowMesh(shared_ptr<ShaderProgram> baseShader)
         : StandardMesh(std::move(baseShader)) {
         float totalLength = 0.5f;
         float headLength = 0.15f;

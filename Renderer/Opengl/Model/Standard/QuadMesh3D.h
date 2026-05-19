@@ -6,7 +6,7 @@
 namespace Model {
     class QuadMesh3D : public StandardMesh {
     public:
-        explicit QuadMesh3D(shared_ptr<ShaderManager> baseShader, float width, float height);
+        explicit QuadMesh3D(shared_ptr<ShaderProgram> baseShader, float width, float height);
     };
 } // Model
 

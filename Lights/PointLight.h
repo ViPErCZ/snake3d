@@ -3,7 +3,7 @@
 
 #include "Light.h"
 #include "../Tools/Visibility.h"
-#include "../Manager/ShaderManager.h"
+#include "../Manager/ShaderProgram.h"
 
 using namespace Node3D;
 using namespace Manager;
@@ -27,7 +27,7 @@ namespace Lights {
 
         void setQuadratic(float quadratic);
 
-        void bind(const ShaderManager *shader, int index) const;
+        void bind(const ShaderProgram *shader, int index) const;
     };
 } // Light
 

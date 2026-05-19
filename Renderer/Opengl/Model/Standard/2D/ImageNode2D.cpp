@@ -4,7 +4,7 @@
 
 namespace Model {
     ImageNode2D::ImageNode2D(const float width, const float height,
-        const shared_ptr<ShaderManager> &baseShader,
+        const shared_ptr<ShaderProgram> &baseShader,
         const shared_ptr<TextureManager> &texture)
         : BaseNode2D(baseShader), texture(texture), size(width, height) {
         std::vector<Vertex2D> vertices(4);

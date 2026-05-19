@@ -9,7 +9,7 @@
 
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
-                                           const shared_ptr<ShaderManager> &baseShader, const string &animationName)
+                                           const shared_ptr<ShaderProgram> &baseShader, const string &animationName)
         : StandardMesh(baseShader), baseShader(baseShader) {
         setAnimationPlayer(model);
         animation = animationName;
@@ -81,7 +81,7 @@ namespace Model {
         // Resolve once: pickneme aktivní program (main vs shadow) ze
         // current material a pak ho přímo poke-ujeme. Tady už nezáleží na
         // konkrétním type kromě toho jak najít shader.
-        std::shared_ptr<Manager::ShaderManager> activeProgram;
+        std::shared_ptr<Manager::ShaderProgram> activeProgram;
         if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
             activeProgram = animPlay
                 ? materialInstance->getProgram()

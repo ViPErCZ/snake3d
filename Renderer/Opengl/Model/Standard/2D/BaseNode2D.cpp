@@ -3,7 +3,7 @@
 #include "../../../Material/ShaderMaterial.h"
 
 namespace Model {
-    BaseNode2D::BaseNode2D(const shared_ptr<ShaderManager> &baseShader) : baseShader(baseShader), color(1.0f) {
+    BaseNode2D::BaseNode2D(const shared_ptr<ShaderProgram> &baseShader) : baseShader(baseShader), color(1.0f) {
     }
 
     void BaseNode2D::setMaterial(const shared_ptr<BaseMaterial> &material) {

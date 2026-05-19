@@ -6,7 +6,7 @@ namespace Uniform {
     CallbackUniform::CallbackUniform(CallbackType callback) : callback(std::move(callback)) {
     }
 
-    void CallbackUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
+    void CallbackUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         callback(name, shader);
     }
 

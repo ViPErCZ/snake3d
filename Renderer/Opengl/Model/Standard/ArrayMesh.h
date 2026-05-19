@@ -8,7 +8,7 @@ using namespace std;
 namespace Model {
     class ArrayMesh final : public StandardMesh {
     public:
-        explicit ArrayMesh(const shared_ptr<ShaderManager> &baseShader) : StandardMesh(baseShader) {}
+        explicit ArrayMesh(const shared_ptr<ShaderProgram> &baseShader) : StandardMesh(baseShader) {}
 
         void fromMesh(const shared_ptr<Mesh> &mesh);
 

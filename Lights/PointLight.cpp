@@ -25,7 +25,7 @@ namespace Lights {
         this->quadratic = quadratic;
     }
 
-    void PointLight::bind(const ShaderManager *shader, const int index) const {
+    void PointLight::bind(const ShaderProgram *shader, const int index) const {
         shader->use();
         const string name = "pointLight[" + std::to_string(index) + "]";
         shader->setVec3(name + ".position", position);

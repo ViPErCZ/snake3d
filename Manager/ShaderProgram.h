@@ -1,5 +1,5 @@
-#ifndef SNAKE3_SHADERMANAGER_H
-#define SNAKE3_SHADERMANAGER_H
+#ifndef SNAKE3_SHADERPROGRAM_H
+#define SNAKE3_SHADERPROGRAM_H
 
 #include "../stdafx.h"
 #include <string>
@@ -25,9 +25,9 @@ using UniformValue = std::variant<
 
 namespace Manager {
 
-    class ShaderManager {
+    class ShaderProgram {
     public:
-        explicit ShaderManager(GLuint id);
+        explicit ShaderProgram(GLuint id);
         void use() const;
         void printActiveUniforms() const;
         void setBool(const string &name, bool value) const;
@@ -59,4 +59,4 @@ namespace Manager {
     };
 } // Manager
 
-#endif //SNAKE3_SHADERMANAGER_H
+#endif //SNAKE3_SHADERPROGRAM_H

@@ -7,7 +7,7 @@ namespace Feature {
         : albedo(std::move(albedo)) {
     }
 
-    void AlbedoFeature::bind(Manager::ShaderManager& shader,
+    void AlbedoFeature::bind(Manager::ShaderProgram& shader,
                              const Material::RenderContext& /*ctx*/) const {
         shader.setFloat("alpha", alpha);
         shader.setFloat("ambientLightColorIntensity", ambientIntensity);
@@ -31,7 +31,7 @@ namespace Feature {
         }
     }
 
-    void AlbedoFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void AlbedoFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (albedo) {
             albedo->unbind(Material::TextureSlots::Albedo);
         }

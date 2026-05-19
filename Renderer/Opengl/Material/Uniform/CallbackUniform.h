@@ -11,11 +11,11 @@ using namespace std;
 namespace Uniform {
     class CallbackUniform : public IUniform {
     public:
-        using CallbackType = std::function<void(const string& name, const shared_ptr<ShaderManager>& shader)>;
+        using CallbackType = std::function<void(const string& name, const shared_ptr<ShaderProgram>& shader)>;
 
         explicit CallbackUniform(CallbackType callback);
 
-        void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
+        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
 
         [[nodiscard]] shared_ptr<IUniform> clone() const override;
 

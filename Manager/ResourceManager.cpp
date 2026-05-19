@@ -126,14 +126,14 @@ namespace Manager {
         }
     }
 
-    void ResourceManager::addShader(const string &name, const shared_ptr<ShaderManager> &res) {
+    void ResourceManager::addShader(const string &name, const shared_ptr<ShaderProgram> &res) {
         std::unique_lock lock(mutex);
         if (const auto [fst, snd] = shader.emplace(name, res); !snd) {
             throw invalid_argument("Failed to add baseShader " + name + ", already contains.");
         }
     }
 
-    std::shared_ptr<ShaderManager> ResourceManager::getShader(const string &name) const {
+    std::shared_ptr<ShaderProgram> ResourceManager::getShader(const string &name) const {
         std::unique_lock lock(mutex);
         try {
             return shader.at(name);
@@ -245,10 +245,10 @@ namespace Manager {
             string fragmentBuffer(p.fragmentBuffer.begin(), p.fragmentBuffer.end());
 
             if (geometryBuffer.empty()) {
-                auto shader = make_shared<ShaderManager>(ShaderLoader::bindFromBuffer(vertexBuffer, fragmentBuffer));
+                auto shader = make_shared<ShaderProgram>(ShaderLoader::bindFromBuffer(vertexBuffer, fragmentBuffer));
                 addShader(p.name, shader);
             } else {
-                auto shader = make_shared<ShaderManager>(ShaderLoader::bindFromBuffer(vertexBuffer, geometryBuffer, fragmentBuffer));
+                auto shader = make_shared<ShaderProgram>(ShaderLoader::bindFromBuffer(vertexBuffer, geometryBuffer, fragmentBuffer));
                 addShader(p.name, shader);
             }
             p.vertexBuffer.clear();

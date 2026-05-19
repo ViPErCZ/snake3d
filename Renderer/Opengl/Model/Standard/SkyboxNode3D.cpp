@@ -16,7 +16,7 @@ namespace Model {
 
         const auto skyboxMaterial = make_shared<ShaderMaterial>(resourceManager->getShader("skyboxShader"));
         const auto textureUniform = make_shared<TextureUniform>(0, resourceManager->getTexture("skybox"), true);
-        CallbackUniform::CallbackType viewFunc = [camera](const string &name, const shared_ptr<ShaderManager> &shader) {
+        CallbackUniform::CallbackType viewFunc = [camera](const string &name, const shared_ptr<ShaderProgram> &shader) {
             const auto view = glm::mat4(glm::mat3(camera->getViewMatrix()));
             shader->setMat4(name, view);
         };

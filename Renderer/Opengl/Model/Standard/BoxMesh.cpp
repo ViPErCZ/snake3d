@@ -4,7 +4,7 @@
 #include <utility>
 
 namespace Model {
-    BoxMesh::BoxMesh(shared_ptr<ShaderManager> baseShader,
+    BoxMesh::BoxMesh(shared_ptr<ShaderProgram> baseShader,
                      const float width, const float height, const float depth)
         : StandardMesh(std::move(baseShader)), depth(depth) {
         float hw = width * 0.5f;

@@ -5,7 +5,7 @@ namespace Uniform {
         timer = make_unique<Timer>(autostart);
     }
 
-    void TimerUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
+    void TimerUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         timer->update();
         shader->setUniform(name, static_cast<float>(timer->getElapsedTime()));
     }

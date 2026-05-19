@@ -1,7 +1,7 @@
 #include "QuadNode2D.h"
 
 namespace Model {
-    QuadNode2D::QuadNode2D(const float width, const float height, const shared_ptr<ShaderManager> &baseShader) : BaseNode2D(baseShader) {
+    QuadNode2D::QuadNode2D(const float width, const float height, const shared_ptr<ShaderProgram> &baseShader) : BaseNode2D(baseShader) {
         std::vector<Vertex2D> vertices(4);
 
         float halfW = width / 2.0f;

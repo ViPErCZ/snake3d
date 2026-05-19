@@ -1,7 +1,7 @@
 #include "TringleNode2D.h"
 
 namespace Model {
-    TringleNode2D::TringleNode2D(const float width, const float height, const shared_ptr<ShaderManager> &baseShader)
+    TringleNode2D::TringleNode2D(const float width, const float height, const shared_ptr<ShaderProgram> &baseShader)
         : BaseNode2D(baseShader) {
         std::vector<Vertex2D> vertices(3);
 

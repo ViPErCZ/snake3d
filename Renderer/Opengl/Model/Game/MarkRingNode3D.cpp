@@ -14,7 +14,7 @@ namespace Model {
     void MarkRingNode3D::init() {
         material = make_shared<ShaderMaterial>(resourceManager->getShader("markRingShader"));
         material->setBlending(Blending::Translucent);
-        CallbackUniform::CallbackType pulseFunc = [](const string &name, const shared_ptr<ShaderManager> &shader) {
+        CallbackUniform::CallbackType pulseFunc = [](const string &name, const shared_ptr<ShaderProgram> &shader) {
             const auto time = static_cast<float>(glfwGetTime());
             const float pulse = 0.5f + 0.5f * sin(time * 4.0f);
 

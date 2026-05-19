@@ -3,7 +3,7 @@
 
 #include "OrientableLight.h"
 #include "../Tools/Transform.h"
-#include "../Manager/ShaderManager.h"
+#include "../Manager/ShaderProgram.h"
 
 using namespace Node3D;
 using namespace Manager;
@@ -13,7 +13,7 @@ namespace Lights {
         float shininess = 32.0f;
 
     public:
-        void bind(const ShaderManager *shader) const;
+        void bind(const ShaderProgram *shader) const;
     };
 } // Lights
 

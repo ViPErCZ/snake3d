@@ -5,7 +5,7 @@ namespace Uniform {
         index(index) {
     }
 
-    void TextureArrayUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
+    void TextureArrayUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         texture->bindArr(index, 0);
         shader.get()->setUniform(name, index);
     }

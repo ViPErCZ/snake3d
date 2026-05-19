@@ -2,7 +2,7 @@
 #include <vector>
 
 namespace Model {
-    SpinnerMesh::SpinnerMesh(const shared_ptr<ShaderManager> &baseShader)
+    SpinnerMesh::SpinnerMesh(const shared_ptr<ShaderProgram> &baseShader)
         : TringleMesh3D(baseShader, 0.04, 0.04), time(0) {
         colors = {
             {1.0f, 0.0f, 0.0f},

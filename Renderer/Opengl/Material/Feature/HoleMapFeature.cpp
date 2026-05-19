@@ -11,7 +11,7 @@ namespace Feature {
         return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::HoleMap);
     }
 
-    void HoleMapFeature::bind(Manager::ShaderManager& shader,
+    void HoleMapFeature::bind(Manager::ShaderProgram& shader,
                               const Material::RenderContext& /*ctx*/) const {
         if (holeMap && holeMap->hasTexture()) {
             shader.setBool("hasHoleMap", true);
@@ -22,7 +22,7 @@ namespace Feature {
         }
     }
 
-    void HoleMapFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void HoleMapFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (holeMap) {
             holeMap->unbind(Material::TextureSlots::HoleMap);
         }

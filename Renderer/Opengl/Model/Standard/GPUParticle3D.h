@@ -58,9 +58,9 @@ namespace Model {
         shared_ptr<ResourceManager> resourceManager;
         shared_ptr<Camera> camera;
         shared_ptr<ParticleProcessMaterial> material;
-        shared_ptr<ShaderManager> update_shader;
-        shared_ptr<ShaderManager> render_shader;
-        shared_ptr<ShaderManager> render_texture_shader;
+        shared_ptr<ShaderProgram> update_shader;
+        shared_ptr<ShaderProgram> render_shader;
+        shared_ptr<ShaderProgram> render_texture_shader;
     };
 } // Model
 

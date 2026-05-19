@@ -11,7 +11,7 @@ using namespace Material;
 namespace Model {
     class LabelNode2D final : public BaseNode2D {
     public:
-        explicit LabelNode2D(std::string text, const shared_ptr<ShaderManager> &baseShader,
+        explicit LabelNode2D(std::string text, const shared_ptr<ShaderProgram> &baseShader,
                              const shared_ptr<LabelSettings> &settings);
 
         ~LabelNode2D() override = default;

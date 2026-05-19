@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Model {
-    BoltLinesNode2D::BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderManager> &shader)
+    BoltLinesNode2D::BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderProgram> &shader)
         : BaseNode2D(shader), perspectiveProj(perspectiveProjection) {
         setBlending(Blending::AlphaAdditive);
         setDepthTest(false);

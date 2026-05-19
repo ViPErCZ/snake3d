@@ -1,7 +1,7 @@
 #include "DirectionalLight.h"
 
 namespace Lights {
-    void DirectionalLight::bind(const ShaderManager *shader) const {
+    void DirectionalLight::bind(const ShaderProgram *shader) const {
         // directional light
         shader->use();
         shader->setVec3("lightPos", position);

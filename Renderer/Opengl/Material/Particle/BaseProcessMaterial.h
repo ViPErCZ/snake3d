@@ -154,9 +154,9 @@ namespace Material {
 
         void set_spawn_window(float spawn_window);
 
-        virtual void bind(shared_ptr<ShaderManager> shader) const = 0;
+        virtual void bind(shared_ptr<ShaderProgram> shader) const = 0;
 
-        virtual void update(shared_ptr<ShaderManager> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
+        virtual void update(shared_ptr<ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
 
     protected:
         float lifeMin = 1.0f;

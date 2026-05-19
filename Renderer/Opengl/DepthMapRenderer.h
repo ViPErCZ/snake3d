@@ -2,7 +2,7 @@
 #define SNAKE3_DEPTHMAPRENDERER_H
 
 #include "../../Manager/ResourceManager.h"
-#include "../../Manager/ShaderManager.h"
+#include "../../Manager/ShaderProgram.h"
 #include "../../Manager/Camera.h"
 #include "../../Lights/DirectionalLight.h"
 
@@ -35,7 +35,7 @@ namespace Renderer {
 
     protected:
         ResourceManager *resourceManager;
-        ShaderManager *shader;
+        ShaderProgram *shader;
         Camera *camera;
         glm::mat4 projection{};
         GLuint depthMapFBO{};

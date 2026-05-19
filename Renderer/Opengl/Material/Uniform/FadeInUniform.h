@@ -10,7 +10,7 @@ namespace Uniform {
             alpha = 0.0f;
         }
 
-        void bind(const shared_ptr<ShaderManager> &shader, const string &name) override;
+        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
 
         void start() override;
 

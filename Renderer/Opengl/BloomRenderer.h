@@ -2,7 +2,7 @@
 #define SNAKE3_BLOOMRENDERER_H
 
 #include "../../Manager/ResourceManager.h"
-#include "../../Manager/ShaderManager.h"
+#include "../../Manager/ShaderProgram.h"
 #include "BaseRenderer.h"
 
 using namespace Manager;
@@ -23,9 +23,9 @@ namespace Renderer {
         void initializeFramebuffers();
         void destroyFramebuffers();
         shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<ShaderManager> shader;
-        shared_ptr<ShaderManager> shaderBlur;
-        shared_ptr<ShaderManager> shaderBloomFinal;
+        shared_ptr<ShaderProgram> shader;
+        shared_ptr<ShaderProgram> shaderBlur;
+        shared_ptr<ShaderProgram> shaderBloomFinal;
         unsigned int hdrFBO{};
         unsigned int pingpongFBO[2]{};
         unsigned int colorBuffers[2]{};

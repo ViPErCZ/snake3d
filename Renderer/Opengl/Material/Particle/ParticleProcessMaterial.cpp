@@ -13,7 +13,7 @@ namespace Material {
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboID);
     }
 
-    void ParticleProcessMaterial::bind(const shared_ptr<ShaderManager> shader) const {
+    void ParticleProcessMaterial::bind(const shared_ptr<ShaderProgram> shader) const {
         shader->use();
         shader->setInt("u_mode", mode);
         shader->setFloat("u_lifeMin", lifeMin);
@@ -31,7 +31,7 @@ namespace Material {
         }
     }
 
-    void ParticleProcessMaterial::update(const shared_ptr<ShaderManager> shader, const int maxParticles,
+    void ParticleProcessMaterial::update(const shared_ptr<ShaderProgram> shader, const int maxParticles,
                                          const float timeAccum, const float timeOffset, const float stepDt) {
         const ParticleDataGPU gpuData = prepareUniformData();
 

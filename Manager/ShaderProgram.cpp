@@ -1,20 +1,20 @@
-#include "ShaderManager.h"
+#include "ShaderProgram.h"
 
 #include <iostream>
 
 namespace Manager {
-    ShaderManager::ShaderManager(const GLuint id) : id(id) {
+    ShaderProgram::ShaderProgram(const GLuint id) : id(id) {
     }
 
-    GLuint ShaderManager::getId() const {
+    GLuint ShaderProgram::getId() const {
         return id;
     }
 
-    void ShaderManager::use() const {
+    void ShaderProgram::use() const {
         glUseProgram(id);
     }
 
-    void ShaderManager::printActiveUniforms() const {
+    void ShaderProgram::printActiveUniforms() const {
         use();
         GLint uniformCount;
         glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &uniformCount);
@@ -34,11 +34,11 @@ namespace Manager {
         }
     }
 
-    void ShaderManager::setBool(const string &name, bool value) const {
+    void ShaderProgram::setBool(const string &name, bool value) const {
         glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderManager::setInt(const string &name, int value) const {
+    void ShaderProgram::setInt(const string &name, int value) const {
         // GLint location = glGetUniformLocation(id, name.c_str());
         // if (location == -1) {
         //     std::cerr << "Uniform " << name << " not found in shader\n";
@@ -47,55 +47,55 @@ namespace Manager {
         glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderManager::setFloat(const string &name, float value) const {
+    void ShaderProgram::setFloat(const string &name, float value) const {
         glUniform1f(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderManager::setDouble(const string &name, double value) const {
+    void ShaderProgram::setDouble(const string &name, double value) const {
         glUniform1d(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderManager::setFloatArr(const string &name, const vector<GLfloat> &floats) const {
+    void ShaderProgram::setFloatArr(const string &name, const vector<GLfloat> &floats) const {
         glUniform1fv(glGetUniformLocation(id, name.c_str()), static_cast<GLsizei>(floats.size()), floats.data());
     }
 
-    void ShaderManager::setVec2(const string &name, const glm::vec2 &value) const {
+    void ShaderProgram::setVec2(const string &name, const glm::vec2 &value) const {
         glUniform2fv(glGetUniformLocation(id, name.c_str()), 1, &value[0]);
     }
 
-    void ShaderManager::setVec2(const string &name, float x, float y) const {
+    void ShaderProgram::setVec2(const string &name, float x, float y) const {
         glUniform2f(glGetUniformLocation(id, name.c_str()), x, y);
     }
 
-    void ShaderManager::setVec3(const string &name, const glm::vec3 &value) const {
+    void ShaderProgram::setVec3(const string &name, const glm::vec3 &value) const {
         glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, &value[0]);
     }
 
-    void ShaderManager::setVec3(const string &name, float x, float y, float z) const {
+    void ShaderProgram::setVec3(const string &name, float x, float y, float z) const {
         glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
     }
 
-    void ShaderManager::setVec4(const string &name, const glm::vec4 &value) const {
+    void ShaderProgram::setVec4(const string &name, const glm::vec4 &value) const {
         glUniform4fv(glGetUniformLocation(id, name.c_str()), 1, &value[0]);
     }
 
-    void ShaderManager::setVec4(const string &name, float x, float y, float z, float w) const {
+    void ShaderProgram::setVec4(const string &name, float x, float y, float z, float w) const {
         glUniform4f(glGetUniformLocation(id, name.c_str()), x, y, z, w);
     }
 
-    void ShaderManager::setMat2(const string &name, const glm::mat2 &mat) const {
+    void ShaderProgram::setMat2(const string &name, const glm::mat2 &mat) const {
         glUniformMatrix2fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void ShaderManager::setMat3(const string &name, const glm::mat3 &mat) const {
+    void ShaderProgram::setMat3(const string &name, const glm::mat3 &mat) const {
         glUniformMatrix3fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void ShaderManager::setMat4(const string &name, const glm::mat4 &mat) const {
+    void ShaderProgram::setMat4(const string &name, const glm::mat4 &mat) const {
         glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 
-    void ShaderManager::setMat4Array(const string &name, const vector<glm::mat4> &matrices) const {
+    void ShaderProgram::setMat4Array(const string &name, const vector<glm::mat4> &matrices) const {
         glUniformMatrix4fv(
             glGetUniformLocation(id, name.c_str()),
             static_cast<GLsizei>(matrices.size()),
@@ -104,12 +104,12 @@ namespace Manager {
         );
     }
 
-    bool ShaderManager::hasUniform(const string &name) const {
+    bool ShaderProgram::hasUniform(const string &name) const {
         return glGetUniformLocation(id, name.c_str()) != -1;
     }
 
     template<>
-    void ShaderManager::setUniformArray<float>(const std::string &name, const std::vector<float> &values) const {
+    void ShaderProgram::setUniformArray<float>(const std::string &name, const std::vector<float> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) return;
 
@@ -121,7 +121,7 @@ namespace Manager {
     }
 
     template<>
-    void ShaderManager::setUniformArray<
+    void ShaderProgram::setUniformArray<
         glm::vec2>(const std::string &name, const std::vector<glm::vec2> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) return;
@@ -134,7 +134,7 @@ namespace Manager {
     }
 
     template<>
-    void ShaderManager::setUniformArray<
+    void ShaderProgram::setUniformArray<
         glm::vec3>(const std::string &name, const std::vector<glm::vec3> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) return;
@@ -147,7 +147,7 @@ namespace Manager {
     }
 
     template<>
-    void ShaderManager::setUniformArray<
+    void ShaderProgram::setUniformArray<
         glm::vec4>(const std::string &name, const std::vector<glm::vec4> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) return;
@@ -160,7 +160,7 @@ namespace Manager {
     }
 
     template<>
-    void ShaderManager::setUniformArray<
+    void ShaderProgram::setUniformArray<
         glm::mat4>(const std::string &name, const std::vector<glm::mat4> &values) const {
         const GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) return;
@@ -173,7 +173,7 @@ namespace Manager {
         );
     }
 
-    void ShaderManager::setUniformBlock(const std::string &name, const GLuint blockBinding) const {
+    void ShaderProgram::setUniformBlock(const std::string &name, const GLuint blockBinding) const {
         const GLuint blockIndex = glGetUniformBlockIndex(id, name.c_str());
         if (blockIndex != GL_INVALID_INDEX) {
             glUniformBlockBinding(id, blockIndex, blockBinding);
@@ -183,7 +183,7 @@ namespace Manager {
         std::cerr << "Uniform block index " << name << " not found in shader\n";
     }
 
-    void ShaderManager::setUniform(const std::string &name, const UniformValue &value) const {
+    void ShaderProgram::setUniform(const std::string &name, const UniformValue &value) const {
         GLint location = glGetUniformLocation(id, name.c_str());
         if (location == -1) {
             std::cerr << "Uniform " << name << " not found in shader\n";

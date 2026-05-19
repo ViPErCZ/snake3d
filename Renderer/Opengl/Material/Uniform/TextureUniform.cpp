@@ -5,7 +5,7 @@ namespace Uniform {
         : texture(texture), index(index), cube(use_cube) {
     }
 
-    void TextureUniform::bind(const shared_ptr<ShaderManager> &shader, const string &name) {
+    void TextureUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         if (cube) {
             texture->cubeBind(index);
         } else {

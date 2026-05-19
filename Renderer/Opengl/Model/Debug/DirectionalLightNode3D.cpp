@@ -2,7 +2,7 @@
 
 namespace Model {
     DirectionalLightNode3D::DirectionalLightNode3D(const shared_ptr<ContextState> &contextState,
-                                                   const shared_ptr<ShaderManager> &baseShader,
+                                                   const shared_ptr<ShaderProgram> &baseShader,
                                                    const shared_ptr<ResourceManager> &resourceManager)
         : LightNode3D(baseShader), MeshNode3D(contextState, arrowMesh, resourceManager) {
     }

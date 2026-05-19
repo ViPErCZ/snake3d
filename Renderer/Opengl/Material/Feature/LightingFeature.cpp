@@ -23,7 +23,7 @@ namespace Feature {
         return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::DirectionalLight);
     }
 
-    void LightingFeature::bind(Manager::ShaderManager& shader,
+    void LightingFeature::bind(Manager::ShaderProgram& shader,
                                const Material::RenderContext& /*ctx*/) const {
         if (directional) {
             directional->bind(&shader);

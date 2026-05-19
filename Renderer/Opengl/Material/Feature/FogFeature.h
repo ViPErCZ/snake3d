@@ -15,7 +15,7 @@ namespace Feature {
             return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::Fog);
         }
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& /*ctx*/) const override {
             shader.setBool("fogEnable", enabled);
         }

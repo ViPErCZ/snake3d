@@ -27,9 +27,9 @@ namespace Material {
 
         explicit ParticleProcessMaterial(const shared_ptr<ResourceManager> &resource_manager);
 
-        void bind(shared_ptr<ShaderManager> shader) const override;
+        void bind(shared_ptr<ShaderProgram> shader) const override;
 
-        void update(shared_ptr<ShaderManager> shader, int maxParticles, float timeAccum, float timeOffset,
+        void update(shared_ptr<ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset,
                     float stepDt) override;
 
     private:

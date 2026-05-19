@@ -13,7 +13,7 @@ namespace Model {
     class ImageNode2D final : public BaseNode2D {
     public:
         ImageNode2D(float width, float height,
-                    const shared_ptr<ShaderManager> &baseShader,
+                    const shared_ptr<ShaderProgram> &baseShader,
                     const shared_ptr<TextureManager> &texture);
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,

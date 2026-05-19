@@ -18,9 +18,9 @@ namespace Feature {
 
         [[nodiscard]] Manager::ShaderFeatureMask flag() const override { return 0; }
 
-        void bind(Manager::ShaderManager& shader,
+        void bind(Manager::ShaderProgram& shader,
                   const Material::RenderContext& ctx) const override;
-        void unbind(Manager::ShaderManager& shader) const override;
+        void unbind(Manager::ShaderProgram& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
 
         void setShininess(const float s) { shininess = s; }

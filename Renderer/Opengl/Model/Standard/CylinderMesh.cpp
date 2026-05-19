@@ -2,7 +2,7 @@
 #include "CylinderMesh.h"
 
 namespace Model {
-    CylinderMesh::CylinderMesh(std::shared_ptr<ShaderManager> baseShader,
+    CylinderMesh::CylinderMesh(std::shared_ptr<ShaderProgram> baseShader,
                                float topRadius, float bottomRadius,
                                float height, int rings, int segments)
         : StandardMesh(std::move(baseShader)) {

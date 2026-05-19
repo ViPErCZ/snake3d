@@ -76,7 +76,7 @@ void App::Init() {
         "Assets/Shaders/particle/particle_render_2d_tex.vs", "Assets/Shaders/particle/particle_render_2d_tex.fs");
 
     resourceManager->addShader("blur",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/bloom/blur.vs",
                 "Assets/Shaders/bloom/blur.fs"
@@ -85,7 +85,7 @@ void App::Init() {
 
     resourceManager->addShader(
         "bloomFinal",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/bloom/bloom_final.vs",
                 "Assets/Shaders/bloom/bloom_final.fs"
@@ -94,7 +94,7 @@ void App::Init() {
 
     resourceManager->addShader(
         "shadowShader",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/shadow_map.vs",
                 "Assets/Shaders/shadow_map.fs"
@@ -102,7 +102,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "shadowDepthShader",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/shadow_map_depth.vs",
                 "Assets/Shaders/shadow_map_depth.fs"
@@ -125,7 +125,7 @@ void App::Init() {
     // svůj program (basicShader + HoleMap) přímo z shaderRegistry->get.
     resourceManager->addShader(
         "arrowGizmo",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/gizmo/arrow.vert",
                 "Assets/Shaders/gizmo/arrow.frag"
@@ -133,7 +133,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "preloadShader",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/preloader/dots/dots.vs",
                 "Assets/Shaders/preloader/dots/dots.fs"
@@ -141,7 +141,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "preloadShader2",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/preloader/dots2/dots2.vs",
                 "Assets/Shaders/preloader/dots2/dots2.fs"
@@ -149,21 +149,21 @@ void App::Init() {
     );
     resourceManager->addShader(
         "particle_update",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_update.vs"
                 ))
     );
     resourceManager->addShader(
         "particle_update_2d",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_update.vs"
                 ))
     );
     resourceManager->addShader(
         "particle_3d_render",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_3d_render.vs",
                 "Assets/Shaders/particle/particle_3d_render.fs"
@@ -171,7 +171,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "particle_render_2d",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_render_2d.vs",
                 "Assets/Shaders/particle/particle_render_2d.fs"
@@ -179,7 +179,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "particle_3d_render_tex",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_3d_render_tex.vs",
                 "Assets/Shaders/particle/particle_3d_render_tex.fs"
@@ -187,7 +187,7 @@ void App::Init() {
     );
     resourceManager->addShader(
         "particle_render_2d_tex",
-        std::make_shared<ShaderManager>(
+        std::make_shared<ShaderProgram>(
             ShaderLoader::loadShader(
                 "Assets/Shaders/particle/particle_render_2d_tex.vs",
                 "Assets/Shaders/particle/particle_render_2d_tex.fs"

@@ -4,12 +4,12 @@
 
 namespace Feature {
     ShadowFeature::ShadowFeature(std::shared_ptr<Manager::TextureManager> shadowArray,
-                                 std::shared_ptr<Manager::ShaderManager> shadowDepthShader)
+                                 std::shared_ptr<Manager::ShaderProgram> shadowDepthShader)
         : shadowArray(std::move(shadowArray)),
           shadowDepthShader(std::move(shadowDepthShader)) {
     }
 
-    void ShadowFeature::bind(Manager::ShaderManager& shader,
+    void ShadowFeature::bind(Manager::ShaderProgram& shader,
                              const Material::RenderContext& ctx) const {
         shader.setInt("shadowMap", Material::TextureSlots::ShadowArray);
 
@@ -20,7 +20,7 @@ namespace Feature {
         }
     }
 
-    void ShadowFeature::unbind(Manager::ShaderManager& /*shader*/) const {
+    void ShadowFeature::unbind(Manager::ShaderProgram& /*shader*/) const {
         if (shadowArray) {
             shadowArray->unbind(Material::TextureSlots::ShadowArray);
         }

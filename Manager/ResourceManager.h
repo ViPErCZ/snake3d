@@ -8,7 +8,7 @@
 #include <memory>
 #include <queue>
 #include "TextureManager.h"
-#include "ShaderManager.h"
+#include "ShaderProgram.h"
 #include "ShaderRegistry.h"
 #include "../Resource/ResourceLoader.h"
 
@@ -30,7 +30,7 @@ namespace Manager {
 
         void replaceTexture(const string &name, const shared_ptr<TextureManager> &res);
 
-        void addShader(const string &name, const shared_ptr<ShaderManager> &res);
+        void addShader(const string &name, const shared_ptr<ShaderProgram> &res);
 
         void addModel(const string &name, shared_ptr<Mesh> &res);
 
@@ -39,7 +39,7 @@ namespace Manager {
         shared_ptr<TextureManager> getTexture(const string &name) const;
         bool hasTexture(const string &name) const;
 
-        shared_ptr<ShaderManager> getShader(const string &name) const;
+        shared_ptr<ShaderProgram> getShader(const string &name) const;
 
         // B5c: optional handle to the shader registry. App sets it during
         // bootstrap; scenes use it through MaterialBuilder. Will become the
@@ -112,7 +112,7 @@ namespace Manager {
     protected:
         mutable std::mutex mutex{};
         std::unordered_map<std::string, std::shared_ptr<TextureManager> > texture;
-        std::unordered_map<std::string, std::shared_ptr<ShaderManager> > shader;
+        std::unordered_map<std::string, std::shared_ptr<ShaderProgram> > shader;
         std::unordered_map<std::string, std::shared_ptr<Mesh> > model;
         std::unordered_map<std::string, std::shared_ptr<AnimationPlayer> > animationModel;
         std::shared_ptr<ShaderRegistry> shaderRegistry;

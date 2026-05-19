@@ -8,7 +8,7 @@
 
 namespace Model {
     LabelNode2D::LabelNode2D(std::string text,
-                             const std::shared_ptr<ShaderManager> &baseShader,
+                             const std::shared_ptr<ShaderProgram> &baseShader,
                              const std::shared_ptr<LabelSettings> &settings)
         : BaseNode2D(baseShader), settings(settings), text(std::move(text)) {
         if (!settings->getFont()) {

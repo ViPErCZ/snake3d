@@ -6,7 +6,7 @@
 namespace Model {
     class WireframeArrowMesh final : public StandardMesh {
     public:
-        explicit WireframeArrowMesh(shared_ptr<ShaderManager> baseShader);
+        explicit WireframeArrowMesh(shared_ptr<ShaderProgram> baseShader);
 
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
             const glm::mat4 &parentTransform, bool shadows) const override;

@@ -10,7 +10,7 @@ using namespace ModelUtils;
 namespace Model {
     class SpinnerMesh final : public TringleMesh3D {
     public:
-        explicit SpinnerMesh(const shared_ptr<ShaderManager> &baseShader);
+        explicit SpinnerMesh(const shared_ptr<ShaderProgram> &baseShader);
         void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                             const glm::mat4 &parentTransform, bool shadows) const override;
         void update(float dt) override;
