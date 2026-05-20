@@ -244,7 +244,7 @@ namespace Manager {
         return fog;
     }
 
-    int RenderManager::reloadShaders() {
+    int RenderManager::reloadShaders() const {
         if (!resourceManager) return 0;
         const auto registry = resourceManager->getShaderRegistry();
         if (!registry) return 0;

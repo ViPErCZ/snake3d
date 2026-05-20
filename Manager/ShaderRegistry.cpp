@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <ranges>
 #include <system_error>
 
 #include "../Resource/ShaderLoader.h"
@@ -9,9 +10,6 @@
 
 namespace Manager {
     namespace {
-        // C4 hot reload helper. Vrací 0 pokud soubor neexistuje (např. snippet
-        // path je špatná) - reloadIfChanged pak takový soubor "vidí" jako bez
-        // změny, neclash při neexistujících paths.
         int64_t fileMtime(const std::string& path) {
             std::error_code ec;
             const auto t = std::filesystem::last_write_time(path, ec);
@@ -50,7 +48,6 @@ namespace Manager {
                 gsSrc = Resource::ShaderPreprocessor::injectDefines(*gsSrc, defines);
             }
 
-            // C1 cross-stage placeholder validace.
             const auto vsMarkers = Resource::ShaderPreprocessor::scanMaterialMarkers(vsSrc);
             const auto fsMarkers = Resource::ShaderPreprocessor::scanMaterialMarkers(fsSrc);
             std::vector<Resource::MarkerLocation> gsMarkers;
@@ -67,7 +64,6 @@ namespace Manager {
                 Resource::ShaderPreprocessor::warnUnknownMarkers(gsMarkers, m.geometryPath->string());
             }
 
-            // C2a multi-snippet concatenace.
             std::map<std::string, std::string> snippetTexts;
             for (const auto& [marker, paths] : handle.snippets) {
                 std::string combined;
@@ -154,7 +150,7 @@ namespace Manager {
 
     int ShaderRegistry::reloadIfChanged() {
         int reloaded = 0;
-        for (auto& [key, entry] : programs) {
+        for (auto &entry: programs | views::values) {
             bool changed = false;
             for (size_t i = 0; i < entry.watchedPaths.size(); ++i) {
                 if (fileMtime(entry.watchedPaths[i]) != entry.watchedMtimes[i]) {

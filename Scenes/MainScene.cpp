@@ -170,10 +170,6 @@ namespace Scenes {
                 }
                 break;
             case GLFW_KEY_F5:
-                // C4: hot reload shader sources. Recompiluje jen ty programy,
-                // jejichž source files (master + includes + snippety) se na
-                // disku změnily od posledního loadu. Když je glsl chyba,
-                // log v konzoli, starý program zůstává.
                 rendererManager->reloadShaders();
                 break;
             case GLFW_KEY_F:

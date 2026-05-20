@@ -73,7 +73,7 @@ namespace Manager {
         // - prochází cached programy a recompiluje ty, jejichž source soubory
         // se změnily na disku. Materiály drží stejný shared_ptr<ShaderProgram>,
         // jen interní GL ID se swapne.
-        int reloadShaders();
+        int reloadShaders() const;
 
         void reset();
 
