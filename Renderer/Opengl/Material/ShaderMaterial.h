@@ -35,17 +35,6 @@ namespace Material {
             shared_ptr<IUniform>
         >;
 
-    // Free-form material for shaders that don't fit the main3D feature
-    // composition (snake respawn/crash dissolve, bolt flash, ring, corner
-    // UI buttons, 2D text, skybox). Drives an arbitrary shader through a
-    // generic uniforms map plus light/texture members the legacy code
-    // relied on.
-    //
-    // After B7a this class no longer inherits StandardMaterial; the fields
-    // it actually needs live here directly. clone() is a deep copy: program
-    // and shadowDepthShader stay shared (GL handles), uniforms map values
-    // implementing IUniform are cloned via IUniform::clone, textures and
-    // light objects are shared like everywhere else in the engine.
     class ShaderMaterial final : public BaseMaterial {
     public:
         explicit ShaderMaterial(shared_ptr<ShaderProgram> baseShader,

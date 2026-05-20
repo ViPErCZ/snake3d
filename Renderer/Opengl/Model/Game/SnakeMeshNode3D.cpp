@@ -57,12 +57,8 @@ namespace Model {
         if (resourceManager) {
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
 
-            // Tile material: red flat-colored snake segment. Migrated to
-            // MaterialBuilder in B6b. Lighting feature handle is retained so
-            // the SnakeMeshNode3D::setDirectionalLight/Spot/Point setters can
-            // mutate the directional + light arrays without rebuilding.
-            tileLightingFeature = make_shared<Feature::LightingFeature>(nullptr, std::vector<std::shared_ptr<Lights::PointLight>>{}, std::vector<std::shared_ptr<Lights::SpotLight>>{});
-            auto tileAlbedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
+            tileLightingFeature = make_shared<Feature::LightingFeature>(nullptr, std::vector<std::shared_ptr<PointLight>>{}, std::vector<std::shared_ptr<SpotLight>>{});
+            const auto tileAlbedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
             tileAlbedoFeature->setColor({0.88f, 0.05f, 0.05f});
             tileMaterial = Material::MaterialBuilder()
                 .useMaster("basicShader")
@@ -408,7 +404,7 @@ namespace Model {
             timerUniform2->stop();
             if (!bodySegment) {
                 if (postCrashRespawnHandler) {
-                    auto handler = std::move(postCrashRespawnHandler);
+                    const auto handler = std::move(postCrashRespawnHandler);
                     postCrashRespawnHandler = nullptr;
                     handler();
                 } else {
