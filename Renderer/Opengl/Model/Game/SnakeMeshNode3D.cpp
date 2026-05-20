@@ -69,6 +69,7 @@ namespace Model {
                 .with(tileLightingFeature)
                 .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
                 .with(tileAlbedoFeature)
+                .with(resourceManager->getFogFeature())
                 .build(*resourceManager->getShaderRegistry());
 
             headMaterial = mesh->getMaterial();

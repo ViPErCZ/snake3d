@@ -5,6 +5,7 @@
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "../Tools/Layers.h"
@@ -35,6 +36,7 @@ namespace Scenes {
 
     void BarriersScene::initBarriers() {
         const auto shader = resourceManager->getShader("basicShader");
+        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
         const auto boxMesh = make_shared<BoxMesh>(shader, 2.0, 2.0, 2.0);
         const auto brickWall = resourceManager->getTexture("brickwork-texture.jpg");
         const auto brickWallNormal = resourceManager->getTexture("brickwork_normal-map.jpg");
@@ -45,9 +47,11 @@ namespace Scenes {
         const auto boxMaterial = Material::MaterialBuilder()
             .useMaster("basicShader")
             .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
             .with(make_shared<Feature::NormalMapFeature>(brickWallNormal))
             .with(make_shared<Feature::SpecularFeature>(brickWallSpecular))
             .with(albedoFeature)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
 
         boxMesh->setMaterial(boxMaterial);

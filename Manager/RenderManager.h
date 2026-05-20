@@ -67,6 +67,8 @@ namespace Manager {
 
         [[nodiscard]] bool isReflectionsEnabled() const;
 
+        [[nodiscard]] bool isFogEnabled() const;
+
         void reset();
 
         [[nodiscard]] const vector<RendererEntry> &getRenderers() const;
@@ -75,8 +77,6 @@ namespace Manager {
 
     protected:
         void updateShadows();
-
-        void updateFog();
 
         vector<RendererEntry> renderers;
         unique_ptr<DepthMapRenderer> depthMapRenderer;

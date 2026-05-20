@@ -31,6 +31,7 @@ namespace Model {
             .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
             .with(normalFeature)
             .with(albedoFeature)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         material->setBlending(Blending::Opaque);
         barrel->setMaterial(material);

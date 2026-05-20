@@ -24,7 +24,7 @@ namespace Scenes {
         quad->setDepthTest(false);
         quad->setDepthWrite(false);
 
-        initRain(true);
+        // initRain(true);
         // initRainDrop();
         // initSnow();
     }
@@ -62,6 +62,8 @@ namespace Scenes {
             boltScene->init(10);
             addNode("bolt", boltScene);
         }
+
+        rainActive = true;
     }
 
     void WeatherScene::initRainDrop() {

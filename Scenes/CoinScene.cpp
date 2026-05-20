@@ -55,20 +55,11 @@ namespace Scenes {
         const auto coinMetalness = resourceManager->getTexture("Coin_Gold_metalness.png");
         const auto coinRoughness = resourceManager->getTexture("Coin_Gold_rough.png");
 
-        // Spots are added per-light below; LightingFeature handle lets us
-        // mutate the vector after build instead of rebuilding the material.
         auto coinLighting = make_shared<Feature::LightingFeature>(
             directionalLight,
             std::vector<std::shared_ptr<Lights::PointLight>>{},
             std::vector<std::shared_ptr<Lights::SpotLight>>{});
 
-        // Gold coin is highly metallic, so kD ~= 0 and the PBR ambient is
-        // dominated by the IBL reflection of the skybox at the reflection
-        // vector. As the coin rotates the reflection vector sweeps the
-        // cubemap and can hit very dark faces (cloud-skybox bottom), making
-        // the coin briefly go black. Bumping the ambient intensity gives the
-        // reflection a baseline brightness multiplier so the coin stays
-        // legible across its rotation.
         auto coinAlbedoFeature = make_shared<Feature::AlbedoFeature>(coinAlbedo);
         coinAlbedoFeature->setAmbientIntensity(2.0f);
 
@@ -79,6 +70,7 @@ namespace Scenes {
             .with(make_shared<Feature::PbrFeature>(coinMetalness, coinRoughness))
             .with(make_shared<Feature::IblFeature>(resourceManager->getTexture("skybox")))
             .with(coinAlbedoFeature)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         coinMaterial->setBlending(Blending::Opaque);
 

@@ -191,6 +191,7 @@ namespace Scenes {
             // Same as PlayerScene: skeletal head needs FEATURE_BONES gated in.
             .with(make_shared<Feature::BonesFeature>())
             .with(make_shared<Feature::AlbedoFeature>(nullptr))
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         pacmanMesh->setMaterial(material);
         pacmanMesh->getAnimationPlayer()->setAcceleration(2.5f);

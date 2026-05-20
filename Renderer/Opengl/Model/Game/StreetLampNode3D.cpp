@@ -52,6 +52,7 @@ namespace Model {
             .with(pbr1)
             .with(ibl1)
             .with(albedo1)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         material1->setBlending(Blending::Opaque);
         mesh->setMaterial(material1);
@@ -68,6 +69,7 @@ namespace Model {
             .with(normal2)
             .with(pbr2)
             .with(albedo2)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         material2->setBlending(Blending::Additive);
         mesh2->setMaterial(material2);
@@ -81,6 +83,7 @@ namespace Model {
             .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, emptySpots))
             .with(normal3)
             .with(albedo3)
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         material3->setBlending(Blending::Opaque);
         mesh3->setMaterial(material3);

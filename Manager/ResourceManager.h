@@ -10,6 +10,7 @@
 #include "TextureManager.h"
 #include "ShaderProgram.h"
 #include "ShaderRegistry.h"
+#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Resource/ResourceLoader.h"
 
 using namespace std;
@@ -46,6 +47,12 @@ namespace Manager {
         // primary shader API in B6 once ResourceManager::getShader is retired.
         void setShaderRegistry(shared_ptr<ShaderRegistry> registry) { shaderRegistry = std::move(registry); }
         [[nodiscard]] shared_ptr<ShaderRegistry> getShaderRegistry() const { return shaderRegistry; }
+
+        // Global fog feature - shared across every basicShader material composition
+        // so the F-key toggle propagates to all 3D materials in one mutation.
+        // App bootstraps it; RenderManager::toggleFog mutates setEnabled.
+        void setFogFeature(shared_ptr<Feature::FogFeature> feature) { fogFeature = std::move(feature); }
+        [[nodiscard]] shared_ptr<Feature::FogFeature> getFogFeature() const { return fogFeature; }
 
         shared_ptr<Mesh> getModel(const string &name) const;
 
@@ -116,6 +123,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<Mesh> > model;
         std::unordered_map<std::string, std::shared_ptr<AnimationPlayer> > animationModel;
         std::shared_ptr<ShaderRegistry> shaderRegistry;
+        std::shared_ptr<Feature::FogFeature> fogFeature;
         std::unique_ptr<ResourceLoader> loader;
 
         mutable std::mutex pendingMutex;

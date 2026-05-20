@@ -42,17 +42,12 @@ namespace Renderer {
 
         [[nodiscard]] bool isShadow() const;
 
-        void setFog(bool fog);
-
-        [[nodiscard]] bool isFog() const;
-
         glm::vec3 compareSceneMin(glm::vec3 sceneMin);
 
         glm::vec3 compareSceneMax(glm::vec3 sceneMax);
 
     protected:
         bool shadows;
-        bool fog;
         MODE mode;
     };
 } // Manager

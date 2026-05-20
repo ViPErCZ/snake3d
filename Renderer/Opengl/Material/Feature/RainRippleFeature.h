@@ -3,30 +3,24 @@
 
 #include "IMaterialFeature.h"
 
+using namespace Material;
+using namespace Manager;
+using namespace std;
+
 namespace Feature {
-    // Rain ripple distortion: a procedural ripple offset perturbs the
-    // tangent-space normal (and the planar reflection sampling position
-    // via the reflection snippet). Activates basic.fs FEATURE_RAIN_RIPPLE
-    // blocks and writes the rainDropEnable / rainSpeed / rainDensity
-    // uniforms at bind time.
-    //
-    // Dormant in B8c: no material composition currently uses this feature
-    // (the rainDropEnable uniform was never wired from C++). The class is
-    // here so a future weather system can just add it to the plane's
-    // builder chain.
-    class RainRippleFeature final : public IMaterialFeature {
+
+    class RainRippleFeature : public IMaterialFeature {
     public:
-        explicit RainRippleFeature(bool enabled = true,
-                                   float speed = 0.2f,
-                                   float density = 20.0f)
+        explicit RainRippleFeature(const bool enabled = true,
+                                   const float speed = 0.2f,
+                                   const float density = 20.0f)
             : enabled(enabled), speed(speed), density(density) {}
 
-        [[nodiscard]] Manager::ShaderFeatureMask flag() const override {
-            return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::RainRipple);
+        [[nodiscard]] ShaderFeatureMask flag() const override {
+            return static_cast<ShaderFeatureMask>(ShaderFeature::RainRipple);
         }
 
-        void bind(Manager::ShaderProgram& shader,
-                  const Material::RenderContext& /*ctx*/) const override {
+        void bind(ShaderProgram& shader, const RenderContext& /*ctx*/) const override {
             shader.setBool("rainDropEnable", enabled);
             shader.setFloat("rainSpeed", speed);
             shader.setFloat("rainDensity", density);

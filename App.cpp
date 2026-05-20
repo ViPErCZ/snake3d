@@ -1,5 +1,6 @@
 #include <nlohmann/json.hpp>
 #include "App.h"
+#include "Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Resource/AnimLoader.h"
@@ -10,6 +11,7 @@ App::App(const shared_ptr<Camera> &camera, const int width, const int height) : 
     resourceManager = make_shared<ResourceManager>();
     shaderRegistry = make_shared<ShaderRegistry>();
     resourceManager->setShaderRegistry(shaderRegistry);
+    resourceManager->setFogFeature(make_shared<Feature::FogFeature>(false));
     keyboardManager = make_unique<KeyboardManager>();
 
     projection = glm::perspective(
@@ -288,9 +290,10 @@ void App::mouseButtonCallback(GLFWwindow *window, const int button, const int ac
             // unbounded mouse deltas - otherwise the cursor hits the screen edge
             // and yaw stops accumulating after ~half a turn.
             if (action == GLFW_PRESS) {
+                cursorModeBeforeSpectator = glfwGetInputMode(window, GLFW_CURSOR);
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             } else if (action == GLFW_RELEASE) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetInputMode(window, GLFW_CURSOR, cursorModeBeforeSpectator);
             }
             camera->onMouseDown(button, action, mods);
         }

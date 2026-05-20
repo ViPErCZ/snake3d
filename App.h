@@ -63,6 +63,7 @@ private:
     shared_ptr<MainScene> mainScene;
     shared_ptr<PreloaderScene> preloaderScene;
     shared_ptr<ContextState> contextState;
+    mutable int cursorModeBeforeSpectator = GLFW_CURSOR_HIDDEN;
 };
 
 #endif //SNAKE3_APP_H

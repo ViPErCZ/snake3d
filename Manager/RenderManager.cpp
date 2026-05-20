@@ -1,6 +1,8 @@
 #include "RenderManager.h"
 #include <algorithm>
 
+#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+
 namespace Manager {
     RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
             const shared_ptr<ResourceManager> &resourceManager, const glm::mat4 &projection, const int width, const int height)
@@ -30,7 +32,6 @@ namespace Manager {
 
     void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
         renderer->setShadow(shadows);
-        renderer->setFog(fog);
         renderers.push_back({std::move(renderer), priority});
         ranges::stable_sort(renderers,
                             [](auto &a, auto &b) { return a.priority > b.priority; });
@@ -226,7 +227,9 @@ namespace Manager {
 
     void RenderManager::toggleFog() {
         fog = !fog;
-        updateFog();
+        if (const auto fogFeature = resourceManager ? resourceManager->getFogFeature() : nullptr) {
+            fogFeature->setEnabled(fog);
+        }
     }
 
     void RenderManager::toggleReflections() {
@@ -235,6 +238,10 @@ namespace Manager {
 
     bool RenderManager::isReflectionsEnabled() const {
         return reflections;
+    }
+
+    bool RenderManager::isFogEnabled() const {
+        return fog;
     }
 
     void RenderManager::reset() {
@@ -247,12 +254,6 @@ namespace Manager {
 
     void RenderManager::updateDirectionalLight(const shared_ptr<DirectionalLight> &light) {
         directionalLight = light;
-    }
-
-    void RenderManager::updateFog() {
-        for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
-            Iter->renderer->setFog(fog);
-        }
     }
 
 }

@@ -9,6 +9,7 @@
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
@@ -68,6 +69,7 @@ namespace Scenes {
     void TorchScene::initTorch() {
         const auto torch = make_shared<ArrayMesh>(resourceManager->getShader("basicShader"));
         torch->fromMesh(resourceManager->getModel("torch"));
+        const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
 
         const auto torchAlbedo = resourceManager->getTexture("torch.png");
         const auto torchNormal = resourceManager->getTexture("torch_normal.png");
@@ -77,8 +79,10 @@ namespace Scenes {
             .with(make_shared<Feature::LightingFeature>(directionalLight,
                                                        std::vector<std::shared_ptr<Lights::PointLight>>{},
                                                        spotLights))
+            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
             .with(make_shared<Feature::NormalMapFeature>(torchNormal))
             .with(make_shared<Feature::AlbedoFeature>(torchAlbedo))
+            .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());
         torchMaterial->setBlending(Blending::Opaque);
 

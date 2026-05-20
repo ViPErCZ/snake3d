@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 
+#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Resource/ShaderLoader.h"
 #include "../Resource/TextureLoader.h"
 

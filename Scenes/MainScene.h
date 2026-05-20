@@ -8,6 +8,7 @@
 #include "PlayerScene.h"
 #include "Preloader2Scene.h"
 #include "RemoteSnakeScene.h"
+#include "WeatherScene.h"
 #include "WinnerScene.h"
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
@@ -15,6 +16,7 @@
 #include "../Renderer/Opengl/Material/MaterialInstance.h"
 #include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
 #include "../Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
+#include "../Renderer/Opengl/Material/Feature/RainRippleFeature.h"
 #include "../Renderer/Opengl/Scene/Scene.h"
 #include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
@@ -138,6 +140,8 @@ namespace Scenes {
         shared_ptr<Material::MaterialInstance> planeMaterial;
         shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;
         shared_ptr<Feature::PlanarReflectionFeature> planeReflectionFeature;
+        shared_ptr<Feature::RainRippleFeature> planeRainRippleFeature;
+        shared_ptr<WeatherScene> weatherScene;
         shared_ptr<Manager::TextureManager> holeMapTexture;
         shared_ptr<Preloader2Scene> preLoader;
         shared_ptr<WinnerScene> winnerScene;

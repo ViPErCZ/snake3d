@@ -19,12 +19,15 @@ namespace Scenes {
             const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
+
+        bool isRainActive() const { return rainActive; }
     protected:
         void initRain(bool lightning = false);
         void initRainDrop();
         void initSnow();
 
         shared_ptr<QuadMesh3D> quad;
+        bool rainActive = false;
     };
 } // Scenes
 

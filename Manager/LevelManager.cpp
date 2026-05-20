@@ -6,6 +6,7 @@
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
@@ -80,9 +81,11 @@ namespace Manager {
             const auto boxMaterial = Material::MaterialBuilder()
                 .useMaster("basicShader")
                 .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
+                .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
                 .with(make_shared<Feature::NormalMapFeature>(brickWallNormal))
                 .with(make_shared<Feature::SpecularFeature>(brickWallSpecular))
                 .with(albedoFeature)
+                .with(resourceManager->getFogFeature())
                 .build(*resourceManager->getShaderRegistry());
             boxMesh->setMaterial(boxMaterial);
         }

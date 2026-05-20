@@ -20,7 +20,6 @@
 #include "WeatherScene.h"
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
 #include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
@@ -33,7 +32,6 @@
 #include "../Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "../Renderer/Opengl/Model/Standard/PlaneMesh.h"
 #include "../Renderer/Opengl/Model/Standard/SkyboxNode3D.h"
-#include "../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "../Tools/Layers.h"
 
@@ -250,30 +248,25 @@ namespace Scenes {
         const auto gamefieldSpecular = resourceManager->getTexture("gamefield_specular.jpg");
         const auto reflectionTexture = resourceManager->getTexture("PlanarReflectionTexture");
 
-        // Feature handles we want to mutate later (hole map texture rebuild
-        // per level, F2 reflection toggle).
         planeHoleMapFeature = make_shared<Feature::HoleMapFeature>(nullptr);
         planeReflectionFeature = make_shared<Feature::PlanarReflectionFeature>(
             reflectionTexture, rendererManager->isReflectionsEnabled());
+        planeRainRippleFeature = make_shared<Feature::RainRippleFeature>(false);
 
-        auto albedoFeature = make_shared<Feature::AlbedoFeature>(gamefieldAlbedo);
+        const auto albedoFeature = make_shared<Feature::AlbedoFeature>(gamefieldAlbedo);
         albedoFeature->setColor(glm::vec3(0.0f));
 
-        planeMaterial = Material::MaterialBuilder()
+        planeMaterial = MaterialBuilder()
             .useMaster("basicShader")
             .with(make_shared<Feature::LightingFeature>(directionalLight, pointLights, spotLights))
             .with(make_shared<Feature::ShadowFeature>(shadowMap, shadowDepthShader))
             .with(make_shared<Feature::NormalMapFeature>(gamefieldNormal))
             .with(make_shared<Feature::SpecularFeature>(gamefieldSpecular))
             .with(make_shared<Feature::UvTransformFeature>(glm::vec2(48.0f)))
-            // FogFeature záměrně vynechané - původní StandardMaterial::bind
-            // vždy nastavoval fogEnable=false (F klávesa nikdy do shaderu
-            // nepsala true), takže plane nikdy fog neměl. Můj B5c omylem
-            // FogFeature zapnul a podlahu zamlžil v dálce. Když se fog
-            // časem zapojí do skutečné pipeline (toggleFog by měl psát
-            // do shaderu), tady se přidá zpátky s odpovídajícím handle.
+            .with(resourceManager->getFogFeature())
             .with(albedoFeature)
             .with(planeReflectionFeature)
+            .with(planeRainRippleFeature)
             .with(planeHoleMapFeature)
             .build(*resourceManager->getShaderRegistry());
 
@@ -314,10 +307,7 @@ namespace Scenes {
         levelManager = barriersScene->getLevelManager();
         addNode("barriers", barriersScene);
         applyHolesToPlane();
-        // Both snake handlers exist by now (they were built earlier in
-        // initPlayerScene/initRemoteSnakeScene at progress 20). The predicate
-        // closes over levelManager, which is mutated in place across level
-        // changes, so a single wire-up here is enough.
+
         const auto predicate = [lm = levelManager](const int virtualX, const int virtualY) {
             return lm->isVoidAt(virtualX, virtualY);
         };
@@ -355,7 +345,7 @@ namespace Scenes {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // TextureManager owns the GL id - destructor calls glDeleteTextures.
-        holeMapTexture = std::make_shared<Manager::TextureManager>(texId);
+        holeMapTexture = std::make_shared<TextureManager>(texId);
         planeHoleMapFeature->setTexture(holeMapTexture);
     }
 
@@ -376,7 +366,7 @@ namespace Scenes {
     }
 
     void MainScene::initWeatherScene() {
-        const auto weatherScene = make_shared<WeatherScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
+        weatherScene = make_shared<WeatherScene>(directionalLight, spotLights, pointLights, rendererManager, camera, projection, resourceManager, width, height);
         weatherScene->init(0);
         addNode("weather", weatherScene);
     }
@@ -1123,6 +1113,10 @@ namespace Scenes {
         }
         if (loading) {
             prepareScene();
+        }
+
+        if (planeRainRippleFeature && weatherScene) {
+            planeRainRippleFeature->setEnabled(weatherScene->isRainActive());
         }
 
         if (hud) {
