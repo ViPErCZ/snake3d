@@ -8,7 +8,10 @@ namespace Feature {
     }
 
     Manager::ShaderFeatureMask HoleMapFeature::flag() const {
-        return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::HoleMap);
+        // C2b: žádný #ifdef gate v master shaderu - kód je v snippetu, který
+        // se injektuje pouze když je feature přítomna v kompozici. Cache key
+        // unikátnost zajišťuje snippet path v ShaderHandle::snippets.
+        return 0;
     }
 
     void HoleMapFeature::bind(Manager::ShaderProgram& shader,

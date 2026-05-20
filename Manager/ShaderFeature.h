@@ -26,7 +26,7 @@ namespace Manager {
         Bones            = 1u << 8,
         AlphaBlend       = 1u << 9,
         EmissiveBloom    = 1u << 10,
-        HoleMap          = 1u << 11,
+        // bit 11 = FREE (was HoleMap pre-C2b; migrated to snippet injection)
         RainRipple       = 1u << 12,
     };
 
@@ -59,7 +59,6 @@ namespace Manager {
             case ShaderFeature::Bones:            return "FEATURE_BONES";
             case ShaderFeature::AlphaBlend:       return "FEATURE_ALPHA_BLEND";
             case ShaderFeature::EmissiveBloom:    return "FEATURE_EMISSIVE_BLOOM";
-            case ShaderFeature::HoleMap:          return "FEATURE_HOLE_MAP";
             case ShaderFeature::RainRipple:       return "FEATURE_RAIN_RIPPLE";
             case ShaderFeature::None:             return "";
         }

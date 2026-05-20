@@ -51,25 +51,11 @@ uniform sampler2D holeMap;
 void main()
 {
     // @MATERIAL_FRAGMENT_PRE
-    // ^ Snippet injection slot - ShaderPreprocessor::injectSnippet replaces
-    //   this line with material-specific GLSL when a material declares a
-    //   fragment-pre snippet. Until B5 wires up the registry to inject,
-    //   this stays a no-op comment.
-
-#ifdef FEATURE_HOLE_MAP
-    if (hasHoleMap) {
-        // TexCoords is aTexCoords * uvScale, so dividing by uvScale gives the
-        // raw 0..1 coords across the mesh. Plane UVs are flipped on Y relative
-        // to the level row indexing, so invert v before sampling.
-        vec2 cellUV = outUvScale.x > 0.0 && outUvScale.y > 0.0
-            ? TexCoords / outUvScale
-            : TexCoords;
-        vec2 sampleUV = vec2(cellUV.x, 1.0 - cellUV.y);
-        if (texture(holeMap, sampleUV).r > 0.5) {
-            discard;
-        }
-    }
-#endif
+    // ^ Snippet injection slot - ShaderPreprocessor::applySnippets nahradí
+    //   tento řádek obsahem všech snippetů, které features dodaly pro tento
+    //   marker (C2a: víc features se může injektovat na stejné místo, kód se
+    //   concatenuje v pořadí registrace v MaterialBuilder).
+    //   Aktuální consumer: HoleMapFeature - hole_map_discard.glsl.
 
     float shadow = 0.0;
     vec3 ambientColor = ambientLightColor * ambientLightColorIntensity;

@@ -74,6 +74,20 @@ namespace Resource {
         return source;
     }
 
+    string ShaderLoader::loadShaderSource(const fs::path &path,
+                                          std::vector<fs::path>& includedFiles) {
+        string source = readFile(path);
+        try {
+            std::set<fs::path> alreadyIncluded;
+            alreadyIncluded.insert(path);
+            includedFiles.emplace_back(path);
+            resolveIncludesWithState(path.parent_path(), source, alreadyIncluded, includedFiles, 0);
+        } catch (const shader_file_not_found &not_found) {
+            throw shader_include_not_found("Failed to resolve include for " + path.string() + ": " + not_found.what());
+        }
+        return source;
+    }
+
     unsigned int ShaderLoader::bindFromBuffer(const string &vertexStr, const string &fragmentStr) {
         return compileShader(vertexStr, fragmentStr);
     }

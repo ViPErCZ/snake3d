@@ -5,10 +5,13 @@
 #include "../../../../Manager/TextureManager.h"
 
 namespace Feature {
-    // První konkrétní feature - hole map discard. Drží jednu greyscale
-    // texturu, binduje ji na TextureSlots::HoleMap a aktivuje uniform
-    // hasHoleMap. Shader (basic.fs s FEATURE_HOLE_MAP) discardne fragment
-    // pokud texture(holeMap, uv).r > 0.5.
+    // Hole map discard. Drží greyscale texturu (1 = díra → discard), binduje
+    // ji na TextureSlots::HoleMap a aktivuje uniform hasHoleMap.
+    //
+    // C2b: dříve gateno přes `#ifdef FEATURE_HOLE_MAP` v master shaderu. Teď
+    // se injektuje jako snippet do @MATERIAL_FRAGMENT_PRE - master se zbavil
+    // jednoho ifdef bloku, feature je samostatně držený kód. `flag()` vrací
+    // 0, protože už neexistuje odpovídající compile-time přepínač.
     class HoleMapFeature final : public IMaterialFeature {
     public:
         explicit HoleMapFeature(std::shared_ptr<Manager::TextureManager> holeMap);
@@ -18,6 +21,10 @@ namespace Feature {
                   const Material::RenderContext& ctx) const override;
         void unbind(Manager::ShaderProgram& shader) const override;
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override;
+
+        [[nodiscard]] std::map<Manager::MaterialSlot, std::string> snippetPaths() const override {
+            return {{Manager::MaterialSlot::FragmentPre, "Assets/Shaders/snippets/hole_map_discard.glsl"}};
+        }
 
         void setTexture(std::shared_ptr<Manager::TextureManager> texture) { holeMap = std::move(texture); }
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getTexture() const { return holeMap; }

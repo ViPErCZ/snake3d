@@ -49,6 +49,14 @@ namespace Resource {
         // Použití: ShaderRegistry potřebuje string před `injectDefines`.
         static string loadShaderSource(const fs::path& path);
 
+        // C4 hot reload: stejné jako loadShaderSource(path), ale navíc do
+        // `includedFiles` appendne všechny soubory zatřízené include cestou
+        // (root path je první). ShaderRegistry to dál sleduje pro mtime
+        // změny - úprava `functions/fog.glsl` reload zachytí, stejně jako
+        // master shader.
+        static string loadShaderSource(const fs::path& path,
+                                       std::vector<fs::path>& includedFiles);
+
         static unsigned int bindFromBuffer(const string& vertexStr, const string& fragmentStr);
         static unsigned int bindFromBuffer(const string& vertexStr, const string& geometryStr, const string& fragmentStr);
     protected:

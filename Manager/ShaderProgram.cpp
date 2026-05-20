@@ -6,6 +6,14 @@ namespace Manager {
     ShaderProgram::ShaderProgram(const GLuint id) : id(id) {
     }
 
+    void ShaderProgram::reload(const GLuint newId) {
+        if (newId == id) return;
+        if (id != 0) {
+            glDeleteProgram(id);
+        }
+        id = newId;
+    }
+
     GLuint ShaderProgram::getId() const {
         return id;
     }

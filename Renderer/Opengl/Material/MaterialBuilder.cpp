@@ -23,12 +23,16 @@ namespace Material {
 
     std::shared_ptr<MaterialInstance> MaterialBuilder::build(Manager::ShaderRegistry& registry) const {
         Manager::ShaderHandle handle{master, featureMask(), {}};
-        // Sesbírej snippety od všech features. Pokud více features sdílí marker,
-        // poslední vyhraje (deterministic per vector order).
+        // C2a + C3: Sesbírej snippety od všech features. Feature deklaruje
+        // sloty jako typed enum (MaterialSlot), builder ho mapuje na stringový
+        // marker pro ShaderHandle (ten musí být string, aby šel matchnout proti
+        // textu master shaderu). Dvě features sdílející slot = appendnou se do
+        // vectoru v pořadí registrace; ShaderRegistry concatenuje obsah s
+        // newline mezi.
         for (const auto& f : features) {
             if (!f) continue;
-            for (const auto& [marker, path] : f->snippetPaths()) {
-                handle.snippets[marker] = path;
+            for (const auto& [slot, path] : f->snippetPaths()) {
+                handle.snippets[std::string(Manager::slotMarker(slot))].push_back(path);
             }
         }
         auto program = registry.get(handle);

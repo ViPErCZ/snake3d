@@ -69,6 +69,12 @@ namespace Manager {
 
         [[nodiscard]] bool isFogEnabled() const;
 
+        // C4: hot reload trigger. Deleguje do ShaderRegistry::reloadIfChanged
+        // - prochází cached programy a recompiluje ty, jejichž source soubory
+        // se změnily na disku. Materiály drží stejný shared_ptr<ShaderProgram>,
+        // jen interní GL ID se swapne.
+        int reloadShaders();
+
         void reset();
 
         [[nodiscard]] const vector<RendererEntry> &getRenderers() const;

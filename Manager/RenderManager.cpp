@@ -244,6 +244,13 @@ namespace Manager {
         return fog;
     }
 
+    int RenderManager::reloadShaders() {
+        if (!resourceManager) return 0;
+        const auto registry = resourceManager->getShaderRegistry();
+        if (!registry) return 0;
+        return registry->reloadIfChanged();
+    }
+
     void RenderManager::reset() {
         renderers.clear();
     }

@@ -28,6 +28,13 @@ namespace Manager {
     class ShaderProgram {
     public:
         explicit ShaderProgram(GLuint id);
+
+        // C4: hot reload - swapne interní GL program ID. Smaže starý handle,
+        // aby předchozí program nevisel jako orphan. shared_ptr<ShaderProgram>
+        // zůstává validní (stejný objekt), takže materiály držící pointer
+        // dostanou nový program bez re-acquisition přes registry.
+        void reload(GLuint newId);
+
         void use() const;
         void printActiveUniforms() const;
         void setBool(const string &name, bool value) const;

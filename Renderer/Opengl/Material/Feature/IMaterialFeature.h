@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "../../../../Manager/MaterialPlaceholder.h"
 #include "../../../../Manager/ShaderFeature.h"
 #include "../../../../Manager/ShaderProgram.h"
 #include "../RenderContext.h"
@@ -26,7 +27,10 @@ namespace Feature {
 
         [[nodiscard]] virtual std::shared_ptr<IMaterialFeature> clone() const = 0;
 
-        [[nodiscard]] virtual std::map<std::string, std::string> snippetPaths() const {
+        // C3: typed slot enum místo stringového markeru - překlep typu
+        // `@MATEIAL_FRAGMENT_PRE` chytne kompilátor. MaterialBuilder mapuje
+        // slot na string marker při skladání ShaderHandle.
+        [[nodiscard]] virtual std::map<Manager::MaterialSlot, std::string> snippetPaths() const {
             return {};
         }
     };
