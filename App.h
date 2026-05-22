@@ -9,8 +9,10 @@
 #include "Manager/Camera.h"
 #include "Manager/ShaderRegistry.h"
 #include "Tools/Environment.h"
+#include "Tools/BuildSettings.h"
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
+#include "Handler/Debug/ImGuiOverlay.h"
 
 namespace fs = std::filesystem;
 using namespace ItemsDto;
@@ -30,6 +32,9 @@ public:
     App(const shared_ptr<Camera> &camera, int width, int height);
 
     void Init();
+    // C4: GLFWwindow je nutný pro ImGui backend init. Voláno z main.cpp po
+    // glewInit. Vlastní debug overlay (F1 plán) lifecycle.
+    void initDebugOverlay(GLFWwindow* window);
     void run();
     void processInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods) const;
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) const;
@@ -64,6 +69,15 @@ private:
     shared_ptr<PreloaderScene> preloaderScene;
     shared_ptr<ContextState> contextState;
     mutable int cursorModeBeforeSpectator = GLFW_CURSOR_HIDDEN;
+
+    // Sleduje gating mouse callback - edge transition (rotation off → on)
+    // resetuje firstMouse v kameře aby přechod nezpůsobil skok orientace.
+    mutable bool lastMouseRotationSkipped = true;
+
+    // F1 ImGui debug overlay - žije jen v debug buildu (z if constexpr).
+    // Lifecycle: created in initDebugOverlay() po GLFW + GL contextu;
+    // destruktor v App destructor obejde s shutdown ImGui.
+    std::unique_ptr<Handler::Debug::ImGuiOverlay> imguiOverlay;
 };
 
 #endif //SNAKE3_APP_H

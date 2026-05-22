@@ -148,7 +148,28 @@ namespace Manager {
         return program;
     }
 
-    int ShaderRegistry::reloadIfChanged() {
+    ShaderRegistry::WarmupResult ShaderRegistry::warmupAll() {
+        WarmupResult result;
+        for (const auto& [name, master] : masters) {
+            try {
+                const auto program = get({name, 0, {}});
+                if (program && program->getId() != 0) {
+                    ++result.compiled;
+                } else {
+                    result.failed.push_back(name);
+                }
+            } catch (const std::exception& e) {
+                // ShaderLoader compile errors throw runtime_error. Lift error
+                // do log + result.failed; volající rozhodne o fatal abort.
+                std::cerr << "[ShaderRegistry] warmup failed for '" << name
+                          << "': " << e.what() << "\n";
+                result.failed.push_back(name);
+            }
+        }
+        return result;
+    }
+
+    void ShaderRegistry::reloadIfChanged() {
         int reloaded = 0;
         for (auto &entry: programs | views::values) {
             bool changed = false;
@@ -184,7 +205,6 @@ namespace Manager {
         if (reloaded > 0) {
             std::cout << "[ShaderRegistry] hot-reloaded " << reloaded << " program(s)\n";
         }
-        return reloaded;
     }
 
     std::unordered_map<uint64_t, std::shared_ptr<ShaderProgram>> ShaderRegistry::cachedPrograms() const {

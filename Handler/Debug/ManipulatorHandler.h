@@ -20,11 +20,11 @@ namespace Handler::Debug {
                         const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Camera> &camera);
                 void onDefaultHandler() override;
                 void onEventHandler(unsigned key, int scancode, int action, int mods, float deltaTime) override;
-                shared_ptr<PositionHandler> getPositionHandler() { return positionHandler; }
-                shared_ptr<ScaleHandler> getScaleHandler() { return scaleHandler; }
-                shared_ptr<RotationHandler> getRotationHandler() { return rotationHandler; }
-                shared_ptr<CollisionShapeHandler> getCollisionShapeHandler() { return collisionShapeHandler; }
-                shared_ptr<LightsHandler> getLightsHandler() { return lightsHandler; }
+                [[nodiscard]] shared_ptr<PositionHandler> getPositionHandler() const { return positionHandler; }
+                [[nodiscard]] shared_ptr<ScaleHandler> getScaleHandler() const { return scaleHandler; }
+                [[nodiscard]] shared_ptr<RotationHandler> getRotationHandler() const { return rotationHandler; }
+                [[nodiscard]] shared_ptr<CollisionShapeHandler> getCollisionShapeHandler() const { return collisionShapeHandler; }
+                [[nodiscard]] shared_ptr<LightsHandler> getLightsHandler() const { return lightsHandler; }
                 [[nodiscard]] bool isActive() const;
                 [[nodiscard]] bool isPositionHandlerActive() const { return positionEnable; }
                 [[nodiscard]] bool isScaleHandlerActive() const { return scaleEnable; }

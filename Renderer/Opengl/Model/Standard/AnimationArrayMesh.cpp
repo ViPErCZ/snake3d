@@ -6,6 +6,7 @@
 #include "../../Material/MaterialInstance.h"
 #include "../../Material/RenderContext.h"
 #include "../../Material/ShaderMaterial.h"
+#include "../../RenderStats.h"
 
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
@@ -112,6 +113,7 @@ namespace Model {
                 }
 
                 animMesh->bind();
+                Renderer::RenderStats::countDraw();
                 glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
                                GL_UNSIGNED_INT,
                                nullptr);
@@ -128,6 +130,7 @@ namespace Model {
                 baseShader->setMat4("model", worldTransform);
             }
             animMesh->bind();
+            Renderer::RenderStats::countDraw();
             glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()), GL_UNSIGNED_INT,
                            nullptr);
         }

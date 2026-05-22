@@ -1,5 +1,7 @@
 #include "CollisionShapeHandler.h"
 
+#include <algorithm>
+
 #include "../../Physic/BoxShape.h"
 #include "../../Physic/CapsuleShape.h"
 #include "../../Physic/CylinderShape.h"
@@ -305,5 +307,29 @@ namespace Handler::Debug {
         }
 
         return *items.begin();
+    }
+
+    void CollisionShapeHandler::setActiveItem(const shared_ptr<CollisionShape3D>& item) {
+        if (!item) return;
+        const auto found = std::find(items.begin(), items.end(), item);
+        if (found == items.end()) {
+            items.push_back(item);
+        }
+        activeItem = item;
+        // No camera side-effect - viz BaseTransform::setActiveItem komentář.
+    }
+
+    void CollisionShapeHandler::setAllVisible(const bool visible) {
+        for (auto& item : items) {
+            item->setVisible(visible);
+        }
+    }
+
+    bool CollisionShapeHandler::isAllVisible() const {
+        if (items.empty()) return false;
+        for (const auto& item : items) {
+            if (!item->isVisible()) return false;
+        }
+        return true;
     }
 }

@@ -177,7 +177,18 @@ namespace Model {
     }
 
     void MeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {
+        // Short-circuit: pokud ani naše transform ani rodičovský nezměnil, cache
+        // v worldMatrixCache je stále valid - skip recompute + skip recursion
+        // pro celou subtree. Static collision shape children (2300+ floor cells
+        // pro snake3 level) tak po 1. frame stojí 0 work.
+        const bool localDirty = isTransformDirty();
+        const bool changed = localDirty || (parentTransform != lastParentMatrix);
+        if (!changed) {
+            return;
+        }
         worldMatrixCache = parentTransform * this->getModelMatrix();
+        lastParentMatrix = parentTransform;
+        clearTransformDirty();
 
         for (auto &node: children) {
             const bool isCollisionShapeNode = node->isCollisionShapeNode();

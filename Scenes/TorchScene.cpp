@@ -54,7 +54,8 @@ namespace Scenes {
         barrel->addNode(collisionShape);
 
         if (collisionSystem != nullptr) {
-            collisionSystem->addCollider(barrel);
+            // Barrel je decor prop, nikdy se nepohybuje - static.
+            collisionSystem->addCollider(barrel, true);
         }
 
         if (manipulatorHandler != nullptr) {
@@ -134,10 +135,11 @@ namespace Scenes {
         //torchNode2->addNode(shape2);
         //torchNode3->addNode(shape3);
         //torchNode4->addNode(shape4);
-        collisionSystem->addCollider(torchNode);
-        collisionSystem->addCollider(torchNode2);
-        collisionSystem->addCollider(torchNode3);
-        collisionSystem->addCollider(torchNode4);
+        // Torch decor props nikdy se nepohybují - static.
+        collisionSystem->addCollider(torchNode, true);
+        collisionSystem->addCollider(torchNode2, true);
+        collisionSystem->addCollider(torchNode3, true);
+        collisionSystem->addCollider(torchNode4, true);
 
         addMeshNode3D(torchNode, 1);
         addMeshNode3D(torchNode2, 1);

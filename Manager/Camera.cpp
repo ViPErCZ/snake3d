@@ -87,6 +87,28 @@ namespace Manager {
         updateCameraVectors();
     }
 
+    void Camera::resetMouseDelta() {
+        firstMouse = true;
+    }
+
+    void Camera::focusOn(const shared_ptr<Transform>& target) {
+        if (!target) return;
+
+        const auto targetPos = glm::vec3(target->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+        position = targetPos + offsetFromTarget;
+
+        const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
+        YAW = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
+        PITCH = glm::degrees(asin(dirToTarget.z));
+        updateCameraVectors();
+
+        // Free movement mode after teleport - no sticky bind, no automatic
+        // re-snap to target each frame.
+        stickyPoint = nullptr;
+        rightButtonPressed = true;
+        firstMouse = true;
+    }
+
     shared_ptr<Transform> Camera::getStickyPoint() const {
         return stickyPoint;
     }
@@ -109,23 +131,28 @@ namespace Manager {
 
     void Camera::onMouseDown(const int button, const int action, int mods) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-            if (action == GLFW_PRESS && stickyPoint) {
+            if (action == GLFW_PRESS) {
                 rightButtonPressed = true;
                 firstMouse = true;
 
-                const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
-                position = targetPos + offsetFromTarget;
-
-                // Z-up convention: YAW in XY plane, PITCH = elevation from XY plane
-                const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
-                YAW   = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
-                PITCH = glm::degrees(asin(glm::clamp(dirToTarget.z, -1.0f, 1.0f)));
-                updateCameraVectors();
-            } else if (action == GLFW_RELEASE) {
-                rightButtonPressed = false;
-                // Sync front/up/right back to the standard follow-mode direction so that
-                // getFrustumCornersWorldSpace() matches getViewMatrix().
                 if (stickyPoint) {
+                    // Sticky režim: skok zpět na cíl, aby spectator rotace začínala
+                    // z známé pozice. V čistém spectator (žádný sticky, např. po
+                    // focusOn z ImGui Inspectoru) jen zapneme rotaci - kamera
+                    // zůstane tam kde ji uživatel nechal.
+                    const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+                    position = targetPos + offsetFromTarget;
+
+                    const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
+                    YAW   = glm::degrees(atan2(dirToTarget.y, dirToTarget.x));
+                    PITCH = glm::degrees(asin(glm::clamp(dirToTarget.z, -1.0f, 1.0f)));
+                    updateCameraVectors();
+                }
+            } else if (action == GLFW_RELEASE) {
+                // Bez sticky point se nesmí přepnout do follow mode - getViewMatrix
+                // by dereferencoval nullptr. Spectator zůstává spectator.
+                if (stickyPoint) {
+                    rightButtonPressed = false;
                     const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
                     const glm::vec3 camPos = targetPos + offsetFromTarget;
                     const glm::vec3 dirToTarget = glm::normalize(targetPos - camPos);

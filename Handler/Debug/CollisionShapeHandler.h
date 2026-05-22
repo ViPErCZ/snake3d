@@ -29,6 +29,16 @@ namespace Handler::Debug {
 
         shared_ptr<CollisionShape3D> findFirstVisible();
 
+        // Globální toggle viditelnosti všech collision shapes (ImGui overlay).
+        // Per-shape F8 cycling stále funguje paralelně - po setAllVisible(false)
+        // může uživatel přepnout F8 mode a opět individuálně rozsvítit shape.
+        void setAllVisible(bool visible);
+        [[nodiscard]] bool isAllVisible() const;
+
+        [[nodiscard]] const vector<shared_ptr<CollisionShape3D>>& getItems() const { return items; }
+        [[nodiscard]] shared_ptr<CollisionShape3D> getActiveItem() const { return activeItem; }
+        void setActiveItem(const shared_ptr<CollisionShape3D>& item);
+
     protected:
         shared_ptr<Camera> camera = nullptr;
         vector<shared_ptr<CollisionShape3D> > items;

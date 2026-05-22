@@ -1,7 +1,9 @@
 #include "RenderManager.h"
 #include <algorithm>
+#include <chrono>
 
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+#include "../Renderer/Opengl/RenderStats.h"
 
 namespace Manager {
     RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
@@ -51,14 +53,20 @@ namespace Manager {
     }
 
     void RenderManager::render(const float dt) {
+        // Per-frame stats reset - voláno hned na začátku, draw call counter
+        // se inkrementuje v glDraw* sites, ImGui Engine panel čte lastFrame.
+        Renderer::RenderStats::newFrame();
+
         // Reset depth state in case a previous pass disabled depth writes/tests.
         contextState->setDepthWrite(true);
         contextState->setDepthTest(true);
 
         if (reflections && planarReflectionRenderer) {
             camera->syncFollowPosition();
+            Renderer::RenderStats::setPass(Renderer::RenderPass::Reflection);
             planarReflectionRenderer->render3D(dt, gFrameId);
         }
+        Renderer::RenderStats::setPass(Renderer::RenderPass::Main);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glEnable(GL_DEPTH_TEST);
@@ -107,6 +115,7 @@ namespace Manager {
             const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, sceneMin, sceneMax);
             int index = 0;
 
+            Renderer::RenderStats::setPass(Renderer::RenderPass::Shadow);
             for (auto & matrix : lightSpacesMatrix) {
                 depthMapRenderer->beforeRender(index);
                 depthMapRenderer->bind(index, matrix);
@@ -141,6 +150,11 @@ namespace Manager {
             bloomRenderer->beforeRender(MODE::bloom);
         }
 
+        Renderer::RenderStats::setPass(Renderer::RenderPass::Main);
+
+        // CPU + GPU timing main pass. CPU-only = chrono mezi start a end loop.
+        // CPU+GPU = chrono přes glFinish (forced sync). Rozdíl = pure GPU.
+        const auto mainStart = std::chrono::steady_clock::now();
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             Iter->renderer->beforeRender(standard);
             Iter->renderer->render3D(dt, gFrameId);
@@ -152,6 +166,13 @@ namespace Manager {
             Iter->renderer->render2D(dt, gFrameId);
             Iter->renderer->afterRender();
         }
+        const auto cpuEnd = std::chrono::steady_clock::now();
+        glFinish();
+        const auto gpuEnd = std::chrono::steady_clock::now();
+        Renderer::RenderStats::mainPassMsCpuOnly =
+            std::chrono::duration<float, std::milli>(cpuEnd - mainStart).count();
+        Renderer::RenderStats::mainPassMsCpu =
+            std::chrono::duration<float, std::milli>(gpuEnd - mainStart).count();
 
         if (bloom) {
             this->bloomRenderer->afterRender();
@@ -234,6 +255,13 @@ namespace Manager {
 
     void RenderManager::toggleReflections() {
         reflections = !reflections;
+        if (reflectionsCallback) {
+            reflectionsCallback(reflections);
+        }
+    }
+
+    void RenderManager::setReflectionsCallback(ReflectionsToggleCallback cb) {
+        reflectionsCallback = std::move(cb);
     }
 
     bool RenderManager::isReflectionsEnabled() const {
@@ -244,11 +272,9 @@ namespace Manager {
         return fog;
     }
 
-    int RenderManager::reloadShaders() const {
-        if (!resourceManager) return 0;
+    void RenderManager::reloadShaders() const {
+        if (!resourceManager) return;
         const auto registry = resourceManager->getShaderRegistry();
-        if (!registry) return 0;
-        return registry->reloadIfChanged();
     }
 
     void RenderManager::reset() {

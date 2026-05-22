@@ -120,7 +120,10 @@ namespace Scenes {
         }
 
         if (collisionSystem != nullptr) {
-            collisionSystem->addCollider(boxNode3D);
+            // Perimeter walls + child barrier boxes nikdy se nepohybují - musí
+            // být static, jinak je broad-phase iteruje jako dynamic and dělá
+            // dyn×static pairs proti všem (5k+) ostatním staticum.
+            collisionSystem->addCollider(boxNode3D, true);
         }
         perimeterBoxes = boxNode3D;
 

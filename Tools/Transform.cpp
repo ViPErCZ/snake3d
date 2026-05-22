@@ -21,10 +21,12 @@ namespace Node3D {
 
     void Transform::setPosition(const glm::vec3 &position) {
         Transform::position = position;
+        transformDirty = true;
     }
 
     void Transform::setPosition(const shared_ptr<Transform> &object) {
         position = object->getPosition();
+        transformDirty = true;
     }
 
     const glm::vec3 &Transform::getScale() const {
@@ -33,18 +35,22 @@ namespace Node3D {
 
     void Transform::setScale(const glm::vec3 &scale) {
         Transform::scale = scale;
+        transformDirty = true;
     }
 
     void Transform::setRotationX(const float rotation_x) {
         rotationX = rotation_x;
+        transformDirty = true;
     }
 
     void Transform::setRotationY(const float rotation_y) {
         rotationY = rotation_y;
+        transformDirty = true;
     }
 
     void Transform::setRotationZ(const float rotation_z) {
         rotationZ = rotation_z;
+        transformDirty = true;
     }
 
     float Transform::getRotationX() const {
@@ -65,5 +71,6 @@ namespace Node3D {
         this->rotationX = transform->getRotationX();
         this->rotationY = transform->getRotationY();
         this->rotationZ = transform->getRotationZ();
+        transformDirty = true;
     }
 } // Node3D

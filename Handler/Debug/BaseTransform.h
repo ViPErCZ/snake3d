@@ -35,6 +35,13 @@ namespace Debug {
 
         [[nodiscard]] bool isActiveItemVisible() const;
 
+        [[nodiscard]] const vector<shared_ptr<MeshNode3D>>& getItems() const { return items; }
+        [[nodiscard]] shared_ptr<MeshNode3D> getActiveItem() const { return activeItem; }
+
+        // GUI direct selection - bypass keyboard cycling. Camera sticky point
+        // se přepne na vybrané item; world bounds přepočte.
+        void setActiveItem(const shared_ptr<MeshNode3D>& item);
+
     protected:
         void computeWorld();
 

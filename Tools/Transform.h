@@ -41,12 +41,20 @@ namespace Node3D {
 
         void setTransform(const shared_ptr<Transform> &transform);
 
+        // Dirty tag pro skip recompute v scene graph (computeWorldMatrix
+        // short-circuit). Setters níže nastaví true; volající (MeshNode3D)
+        // smaže po recompute. Static colliders (2300+ floor cells) ho pak
+        // udrží false a celá ich subtree se přeskočí.
+        [[nodiscard]] bool isTransformDirty() const { return transformDirty; }
+        void clearTransformDirty() { transformDirty = false; }
+
     protected:
         glm::vec3 position{};
         glm::vec3 scale{1.0f, 1.0f, 1.0f};
         float rotationX = 0;
         float rotationY = 0;
         float rotationZ = 0;
+        bool transformDirty = true;
     };
 } // Node3D
 

@@ -6,6 +6,7 @@
 #include "../../Material/MaterialInstance.h"
 #include "../../Material/RenderContext.h"
 #include "../../Material/ShaderMaterial.h"
+#include "../../RenderStats.h"
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderProgram> baseShader)
@@ -83,6 +84,7 @@ namespace Model {
         }
 
         mesh->bind();
+        Renderer::RenderStats::countDraw();
         glDrawElements(static_cast<GLenum>(drawElement), static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
         if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
@@ -97,6 +99,7 @@ namespace Model {
         if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
             if (materialInstance->bindShadow(parentTransform)) {
                 mesh->bind();
+                Renderer::RenderStats::countDraw();
                 glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                                nullptr);
             }
@@ -106,6 +109,7 @@ namespace Model {
             if (shaderMaterial->isShadowEnabled() && shaderMaterial->getShadowDepthShader()) {
                 shaderMaterial->bindShadow(parentTransform);
                 mesh->bind();
+                Renderer::RenderStats::countDraw();
                 glDrawElements(GL_TRIANGLES, static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                                nullptr);
                 shaderMaterial->unbind();

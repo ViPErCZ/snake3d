@@ -51,7 +51,6 @@ namespace Scenes {
         void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
         [[nodiscard]] bool isMenuVisible() const;
 
-    private:
         bool collectWorldSnapshot(Net::WorldSnapshotState &out) const override;
 
         void onClientHello(uint32_t peerId) override;
@@ -70,6 +69,7 @@ namespace Scenes {
         void applyHud(uint32_t level, uint32_t eatCounter, uint32_t lives) override;
         void applyWinning() override;
 
+    private:
         void initSounds() const;
 
         void initLights();
@@ -133,16 +133,12 @@ namespace Scenes {
         shared_ptr<LevelManager> levelManager;
         shared_ptr<SnakeMoveHandler> snakeMoveHandler;
         unique_ptr<SceneHud> hud;
-        // B5c: plane is now a builder-built MaterialInstance. Feature handles
-        // are kept so runtime mutations (applyHolesToPlane texture rebuild,
-        // F2 reflection toggle) can poke the specific feature without rebuilding
-        // the whole material.
-        shared_ptr<Material::MaterialInstance> planeMaterial;
+        shared_ptr<MaterialInstance> planeMaterial;
         shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;
         shared_ptr<Feature::PlanarReflectionFeature> planeReflectionFeature;
         shared_ptr<Feature::RainRippleFeature> planeRainRippleFeature;
         shared_ptr<WeatherScene> weatherScene;
-        shared_ptr<Manager::TextureManager> holeMapTexture;
+        shared_ptr<TextureManager> holeMapTexture;
         shared_ptr<Preloader2Scene> preLoader;
         shared_ptr<WinnerScene> winnerScene;
         shared_ptr<MainMenuScene> mainMenuScene;

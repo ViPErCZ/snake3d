@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include <algorithm>
+#include <functional>
 
 namespace Scenes {
     Scene::Scene(
@@ -213,5 +214,71 @@ namespace Scenes {
 
     SoundManager &Scene::getSoundManager() const {
         return *soundManager;
+    }
+
+    namespace {
+        // DFS přes MeshNode3D subtree. Hledá CollisionShape3D přes polymorphic
+        // isCollisionShapeNode() v children + collisionShapes vectoru (snake
+        // používá setCollisionShape který přidá jen do collisionShapes, ne
+        // children - proto je nutné chodit přes oba).
+        //
+        // respectParentVisibility: pokud true, hidden parent meshNode (např.
+        // remote snake v single-player se setActive(false)) přeskočí celý
+        // subtree - jeho collision shapes nejsou enable-able. Pro vypnutí
+        // (visible=false) projdeme všechno bez ohledu na visibility.
+        void walkCollisionShapes(const shared_ptr<MeshNode3D>& node,
+                                 const std::function<void(MeshNode3D*)>& fn,
+                                 bool respectParentVisibility) {
+            if (!node) return;
+            if (respectParentVisibility && !node->isCollisionShapeNode() && !node->isVisible()) {
+                return;
+            }
+            if (node->isCollisionShapeNode()) {
+                fn(node.get());
+            }
+            for (const auto& cs : node->getCollisionShapes()) {
+                walkCollisionShapes(cs, fn, respectParentVisibility);
+            }
+            for (const auto& child : node->getChildren()) {
+                walkCollisionShapes(child, fn, respectParentVisibility);
+            }
+        }
+    }
+
+    void Scene::setCollisionShapesVisible(const bool visible) {
+        // Při zapínání respektujeme visibility parent meshNodes - inactive
+        // sub-scény (remote snake v single-player se setActive(false))
+        // nesmí dostat své shapes zviditelněné. Při vypínání projdeme všechno
+        // pro idempotentní reset stavu.
+        const bool respectParents = visible;
+        auto fn = [visible](MeshNode3D* n) { n->setVisible(visible); };
+        for (const auto& entry : meshNode3d) {
+            walkCollisionShapes(entry.node, fn, respectParents);
+        }
+        for (const auto& [_, sub] : nodes) {
+            if (sub) sub->setCollisionShapesVisible(visible);
+        }
+    }
+
+    void Scene::collectCollisionShapeCounts(int& total, int& visible) const {
+        // Pro počítání bereme jen aktivní subtree (hidden parents skip) -
+        // jinak by Inspector ukazoval "1/8 visible" když je 7 z 8 v hidden
+        // remote scéně. respectParentVisibility=true.
+        auto fn = [&](MeshNode3D* n) {
+            ++total;
+            if (n->isVisible()) ++visible;
+        };
+        for (const auto& entry : meshNode3d) {
+            walkCollisionShapes(entry.node, fn, true);
+        }
+        for (const auto& [_, sub] : nodes) {
+            if (sub) sub->collectCollisionShapeCounts(total, visible);
+        }
+    }
+
+    bool Scene::isAllCollisionShapesVisible() const {
+        int total = 0, visible = 0;
+        collectCollisionShapeCounts(total, visible);
+        return total > 0 && total == visible;
     }
 } // Scene

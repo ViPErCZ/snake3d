@@ -68,6 +68,20 @@ namespace Scenes {
         void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
 
         void setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler);
+        [[nodiscard]] shared_ptr<ManipulatorHandler> getManipulatorHandler() const { return manipulatorHandler; }
+
+        // C/D ImGui debug: bulk toggle všech CollisionShape3D ve scéně i v
+        // sub-scénách (rekurzivně přes nodes mapu + MeshNode3D children).
+        // Chytí i dynamicky přidané shapes (snake body) i ty, které nejsou
+        // registrované v CollisionShapeHandler::items (per-game registrace
+        // byla manuální v 3 scénách, ostatní chyběly).
+        void setCollisionShapesVisible(bool visible);
+        [[nodiscard]] bool isAllCollisionShapesVisible() const;
+
+        // Interní rekurzivní counter pro isAllCollisionShapesVisible.
+        // public, aby parent mohl agregovat sub-scenes; podtřídy by ho
+        // přepisovat neměly.
+        void collectCollisionShapeCounts(int& total, int& visible) const;
 
         SoundManager &getSoundManager() const;
 

@@ -19,6 +19,13 @@ namespace Physic {
         bool isStatic = false;
         mutable bool aabbCached = false;
         mutable AABB cachedAABB{};
+        // Per-frame cache populated in update() AABB phase - inline copy z
+        // shapeNode getters aby pair loop nedělal 3 pointer-chases per check
+        // (parent→shape→isCollisionEnabled / getCollisionLayer / getMask).
+        // 549k×3×2 = 3M pointer chases je hlavní cost při velkém scene grafu.
+        mutable bool cachedEnabled = false;
+        mutable uint32_t cachedLayer = 0;
+        mutable uint32_t cachedMask = 0;
     };
 
     struct DynamicBodyEntry {

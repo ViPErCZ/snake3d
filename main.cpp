@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "App.h"
+#include "Renderer/Opengl/RenderStats.h"
+#include "Tools/BuildSettings.h"
+#include <chrono>
 #include <iostream>
 
 using namespace std;
@@ -50,7 +53,15 @@ int main(int argc, char *argv[]) {
     glfwGetFramebufferSize(window, &W_WIDTH, &W_HEIGHT);
     app->resize(W_WIDTH, W_HEIGHT);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    // Debug build defaultně ukáže systémový kurzor - umožní klikat na ImGui
+    // overlay bez RMB hold. Release build ukáže prázdný kurzor (hra má vlastní
+    // crosshair / nepoužívá GUI). Camera rotation v debug je gated na
+    // Ctrl/RMB v App::mousePositionCallback.
+    if constexpr (Build::isDebug) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
 
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
@@ -66,15 +77,19 @@ int main(int argc, char *argv[]) {
     }
 
     app->Init();
+    app->initDebugOverlay(window);
 
     while (!glfwWindowShouldClose(window))
     {
         app->run();
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
+        // glfw: swap buffers and poll IO events. Měřeno - dlouhý swap typicky
+        // znamená vsync wait (GPU work nedoběhl). Long pollEvents je rare.
+        const auto swapStart = std::chrono::steady_clock::now();
         glfwSwapBuffers(window);
         glfwPollEvents();
+        Renderer::RenderStats::swapMs = std::chrono::duration<float, std::milli>(
+            std::chrono::steady_clock::now() - swapStart).count();
     }
 
     app.reset();

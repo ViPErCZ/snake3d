@@ -1,5 +1,7 @@
 #include "LightsHandler.h"
 
+#include <algorithm>
+
 #include "../../Lights/SpotLight.h"
 #include "../../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 
@@ -166,6 +168,18 @@ namespace Handler::Debug {
         if (activeItem == nullptr) {
             activeItem = item;
         }
+    }
+
+    void LightsHandler::setActiveItem(const shared_ptr<Light>& item) {
+        // Pure data swap - žádný camera side-effect. GUI dropdown vyřeší
+        // kamera teleport přes Camera::focusOn samostatně; keyboard mode
+        // entry (F9) si ho dělá taky vlastní cestou pokud chce sticky.
+        if (!item) return;
+        const auto found = std::find(items.begin(), items.end(), item);
+        if (found == items.end()) {
+            items.push_back(item);
+        }
+        activeItem = item;
     }
 
     void LightsHandler::active() {

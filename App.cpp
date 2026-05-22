@@ -1,8 +1,10 @@
+#include <chrono>
 #include <nlohmann/json.hpp>
 #include "App.h"
 #include "Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
+#include "Renderer/Opengl/RenderStats.h"
 #include "Resource/AnimLoader.h"
 #include "Resource/ShaderLoader.h"
 #include "Resource/TextureLoader.h"
@@ -43,9 +45,6 @@ void App::initScene() const {
 void App::Init() {
     InitResourceManager();
 
-    // B1: paralelní registrace masters v ShaderRegistry. GL kompilace je
-    // lazy v get(), takže registrace samotná je čistě metadata a nezpůsobí
-    // dvojí kompilaci.
     shaderRegistry->registerMaster("blur",
         "Assets/Shaders/bloom/blur.vs", "Assets/Shaders/bloom/blur.fs");
     shaderRegistry->registerMaster("bloomFinal",
@@ -56,8 +55,6 @@ void App::Init() {
         "Assets/Shaders/shadow_map_depth.vs", "Assets/Shaders/shadow_map_depth.fs");
     shaderRegistry->registerMaster("basicShader",
         "Assets/Shaders/basic.vs", "Assets/Shaders/basic.fs");
-    // B3d: planeShader už není samostatný master - je to permutace basicShader
-    // s FEATURE_HOLE_MAP. plane.fs smazán, hole map logika přesunuta do basic.fs.
     shaderRegistry->registerMaster("arrowGizmo",
         "Assets/Shaders/gizmo/arrow.vert", "Assets/Shaders/gizmo/arrow.frag");
     shaderRegistry->registerMaster("preloadShader",
@@ -110,11 +107,6 @@ void App::Init() {
                 "Assets/Shaders/shadow_map_depth.fs"
             ))
     );
-    // B3a: basicShader je legacy materiál - kompiluje basic.fs se VŠEMI
-    // features aktivními, takže nový `#ifdef FEATURE_*` blok se chová jako
-    // dříve. B3b: přidána Bones (basic.vs nyní gate-uje bone transform).
-    // Až materiály v B5+ začnou kompilovat skrze registry s upraveným
-    // feature mask, tahle paralelní cesta zmizí.
     constexpr ShaderFeatureMask legacyBasicFeatures =
         ShaderFeature::PBR | ShaderFeature::NormalMap | ShaderFeature::Shadows |
         ShaderFeature::DirectionalLight | ShaderFeature::Fog | ShaderFeature::IBL |
@@ -123,8 +115,6 @@ void App::Init() {
         "basicShader",
         shaderRegistry->get({"basicShader", legacyBasicFeatures})
     );
-    // B5c: planeShader alias smazán - plane jde přes MaterialBuilder a získá
-    // svůj program (basicShader + HoleMap) přímo z shaderRegistry->get.
     resourceManager->addShader(
         "arrowGizmo",
         std::make_shared<ShaderProgram>(
@@ -196,31 +186,20 @@ void App::Init() {
             ))
     );
 
-#ifdef IS_DEBUG
-    // B2 smoke test: ověř že registry zkompiluje shader, cachuje, a že
-    // permutation klíč rozlišuje různé feature masky. Zkompiluje basicShader
-    // dvakrát navíc (0 + PBR|Shadows) - dočasné, padne v B6 kdy registry
-    // převezme roli single source of truth a addShader cesta zmizí.
-    {
-        const auto p0a = shaderRegistry->get({"basicShader", 0});
-        const auto p0b = shaderRegistry->get({"basicShader", 0});
-        if (!p0a || p0a != p0b) {
-            std::cerr << "[ShaderRegistry] smoke test FAIL - basicShader|0 cache miss\n";
-        } else {
-            std::cout << "[ShaderRegistry] basicShader|0 ok (id=" << p0a->getId() << ")\n";
-        }
-
-        const ShaderFeatureMask mask = ShaderFeature::PBR | ShaderFeature::Shadows;
-        const auto pMasked = shaderRegistry->get({"basicShader", mask});
-        if (!pMasked) {
-            std::cerr << "[ShaderRegistry] smoke test FAIL - basicShader|PBR|Shadows compile failed\n";
-        } else if (pMasked == p0a) {
-            std::cerr << "[ShaderRegistry] smoke test FAIL - permutation cache collision\n";
-        } else {
-            std::cout << "[ShaderRegistry] basicShader|PBR|Shadows ok (id=" << pMasked->getId() << ")\n";
-        }
+    // D4 pre-flight kompilace: každý registered master zkompilujeme s
+    // features=0. Chyby ve zdrojích / linkování shaderů vyplavou tady místo
+    // až za 5 vteřin v gameplay. Permutace s features se kompilují lazy
+    // při get() z MaterialBuilderu - tu pre-flight nepokrývá (kombinatorial
+    // explosion). Pokud kterýkoliv master selže, fatal exit s clear log.
+    const auto warmup = shaderRegistry->warmupAll();
+    std::cout << "[App] Shader pre-flight: " << warmup.compiled
+              << " compiled, " << warmup.failed.size() << " failed\n";
+    if (!warmup.failed.empty()) {
+        std::cerr << "[App] FATAL: pre-flight failed for masters:";
+        for (const auto& name : warmup.failed) std::cerr << " " << name;
+        std::cerr << "\n";
+        std::abort();
     }
-#endif
 
     rendererManager->initBloom();
     rendererManager->initShadowMapping();
@@ -251,6 +230,12 @@ void App::Init() {
     });
 }
 
+void App::initDebugOverlay(GLFWwindow* window) {
+    if constexpr (isDebug) {
+        imguiOverlay = std::make_unique<ImGuiOverlay>(window, rendererManager);
+    }
+}
+
 void App::run() {
     if (state == SceneState::LOADING) {
         resourceManager->processPending();
@@ -261,16 +246,41 @@ void App::run() {
 
             rendererManager->reset();
             initScene();
+            if constexpr (isDebug) {
+                if (imguiOverlay && mainScene) {
+                    imguiOverlay->setManipulatorHandler(mainScene->getManipulatorHandler());
+                    imguiOverlay->setScene(mainScene);
+                }
+            }
         }
     }
 
+    if constexpr (isDebug) {
+        if (imguiOverlay) imguiOverlay->beginFrame();
+    }
+
     if (state == SceneState::RUNNING) {
+        using clock = std::chrono::steady_clock;
+        auto t0 = clock::now();
         mainScene->update();
+        auto t1 = clock::now();
         mainScene->physics();
+        auto t2 = clock::now();
         mainScene->render();
+        auto t3 = clock::now();
+        Renderer::RenderStats::updateMs  = std::chrono::duration<float, std::milli>(t1 - t0).count();
+        Renderer::RenderStats::physicsMs = std::chrono::duration<float, std::milli>(t2 - t1).count();
+        Renderer::RenderStats::renderMs  = std::chrono::duration<float, std::milli>(t3 - t2).count();
     } else {
         preloaderScene->update();
         preloaderScene->render();
+    }
+
+    if constexpr (isDebug) {
+        if (imguiOverlay) {
+            imguiOverlay->renderPanels();
+            imguiOverlay->endFrame();
+        }
     }
 }
 
@@ -306,9 +316,26 @@ void App::mousePositionCallback(GLFWwindow *window, const double x, const double
     if (mainScene) {
         mainScene->setCursorPosition(cursor);
     }
-    if (state == SceneState::RUNNING && camera != nullptr && (!mainScene || !mainScene->isMenuVisible())) {
-        camera->processMouseMovement(x, y);
+    if (state != SceneState::RUNNING || camera == nullptr || (mainScene && mainScene->isMenuVisible())) {
+        return;
     }
+
+    if constexpr (isDebug) {
+        const bool ctrlHeld = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
+                           || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+        const bool rmbHeld = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+        if (!ctrlHeld && !rmbHeld) {
+            lastMouseRotationSkipped = true;
+            return;
+        }
+
+        if (lastMouseRotationSkipped) {
+            camera->resetMouseDelta();
+            lastMouseRotationSkipped = false;
+        }
+    }
+
+    camera->processMouseMovement(x, y);
 }
 
 void App::setKeyState(const int key, const bool pressed) const {

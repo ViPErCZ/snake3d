@@ -1,5 +1,7 @@
 #include "BaseTransform.h"
 
+#include <algorithm>
+
 namespace Debug {
     BaseTransform::BaseTransform(const shared_ptr<Camera> &camera) : camera(camera), enabled(false) {
     }
@@ -85,6 +87,19 @@ namespace Debug {
 
     glm::vec3 BaseTransform::getWorldMin() const {
         return worldMin;
+    }
+
+    void BaseTransform::setActiveItem(const shared_ptr<MeshNode3D>& item) {
+        if (!item) return;
+        const auto found = std::find(items.begin(), items.end(), item);
+        if (found == items.end()) {
+            items.push_back(item);
+        }
+        activeItem = item;
+        computeWorld();
+        // No camera side-effect - GUI dropdown řeší teleport přes
+        // Camera::focusOn; activate() (entry do keyboard mode) zachovává
+        // sticky behavior pro hands-on manipulaci.
     }
 
     void BaseTransform::computeWorld() {

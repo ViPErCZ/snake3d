@@ -38,7 +38,33 @@ add_custom_target(copy_assets ALL
         COMMENT "Cleaning and copying Assets folder"
 )
 
-add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderProgram.cpp Manager/ShaderProgram.h Manager/ShaderRegistry.cpp Manager/ShaderRegistry.h Manager/ShaderFeature.h Manager/MaterialPlaceholder.cpp Manager/MaterialPlaceholder.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Resource/ShaderPreprocessor.cpp Resource/ShaderPreprocessor.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Resource/AnimLoader.cpp Resource/AnimLoader.h Tools/AnimItem.cpp Tools/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
+# --- Dear ImGui (debug-only overlay) ---------------------------------------
+# Fetched at configure time; built as a small static library compiled only in
+# Debug. Release builds skip ImGui entirely (the overlay is gated on IS_DEBUG).
+include(FetchContent)
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG v1.91.5
+)
+FetchContent_MakeAvailable(imgui)
+
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+target_link_libraries(imgui PUBLIC glfw GL)
+
+add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cpp Manager/ResourceManager.h Renderer/Opengl/BaseRenderer.cpp Renderer/Opengl/BaseRenderer.h Renderer/Opengl/RenderStats.cpp Renderer/Opengl/RenderStats.h Manager/RenderManager.cpp Manager/RenderManager.h Manager/KeyboardManager.cpp Manager/KeyboardManager.h Handler/SnakeMoveHandler.cpp Handler/SnakeMoveHandler.h Handler/BaseHandler.cpp Handler/BaseHandler.h Manager/EatManager.cpp Manager/EatManager.h Handler/EatLocationHandler.cpp Handler/EatLocationHandler.h Handler/RadarHandler.cpp Handler/RadarHandler.h Handler/BaseKeydownHandle.h Manager/ShaderProgram.cpp Manager/ShaderProgram.h Manager/ShaderRegistry.cpp Manager/ShaderRegistry.h Manager/ShaderFeature.h Manager/MaterialPlaceholder.cpp Manager/MaterialPlaceholder.h Manager/LevelManager.cpp Manager/LevelManager.h Manager/VboIndexer.cpp Manager/VboIndexer.h Manager/Camera.cpp Manager/Camera.h Renderer/Opengl/Model/Character.cpp Renderer/Opengl/Model/Character.h Renderer/Opengl/Model/Utils/Vao.cpp Renderer/Opengl/Model/Utils/Vao.h Renderer/Opengl/Model/Utils/Vbo.cpp Renderer/Opengl/Model/Utils/Vbo.h Renderer/Opengl/Model/Utils/Ebo.cpp Renderer/Opengl/Model/Utils/Ebo.h Renderer/Opengl/Model/Utils/Mesh.cpp Renderer/Opengl/Model/Utils/Mesh.h Resource/ObjModelLoader.cpp Resource/ObjModelLoader.h Resource/TextureLoader.cpp Resource/TextureLoader.h Resource/ShaderLoader.cpp Resource/ShaderLoader.h Resource/ShaderPreprocessor.cpp Resource/ShaderPreprocessor.h Manager/TextureManager.cpp Manager/TextureManager.h Renderer/Opengl/DepthMapRenderer.cpp Renderer/Opengl/DepthMapRenderer.h Renderer/Opengl/Line.h Renderer/Opengl/BloomRenderer.cpp Renderer/Opengl/BloomRenderer.h Resource/AnimLoader.cpp Resource/AnimLoader.h Tools/AnimItem.cpp Tools/AnimItem.h Renderer/Opengl/Model/Utils/Tree.h
         Network/NetManager.cpp
         Network/NetManager.h
         Network/NetProtocol.cpp
@@ -283,6 +309,8 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Handler/Debug/ImGuiOverlay.cpp
+        Handler/Debug/ImGuiOverlay.h
         Lights/Light.cpp
         Lights/Light.h
         Lights/IOrientable.h
@@ -322,7 +350,7 @@ add_executable(Snake3 main.cpp stdafx.h App.cpp App.h Manager/ResourceManager.cp
         Scenes/MainMenuScene.cpp
         Scenes/MainMenuScene.h
 )
-target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} glfw glut GLU GL GLEW freetype openal alut assimp nlohmann_json::nlohmann_json imgui)
 if (USE_ENET)
     target_link_libraries(${PROJECT_NAME} ${ENET_LIBRARIES})
 endif()
@@ -366,6 +394,7 @@ set(APP_SOURCES
         Manager/TextureManager.cpp
         Tools/AnimItem.cpp
         Renderer/Opengl/BaseRenderer.cpp
+        Renderer/Opengl/RenderStats.cpp
         Renderer/Opengl/BloomRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.cpp
         Renderer/Opengl/PlanarReflectionRenderer.h
@@ -601,6 +630,8 @@ set(APP_SOURCES
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Handler/Debug/ImGuiOverlay.cpp
+        Handler/Debug/ImGuiOverlay.h
         Lights/Light.cpp
         Lights/Light.h
         Lights/IOrientable.h
@@ -828,6 +859,8 @@ add_library(snake3d_lib ${APP_SOURCES}
         Handler/Debug/BaseTransform.h
         Handler/Debug/LightsHandler.cpp
         Handler/Debug/LightsHandler.h
+        Handler/Debug/ImGuiOverlay.cpp
+        Handler/Debug/ImGuiOverlay.h
         Lights/Light.cpp
         Lights/Light.h
         Lights/IOrientable.h
@@ -858,7 +891,7 @@ target_include_directories(snake3d_lib PUBLIC
 
 # Linkování knihovny proti jejím závislostem (GLFW, OpenGL, atd.)
 target_link_libraries(snake3d_lib PUBLIC
-        glfw glut GLU GL GLEW freetype assimp
+        glfw glut GLU GL GLEW freetype assimp imgui
 )
 if (USE_ENET)
     target_link_libraries(snake3d_lib PUBLIC ${ENET_LIBRARIES})

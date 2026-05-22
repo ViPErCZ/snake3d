@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include <string>
+#include <unordered_map>
 #include <variant>
 #include <vector>
 #include <glm/glm.hpp>
@@ -63,6 +64,15 @@ namespace Manager {
         [[nodiscard]] GLuint getId() const;
     protected:
         GLuint id;
+
+        // Cache pro glGetUniformLocation - location se nemění po linkování
+        // programu, takže lze cachovat. Per-frame uniform spam (611 draws ×
+        // ~30 setterů) bez cache = ~18 000 GL syscalls per frame; s cache
+        // jen N unique names × 1× lookup za celý běh.
+        // -1 v cache = uniform neexistuje (optimized away by compiler).
+        // mutable kvůli const setterům (logická const, fyzická lazy init).
+        mutable std::unordered_map<std::string, GLint> locationCache;
+        GLint getUniformLocation(const std::string& name) const;
     };
 } // Manager
 

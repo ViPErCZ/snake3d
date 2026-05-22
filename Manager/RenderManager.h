@@ -5,6 +5,7 @@
 #include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../Renderer/Opengl/BloomRenderer.h"
 #include "../Renderer/Opengl/PlanarReflectionRenderer.h"
+#include <functional>
 #include <vector>
 
 using namespace std;
@@ -67,13 +68,19 @@ namespace Manager {
 
         [[nodiscard]] bool isReflectionsEnabled() const;
 
+        // Callback hook pro reflections toggle. Game layer (MainScene) drží
+        // konkrétní PlanarReflectionFeature - když se globální state změní,
+        // RenderManager invokne callback, ten zmutuje feature. Pattern stejný
+        // jako fog (fogFeature v ResourceManager), ale reflection je per-scene
+        // ne global resource, proto callback místo shared instance.
+        using ReflectionsToggleCallback = std::function<void(bool enabled)>;
+        void setReflectionsCallback(ReflectionsToggleCallback cb);
+
         [[nodiscard]] bool isFogEnabled() const;
 
-        // C4: hot reload trigger. Deleguje do ShaderRegistry::reloadIfChanged
-        // - prochází cached programy a recompiluje ty, jejichž source soubory
-        // se změnily na disku. Materiály drží stejný shared_ptr<ShaderProgram>,
-        // jen interní GL ID se swapne.
-        int reloadShaders() const;
+        [[nodiscard]] shared_ptr<Camera> getCamera() const { return camera; }
+
+        void reloadShaders() const;
 
         void reset();
 
@@ -100,6 +107,7 @@ namespace Manager {
         bool reflections;
         bool fog;
         uint64_t gFrameId = 0;
+        ReflectionsToggleCallback reflectionsCallback;
     };
 } // Manager
 

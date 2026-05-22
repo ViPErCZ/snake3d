@@ -29,6 +29,16 @@ namespace Manager {
         [[nodiscard]] glm::vec3 getRight() const;
         void setStickyPoint(const shared_ptr<Transform> &stickyPoint);
         [[nodiscard]] shared_ptr<Transform> getStickyPoint() const;
+
+        // One-shot teleport k objektu bez follow. Po focusOn je kamera free
+        // (rightButtonPressed=true) - dá se s ní hýbat WASD/sipkami/myší bez
+        // restrikce. setStickyPoint naopak kameru přilepí napevno.
+        void focusOn(const shared_ptr<Transform>& target);
+
+        // Reset prvního mouse delta - další processMouseMovement zahodí
+        // delta a uloží lastX/lastY. Voláno po edge transition (Ctrl/RMB
+        // edge press) aby kamera neudělala skok při velkém cursor offsetu.
+        void resetMouseDelta();
         [[nodiscard]] glm::vec3 getStickyPosition() const;
         void processMouseMovement(double x, double y);
         void processKeyboard(GLFWwindow *window, float deltaTime);

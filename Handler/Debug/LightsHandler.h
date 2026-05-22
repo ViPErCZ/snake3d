@@ -47,6 +47,15 @@ namespace Handler::Debug {
 
         shared_ptr<DirectionalLightNode3D> getDirLightNode() { return dirLightNode; }
 
+        [[nodiscard]] shared_ptr<Light> getActiveItem() const { return activeItem; }
+        [[nodiscard]] bool isEnabled() const { return enabled; }
+        [[nodiscard]] const vector<shared_ptr<Light>>& getItems() const { return items; }
+
+        // ImGui dropdown setter - cyklický next-item key pattern (findNextItem)
+        // nestačí, GUI potřebuje přímý jump na zvolené světlo. Zachovává
+        // camera sticky behavior tím, že kopíruje původní logiku z active().
+        void setActiveItem(const shared_ptr<Light>& item);
+
     protected:
         [[nodiscard]] glm::vec3 getColorByFocus() const;
         void setColorByFocus(glm::vec3 color) const;

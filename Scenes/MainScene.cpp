@@ -1,9 +1,12 @@
 #include "MainScene.h"
 
 #include <algorithm>
+#include <chrono>
 #include <glm/gtc/random.hpp>
 #include <cmath>
 #include <iostream>
+
+#include "../Renderer/Opengl/RenderStats.h"
 #include <random>
 #include <fstream>
 #include <vector>
@@ -164,12 +167,9 @@ namespace Scenes {
                 rendererManager->toggleShadows();
                 break;
             case GLFW_KEY_F2:
-                if (planeReflectionFeature) {
-                    rendererManager->toggleReflections();
-                    planeReflectionFeature->setEnabled(rendererManager->isReflectionsEnabled());
-                }
+                rendererManager->toggleReflections();
                 break;
-            case GLFW_KEY_F5:
+            case GLFW_KEY_F10:
                 rendererManager->reloadShaders();
                 break;
             case GLFW_KEY_F:
@@ -230,12 +230,6 @@ namespace Scenes {
         auto [spotLights, pointLights] = SceneLightFactory::create();
         this->spotLights.insert(this->spotLights.end(), spotLights.begin(), spotLights.end());
         this->pointLights.insert(this->pointLights.end(), pointLights.begin(), pointLights.end());
-
-        if (manipulatorHandler) {
-            for (const auto &point : pointLights) {
-                manipulatorHandler->getLightsHandler()->addItem(point);
-            }
-        }
     }
 
     void MainScene::initSkybox() {
@@ -254,6 +248,11 @@ namespace Scenes {
         planeHoleMapFeature = make_shared<Feature::HoleMapFeature>(nullptr);
         planeReflectionFeature = make_shared<Feature::PlanarReflectionFeature>(
             reflectionTexture, rendererManager->isReflectionsEnabled());
+        rendererManager->setReflectionsCallback([this](const bool enabled) {
+            if (planeReflectionFeature) {
+                planeReflectionFeature->setEnabled(enabled);
+            }
+        });
         planeRainRippleFeature = make_shared<Feature::RainRippleFeature>(false);
 
         const auto albedoFeature = make_shared<Feature::AlbedoFeature>(gamefieldAlbedo);
@@ -1037,7 +1036,17 @@ namespace Scenes {
                 break;
             case 90:
                 if (manipulatorHandler != nullptr) {
+                    // Registrace všech světel do LightsHandler (pro F9 mode +
+                    // ImGui dropdown). Pozn.: initLights() (progress=0) běží
+                    // dřív než se manipulatorHandler vytvoří v init(), takže
+                    // pointLights tehdy nešly přidat - děláme to teď.
                     manipulatorHandler->getLightsHandler()->addItem(directionalLight);
+                    for (const auto& spot : spotLights) {
+                        manipulatorHandler->getLightsHandler()->addItem(spot);
+                    }
+                    for (const auto& point : pointLights) {
+                        manipulatorHandler->getLightsHandler()->addItem(point);
+                    }
 
                     const auto focusTextNode = manipulatorHandler->getLightsHandler()->getFocusLabel();
                     const auto colorTextNode = manipulatorHandler->getLightsHandler()->getColorLabel();
@@ -1090,12 +1099,23 @@ namespace Scenes {
     }
 
     void MainScene::update() {
+        using clock = std::chrono::steady_clock;
         multiplayerCrashInProgress = false;
+
+        const auto tNet0 = clock::now();
         netSession.tick(*this, *this);
         if (netSession.isEnabled() && netSession.isServer() && remoteSnakeScene) {
             remoteSnakeScene->updateAuthoritative();
         }
+        const auto tNet1 = clock::now();
+
         Scene::update();
+        const auto tScene1 = clock::now();
+
+        Renderer::RenderStats::updateNetMs =
+            std::chrono::duration<float, std::milli>(tNet1 - tNet0).count();
+        Renderer::RenderStats::updateSceneMs =
+            std::chrono::duration<float, std::milli>(tScene1 - tNet1).count();
         if (netSession.hasPendingLocalRespawn() && playerScene && playerScene->getSnake() && playerScene->getSnake()->isReady()) {
             const auto &pending = netSession.getPendingLocalRespawn();
             if constexpr (isDebug) {
@@ -1122,12 +1142,15 @@ namespace Scenes {
             planeRainRippleFeature->setEnabled(weatherScene->isRainActive());
         }
 
+        const auto tHud0 = std::chrono::steady_clock::now();
         if (hud) {
             hud->tickRadarFade();
             if (!hud->isHelpVisible() && eatManager && (!netSession.isEnabled() || netSession.isServer())) {
                 eatManager->run(EatManager::checkPlace);
             }
         }
+        Renderer::RenderStats::updateHudMs = std::chrono::duration<float, std::milli>(
+            std::chrono::steady_clock::now() - tHud0).count();
     }
 
     void MainScene::setCursorPosition(const glm::vec2 &position) const {
@@ -1267,7 +1290,9 @@ namespace Scenes {
             hud->restoreVisibility();
         }
         if (playerScene) {
-            camera->setStickyPoint(playerScene->getSnake());
+            if constexpr (!isDebug) {
+                camera->setStickyPoint(playerScene->getSnake());
+            }
         }
         if (netSession.isEnabled() && netSession.isClient()) {
             if (resumeLocalMovementAfterMenu) {

@@ -1,4 +1,8 @@
 #include "CollisionSystem3D.h"
+
+#include <chrono>
+
+#include "../Renderer/Opengl/RenderStats.h"
 #include "CollisionCheck.h"
 #include <algorithm>
 #include <limits>
@@ -194,6 +198,9 @@ namespace Physic {
     void CollisionSystem3D::update() const {
         if (flatEntries.empty()) return;
 
+        using clock = std::chrono::steady_clock;
+        const auto t0 = clock::now();
+
         std::vector<AABB> worldAABBs(flatEntries.size());
 
         for (size_t i = 0; i < flatEntries.size(); ++i) {
@@ -202,7 +209,12 @@ namespace Physic {
 
             shape->setColliding(false);
             entry.shapeNode->clearCollisions();
-            if (!shape->isCollisionEnabled()) {
+            // Per-frame cache: inline copy do CollisionEntry, pair loop pak
+            // nemusí dělat shape->isCollisionEnabled() etc per check.
+            entry.cachedEnabled = shape->isCollisionEnabled();
+            entry.cachedLayer = entry.shapeNode->getCollisionLayer();
+            entry.cachedMask = entry.shapeNode->getCollisionMask();
+            if (!entry.cachedEnabled) {
                 continue;
             }
 
@@ -218,39 +230,66 @@ namespace Physic {
             }
         }
 
-        for (size_t i = 0; i < flatEntries.size(); i++) {
-            // A static entry never moves, so its pair against another static is
-            // already settled and would never produce a contact event we care about.
-            const bool iStatic = flatEntries[i].isStatic;
-            for (size_t j = i + 1; j < flatEntries.size(); j++) {
-                if (iStatic && flatEntries[j].isStatic) continue;
+        // Performance: brute-force O(N²) loop přes N≈2400 (~2300 floor cells +
+        // perimeter + props + snake) generoval 3M párů per frame = ~70ms physics.
+        // Static×static pairs jsou by definition no-op (oboje se nehýbe), takže
+        // iterujeme jen relevantní:
+        //   - dynamic × dynamic  (small × small, řád stovek párů)
+        //   - dynamic × static   (small × large, řád tens of thousands)
+        // Static-static loop úplně vynecháme. Ušetří ~98% pair iterations.
+        const auto tAabbEnd = clock::now();
 
-                if (!flatEntries[i].shapeNode->getShape()->isCollisionEnabled() ||
-                    !flatEntries[j].shapeNode->getShape()->isCollisionEnabled()) {
-                    continue;
-                }
+        std::vector<size_t> dynIdx, statIdx;
+        dynIdx.reserve(flatEntries.size());
+        statIdx.reserve(flatEntries.size());
+        for (size_t i = 0; i < flatEntries.size(); ++i) {
+            if (flatEntries[i].isStatic) statIdx.push_back(i);
+            else dynIdx.push_back(i);
+        }
+        Renderer::RenderStats::collidersStatic = static_cast<int>(statIdx.size());
+        Renderer::RenderStats::collidersDynamic = static_cast<int>(dynIdx.size());
+        int pairsCount = 0;
 
-                if (flatEntries[i].parentObject == flatEntries[j].parentObject) {
-                    continue;
-                }
+        const auto checkPair = [&](const size_t i, const size_t j) {
+            ++pairsCount;
+            const auto& a = flatEntries[i];
+            const auto& b = flatEntries[j];
+            // Pořadí checks od nejlevnějšího (cached fields = direct load):
+            //   1. enabled  (1 bool load × 2)
+            //   2. layer/mask compatibility  (4 uint32 loads + 2 bit ANDs)
+            //   3. parent  (ptr compare)
+            //   4. AABB    (12 float compares)
+            //   5. Exact   (rare)
+            if (!a.cachedEnabled || !b.cachedEnabled) return;
+            if ((a.cachedMask & b.cachedLayer) == 0 || (b.cachedMask & a.cachedLayer) == 0) return;
+            if (a.parentObject == b.parentObject) return;
+            if (!CollisionCheck::IntersectAABB(worldAABBs[i], worldAABBs[j])) return;
+            if (CollisionCheck::IntersectExact(a, b)) {
+                a.shapeNode->getShape()->setColliding(true);
+                b.shapeNode->getShape()->setColliding(true);
+                a.shapeNode->addCollidingBody(b.parentObject);
+                b.shapeNode->addCollidingBody(a.parentObject);
+            }
+        };
 
-                if (!CollisionShape3D::shouldCollide(
-                flatEntries[i].shapeNode->getCollisionLayer(), flatEntries[i].shapeNode->getCollisionMask(),
-                flatEntries[j].shapeNode->getCollisionLayer(), flatEntries[j].shapeNode->getCollisionMask()))
-                {
-                    continue;
-                }
-
-                if (CollisionCheck::IntersectAABB(worldAABBs[i], worldAABBs[j])) {
-
-                    if (CollisionCheck::IntersectExact(flatEntries[i], flatEntries[j])) {
-                        flatEntries[i].shapeNode->getShape()->setColliding(true);
-                        flatEntries[j].shapeNode->getShape()->setColliding(true);
-                        flatEntries[i].shapeNode->addCollidingBody(flatEntries[j].parentObject);
-                        flatEntries[j].shapeNode->addCollidingBody(flatEntries[i].parentObject);
-                    }
-                }
+        // dynamic × dynamic (deduped pairs).
+        for (size_t a = 0; a < dynIdx.size(); ++a) {
+            for (size_t b = a + 1; b < dynIdx.size(); ++b) {
+                checkPair(dynIdx[a], dynIdx[b]);
             }
         }
+        // dynamic × static.
+        for (const size_t di : dynIdx) {
+            for (const size_t si : statIdx) {
+                checkPair(di, si);
+            }
+        }
+
+        const auto tEnd = clock::now();
+        Renderer::RenderStats::physAabbMs =
+            std::chrono::duration<float, std::milli>(tAabbEnd - t0).count();
+        Renderer::RenderStats::physPairsMs =
+            std::chrono::duration<float, std::milli>(tEnd - tAabbEnd).count();
+        Renderer::RenderStats::pairsTested = pairsCount;
     }
 } // Physic

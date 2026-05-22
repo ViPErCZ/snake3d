@@ -101,6 +101,13 @@ namespace Model {
         string animation;
         uint64_t lastUpdatedFrame;
         glm::mat4 worldMatrixCache;
+        // Snapshot rodičovské matice z minulého frame - když přijde stejná +
+        // self není dirty, computeWorldMatrix subtree skip (nutí children
+        // recompute pokud parent move, ale floor cells & static props
+        // 0 work per frame po prvním compute).
+        // sentinel mat4(0): zaručí first-frame recompute (žádný legitimní
+        // parent transform není all-zeros).
+        glm::mat4 lastParentMatrix{0.0f};
     };
 } // Model
 
