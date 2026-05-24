@@ -50,7 +50,7 @@ namespace Manager {
             GLint size;
             GLenum type;
             glGetActiveUniform(id, i, sizeof(name), nullptr, &size, &type, name);
-            GLint location = glGetUniformLocation(id, name);
+            const GLint location = glGetUniformLocation(id, name);
             std::cout << "Uniform #" << i << ": " << name
                       << " | Type: " << type
                       << " | Size: " << size
@@ -58,11 +58,11 @@ namespace Manager {
         }
     }
 
-    void ShaderProgram::setBool(const string &name, bool value) const {
+    void ShaderProgram::setBool(const string &name, const bool value) const {
         glUniform1i(getUniformLocation(name), value);
     }
 
-    void ShaderProgram::setInt(const string &name, int value) const {
+    void ShaderProgram::setInt(const string &name, const int value) const {
         // GLint location = getUniformLocation(name);
         // if (location == -1) {
         //     std::cerr << "Uniform " << name << " not found in shader\n";
@@ -71,11 +71,11 @@ namespace Manager {
         glUniform1i(getUniformLocation(name), value);
     }
 
-    void ShaderProgram::setFloat(const string &name, float value) const {
+    void ShaderProgram::setFloat(const string &name, const float value) const {
         glUniform1f(getUniformLocation(name), value);
     }
 
-    void ShaderProgram::setDouble(const string &name, double value) const {
+    void ShaderProgram::setDouble(const string &name, const double value) const {
         glUniform1d(getUniformLocation(name), value);
     }
 
@@ -87,7 +87,7 @@ namespace Manager {
         glUniform2fv(getUniformLocation(name), 1, &value[0]);
     }
 
-    void ShaderProgram::setVec2(const string &name, float x, float y) const {
+    void ShaderProgram::setVec2(const string &name, const float x, const float y) const {
         glUniform2f(getUniformLocation(name), x, y);
     }
 
@@ -95,7 +95,7 @@ namespace Manager {
         glUniform3fv(getUniformLocation(name), 1, &value[0]);
     }
 
-    void ShaderProgram::setVec3(const string &name, float x, float y, float z) const {
+    void ShaderProgram::setVec3(const string &name, const float x, const float y, const float z) const {
         glUniform3f(getUniformLocation(name), x, y, z);
     }
 

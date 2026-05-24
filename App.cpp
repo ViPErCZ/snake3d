@@ -186,11 +186,6 @@ void App::Init() {
             ))
     );
 
-    // D4 pre-flight kompilace: každý registered master zkompilujeme s
-    // features=0. Chyby ve zdrojích / linkování shaderů vyplavou tady místo
-    // až za 5 vteřin v gameplay. Permutace s features se kompilují lazy
-    // při get() z MaterialBuilderu - tu pre-flight nepokrývá (kombinatorial
-    // explosion). Pokud kterýkoliv master selže, fatal exit s clear log.
     const auto warmup = shaderRegistry->warmupAll();
     std::cout << "[App] Shader pre-flight: " << warmup.compiled
               << " compiled, " << warmup.failed.size() << " failed\n";
