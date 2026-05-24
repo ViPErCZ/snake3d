@@ -79,6 +79,7 @@ namespace Manager {
         [[nodiscard]] bool isFogEnabled() const;
 
         [[nodiscard]] shared_ptr<Camera> getCamera() const { return camera; }
+        [[nodiscard]] shared_ptr<ResourceManager> getResourceManager() const { return resourceManager; }
 
         void reloadShaders() const;
 

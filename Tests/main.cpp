@@ -7,10 +7,10 @@
 #include "../Physic/CapsuleShape.h"
 #include "../Physic/CylinderShape.h"
 #include "../Physic/Dynamics/DynamicBody.h"
-#include "../Manager/LevelManager.h"
-#include "../Handler/EatLocationHandler.h"
-#include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
-#include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
+#include "../examples/snake3/src/Manager/LevelManager.h"
+#include "../examples/snake3/src/Handler/EatLocationHandler.h"
+#include "../examples/snake3/src/Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
+#include "../examples/snake3/src/Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
 
 using namespace Physic;
 

@@ -67,6 +67,7 @@ namespace Handler::Debug {
     private:
         void drawEnginePanel() const;
         void drawObjectInspector() const;
+        void drawShaderInspector() const;
 
         std::shared_ptr<Manager::RenderManager> renderManager;
         std::shared_ptr<ManipulatorHandler> manipulatorHandler;

@@ -53,12 +53,6 @@ namespace Manager {
 
         void reloadIfChanged();
 
-        // D4 pre-flight: kompiluje base permutaci (features=0, no snippets) pro
-        // každý zaregistrovaný master. Vrátí seznam masterů, kterým compile
-        // selhal - App::Init je pak může logovat a buď fatal abort nebo
-        // continue (depending on strictness). Lazy-init na první get() runtime
-        // by jinak prozradila shader chyby až za N vteřin v gameplay - zde
-        // chyba vyplave v Init phase s clear master name.
         struct WarmupResult {
             int compiled = 0;
             std::vector<std::string> failed;
@@ -66,6 +60,24 @@ namespace Manager {
         WarmupResult warmupAll();
 
         [[nodiscard]] std::unordered_map<uint64_t, std::shared_ptr<ShaderProgram>> cachedPrograms() const;
+
+        // F1 iter 3 ImGui inspector: snapshot per-program metadata pro debug
+        // UI. Vrací plain data, ne pointery na interní CachedProgram - tester
+        // (ImGui) je decoupled od implementace.
+        struct ProgramInfo {
+            uint64_t key;          // cache key (FNV hash master+features+snippets)
+            unsigned int glId;     // GL program handle (po hot reload se mění)
+            std::string master;    // master shader name (např. "basicShader")
+            ShaderFeatureMask features;
+            std::vector<std::string> watchedPaths;  // master + includes + snippets
+            size_t snippetCount;
+        };
+        [[nodiscard]] std::vector<ProgramInfo> getCachedProgramInfo() const;
+
+        // Force recompile konkrétního programu (Inspector "Reload" button).
+        // Pokud key není v cache, no-op + log. Compile chyba: log, starý
+        // program zůstává.
+        void reloadProgram(uint64_t key);
 
         [[nodiscard]] bool hasMaster(const std::string& name) const;
 

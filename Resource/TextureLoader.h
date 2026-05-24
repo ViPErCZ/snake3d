@@ -2,9 +2,10 @@
 #define SNAKE3_TEXTURELOADER_H
 
 #include <filesystem>
+#include <memory>
 #include <vector>
 
-#include "../Manager/EatManager.h"
+#include "../Manager/TextureManager.h"
 
 using namespace std;
 

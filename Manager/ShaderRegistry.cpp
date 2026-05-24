@@ -216,6 +216,52 @@ namespace Manager {
         return out;
     }
 
+    std::vector<ShaderRegistry::ProgramInfo> ShaderRegistry::getCachedProgramInfo() const {
+        std::vector<ProgramInfo> out;
+        out.reserve(programs.size());
+        for (const auto& [k, entry] : programs) {
+            out.push_back({
+                k,
+                entry.program ? entry.program->getId() : 0u,
+                entry.handle.master,
+                entry.handle.features,
+                entry.watchedPaths,
+                entry.handle.snippets.size(),
+            });
+        }
+        return out;
+    }
+
+    void ShaderRegistry::reloadProgram(const uint64_t key) {
+        const auto it = programs.find(key);
+        if (it == programs.end()) {
+            std::cerr << "[ShaderRegistry] reloadProgram: unknown key " << key << "\n";
+            return;
+        }
+        auto& entry = it->second;
+        const auto masterIt = masters.find(entry.handle.master);
+        if (masterIt == masters.end()) {
+            std::cerr << "[ShaderRegistry] reloadProgram: master '"
+                      << entry.handle.master << "' není registrovaný\n";
+            return;
+        }
+        try {
+            auto result = compileForHandle(masterIt->second, entry.handle);
+            entry.program->reload(result.programId);
+            entry.watchedPaths = std::move(result.watchedPaths);
+            entry.watchedMtimes.clear();
+            entry.watchedMtimes.reserve(entry.watchedPaths.size());
+            for (const auto& p : entry.watchedPaths) {
+                entry.watchedMtimes.push_back(fileMtime(p));
+            }
+            std::cout << "[ShaderRegistry] manual reload OK for '"
+                      << entry.handle.master << "' (key=" << key << ")\n";
+        } catch (const std::exception& e) {
+            std::cerr << "[ShaderRegistry] reloadProgram failed for '"
+                      << entry.handle.master << "': " << e.what() << "\n";
+        }
+    }
+
     void ShaderRegistry::clearCache() {
         // Pozor: program objekty drží GL handles. shared_ptr je destruktuje
         // až refcount klesne na 0, takže pokud někdo materiál ještě drží,

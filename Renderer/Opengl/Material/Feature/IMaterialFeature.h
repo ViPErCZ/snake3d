@@ -10,20 +10,17 @@
 #include "../../../../Manager/ShaderProgram.h"
 #include "../RenderContext.h"
 
-using namespace Manager;
-using namespace Material;
-
 namespace Feature {
     class IMaterialFeature {
     public:
         virtual ~IMaterialFeature() = default;
 
-        [[nodiscard]] virtual ShaderFeatureMask flag() const = 0;
+        [[nodiscard]] virtual Manager::ShaderFeatureMask flag() const = 0;
 
-        virtual void bind(ShaderProgram& shader,
-                          const RenderContext& ctx) const = 0;
+        virtual void bind(Manager::ShaderProgram& shader,
+                          const Material::RenderContext& ctx) const = 0;
 
-        virtual void unbind(ShaderProgram& shader) const { (void)shader; }
+        virtual void unbind(Manager::ShaderProgram& shader) const { (void)shader; }
 
         [[nodiscard]] virtual std::shared_ptr<IMaterialFeature> clone() const = 0;
 

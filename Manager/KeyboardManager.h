@@ -2,8 +2,8 @@
 #define SNAKE3_KEYBOARDMANAGER_H
 
 #include "../stdafx.h"
-#include "../Handler/SnakeMoveHandler.h"
 #include "../Handler/BaseKeydownHandle.h"
+#include <memory>
 #include <vector>
 
 using namespace std;

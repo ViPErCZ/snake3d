@@ -21,6 +21,8 @@
 #include "../../Lights/SpotLight.h"
 #include "../../Manager/Camera.h"
 #include "../../Manager/RenderManager.h"
+#include "../../Manager/ResourceManager.h"
+#include "../../Manager/ShaderRegistry.h"
 #include "../../Renderer/Opengl/RenderStats.h"
 #include "../../Tools/Transform.h"
 
@@ -78,6 +80,7 @@ namespace Handler::Debug {
         if (!initialized) return;
         drawEnginePanel();
         drawObjectInspector();
+        drawShaderInspector();
     }
 
     void ImGuiOverlay::endFrame() {
@@ -400,7 +403,9 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawObjectInspector() const {
         if (!manipulatorHandler) return;
 
-        ImGui::SetNextWindowPos(ImVec2(10, 200), ImGuiCond_FirstUseEver);
+        // Default pozice pod Engine panelem (ten je u (10,10) + auto-resize cca
+        // 280px tall pro všechny stats). User si může drag později.
+        ImGui::SetNextWindowPos(ImVec2(10, 380), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(520, 0), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin("Object Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::End();
@@ -502,6 +507,73 @@ namespace Handler::Debug {
         }
 
         ImGui::PopItemWidth();
+        ImGui::End();
+    }
+
+    void ImGuiOverlay::drawShaderInspector() const {
+        if (!renderManager) return;
+        const auto resourceManager = renderManager->getResourceManager();
+        if (!resourceManager) return;
+        const auto registry = resourceManager->getShaderRegistry();
+        if (!registry) return;
+
+        ImGui::SetNextWindowPos(ImVec2(540, 10), ImGuiCond_FirstUseEver);
+        if (!ImGui::Begin("Shader Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::End();
+            return;
+        }
+
+        const auto info = registry->getCachedProgramInfo();
+        ImGui::Text("Cached programs: %zu", info.size());
+        ImGui::Separator();
+
+        if (ImGui::BeginTable("ShaderTable", 5,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+                              ImGuiTableFlags_SizingFixedFit)) {
+            ImGui::TableSetupColumn("Master");
+            ImGui::TableSetupColumn("Features");
+            ImGui::TableSetupColumn("GL ID");
+            ImGui::TableSetupColumn("Paths/Snippets");
+            ImGui::TableSetupColumn("Action");
+            ImGui::TableHeadersRow();
+
+            for (const auto& p : info) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted(p.master.c_str());
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("0x%X", p.features);
+
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%u", p.glId);
+
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%zu / %zu", p.watchedPaths.size(), p.snippetCount);
+                if (ImGui::IsItemHovered() && !p.watchedPaths.empty()) {
+                    ImGui::BeginTooltip();
+                    for (const auto& path : p.watchedPaths) {
+                        ImGui::TextUnformatted(path.c_str());
+                    }
+                    ImGui::EndTooltip();
+                }
+
+                ImGui::TableSetColumnIndex(4);
+                ImGui::PushID(static_cast<int>(p.key));
+                if (ImGui::SmallButton("Reload")) {
+                    registry->reloadProgram(p.key);
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+
+        ImGui::Spacing();
+        if (ImGui::Button("Reload changed (F10)")) {
+            renderManager->reloadShaders();
+        }
+        ImGui::SetItemTooltip("Same as F10 - mtime-driven hot reload pro changed sources.");
+
         ImGui::End();
     }
 } // Handler::Debug

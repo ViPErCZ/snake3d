@@ -1,4 +1,5 @@
 #include "ResourceLoader.h"
+#include <iostream>
 #include <utility>
 #include "AnimLoader.h"
 #include "ObjModelLoader.h"

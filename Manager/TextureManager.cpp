@@ -3,6 +3,8 @@
 
 #include "../Resource/TextureLoader.h"
 
+using Resource::TextureLoader;
+
 namespace Manager {
     TextureManager::TextureManager(const unsigned int id) : widthImg(0), heightImg(0), numColCh(0) {
         textures.push_back(id);
