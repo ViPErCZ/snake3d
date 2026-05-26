@@ -106,6 +106,13 @@ set(ENGINE_SOURCES
         Manager/TextureManager.h
         Manager/SoundManager.cpp
         Manager/SoundManager.h
+        Manager/UboBindings.h
+        Manager/UniformBuffer.cpp
+        Manager/UniformBuffer.h
+        Manager/FrameUbo.cpp
+        Manager/FrameUbo.h
+        Manager/MaterialUbo.cpp
+        Manager/MaterialUbo.h
         # --- Renderer / OpenGL
         Renderer/Opengl/BaseRenderer.cpp
         Renderer/Opengl/BaseRenderer.h

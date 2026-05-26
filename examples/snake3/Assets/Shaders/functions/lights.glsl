@@ -1,3 +1,5 @@
+#include "material_data.glsl"
+
 struct Material {
     sampler2D ambient;
     sampler2D diffuse;

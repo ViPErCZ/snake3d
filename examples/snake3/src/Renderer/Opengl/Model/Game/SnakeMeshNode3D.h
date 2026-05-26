@@ -91,6 +91,10 @@ namespace Model {
         eDIRECTION direction = NONE;
         bool respawned = false;
         bool bodySegment = false;
+        // Preserve collider visibility across crash/respawn cycle - crash hides
+        // the shape for the explosion animation, respawn restores whatever
+        // the user had toggled in the inspector before the crash.
+        bool collisionShapeVisibleBeforeCrash = true;
         std::function<void()> postCrashRespawnHandler;
     };
 } // Model

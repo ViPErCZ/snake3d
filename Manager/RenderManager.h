@@ -5,6 +5,7 @@
 #include "../Renderer/Opengl/DepthMapRenderer.h"
 #include "../Renderer/Opengl/BloomRenderer.h"
 #include "../Renderer/Opengl/PlanarReflectionRenderer.h"
+#include "FrameUbo.h"
 #include <functional>
 #include <vector>
 
@@ -109,6 +110,18 @@ namespace Manager {
         bool fog;
         uint64_t gFrameId = 0;
         ReflectionsToggleCallback reflectionsCallback;
+        FrameUbo frameUbo;
+        FrameData frameData{};
+
+        // Fills frameData from current camera/projection/lights state and
+        // uploads+binds. PlanarReflectionRenderer can copy frameData,
+        // overwrite view/viewPos for the mirror, and call uploadFrameUbo
+        // with its own modified copy.
+        void populateAndUploadFrameUbo();
+
+    public:
+        [[nodiscard]] const FrameData& getFrameData() const { return frameData; }
+        FrameUbo& getFrameUbo() { return frameUbo; }
     };
 } // Manager
 

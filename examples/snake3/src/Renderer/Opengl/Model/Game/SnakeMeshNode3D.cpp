@@ -115,7 +115,7 @@ namespace Model {
         bodySegment = false;
         respawned = false;
         if (!collisionShapes.empty()) {
-            collisionShapes.begin()->get()->setVisible(true);
+            collisionShapes.begin()->get()->setVisible(collisionShapeVisibleBeforeCrash);
         }
 
         for (const auto &child: children) {
@@ -250,6 +250,17 @@ namespace Model {
         collisionSystem->addCollider(tile5);
 
         addNode(tile5);
+
+        // Propagate pre-crash collider visibility to every freshly-created
+        // body tile so user toggles from CollisionShapeHandler are respected
+        // even though the new shapes were never registered with the handler.
+        for (const auto& child : children) {
+            if (const auto t = dynamic_pointer_cast<SnakeMeshNode3D>(child)) {
+                if (!t->getCollisionShapes().empty()) {
+                    t->getCollisionShapes()[0]->setVisible(collisionShapeVisibleBeforeCrash);
+                }
+            }
+        }
     }
 
     void SnakeMeshNode3D::setPostCrashRespawnHandler(std::function<void()> handler) {
@@ -264,6 +275,7 @@ namespace Model {
         this->setDirection(NONE);
         copyExplosionSourceMaterial(crashMaterial, mesh->getMaterial());
         mesh->setMaterial(crashMaterial);
+        collisionShapeVisibleBeforeCrash = collisionShapes.begin()->get()->isVisible();
         collisionShapes.begin()->get()->setVisible(false);
 
         for (auto &child: children) {
@@ -390,6 +402,12 @@ namespace Model {
         shape->setCollisionMask(WORLD | ENEMY | PLAYER);
         tile->setCollisionShape(shape);
         collisionSystem->addCollider(tile);
+
+        // Inherit head's current collider visibility so newly-grown body
+        // segments respect the user's CollisionShapeHandler toggle.
+        if (!collisionShapes.empty()) {
+            shape->setVisible(collisionShapes[0]->isVisible());
+        }
 
         addNode(tile);
     }

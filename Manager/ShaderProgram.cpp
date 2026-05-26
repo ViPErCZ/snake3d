@@ -2,10 +2,26 @@
 
 #include <iostream>
 
+#include "UboBindings.h"
 #include "../Renderer/Opengl/RenderStats.h"
 
 namespace Manager {
+
+    // Per-program one-time setup: UBO block bindings + shininess=0 default.
+    // pow(spec, 0) = 1 per IEEE 754 = flat constant specular contribution
+    // (no camera-tracking streak), matching pre-D1.1a Mesa-default behaviour
+    // where uninitialised uniform was 0. SpecularFeature overrides per-draw
+    // to 32 for materials wanting Phong highlights.
+    static void setupProgramDefaults(const ShaderProgram& program) {
+        program.setUniformBlock("FrameData", UBO_BINDING_FRAME);
+        program.setUniformBlock("MaterialData", UBO_BINDING_MATERIAL);
+
+        program.use();
+        program.setFloat("material.shininess", 0.0f);
+    }
+
     ShaderProgram::ShaderProgram(const GLuint id) : id(id) {
+        setupProgramDefaults(*this);
     }
 
     void ShaderProgram::reload(const GLuint newId) {
@@ -18,6 +34,7 @@ namespace Manager {
         // shader má jiné location indices. Invalidate cache, ať se znovu
         // naplní z nového programu.
         locationCache.clear();
+        setupProgramDefaults(*this);
     }
 
     GLint ShaderProgram::getUniformLocation(const std::string& name) const {
@@ -201,10 +218,10 @@ namespace Manager {
         const GLuint blockIndex = glGetUniformBlockIndex(id, name.c_str());
         if (blockIndex != GL_INVALID_INDEX) {
             glUniformBlockBinding(id, blockIndex, blockBinding);
-            return;
         }
-
-        std::cerr << "Uniform block index " << name << " not found in shader\n";
+        // No-op if block not present: setupProgramDefaults calls this for
+        // every known block (FrameData, MaterialData) on every program,
+        // including shaders that don't declare them (skybox, particle, 2D).
     }
 
     void ShaderProgram::setUniform(const std::string &name, const UniformValue &value) const {

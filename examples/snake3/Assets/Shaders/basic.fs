@@ -41,6 +41,7 @@ uniform float rainDensity = 20.0;
 uniform bool hasHoleMap = false;
 uniform sampler2D holeMap;
 
+#include "functions/material_data.glsl"
 #include "functions/fog.glsl"
 #include "functions/lights.glsl"
 #include "functions/reflection.glsl"

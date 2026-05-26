@@ -38,6 +38,7 @@ uniform vec3 lightPos = vec3(0.0, 0.0, 0.0);
 //uniform vec3 cameraPos;
 
 #include "functions/bonesTransform.glsl"
+#include "functions/material_data.glsl"
 
 void main()
 {

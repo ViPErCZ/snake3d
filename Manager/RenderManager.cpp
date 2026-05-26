@@ -13,6 +13,32 @@ namespace Manager {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
+        // NOTE: frameUbo.init() must not run here - this ctor is invoked
+        // during static-init of the global `app` shared_ptr (main.cpp:25),
+        // before glewInit(). FrameUbo lazy-inits on first uploadAndBind().
+    }
+
+    void RenderManager::populateAndUploadFrameUbo() {
+        frameData.view = camera->getViewMatrix();
+        frameData.projection = projection;
+        frameData.viewPos = camera->getPosition();
+        frameData.uTime = static_cast<float>(glfwGetTime());
+
+        if (directionalLight) {
+            frameData.dirLight.position  = directionalLight->getPosition();
+            frameData.dirLight.direction = directionalLight->getDirection();
+            frameData.dirLight.ambient   = directionalLight->getAmbient();
+            frameData.dirLight.diffuse   = directionalLight->getDiffuse();
+            frameData.dirLight.specular  = directionalLight->getSpecular();
+            frameData.directionLightEnable = 1;
+        } else {
+            frameData.directionLightEnable = 0;
+        }
+
+        // numPointLights / numSpotLights / arrays remain zero until D1.1d.
+
+        frameUbo.upload(frameData);
+        frameUbo.bind();
     }
 
     shared_ptr<ContextState> RenderManager::getContextState() const {
@@ -29,6 +55,7 @@ namespace Manager {
 
     void RenderManager::initReflection() {
         planarReflectionRenderer = make_unique<PlanarReflectionRenderer>(contextState, resourceManager, camera, projection, width, height);
+        planarReflectionRenderer->setRenderManager(this);
         planarReflectionRenderer->updateRenderers(renderers);
     }
 
@@ -155,6 +182,7 @@ namespace Manager {
         // CPU + GPU timing main pass. CPU-only = chrono mezi start a end loop.
         // CPU+GPU = chrono přes glFinish (forced sync). Rozdíl = pure GPU.
         const auto mainStart = std::chrono::steady_clock::now();
+        populateAndUploadFrameUbo();
         for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
             Iter->renderer->beforeRender(standard);
             Iter->renderer->render3D(dt, gFrameId);

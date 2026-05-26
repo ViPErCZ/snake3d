@@ -26,7 +26,7 @@ namespace Scenes {
 
         // initRain(true);
         // initRainDrop();
-        // initSnow();
+        initSnow();
     }
 
     void WeatherScene::initRain(const bool lightning) {

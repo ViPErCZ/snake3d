@@ -12,6 +12,12 @@
 using namespace std;
 using namespace Manager;
 
+namespace Manager {
+    // Forward declared - RenderManager.h includes this header, so we can't
+    // include it back. PlanarReflectionRenderer.cpp pulls the full type.
+    class RenderManager;
+}
+
 namespace Renderer {
     class PlanarReflectionRenderer final : public BaseRenderer {
     public:
@@ -30,6 +36,11 @@ namespace Renderer {
         void setPlaneZ(float z);
         void resize(int width, int height, const glm::mat4 &projection) override;
 
+        // Non-owning - set by RenderManager so reflection pass can read
+        // current FrameData (with dirLight + lights), copy it, swap the
+        // mirrored view/viewPos, and upload via the shared FrameUbo.
+        void setRenderManager(Manager::RenderManager* rm) { renderManager = rm; }
+
     protected:
         void initializeFramebuffer();
         void destroyFramebuffer();
@@ -46,6 +57,7 @@ namespace Renderer {
         int width;
         int height;
         float planeZ = -1.0f;
+        Manager::RenderManager* renderManager = nullptr;
     };
 }
 

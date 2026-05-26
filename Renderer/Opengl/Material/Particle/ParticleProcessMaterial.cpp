@@ -1,5 +1,7 @@
 #include "ParticleProcessMaterial.h"
 
+#include "../../../../Manager/UboBindings.h"
+
 namespace Material {
     ParticleProcessMaterial::~ParticleProcessMaterial() {
         glDeleteBuffers(1, &uboID);
@@ -10,7 +12,7 @@ namespace Material {
         glGenBuffers(1, &uboID);
         glBindBuffer(GL_UNIFORM_BUFFER, uboID);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(ParticleDataGPU), nullptr, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboID);
+        glBindBufferBase(GL_UNIFORM_BUFFER, Manager::UBO_BINDING_PARTICLES, uboID);
     }
 
     void ParticleProcessMaterial::bind(const shared_ptr<ShaderProgram> shader) const {
@@ -38,10 +40,10 @@ namespace Material {
         glBindBuffer(GL_UNIFORM_BUFFER, uboID);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ParticleDataGPU), &gpuData);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboID);
+        glBindBufferBase(GL_UNIFORM_BUFFER, Manager::UBO_BINDING_PARTICLES, uboID);
 
         shader->use();
-        shader->setUniformBlock("ParticleParams", 0);
+        shader->setUniformBlock("ParticleParams", Manager::UBO_BINDING_PARTICLES);
         shader->setFloat("u_dt", stepDt);
         shader->setFloat("u_timeAccum", timeAccum + timeOffset);
         shader->setFloat("u_spawnPerFrame", spawnPerFrame);

@@ -90,6 +90,16 @@ namespace Renderer {
 
         camera->setReflectionPass(true);
 
+        if (renderManager) {
+            // Copy current main-pass frame data (dirLight, lights, time) and
+            // override only the camera-derived fields for the mirror view.
+            Manager::FrameData mirror = renderManager->getFrameData();
+            mirror.view = camera->getViewMatrix();
+            mirror.viewPos = camera->getPosition();
+            renderManager->getFrameUbo().upload(mirror);
+            renderManager->getFrameUbo().bind();
+        }
+
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
         glViewport(0, 0, width, height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
