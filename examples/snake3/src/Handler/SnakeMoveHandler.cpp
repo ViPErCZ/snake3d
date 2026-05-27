@@ -2,6 +2,9 @@
 
 #include "Physic/Dynamics/DynamicBody.h"
 
+using namespace Build;
+using namespace Physic::Dynamics;
+
 namespace Handler {
     namespace {
         // Gravity acceleration (setPos/s^2) applied to the chain throughout its

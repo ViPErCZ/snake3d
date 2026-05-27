@@ -3,6 +3,9 @@
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Model/Standard/BoxMesh.h"
 
+using namespace Model;
+using namespace Build;
+
 namespace Physic {
     BoxShape::BoxShape(const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<ContextState> &contextState,
                        const glm::vec3 boxSize) : size(boxSize), resourceManager(resourceManager), contextState(contextState) {

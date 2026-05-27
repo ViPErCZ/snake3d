@@ -2,6 +2,9 @@
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Model/Standard/CapsuleMesh.h"
 
+using namespace Model;
+using namespace Build;
+
 namespace Physic {
     CapsuleShape::CapsuleShape(const shared_ptr<ResourceManager> &resourceManager,
                              const shared_ptr<ContextState> &contextState,

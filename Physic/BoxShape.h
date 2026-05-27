@@ -7,8 +7,6 @@
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
-using namespace Model;
-
 namespace Physic {
     class BoxShape : public Shape {
         struct OBB {
@@ -19,14 +17,14 @@ namespace Physic {
 
     public:
         explicit BoxShape(
-            const shared_ptr<ResourceManager> &resourceManager,
-            const shared_ptr<ContextState> &contextState,
+            const shared_ptr<Manager::ResourceManager> &resourceManager,
+            const shared_ptr<Tools::ContextState> &contextState,
             glm::vec3 boxSize = glm::vec3(1.0f)
         );
 
         ShapeType getType() override { return ShapeType::Box; }
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
 
         [[nodiscard]] OBB BuildOBB(const glm::mat4 &modelMatrix) const;
 
@@ -42,8 +40,8 @@ namespace Physic {
 
         shared_ptr<Material::MaterialInstance> material;
         shared_ptr<Feature::AlbedoFeature> albedoFeature;
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<ContextState> contextState;
+        shared_ptr<Manager::ResourceManager> resourceManager;
+        shared_ptr<Tools::ContextState> contextState;
     };
 } // Physic
 

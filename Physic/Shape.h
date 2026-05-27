@@ -7,10 +7,6 @@
 #include "../Manager/Camera.h"
 #include "../Tools/BuildSettings.h"
 
-using namespace Manager;
-using namespace Node3D;
-using namespace Build;
-
 namespace Model {
     class MeshNode3D;
 }
@@ -31,7 +27,7 @@ namespace Physic {
         virtual ~Shape() = default;
 
         virtual ShapeType getType() = 0;
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) = 0;
+        virtual void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) = 0;
         virtual AABB calculateAABB(const glm::mat4& modelMatrix) = 0;
 
         void setColliding(const bool colliding) { this->colliding = colliding; }

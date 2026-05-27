@@ -11,6 +11,8 @@
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/SphereMesh.h"
 
+using namespace CollisionShape;
+
 namespace Model {
     namespace {
         void copyExplosionSourceMaterial(const shared_ptr<ShaderMaterial>& crashMaterial,

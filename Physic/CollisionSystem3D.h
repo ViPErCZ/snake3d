@@ -6,14 +6,10 @@
 #include "Dynamics/DynamicBody.h"
 #include <vector>
 
-using namespace Model;
-using namespace CollisionShape;
-using namespace Dynamics;
-
 namespace Physic {
     struct CollisionEntry {
-        shared_ptr<CollisionShape3D> shapeNode;
-        shared_ptr<MeshNode3D> parentObject;
+        shared_ptr<CollisionShape::CollisionShape3D> shapeNode;
+        shared_ptr<Model::MeshNode3D> parentObject;
         // Static entries (floor cells, level walls) never move - they skip
         // pair-tests against each other and reuse their world AABB across frames.
         bool isStatic = false;
@@ -29,27 +25,27 @@ namespace Physic {
     };
 
     struct DynamicBodyEntry {
-        shared_ptr<MeshNode3D> node;
-        shared_ptr<DynamicBody> body;
+        shared_ptr<Model::MeshNode3D> node;
+        shared_ptr<Dynamics::DynamicBody> body;
         // Cached at the start of each step() so resolveTopContact can tell whether
         // we just landed on a surface from above (vs penetrating it sideways).
         float previousBottomZ = 0.0f;
     };
 
     class CollisionSystem3D {
-        std::vector<shared_ptr<MeshNode3D> > colliders;
+        std::vector<shared_ptr<Model::MeshNode3D> > colliders;
         std::vector<CollisionEntry> flatEntries;
         std::vector<DynamicBodyEntry> dynamicBodies;
         glm::vec3 worldGravity{0.0f, 0.0f, -9.81f};
     public:
-        void addCollider(const shared_ptr<MeshNode3D> &collider, bool isStatic = false);
+        void addCollider(const shared_ptr<Model::MeshNode3D> &collider, bool isStatic = false);
         void update() const;
-        void removeCollider(const std::shared_ptr<MeshNode3D> &collider);
+        void removeCollider(const std::shared_ptr<Model::MeshNode3D> &collider);
         void clearColliders();
 
-        void addDynamicBody(const shared_ptr<MeshNode3D> &node,
-                            const shared_ptr<DynamicBody> &body);
-        void removeDynamicBody(const shared_ptr<MeshNode3D> &node);
+        void addDynamicBody(const shared_ptr<Model::MeshNode3D> &node,
+                            const shared_ptr<Dynamics::DynamicBody> &body);
+        void removeDynamicBody(const shared_ptr<Model::MeshNode3D> &node);
         void clearDynamicBodies();
 
         void setWorldGravity(const glm::vec3 &g) { worldGravity = g; }

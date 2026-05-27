@@ -2,6 +2,8 @@
 
 #include "../Collision/CollisionShape3D.h"
 
+using namespace Build;
+
 namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)

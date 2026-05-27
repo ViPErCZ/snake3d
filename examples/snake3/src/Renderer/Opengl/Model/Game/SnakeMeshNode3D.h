@@ -69,7 +69,7 @@ namespace Model {
         bool isCrashing() const;
         bool isRespawning() const;
 
-        void setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape);
+        void setCollisionShape(const shared_ptr<CollisionShape::CollisionShape3D> &collisionShape);
 
         void computeWorldMatrix(const glm::mat4 &parentTransform) override;
 

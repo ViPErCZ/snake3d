@@ -8,6 +8,10 @@
 #include <limits>
 #include <unordered_set>
 
+using namespace Model;
+using namespace CollisionShape;
+using namespace Dynamics;
+
 namespace Physic {
     namespace {
         float computeBottomZ(const shared_ptr<MeshNode3D> &node) {

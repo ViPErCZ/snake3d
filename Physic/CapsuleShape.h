@@ -6,8 +6,6 @@
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
-using namespace Model;
-
 namespace Physic {
     class CapsuleShape : public Shape {
     public:
@@ -22,12 +20,12 @@ namespace Physic {
         float height;
         shared_ptr<Material::MaterialInstance> material;
         shared_ptr<Feature::AlbedoFeature> albedoFeature;
-        shared_ptr<ContextState> contextState;
-        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<Tools::ContextState> contextState;
+        shared_ptr<Manager::ResourceManager> resourceManager;
 
     public:
-        explicit CapsuleShape(const shared_ptr<ResourceManager> &resourceManager,
-                             const shared_ptr<ContextState> &contextState, 
+        explicit CapsuleShape(const shared_ptr<Manager::ResourceManager> &resourceManager,
+                             const shared_ptr<Tools::ContextState> &contextState,
                              float radius = 0.5f, float height = 2.0f);
 
         ShapeType getType() override { return ShapeType::Capsule; }
@@ -39,7 +37,7 @@ namespace Physic {
 
         AABB calculateAABB(const glm::mat4& modelMatrix) override;
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
 
         void setRadius(float radius);
 
