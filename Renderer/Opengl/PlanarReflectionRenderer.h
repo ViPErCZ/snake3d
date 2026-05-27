@@ -9,9 +9,6 @@
 #include "../../Manager/Camera.h"
 #include "Scene/SceneRenderer.h"
 
-using namespace std;
-using namespace Manager;
-
 namespace Manager {
     // Forward declared - RenderManager.h includes this header, so we can't
     // include it back. PlanarReflectionRenderer.cpp pulls the full type.
@@ -21,14 +18,14 @@ namespace Manager {
 namespace Renderer {
     class PlanarReflectionRenderer final : public BaseRenderer {
     public:
-        PlanarReflectionRenderer(const shared_ptr<ContextState> &contextState,
-                                 const shared_ptr<ResourceManager> &resManager,
-                                 const shared_ptr<Camera> &camera, 
+        PlanarReflectionRenderer(const std::shared_ptr<Tools::ContextState> &contextState,
+                                 const std::shared_ptr<Manager::ResourceManager> &resManager,
+                                 const std::shared_ptr<Manager::Camera> &camera,
                                  const glm::mat4 &projection,
                                  int width, int height);
         ~PlanarReflectionRenderer() override;
 
-        void updateRenderers(const vector<RendererEntry> &renderers);
+        void updateRenderers(const std::vector<RendererEntry> &renderers);
         void render3D(float dt, uint64_t frameId) override;
         void beforeRender(MODE mode) override;
         void afterRender() override;
@@ -44,12 +41,12 @@ namespace Renderer {
     protected:
         void initializeFramebuffer();
         void destroyFramebuffer();
-        shared_ptr<ContextState> contextState;
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<Camera> camera;
+        std::shared_ptr<Tools::ContextState> contextState;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Manager::Camera> camera;
         glm::mat4 projection;
-        vector<Scenes::RendererEntry3D> nodes3d;
-        vector<RendererEntry> renderers;
+        std::vector<Scenes::RendererEntry3D> nodes3d;
+        std::vector<RendererEntry> renderers;
 
         unsigned int reflectionFBO{};
         unsigned int reflectionTexture{};

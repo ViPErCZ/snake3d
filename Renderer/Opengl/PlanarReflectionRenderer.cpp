@@ -4,6 +4,9 @@
 #include <iostream>
 #include "Model/Standard/PlaneMesh.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Renderer {
     PlanarReflectionRenderer::PlanarReflectionRenderer(
             const shared_ptr<ContextState> &contextState,

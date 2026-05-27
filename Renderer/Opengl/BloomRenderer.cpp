@@ -1,6 +1,9 @@
 #include "BloomRenderer.h"
 #include "../../Resource/ShaderLoader.h"
 
+using namespace Manager;
+using namespace std;
+
 Renderer::BloomRenderer::BloomRenderer(const shared_ptr<ResourceManager> &resManager, const int width, const int height)
     : resourceManager(resManager), width(width), height(height) {
 

@@ -1,5 +1,9 @@
 #include "DepthMapRenderer.h"
 
+using namespace Manager;
+using namespace Lights;
+using std::shared_ptr;
+
 namespace Renderer {
     DepthMapRenderer::DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager) {
         resourceManager = resManager;

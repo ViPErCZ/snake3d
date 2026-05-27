@@ -1,5 +1,10 @@
 #include "SceneRenderer.h"
 
+using namespace std;
+using namespace Renderer;
+using namespace Model;
+using namespace Manager;
+
 namespace Scenes {
     SceneRenderer::SceneRenderer(const shared_ptr<Camera> &camera, const glm::mat4 &projection, int width, int height)
         : camera(camera), projection(projection) {

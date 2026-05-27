@@ -5,13 +5,10 @@
 #include "../../Manager/ShaderProgram.h"
 #include "BaseRenderer.h"
 
-using namespace Manager;
-using namespace std;
-
 namespace Renderer {
     class BloomRenderer final : public BaseRenderer {
     public:
-        explicit BloomRenderer(const shared_ptr<ResourceManager> &resManager, int width, int height);
+        explicit BloomRenderer(const std::shared_ptr<Manager::ResourceManager> &resManager, int width, int height);
         ~BloomRenderer() override;
         void beforeRender(MODE mode) override;
         void afterRender() override;
@@ -22,10 +19,10 @@ namespace Renderer {
         void renderQuad();
         void initializeFramebuffers();
         void destroyFramebuffers();
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<ShaderProgram> shader;
-        shared_ptr<ShaderProgram> shaderBlur;
-        shared_ptr<ShaderProgram> shaderBloomFinal;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Manager::ShaderProgram> shader;
+        std::shared_ptr<Manager::ShaderProgram> shaderBlur;
+        std::shared_ptr<Manager::ShaderProgram> shaderBloomFinal;
         unsigned int hdrFBO{};
         unsigned int pingpongFBO[2]{};
         unsigned int colorBuffers[2]{};

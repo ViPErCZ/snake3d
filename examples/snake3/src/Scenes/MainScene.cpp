@@ -38,6 +38,8 @@
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Tools/Layers.h"
 
+using Renderer::RenderStats;
+
 namespace Scenes {
     MainScene::MainScene(
         const shared_ptr<DirectionalLight> &directionalLight,

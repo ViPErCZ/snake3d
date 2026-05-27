@@ -6,9 +6,6 @@
 #include "../../Manager/Camera.h"
 #include "../../Lights/DirectionalLight.h"
 
-using namespace Manager;
-using namespace Lights;
-
 namespace Renderer {
     constexpr int SHADOW_WIDTH = 4096;
     constexpr int SHADOW_HEIGHT = 4096;
@@ -16,7 +13,7 @@ namespace Renderer {
 
     class DepthMapRenderer  {
     public:
-        DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager);
+        DepthMapRenderer(Manager::Camera *camera, const glm::mat4 &proj, Manager::ResourceManager *resManager);
 
         ~DepthMapRenderer() = default;
 
@@ -30,13 +27,13 @@ namespace Renderer {
 
         void bind(int index, const glm::mat4 &lightSpaceMatrix) const;
 
-        std::vector<glm::mat4> computeLightSpaceMatrix(const shared_ptr<DirectionalLight> &light,
+        std::vector<glm::mat4> computeLightSpaceMatrix(const std::shared_ptr<Lights::DirectionalLight> &light,
                                                       glm::vec3 sceneMin, glm::vec3 sceneMax);
 
     protected:
-        ResourceManager *resourceManager;
-        ShaderProgram *shader;
-        Camera *camera;
+        Manager::ResourceManager *resourceManager;
+        Manager::ShaderProgram *shader;
+        Manager::Camera *camera;
         glm::mat4 projection{};
         GLuint depthMapFBO{};
         GLuint depthMap{};

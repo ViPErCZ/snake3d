@@ -2,6 +2,10 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 
+using namespace Manager;
+using namespace Model;
+using namespace std;
+
 namespace Renderer {
     Node2DRenderer::Node2DRenderer(const shared_ptr<Camera> &camera, const int width, const int height)
         : camera(camera) {

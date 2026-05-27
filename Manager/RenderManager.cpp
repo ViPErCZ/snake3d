@@ -5,6 +5,9 @@
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Renderer/Opengl/RenderStats.h"
 
+using namespace std;
+using namespace Renderer;
+
 namespace Manager {
     RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
             const shared_ptr<ResourceManager> &resourceManager, const glm::mat4 &projection, const int width, const int height)

@@ -11,27 +11,22 @@
 #include "../Node3DRenderer.h"
 #include "../Model/Standard/2D/MeshNode2D.h"
 
-using namespace std;
-using namespace Renderer;
-using namespace Model;
-using namespace Manager;
-
 namespace Scenes {
     struct RendererEntry3D {
-        shared_ptr<MeshNode3D> node;
+        std::shared_ptr<Model::MeshNode3D> node;
         int priority;
     };
     struct RendererEntry2D {
-        shared_ptr<MeshNode2D> node;
+        std::shared_ptr<Model::MeshNode2D> node;
         int priority;
     };
-    class SceneRenderer final : public BaseRenderer {
+    class SceneRenderer final : public Renderer::BaseRenderer {
     public:
-        SceneRenderer(const shared_ptr<Camera> &camera, const glm::mat4 &projection, int width, int height);
+        SceneRenderer(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, int width, int height);
 
         ~SceneRenderer() override;
 
-        void update(const vector<RendererEntry3D> &nodes, const vector<RendererEntry2D> &nodes2d);
+        void update(const std::vector<RendererEntry3D> &nodes, const std::vector<RendererEntry2D> &nodes2d);
 
         void render3D(float dt, uint64_t frameId) override;
 
@@ -39,7 +34,7 @@ namespace Scenes {
 
         void renderShadowMap() override;
 
-        void beforeRender(MODE mode) override;
+        void beforeRender(Renderer::MODE mode) override;
 
         void afterRender() override;
 
@@ -47,12 +42,12 @@ namespace Scenes {
         void resize(int width, int height, const glm::mat4 &projection) override;
 
     private:
-        shared_ptr<Camera> camera;
+        std::shared_ptr<Manager::Camera> camera;
         glm::mat4 projection;
-        vector<RendererEntry3D> nodes3d;
-        vector<RendererEntry2D> nodes2d;
-        unique_ptr<Node3DRenderer> meshNode3DRenderer;
-        unique_ptr<Node2DRenderer> meshNode2DRenderer;
+        std::vector<RendererEntry3D> nodes3d;
+        std::vector<RendererEntry2D> nodes2d;
+        std::unique_ptr<Renderer::Node3DRenderer> meshNode3DRenderer;
+        std::unique_ptr<Renderer::Node2DRenderer> meshNode2DRenderer;
     };
 } // Scene
 

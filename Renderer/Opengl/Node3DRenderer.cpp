@@ -1,5 +1,9 @@
 #include "Node3DRenderer.h"
 
+using namespace Model;
+using namespace Manager;
+using namespace std;
+
 namespace Renderer {
     Node3DRenderer::Node3DRenderer(shared_ptr<Camera> camera,
                                       const glm::mat4 &projection,

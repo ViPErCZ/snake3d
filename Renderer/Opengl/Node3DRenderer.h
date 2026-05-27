@@ -8,17 +8,14 @@
 #include "../../Manager/Camera.h"
 #include "Model/Standard/MeshNode3D.h"
 
-using namespace Model;
-using namespace std;
-
 namespace Renderer {
     class Node3DRenderer final : public BaseRenderer {
     public:
-        explicit Node3DRenderer(shared_ptr<Camera> camera,
+        explicit Node3DRenderer(std::shared_ptr<Manager::Camera> camera,
                                       const glm::mat4 &projection,
-                                      shared_ptr<MeshNode3D> rootNode);
+                                      std::shared_ptr<Model::MeshNode3D> rootNode);
 
-        Node3DRenderer(shared_ptr<Camera> camera,
+        Node3DRenderer(std::shared_ptr<Manager::Camera> camera,
                                       const glm::mat4 &projection);
 
         ~Node3DRenderer() override;
@@ -32,17 +29,17 @@ namespace Renderer {
 
         void renderShadowMap() override;
 
-        void setMesh(const shared_ptr<StandardMesh> &mesh);
+        void setMesh(const std::shared_ptr<Model::StandardMesh> &mesh);
 
-        void setRootNode(const shared_ptr<MeshNode3D> &rootNode);
+        void setRootNode(const std::shared_ptr<Model::MeshNode3D> &rootNode);
 
-        shared_ptr<MeshNode3D> getRootNode();
+        std::shared_ptr<Model::MeshNode3D> getRootNode();
 
     protected:
         void renderScene() const;
 
-        shared_ptr<Camera> camera;
-        shared_ptr<MeshNode3D> rootNode;
+        std::shared_ptr<Manager::Camera> camera;
+        std::shared_ptr<Model::MeshNode3D> rootNode;
         glm::mat4 projection;
     };
 } // Renderer
