@@ -1,5 +1,9 @@
 #include "TringleNode2D.h"
 
+using namespace std;
+using namespace ModelUtils;
+using namespace Manager;
+
 namespace Model {
     TringleNode2D::TringleNode2D(const float width, const float height, const shared_ptr<ShaderProgram> &baseShader)
         : BaseNode2D(baseShader) {

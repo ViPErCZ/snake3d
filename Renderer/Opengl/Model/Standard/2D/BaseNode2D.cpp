@@ -2,7 +2,10 @@
 
 #include "../../../Material/ShaderMaterial.h"
 
+using namespace std;
 using namespace Tools;
+using namespace Manager;
+using namespace Material;
 
 namespace Model {
     BaseNode2D::BaseNode2D(const shared_ptr<ShaderProgram> &baseShader) : baseShader(baseShader), color(1.0f) {

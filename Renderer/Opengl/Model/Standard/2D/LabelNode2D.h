@@ -5,14 +5,14 @@
 #include "../../../Material/2D/LabelSettings.h"
 #include "../../Utils/TextMesh.h"
 
-using namespace std;
-using namespace Material;
-
 namespace Model {
+    using std::shared_ptr;
+    using std::string;
+
     class LabelNode2D final : public BaseNode2D {
     public:
-        explicit LabelNode2D(std::string text, const shared_ptr<ShaderProgram> &baseShader,
-                             const shared_ptr<LabelSettings> &settings);
+        explicit LabelNode2D(std::string text, const shared_ptr<Manager::ShaderProgram> &baseShader,
+                             const shared_ptr<Material::LabelSettings> &settings);
 
         ~LabelNode2D() override = default;
 
@@ -20,7 +20,7 @@ namespace Model {
 
         void setText(const string &text);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
             const glm::mat4 &parentTransform) const override;
 
         void alignVerticalCenter(float viewportWidth, float viewportHeight);
@@ -28,8 +28,8 @@ namespace Model {
         [[nodiscard]] float getHeight() const;
 
     protected:
-        shared_ptr<TextMesh> mesh;
-        const shared_ptr<LabelSettings> settings;
+        shared_ptr<ModelUtils::TextMesh> mesh;
+        const shared_ptr<Material::LabelSettings> settings;
         string text;
         glm::vec2 align{};
     };

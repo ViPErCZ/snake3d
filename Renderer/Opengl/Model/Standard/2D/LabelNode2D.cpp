@@ -6,6 +6,10 @@
 #include "../../../Material/ShaderMaterial.h"
 #include "../../Utils/TextMesh.h"
 
+using namespace std;
+using namespace ModelUtils;
+using namespace Manager;
+using namespace Material;
 using namespace Tools;
 
 namespace Model {

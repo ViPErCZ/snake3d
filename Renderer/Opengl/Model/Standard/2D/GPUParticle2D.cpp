@@ -1,5 +1,8 @@
 #include "GPUParticle2D.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Material;
 using namespace Tools;
 
 namespace Model {

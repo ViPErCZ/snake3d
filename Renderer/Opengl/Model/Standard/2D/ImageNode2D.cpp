@@ -2,6 +2,11 @@
 
 #include "../../../Material/ShaderMaterial.h"
 
+using namespace std;
+using namespace ModelUtils;
+using namespace Manager;
+using namespace Material;
+
 namespace Model {
     ImageNode2D::ImageNode2D(const float width, const float height,
         const shared_ptr<ShaderProgram> &baseShader,

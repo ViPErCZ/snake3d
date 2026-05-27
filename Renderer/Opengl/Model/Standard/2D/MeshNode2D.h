@@ -11,17 +11,16 @@
 #include "../../../../../Manager/ResourceManager.h"
 #include "../../../../../Tools/ContextState.h"
 
-using namespace std;
-using namespace Manager;
-
 namespace Model {
-    class MeshNode2D : public enable_shared_from_this<MeshNode2D>,
+    using std::shared_ptr;
+
+    class MeshNode2D : public std::enable_shared_from_this<MeshNode2D>,
         public Node3D::Transform, public Node3D::Visibility, public Node3D::Vector3i {
     public:
         explicit MeshNode2D(const shared_ptr<Tools::ContextState> &contextState,
-            const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);
+            const shared_ptr<BaseNode2D> &mesh, const shared_ptr<Manager::ResourceManager> &resourceManager);
 
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        virtual void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const;
 
         virtual void update(float dt, uint64_t frameId);
@@ -30,14 +29,14 @@ namespace Model {
 
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
-        [[nodiscard]] const map<std::string, shared_ptr<MeshNode2D> > &getChildren() const;
+        [[nodiscard]] const std::map<std::string, shared_ptr<MeshNode2D> > &getChildren() const;
 
     protected:
         shared_ptr<Tools::ContextState> contextState;
         shared_ptr<BaseNode2D> mesh;
-        weak_ptr<MeshNode2D> parent;
-        map<std::string, shared_ptr<MeshNode2D> > children;
-        shared_ptr<ResourceManager> resourceManager;
+        std::weak_ptr<MeshNode2D> parent;
+        std::map<std::string, shared_ptr<MeshNode2D> > children;
+        shared_ptr<Manager::ResourceManager> resourceManager;
         int depth = 0;
         bool transformDetached;
         uint64_t lastUpdatedFrame = 0;

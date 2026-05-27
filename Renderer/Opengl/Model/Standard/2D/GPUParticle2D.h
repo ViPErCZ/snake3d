@@ -7,9 +7,9 @@
 #include "MeshNode2D.h"
 #include "../../../Material/Particle/ParticleProcessMaterial.h"
 
-using namespace std;
-
 namespace Model {
+    using std::shared_ptr;
+
     struct GPUParticle2DStruct {
         glm::vec3 position;
         glm::vec3 velocity;
@@ -19,22 +19,22 @@ namespace Model {
 
     class GPUParticle2D : public MeshNode2D {
     public:
-        explicit GPUParticle2D(const shared_ptr<ParticleProcessMaterial> &material,
+        explicit GPUParticle2D(const shared_ptr<Material::ParticleProcessMaterial> &material,
             const shared_ptr<Tools::ContextState> &contextState,
-                               const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager,
+                               const shared_ptr<BaseNode2D> &mesh, const shared_ptr<Manager::ResourceManager> &resourceManager,
                                int maxParticles);
 
         ~GPUParticle2D() override;
 
         void update(float dt, uint64_t frameId) override;
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const override;
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
         void setAspectRatio(const float ratio) { this->aspectRatio = ratio; }
-        void setRenderShader(const shared_ptr<ShaderProgram> &shader) { render_shader = shader; }
-        void setRenderTextureShader(const shared_ptr<ShaderProgram> &shader) { render_texture_shader = shader; }
+        void setRenderShader(const shared_ptr<Manager::ShaderProgram> &shader) { render_shader = shader; }
+        void setRenderTextureShader(const shared_ptr<Manager::ShaderProgram> &shader) { render_texture_shader = shader; }
 
     private:
         void initBuffers();
@@ -49,10 +49,10 @@ namespace Model {
         float aspectRatio = 1.6f;
         int maxParticles;
 
-        shared_ptr<ParticleProcessMaterial> material;
-        shared_ptr<ShaderProgram> update_shader;
-        shared_ptr<ShaderProgram> render_shader;
-        shared_ptr<ShaderProgram> render_texture_shader;
+        shared_ptr<Material::ParticleProcessMaterial> material;
+        shared_ptr<Manager::ShaderProgram> update_shader;
+        shared_ptr<Manager::ShaderProgram> render_shader;
+        shared_ptr<Manager::ShaderProgram> render_texture_shader;
     };
 }
 

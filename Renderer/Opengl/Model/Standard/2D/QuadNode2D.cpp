@@ -1,5 +1,9 @@
 #include "QuadNode2D.h"
 
+using namespace std;
+using namespace ModelUtils;
+using namespace Manager;
+
 namespace Model {
     QuadNode2D::QuadNode2D(const float width, const float height, const shared_ptr<ShaderProgram> &baseShader) : BaseNode2D(baseShader) {
         std::vector<Vertex2D> vertices(4);

@@ -8,26 +8,23 @@
 #include "../../../Material/BaseMaterial.h"
 #include "../../Utils/Mesh2D.h"
 
-using namespace std;
-using namespace ModelUtils;
-using namespace Manager;
-using namespace Material;
-
 namespace Model {
+    using std::shared_ptr;
+
     class BaseNode2D {
     public:
-        explicit BaseNode2D(const shared_ptr<ShaderProgram> &baseShader);
+        explicit BaseNode2D(const shared_ptr<Manager::ShaderProgram> &baseShader);
 
         virtual ~BaseNode2D() = default;
 
-        void setMaterial(const shared_ptr<BaseMaterial> &material);
+        void setMaterial(const shared_ptr<Material::BaseMaterial> &material);
 
         void setColor(const glm::vec3 &color);
 
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        virtual void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
                             const glm::mat4 &parentTransform) const;
 
-        [[nodiscard]] shared_ptr<Mesh2D> getMesh() const;
+        [[nodiscard]] shared_ptr<ModelUtils::Mesh2D> getMesh() const;
 
         virtual void update(float dt) {};
 
@@ -48,9 +45,9 @@ namespace Model {
         [[nodiscard]] unsigned long indicesCount() const;
 
     protected:
-        shared_ptr<Mesh2D> mesh;
-        shared_ptr<BaseMaterial> material;
-        shared_ptr<ShaderProgram> baseShader;
+        shared_ptr<ModelUtils::Mesh2D> mesh;
+        shared_ptr<Material::BaseMaterial> material;
+        shared_ptr<Manager::ShaderProgram> baseShader;
         unsigned int textureId = 0;
         glm::vec3 color;
         Tools::Blending blending = Tools::Blending::Opaque;
