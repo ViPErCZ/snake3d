@@ -1,6 +1,10 @@
 #include "../../../../Manager/VboIndexer.h"
 #include "CapsuleMesh.h"
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     CapsuleMesh::CapsuleMesh(shared_ptr<ShaderProgram> baseShader,
                              const float height, const float radius, const int rings,

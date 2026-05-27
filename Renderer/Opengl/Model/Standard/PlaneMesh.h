@@ -3,14 +3,10 @@
 
 #include "StandardMesh.h"
 
-using namespace Manager;
-using namespace ModelUtils;
-using namespace std;
-
 namespace Model {
     class PlaneMesh final : public StandardMesh {
     public:
-        explicit PlaneMesh(shared_ptr<ShaderProgram> baseShader, float width, float height);
+        explicit PlaneMesh(std::shared_ptr<ShaderProgram> baseShader, float width, float height);
     };
 } // Model
 

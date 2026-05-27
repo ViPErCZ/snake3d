@@ -1,5 +1,10 @@
 #include "WireframeArrowMesh.h"
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace Tools;
+using namespace std;
+
 namespace Model {
     WireframeArrowMesh::WireframeArrowMesh(shared_ptr<ShaderProgram> baseShader)
         : StandardMesh(std::move(baseShader)) {

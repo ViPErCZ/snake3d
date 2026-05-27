@@ -5,6 +5,8 @@
 #include "../../Lights/SpotLight.h"
 #include "../../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 
+using namespace Material;
+
 namespace Handler::Debug {
     LightsHandler::LightsHandler(const shared_ptr<ContextState> &contextState,
         const shared_ptr<ResourceManager> &resourceManager,

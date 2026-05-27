@@ -1,6 +1,10 @@
 #include "../../../../Manager/VboIndexer.h"
 #include "CylinderMesh.h"
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     CylinderMesh::CylinderMesh(std::shared_ptr<ShaderProgram> baseShader,
                                float topRadius, float bottomRadius,

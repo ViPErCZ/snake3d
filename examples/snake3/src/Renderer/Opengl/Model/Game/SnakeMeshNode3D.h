@@ -79,12 +79,12 @@ namespace Model {
         void stopRespawn();
         unique_ptr<Timer> timer;
         shared_ptr<SphereMesh> createTileNode() const;
-        shared_ptr<MaterialInstance> tileMaterial;
+        shared_ptr<Material::MaterialInstance> tileMaterial;
         shared_ptr<Feature::LightingFeature> tileLightingFeature;
-        shared_ptr<BaseMaterial> headMaterial;
-        shared_ptr<ShaderMaterial> crashMaterial;
-        shared_ptr<ShaderMaterial> respawnMaterial;
-        shared_ptr<ShaderMaterial> headRespawnMaterial;
+        shared_ptr<Material::BaseMaterial> headMaterial;
+        shared_ptr<Material::ShaderMaterial> crashMaterial;
+        shared_ptr<Material::ShaderMaterial> respawnMaterial;
+        shared_ptr<Material::ShaderMaterial> headRespawnMaterial;
         shared_ptr<TimerUniform> timerUniform;
         shared_ptr<TimerUniform> timerUniform2;
         shared_ptr<CollisionSystem3D> collisionSystem;

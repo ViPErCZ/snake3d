@@ -6,6 +6,8 @@
 #include "Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h"
 #include "Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 
+using namespace Material;
+
 namespace Scenes {
     namespace {
         constexpr int kExplosionCount = 7;

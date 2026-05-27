@@ -9,83 +9,78 @@
 #include "../../../../Manager/Camera.h"
 #include "Animation/AnimationPlayer.h"
 
-using namespace ModelUtils;
-using namespace Material;
-using namespace Tools;
-using namespace std;
-
 namespace Model {
     class StandardMesh {
     public:
         virtual ~StandardMesh() = default;
 
-        explicit StandardMesh(shared_ptr<ShaderProgram> baseShader);
+        explicit StandardMesh(std::shared_ptr<Manager::ShaderProgram> baseShader);
 
-        [[nodiscard]] shared_ptr<Mesh> getMesh() const;
+        [[nodiscard]] std::shared_ptr<ModelUtils::Mesh> getMesh() const;
 
-        void setMaterial(const shared_ptr<BaseMaterial> &material);
+        void setMaterial(const std::shared_ptr<Material::BaseMaterial> &material);
 
-        [[nodiscard]] shared_ptr<BaseMaterial> getMaterial() const;
+        [[nodiscard]] std::shared_ptr<Material::BaseMaterial> getMaterial() const;
 
         void bind() const;
 
         [[nodiscard]] unsigned long indicesCount() const;
 
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        virtual void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                             const glm::mat4 &parentTransform, bool shadows) const;
 
         virtual void update(float dt) {
         };
 
-        virtual void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        virtual void renderShadowMap(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                                      const glm::mat4 &parentTransform) const;
 
         [[nodiscard]] glm::vec3 getMin(const glm::mat4 &worldMatrix) const;
 
         [[nodiscard]] glm::vec3 getMax(const glm::mat4 &worldMatrix) const;
 
-        [[nodiscard]] shared_ptr<StandardMesh> deepCopy() const;
+        [[nodiscard]] std::shared_ptr<StandardMesh> deepCopy() const;
 
-        void setAnimationPlayer(const shared_ptr<Animation::AnimationPlayer> &animationPlayer);
+        void setAnimationPlayer(const std::shared_ptr<Animation::AnimationPlayer> &animationPlayer);
 
-        [[nodiscard]] const shared_ptr<Animation::AnimationPlayer> &getAnimationPlayer() const;
+        [[nodiscard]] const std::shared_ptr<Animation::AnimationPlayer> &getAnimationPlayer() const;
 
-        void setBlending(Blending blending);
+        void setBlending(Tools::Blending blending);
 
         void setDepthTest(bool depthTest);
 
         void setDepthWrite(bool depthWrite);
 
-        [[nodiscard]] Blending getBlending() const;
+        [[nodiscard]] Tools::Blending getBlending() const;
 
         [[nodiscard]] bool getDepthTest() const;
 
         [[nodiscard]] bool getDepthWrite() const;
 
-        void animationPlay(const string &name, bool loop = true);
+        void animationPlay(const std::string &name, bool loop = true);
 
-        void animationStop(const string &name) const;
+        void animationStop(const std::string &name) const;
 
-        void animationPause(const string &name) const;
+        void animationPause(const std::string &name) const;
 
-        void animationResume(const string &name) const;
+        void animationResume(const std::string &name) const;
 
         void computeLocalAABB();
 
     protected:
-        shared_ptr<Mesh> mesh;
-        shared_ptr<BaseMaterial> material;
-        shared_ptr<ShaderProgram> baseShader;
-        shared_ptr<Animation::AnimationPlayer> animationPlayer;
+        std::shared_ptr<ModelUtils::Mesh> mesh;
+        std::shared_ptr<Material::BaseMaterial> material;
+        std::shared_ptr<Manager::ShaderProgram> baseShader;
+        std::shared_ptr<Animation::AnimationPlayer> animationPlayer;
         glm::vec3 localMin;
         glm::vec3 localMax;
         glm::vec3 worldMin;
         glm::vec3 worldMax;
-        Blending blending = Blending::Opaque;
+        Tools::Blending blending = Tools::Blending::Opaque;
         bool depthTest = true;
         bool depthWrite = true;
-        string animation;
-        DrawElement drawElement = DrawElement::Triangles;
+        std::string animation;
+        Tools::DrawElement drawElement = Tools::DrawElement::Triangles;
     };
 } // Model
 

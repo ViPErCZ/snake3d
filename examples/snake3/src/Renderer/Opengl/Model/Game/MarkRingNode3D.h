@@ -29,7 +29,7 @@ namespace Model {
             const glm::mat4 &parentTransform) const override;
 
     private:
-        shared_ptr<ShaderMaterial> material;
+        shared_ptr<Material::ShaderMaterial> material;
         shared_ptr<ManipulatorHandler> manipulatorHandler;
     };
 } // Model

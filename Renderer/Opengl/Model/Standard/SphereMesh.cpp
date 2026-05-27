@@ -3,6 +3,10 @@
 
 #include <utility>
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     SphereMesh::SphereMesh(shared_ptr<ShaderProgram> baseShader, float height,
                            float radius, int rings, int segments) : StandardMesh(std::move(baseShader)) {

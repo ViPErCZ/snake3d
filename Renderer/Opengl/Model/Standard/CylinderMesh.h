@@ -3,12 +3,10 @@
 
 #include "StandardMesh.h"
 
-using namespace std;
-
 namespace Model {
     class CylinderMesh final : public StandardMesh {
     public:
-        CylinderMesh(shared_ptr<ShaderProgram> baseShader,
+        CylinderMesh(std::shared_ptr<ShaderProgram> baseShader,
                      float topRadius, float bottomRadius,
                      float height, int rings, int segments);
     };

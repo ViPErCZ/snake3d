@@ -6,7 +6,7 @@
 namespace Model {
     class TringleMesh3D : public StandardMesh {
     public:
-        explicit TringleMesh3D(shared_ptr<ShaderProgram> baseShader, float width, float height);
+        explicit TringleMesh3D(std::shared_ptr<Manager::ShaderProgram> baseShader, float width, float height);
     };
 } // Model
 

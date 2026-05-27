@@ -6,9 +6,9 @@
 namespace Model {
     class WireframeArrowMesh final : public StandardMesh {
     public:
-        explicit WireframeArrowMesh(shared_ptr<ShaderProgram> baseShader);
+        explicit WireframeArrowMesh(std::shared_ptr<Manager::ShaderProgram> baseShader);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
             const glm::mat4 &parentTransform, bool shadows) const override;
 
         void setColor(const glm::vec3 color) { this->color = color; }

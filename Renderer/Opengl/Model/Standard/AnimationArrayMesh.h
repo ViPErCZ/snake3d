@@ -6,18 +6,16 @@
 #include "StandardMesh.h"
 #include "Animation/AnimationPlayer.h"
 
-using namespace std;
-
 namespace Model {
     class AnimationArrayMesh final : public StandardMesh {
     public:
-        AnimationArrayMesh(const shared_ptr<Animation::AnimationPlayer> &model, const shared_ptr<ShaderProgram>& baseShader, const string &animationName);
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
-        void renderShadowMap(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
+        AnimationArrayMesh(const std::shared_ptr<Animation::AnimationPlayer> &model, const std::shared_ptr<ShaderProgram>& baseShader, const std::string &animationName);
+        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
+        void renderShadowMap(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform, bool animPlay = true) const;
-        shared_ptr<ShaderProgram> baseShader;
+        std::shared_ptr<ShaderProgram> baseShader;
     };
 } // Model
 

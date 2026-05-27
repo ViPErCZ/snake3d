@@ -3,6 +3,10 @@
 
 #include <utility>
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     BoxMesh::BoxMesh(shared_ptr<ShaderProgram> baseShader,
                      const float width, const float height, const float depth)

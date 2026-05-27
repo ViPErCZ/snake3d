@@ -9,6 +9,11 @@
 #include "../../RenderStats.h"
 
 using namespace Animation;
+using namespace Manager;
+using namespace Material;
+using namespace ModelUtils;
+using namespace Tools;
+using namespace std;
 
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderProgram> baseShader)

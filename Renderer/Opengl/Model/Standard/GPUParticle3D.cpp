@@ -1,5 +1,10 @@
 #include "GPUParticle3D.h"
 
+using namespace Manager;
+using namespace Material;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     GPUParticle3D::GPUParticle3D(const shared_ptr<ParticleProcessMaterial> &material,
         const shared_ptr<ContextState> &contextState,

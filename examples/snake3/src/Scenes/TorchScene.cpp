@@ -16,6 +16,7 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
+using namespace Material;
 using namespace Physic;
 
 namespace Scenes {

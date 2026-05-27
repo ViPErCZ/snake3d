@@ -3,16 +3,14 @@
 
 #include "StandardMesh.h"
 
-using namespace std;
-
 namespace Model {
     class ArrayMesh final : public StandardMesh {
     public:
-        explicit ArrayMesh(const shared_ptr<ShaderProgram> &baseShader) : StandardMesh(baseShader) {}
+        explicit ArrayMesh(const std::shared_ptr<Manager::ShaderProgram> &baseShader) : StandardMesh(baseShader) {}
 
-        void fromMesh(const shared_ptr<Mesh> &mesh);
+        void fromMesh(const std::shared_ptr<ModelUtils::Mesh> &mesh);
 
-        void fromVertexData(vector<Vertex> &vertices);
+        void fromVertexData(std::vector<ModelUtils::Vertex> &vertices);
     };
 } // Model
 

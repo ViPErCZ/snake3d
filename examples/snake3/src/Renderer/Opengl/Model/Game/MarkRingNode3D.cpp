@@ -4,6 +4,8 @@
 #include "Renderer/Opengl/Material/Uniform/CallbackUniform.h"
 #include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
+using namespace Material;
+
 namespace Model {
     MarkRingNode3D::MarkRingNode3D(const shared_ptr<ContextState> &contextState,
         const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<ManipulatorHandler> &manipulatorHandler)

@@ -9,6 +9,10 @@
 #include "../../RenderStats.h"
 
 using namespace Animation;
+using namespace Manager;
+using namespace Material;
+using namespace ModelUtils;
+using namespace std;
 
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,

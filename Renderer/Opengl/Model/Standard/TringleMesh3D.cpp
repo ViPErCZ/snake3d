@@ -1,5 +1,9 @@
 #include "TringleMesh3D.h"
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     TringleMesh3D::TringleMesh3D(shared_ptr<ShaderProgram> baseShader, const float width, const float height)
         : StandardMesh(std::move(baseShader)) {

@@ -1,5 +1,9 @@
 #include "QuadMesh3D.h"
 
+using namespace Manager;
+using namespace ModelUtils;
+using namespace std;
+
 namespace Model {
     QuadMesh3D::QuadMesh3D(shared_ptr<ShaderProgram> baseShader, const float width, const float height)
         : StandardMesh(std::move(baseShader)) {

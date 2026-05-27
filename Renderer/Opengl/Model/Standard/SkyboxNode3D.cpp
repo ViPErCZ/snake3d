@@ -5,6 +5,12 @@
 #include "../../Material/Uniform/CallbackUniform.h"
 #include "../../Material/Uniform/TextureUniform.h"
 
+using namespace Manager;
+using namespace Material;
+using namespace Tools;
+using namespace Uniform;
+using namespace std;
+
 namespace Model {
     SkyboxNode3D::SkyboxNode3D(const shared_ptr<ContextState> &contextState,
         const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Camera> &camera)

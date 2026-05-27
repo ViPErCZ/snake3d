@@ -12,6 +12,7 @@
 #include "Renderer/Opengl/Model/Standard/SphereMesh.h"
 
 using namespace CollisionShape;
+using namespace Material;
 
 namespace Model {
     namespace {

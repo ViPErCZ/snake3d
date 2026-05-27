@@ -51,7 +51,7 @@ namespace Model {
         [[nodiscard]] const vector<shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
 
         virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
-        
+
         virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
 
         virtual void setPointLights(const vector<shared_ptr<PointLight> > &point_light);

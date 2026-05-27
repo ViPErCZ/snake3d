@@ -9,8 +9,6 @@
 #include "../../../../Manager/ResourceManager.h"
 #include "../../Material/Particle/ParticleProcessMaterial.h"
 
-using namespace Manager;
-
 namespace Model {
 
     struct GPUParticle {
@@ -22,15 +20,15 @@ namespace Model {
 
     class GPUParticle3D : public MeshNode3D {
     public:
-        GPUParticle3D(const shared_ptr<ParticleProcessMaterial> &material,
-            const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,
-            const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager, int maxParticles);
+        GPUParticle3D(const shared_ptr<Material::ParticleProcessMaterial> &material,
+            const shared_ptr<ContextState> &contextState, const shared_ptr<Manager::Camera> &camera,
+            const shared_ptr<StandardMesh> &mesh, const shared_ptr<Manager::ResourceManager> &resourceManager, int maxParticles);
 
         ~GPUParticle3D() override;
 
         void update(float dt, uint64_t frameId) override;
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
@@ -55,9 +53,9 @@ namespace Model {
         float timeOffset = 0.0f;
         float timeScale = 1.0f;
 
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<Camera> camera;
-        shared_ptr<ParticleProcessMaterial> material;
+        shared_ptr<Manager::ResourceManager> resourceManager;
+        shared_ptr<Manager::Camera> camera;
+        shared_ptr<Material::ParticleProcessMaterial> material;
         shared_ptr<ShaderProgram> update_shader;
         shared_ptr<ShaderProgram> render_shader;
         shared_ptr<ShaderProgram> render_texture_shader;
