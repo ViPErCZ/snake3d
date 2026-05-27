@@ -20,7 +20,7 @@ namespace Model {
     class GPUParticle2D : public MeshNode2D {
     public:
         explicit GPUParticle2D(const shared_ptr<ParticleProcessMaterial> &material,
-            const shared_ptr<ContextState> &contextState,
+            const shared_ptr<Tools::ContextState> &contextState,
                                const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager,
                                int maxParticles);
 

@@ -1,12 +1,10 @@
 #include "../../stdafx.h"
 #include <vector>
 
-using namespace std;
-
 class Line {
     int shaderProgram;
     unsigned int VBO{}, VAO{};
-    vector<float> vertices;
+    std::vector<float> vertices;
     glm::vec3 startPoint{};
     glm::vec3 endPoint{};
     glm::mat4 MVP{};

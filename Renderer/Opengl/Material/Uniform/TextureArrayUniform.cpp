@@ -1,5 +1,9 @@
 #include "TextureArrayUniform.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Material;
+
 namespace Uniform {
     TextureArrayUniform::TextureArrayUniform(const int index, const shared_ptr<TextureManager> &texture) : texture(texture),
         index(index) {

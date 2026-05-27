@@ -6,20 +6,15 @@
 #include "../IUniform.h"
 #include "../../../../Tools/Timer.h"
 
-using namespace Tools;
-using namespace Material;
-using namespace Manager;
-using namespace std;
-
 namespace Uniform {
-    class FadeOutUniform : public IUniform {
+    class FadeOutUniform : public Material::IUniform {
     public:
         explicit FadeOutUniform();
-        void bind(const shared_ptr<ShaderProgram>& shader, const string& name) override;
+        void bind(const std::shared_ptr<Manager::ShaderProgram>& shader, const std::string& name) override;
         void setAlpha(float alpha);
         [[nodiscard]] float getAlpha() const;
         virtual void start();
-        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+        [[nodiscard]] std::shared_ptr<Material::IUniform> clone() const override;
         void setStep(float step);
         void setFinishedCallback(const std::function<void()> &callback);
     protected:
@@ -28,7 +23,7 @@ namespace Uniform {
         bool running;
         float alpha;
         float step;
-        unique_ptr<Timer> timer;
+        std::unique_ptr<Tools::Timer> timer;
         std::function<void()> finished;
     };
 } // Uniform

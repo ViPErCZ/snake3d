@@ -5,19 +5,16 @@
 
 #include "../IUniform.h"
 
-using namespace Material;
-using namespace std;
-
 namespace Uniform {
-    class CallbackUniform : public IUniform {
+    class CallbackUniform : public Material::IUniform {
     public:
-        using CallbackType = std::function<void(const string& name, const shared_ptr<ShaderProgram>& shader)>;
+        using CallbackType = std::function<void(const std::string& name, const std::shared_ptr<Manager::ShaderProgram>& shader)>;
 
         explicit CallbackUniform(CallbackType callback);
 
-        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
+        void bind(const std::shared_ptr<Manager::ShaderProgram> &shader, const std::string &name) override;
 
-        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+        [[nodiscard]] std::shared_ptr<Material::IUniform> clone() const override;
 
     protected:
         CallbackType callback;

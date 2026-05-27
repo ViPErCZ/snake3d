@@ -31,13 +31,13 @@ namespace Model {
 
         virtual void update(float dt) {};
 
-        void setBlending(Blending blending);
+        void setBlending(Tools::Blending blending);
 
         void setDepthTest(bool depthTest);
 
         void setDepthWrite(bool depthWrite);
 
-        [[nodiscard]] Blending getBlending() const;
+        [[nodiscard]] Tools::Blending getBlending() const;
 
         [[nodiscard]] bool getDepthTest() const;
 
@@ -53,7 +53,7 @@ namespace Model {
         shared_ptr<ShaderProgram> baseShader;
         unsigned int textureId = 0;
         glm::vec3 color;
-        Blending blending = Blending::Opaque;
+        Tools::Blending blending = Tools::Blending::Opaque;
         bool depthTest = true;
         bool depthWrite = true;
     };

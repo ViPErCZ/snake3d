@@ -4,21 +4,17 @@
 #include "../IUniform.h"
 #include "../../../../Manager/TextureManager.h"
 
-using namespace Material;
-using namespace Manager;
-using namespace std;
-
 namespace Uniform {
-    class TextureUniform final : public IUniform {
+    class TextureUniform final : public Material::IUniform {
     public:
-        TextureUniform(int index, const shared_ptr<TextureManager> &texture, bool use_cube = false);
+        TextureUniform(int index, const std::shared_ptr<Manager::TextureManager> &texture, bool use_cube = false);
 
-        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
+        void bind(const std::shared_ptr<Manager::ShaderProgram> &shader, const std::string &name) override;
 
-        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+        [[nodiscard]] std::shared_ptr<Material::IUniform> clone() const override;
 
     protected:
-        shared_ptr<TextureManager> texture;
+        std::shared_ptr<Manager::TextureManager> texture;
         int index;
         bool cube;
     };

@@ -1,5 +1,10 @@
 #include "FadeOutUniform.h"
 
+using namespace std;
+using namespace Tools;
+using namespace Manager;
+using namespace Material;
+
 namespace Uniform {
     FadeOutUniform::FadeOutUniform()
         : running(false), alpha(1.0f), step(0.5f) {

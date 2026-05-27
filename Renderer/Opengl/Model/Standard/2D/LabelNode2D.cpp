@@ -6,6 +6,8 @@
 #include "../../../Material/ShaderMaterial.h"
 #include "../../Utils/TextMesh.h"
 
+using namespace Tools;
+
 namespace Model {
     LabelNode2D::LabelNode2D(std::string text,
                              const std::shared_ptr<ShaderProgram> &baseShader,

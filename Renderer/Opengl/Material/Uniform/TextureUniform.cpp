@@ -1,5 +1,9 @@
 #include "TextureUniform.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Material;
+
 namespace Uniform {
     TextureUniform::TextureUniform(const int index, const shared_ptr<TextureManager> &texture, const bool use_cube)
         : texture(texture), index(index), cube(use_cube) {

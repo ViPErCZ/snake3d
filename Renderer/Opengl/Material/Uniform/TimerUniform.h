@@ -5,19 +5,14 @@
 #include "../../../../Tools/Timer.h"
 #include <memory>
 
-using namespace Tools;
-using namespace Material;
-using namespace Manager;
-using namespace std;
-
 namespace Uniform {
-    class TimerUniform final : public IUniform {
+    class TimerUniform final : public Material::IUniform {
     public:
         explicit TimerUniform(bool autostart = false);
 
-        void bind(const shared_ptr<ShaderProgram> &shader, const string &name) override;
+        void bind(const std::shared_ptr<Manager::ShaderProgram> &shader, const std::string &name) override;
 
-        [[nodiscard]] shared_ptr<IUniform> clone() const override;
+        [[nodiscard]] std::shared_ptr<Material::IUniform> clone() const override;
 
         [[nodiscard]] double getElapsed() const;
 
@@ -30,7 +25,7 @@ namespace Uniform {
         void reset() const;
 
     private:
-        unique_ptr<Timer> timer;
+        std::unique_ptr<Tools::Timer> timer;
         bool autostart;
     };
 } // Uniform

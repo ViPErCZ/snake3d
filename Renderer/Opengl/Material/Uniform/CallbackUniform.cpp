@@ -2,6 +2,9 @@
 
 #include <utility>
 
+using namespace std;
+using namespace Material;
+
 namespace Uniform {
     CallbackUniform::CallbackUniform(CallbackType callback) : callback(std::move(callback)) {
     }

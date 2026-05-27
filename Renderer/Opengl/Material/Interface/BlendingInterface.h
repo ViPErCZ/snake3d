@@ -3,19 +3,17 @@
 
 #include "../../../../Tools/Blending.h"
 
-using namespace Tools;
-
 namespace Material {
     class BlendingInterface {
     public:
         virtual ~BlendingInterface() = default;
 
-        void setBlending(Blending blending);
+        void setBlending(Tools::Blending blending);
 
-        [[nodiscard]] Blending getBlending() const;
+        [[nodiscard]] Tools::Blending getBlending() const;
 
     protected:
-        Blending blending = Blending::Opaque;
+        Tools::Blending blending = Tools::Blending::Opaque;
     };
 } // Material
 

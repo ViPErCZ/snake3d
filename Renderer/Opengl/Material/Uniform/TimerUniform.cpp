@@ -1,5 +1,10 @@
 #include "TimerUniform.h"
 
+using namespace std;
+using namespace Tools;
+using namespace Manager;
+using namespace Material;
+
 namespace Uniform {
     TimerUniform::TimerUniform(bool autostart) : autostart(autostart) {
         timer = make_unique<Timer>(autostart);

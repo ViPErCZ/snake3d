@@ -5,13 +5,11 @@
 
 #include "Font.h"
 
-using namespace std;
-
 namespace Material {
     class LabelSettings {
     public:
         explicit LabelSettings(const std::shared_ptr<Font> &font);
-        [[nodiscard]] shared_ptr<Font> getFont() const;
+        [[nodiscard]] std::shared_ptr<Font> getFont() const;
         [[nodiscard]] glm::vec3 getColor() const;
         void setColor(const glm::vec3 &color);
         [[nodiscard]] float getLetterSpacing() const;

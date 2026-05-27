@@ -1,5 +1,7 @@
 #include "GPUParticle2D.h"
 
+using namespace Tools;
+
 namespace Model {
 
     GPUParticle2D::GPUParticle2D(const shared_ptr<ParticleProcessMaterial> &material,

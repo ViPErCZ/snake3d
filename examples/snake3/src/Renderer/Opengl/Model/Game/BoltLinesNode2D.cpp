@@ -2,6 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
+using namespace Tools;
+
 namespace Model {
     BoltLinesNode2D::BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderProgram> &shader)
         : BaseNode2D(shader), perspectiveProj(perspectiveProjection) {
