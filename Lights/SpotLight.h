@@ -3,12 +3,14 @@
 
 #include "OrientableLight.h"
 #include "../Tools/Visibility.h"
-#include "../Manager/ShaderProgram.h"
 
 using namespace Node3D;
-using namespace Manager;
 
 namespace Lights {
+    // D1.1d: bind(ShaderProgram*, int) removed -- spot lights are now
+    // populated into MaterialData UBO directly by LightingFeature /
+    // ShaderMaterial (see material_spotLights[] in MaterialUbo.h). The
+    // light just exposes data via getters now.
     class SpotLight : public Visibility, public OrientableLight {
         float constant = 1.0f;
         float linear = 0.19f;
@@ -30,7 +32,11 @@ namespace Lights {
 
         void setQuadratic(float quadratic);
 
-        [[nodiscard]] float setCutOff() const;
+        // D1.1d: was incorrectly named setCutOff() const (a getter shaped
+        // like a setter -- return type float gave it away). Renamed to
+        // getCutOff() so LightingFeature / ShaderMaterial can populate the
+        // SpotLightStd140 cutOff field via a properly-named accessor.
+        [[nodiscard]] float getCutOff() const;
 
         void setCutOff(float cut_off);
 
@@ -41,8 +47,6 @@ namespace Lights {
         [[nodiscard]] bool isPulse() const;
 
         void setPulse(bool pulse);
-
-        void bind(const ShaderProgram *shader, int index) const;
     };
 } // Lights
 

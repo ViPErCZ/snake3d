@@ -25,7 +25,7 @@ namespace Lights {
         this->quadratic = quadratic;
     }
 
-    float SpotLight::setCutOff() const {
+    float SpotLight::getCutOff() const {
         return cutOff;
     }
 
@@ -47,21 +47,5 @@ namespace Lights {
 
     void SpotLight::setPulse(const bool pulse) {
         this->pulse = pulse;
-    }
-
-    void SpotLight::bind(const ShaderProgram *shader, const int index = 0) const {
-        shader->use();
-        const string name = "spotLight[" + std::to_string(index) + "]";
-        shader->setVec3(name + ".position", position);
-        shader->setVec3(name + ".direction",glm::normalize(getDirection() - position));
-        shader->setVec3(name + ".ambient", ambient);
-        shader->setVec3(name + ".diffuse", diffuse);
-        shader->setVec3(name + ".specular", specular);
-        shader->setFloat(name + ".constant", constant);
-        shader->setFloat(name + ".linear", linear);
-        shader->setFloat(name + ".quadratic", quadratic);
-        shader->setBool(name + ".pulse", pulse);
-        shader->setFloat(name + ".cutOff", glm::cos(glm::radians(cutOff)));
-        shader->setFloat(name + ".outerCutOff", glm::cos(glm::radians(outerCutOff)));
     }
 } // Lights

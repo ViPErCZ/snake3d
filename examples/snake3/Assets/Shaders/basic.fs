@@ -195,33 +195,33 @@ void main()
 
 #ifdef FEATURE_PBR
     if (material_pbrEnabled != 0) {
-        for(int i = 0; i < numPointLights; i++)
+        for(int i = 0; i < material_numPointLights; i++)
         {
-            final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir,
+            final += CalcPointLightPBR(material_pointLights[i], normal, fragPos, viewDir,
                                  ambient, roughness, metalness, F0);
         }
     }
 #endif
     if (material_pbrEnabled == 0) {
-        for(int i = 0; i < numPointLights; i++)
+        for(int i = 0; i < material_numPointLights; i++)
         {
-            final += CalcPointLight(pointLight[i], normal, fragPos, viewDir, ambient, lightAlbedo, lightSpecular);
+            final += CalcPointLight(material_pointLights[i], normal, fragPos, viewDir, ambient, lightAlbedo, lightSpecular);
         }
     }
 
 #ifdef FEATURE_PBR
     if (material_pbrEnabled != 0) {
-        for(int i = 0; i < numSpotLights; i++)
+        for(int i = 0; i < material_numSpotLights; i++)
         {
-            final += CalcSpotLightPBR(spotLight[i], normal, fragPos, viewDir,
+            final += CalcSpotLightPBR(material_spotLights[i], normal, fragPos, viewDir,
                                       frame_uTime, ambient, roughness, metalness, F0);
         }
     }
 #endif
     if (material_pbrEnabled == 0) {
-        for(int i = 0; i < numSpotLights; i++)
+        for(int i = 0; i < material_numSpotLights; i++)
         {
-            final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, frame_uTime, lightAlbedo, lightSpecular);
+            final += CalcSpotLight(material_spotLights[i], normalize(Normal), fragPos, viewDir, ambient, frame_uTime, lightAlbedo, lightSpecular);
         }
     }
 

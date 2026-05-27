@@ -21,36 +21,13 @@ struct MaterialDirLight {
     vec3 specular;
 };
 
-struct PointLight {
-    vec3 position;
-
-    float constant;
-    float linear;
-    float quadratic;
-    //float energy;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct SpotLight {
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-
-    bool pulse;
-};
-
+// D1.1d: PointLight / SpotLight struct definitions moved to material_data.glsl
+// (the UBO block needs them in scope before its declaration). The
+// per-program uniform arrays (`uniform PointLight pointLight[...]`,
+// `uniform SpotLight spotLight[...]`) + counts are gone -- callers now read
+// `material_pointLights[]` / `material_spotLights[]` / `material_numPointLights`
+// / `material_numSpotLights` from the MaterialData UBO. NR_POINT_LIGHTS stays
+// as a documentation hint; the array size is hard-coded to 8 in the UBO.
 #define NR_POINT_LIGHTS 8
 
 // D1.1c-fix: dirLight fields přesunuty do MaterialData UBO
@@ -58,11 +35,7 @@ struct SpotLight {
 // (basic.fs, respawn.fs, explosion.fs) si z nich složí lokální DirLight
 // a předá ho do CalcDirLight* by-value.
 uniform MaterialDirLight materialDirLight;
-uniform PointLight pointLight[NR_POINT_LIGHTS];
-uniform SpotLight spotLight[NR_POINT_LIGHTS];
 uniform Material material;
-uniform int numPointLights = 0;
-uniform int numSpotLights = 0;
 uniform samplerCube environmentMap;
 uniform bool iblEnabled = false;
 uniform float uShadowAmbientDarken = 0.85; // how much to darken ambient in shadow (0..1)

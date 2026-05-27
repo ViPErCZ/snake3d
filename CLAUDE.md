@@ -85,15 +85,19 @@ Networking uses ENet and lives in `Network/`. `NetManager` is a singleton (Pimpl
 
 Game code is compiled as the static library `snake3d_lib` so tests can link against it. Test sources are in `Tests/` and use Catch2 v3 (`main.cpp` for game-logic tests, `NetProtocolTests.cpp` for networking). Run with CTest or directly via the `Tests` executable.
 
-### Per-material and per-frame UBO (D1.2 + D1.1b + D1.1c)
+### Per-material and per-frame UBO (D1.1b + D1.1c + D1.1d + D1.2)
 
-Per-frame camera/time state and per-material flags/colors/dirLight live in two std140 UBOs at fixed binding points (declared in `Manager/UboBindings.h`):
+Per-frame camera/time state and per-material flags/colors/lights live in two std140 UBOs at fixed binding points (declared in `Manager/UboBindings.h`):
 
 - `UBO_BINDING_FRAME = 0` — `FrameData` (view/projection/viewPos/uTime, 144 B). Populated once per frame by `RenderManager::populateAndUploadFrameUbo`; `PlanarReflectionRenderer::render3D` overwrites a copy with the mirrored view/viewPos for the reflection pass and re-uploads via `RenderManager::getFrameUbo()`.
-- `UBO_BINDING_MATERIAL = 1` — `MaterialDataStd140` (192 B): alpha, ambient light color + intensity, useMaterial/overrideColorMesh/hasAlbedoTexture/normalMapEnabled/specularMapEnabled/pbrEnabled/hasHoleMap/fogEnable/reflectionEnable/rainDropEnable flags, rainSpeed/rainDensity, clipPlane, uvScale/uvOffset, directionLightEnable gate, plus a **per-material DirLight** (direction/ambient/diffuse/specular as 4× vec3+pad = 64 B). Each `MaterialInstance` owns one `MaterialUbo` + CPU shadow + dirty flag.
+- `UBO_BINDING_MATERIAL = 1` — `MaterialDataStd140` (1744 B): material flags/colors/uvs/clipPlane (192 B) + per-material DirLight (4× vec3+pad = 64 B) + 8× `PointLightStd140` (640 B) + 8× `SpotLightStd140` (896 B) + `numPointLights`/`numSpotLights` + tail pad. Each `MaterialInstance` owns one `MaterialUbo` + CPU shadow + dirty flag.
 - `UBO_BINDING_PARTICLES = 2` — particle instance data (unchanged).
 
-DirLight is per-material rather than global because PlayerScene/RemoteSnakeScene construct their own dim local `DirectionalLight` (diffuse 0.1, ambient 0.2) for the snake materials while MainScene's walls/floor use the bright global one. A FrameUBO-global dirLight would erase that distinction. `LightingFeature::bind` and `ShaderMaterial::bind` populate `material_dirLight_*` from their own `directional` pointer; shaders synthesize a local `DirLight dl` from these fields before calling `CalcDirLight*` (the `dl.position` field was dropped — it was dead).
+DirLight + point/spot arrays are per-material rather than global because:
+- PlayerScene / RemoteSnakeScene construct their own dim local `DirectionalLight` (diffuse 0.1, ambient 0.2) for the snake while MainScene's walls/floor use the bright global one. A FrameUBO-global dirLight would erase the distinction.
+- `SnakeMeshNode3D` builds its tile material with empty point/spot vectors so the snake body stays pure-ambient red even when the scene has 4 active lamps. Per-material `material_numPointLights` / `material_numSpotLights` enforce that.
+
+`LightingFeature::bind` and `ShaderMaterial::bind` populate `material_dirLight_*`, `material_pointLights[]`, `material_spotLights[]` from their own `directional`/`points`/`spots` containers, mirroring the legacy `SpotLight::bind` transforms (`normalize(getDirection() - position)`, `cos(radians(cutOff))`, `bool → int`). `PointLight::bind` / `SpotLight::bind` no longer exist (removed in D1.1d — direct UBO writes only). Shaders synthesize a local `DirLight dl` from `material_dirLight_*` before calling `CalcDirLight*`. The shader-side struct `position` field on DirLight was dropped (dead).
 
 Per-draw flow inside `MaterialInstance::bind`:
 1. Bind program, set `model` (still a legacy uniform — kept per-draw on purpose).
@@ -104,7 +108,9 @@ Per-draw flow inside `MaterialInstance::bind`:
 
 `ShaderMaterial` repopulates its own `MaterialDataStd140` from the generic `uniforms` map at bind time, so custom shaders that `#include "functions/material_data.glsl"` (or `lights.glsl`, which pulls it in) see the same `material_*` state as built-in shaders.
 
-What stays legacy (still per-draw `setUniform`): `model`, point/spot light arrays (D1.1d candidate), `material.shininess` (Mesa `pow(x,0)` quirk — `DirectionalLight::bind` now only sets shininess + sampler ints), IBL gate, 2D shaders (`basic_2d.fs`, label/font), sampler indices set by features (`material.ambient`/`material.diffuse`/`material.specular` `setInt` for texture units).
+What stays legacy (still per-draw `setUniform`): `model`, `material.shininess` (Mesa `pow(x,0)` quirk — `DirectionalLight::bind` now only sets shininess + sampler ints), IBL gate, 2D shaders (`basic_2d.fs`, label/font), sampler indices set by features (`material.ambient`/`material.diffuse`/`material.specular` `setInt` for texture units).
+
+**std140 layout gotcha** observed during D1.1d: a `vec3` followed by another `vec3` needs an explicit 4-byte pad in the C++ mirror (vec3 has 16B alignment), but a `vec3` followed by a `float` packs — the float fits into the trailing 4B of the vec3's 16B slot. Padding "after every vec3" silently shifts all subsequent floats by 4 bytes; `sizeof()` still matches (so `static_assert` doesn't catch it), but the GPU reads garbage attenuation values / `cutOff = 0` / etc. Mirror the rule exactly: pad only when the NEXT field forces 16B alignment.
 
 Shader-side: GLSL blocks live in `examples/snake3/Assets/Shaders/functions/frame_data.glsl` and `material_data.glsl` (both declared `layout(std140)`). For helpers shared between basic.fs and 2D/shadow shaders, `alpha.glsl`/`fog.glsl` keep the legacy uniform path, while `alpha_material.glsl`/`fog_material.glsl` are the UBO variants used only by `basic.fs`. `ShaderProgram` ctor (`setupProgramDefaults`) calls `setUniformBlock("FrameData", 0)` and `setUniformBlock("MaterialData", 1)` on every program — programs that don't declare the block silently no-op (GL_INVALID_INDEX).
 

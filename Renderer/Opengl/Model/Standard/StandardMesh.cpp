@@ -73,12 +73,13 @@ namespace Model {
             baseShader->setBool("useBones", false);
             baseShader->setBool("shadowsEnable", false);
             baseShader->setBool("iblEnabled", false);
-            baseShader->setInt("numPointLights", 0);
-            baseShader->setInt("numSpotLights", 0);
             // D1.1c: directionLightEnable migrated to MaterialData UBO; the
             // fallback branch doesn't drive a MaterialInstance so the UBO
             // shadow stays at its zero default -- which is also the desired
             // off state. Nothing to set here.
+            // D1.1d: numPointLights / numSpotLights migrated to MaterialData
+            // UBO as well (material_numPointLights / material_numSpotLights).
+            // Same story -- UBO defaults to 0, so no per-draw setInt needed.
         }
 
         mesh->bind();

@@ -7,6 +7,47 @@
 
 namespace Manager {
 
+    // D1.1d: per-material point + spot light arrays migrated from per-program
+    // uniforms into MaterialData UBO. Layout MUST match GLSL std140 view --
+    // each vec3 still has 16B base alignment, but a float that immediately
+    // follows a vec3 PACKS into the trailing 4B of that vec3's 16B slot
+    // (std140 only forces padding when the next member's alignment requires
+    // it, e.g. another vec3). The earlier "vec3 + _padX after EVERY vec3"
+    // pattern silently shifted every following float by 4B, which manifested
+    // as broken point-light attenuation + spotlights that lost their cone.
+    struct alignas(16) PointLightStd140 {
+        glm::vec3 position{0.0F}; float _p0{0.0F};   // 0  | next vec3 -> pad
+        glm::vec3 ambient{0.0F};  float _p1{0.0F};   // 16 | next vec3 -> pad
+        glm::vec3 diffuse{0.0F};  float _p2{0.0F};   // 32 | next vec3 -> pad
+        glm::vec3 specular{0.0F};                     // 48 | next is float, packs at 60
+        float constant{1.0F};                         // 60
+        float linear{0.0F};                           // 64
+        float quadratic{0.0F};                        // 68
+        float _p3{0.0F};                              // 72
+        float _p4{0.0F};                              // 76 -> end 80
+    };                                                // 80 B
+    static_assert(sizeof(PointLightStd140) == 80,
+                  "PointLightStd140 must be 80 B (std140)");
+
+    struct alignas(16) SpotLightStd140 {
+        glm::vec3 position{0.0F};  float _p0{0.0F};  // 0  | next vec3 -> pad
+        glm::vec3 direction{0.0F}; float _p1{0.0F};  // 16 | next vec3 -> pad
+        glm::vec3 ambient{0.0F};   float _p2{0.0F};  // 32 | next vec3 -> pad
+        glm::vec3 diffuse{0.0F};   float _p3{0.0F};  // 48 | next vec3 -> pad
+        glm::vec3 specular{0.0F};                     // 64 | next is float, packs at 76
+        float constant{1.0F};                         // 76
+        float linear{0.0F};                           // 80
+        float quadratic{0.0F};                        // 84
+        float cutOff{0.0F};                           // 88
+        float outerCutOff{0.0F};                      // 92
+        int   pulse{0};                               // 96
+        int   _p4{0};                                 // 100
+        int   _p5{0};                                 // 104
+        int   _p6{0};                                 // 108 -> end 112
+    };                                                // 112 B
+    static_assert(sizeof(SpotLightStd140) == 112,
+                  "SpotLightStd140 must be 112 B (std140)");
+
     struct alignas(16) MaterialDataStd140 {
         // 0    : vec3 + float pair (one vec4 slot, 16B)
         glm::vec3 material_ambientLightColor{1.0F, 1.0F, 1.0F};
@@ -71,9 +112,27 @@ namespace Manager {
         glm::vec3 material_dirLight_ambient{0.0F};   float _pad7{0.0F};   // 144
         glm::vec3 material_dirLight_diffuse{0.0F};   float _pad8{0.0F};   // 160
         glm::vec3 material_dirLight_specular{0.0F};  float _pad9{0.0F};   // 176
-        // 192  : end; multiple of 16 so no trailing pad needed.
+
+        // 192  : D1.1d per-material point/spot light arrays. SnakeMeshNode3D
+        // builds its tile material with empty light vectors so the snake body
+        // stays pure-ambient red even when the scene has 4 active lamps --
+        // per-material storage preserves that contract (FrameUBO would force
+        // them all on globally).
+        //
+        // std140 array stride = sizeof(struct) (both are multiples of 16).
+        // 8 * 80 = 640 B for points, 8 * 112 = 896 B for spots.
+        PointLightStd140 material_pointLights[8];                         // 192 .. 832
+        SpotLightStd140  material_spotLights[8];                          // 832 .. 1728
+
+        // 1728 : light counts. Two ints fit in the first half of the vec4
+        // slot; pad the rest so the next struct starts 16-aligned.
+        int   material_numPointLights{0};
+        int   material_numSpotLights{0};
+        float _padN0{0.0F};
+        float _padN1{0.0F};
+        // 1744 : end.
     };
-    static_assert(sizeof(MaterialDataStd140) == 192,
+    static_assert(sizeof(MaterialDataStd140) == 1744,
                   "MaterialDataStd140 must match GLSL std140 layout in material_data.glsl");
 
     class MaterialUbo {

@@ -1,5 +1,7 @@
 #include "LightingFeature.h"
 
+#include <glm/gtc/constants.hpp>
+
 #include "../../../../Manager/MaterialUbo.h"
 
 namespace Feature {
@@ -50,23 +52,48 @@ namespace Feature {
             directional->bind(&shader);
         }
 
-        int index = 0;
-        for (const auto& pl : points) {
-            if (pl && pl->isVisible()) {
-                pl->bind(&shader, index);
-                ++index;
+        // D1.1d: point + spot lights migrated to MaterialData UBO. We mirror
+        // the legacy SpotLight::bind transformations here (normalize(dir-pos),
+        // cos(radians(cutOff)), bool->int) so shader-side code reads the same
+        // values that pre-D1.1d setUniform calls produced.
+        if (ctx.materialData) {
+            int pIdx = 0;
+            for (const auto& pl : points) {
+                if (pl && pl->isVisible() && pIdx < 8) {
+                    auto& dst = ctx.materialData->material_pointLights[pIdx];
+                    dst.position  = pl->getPosition();
+                    dst.ambient   = pl->getAmbient();
+                    dst.diffuse   = pl->getDiffuse();
+                    dst.specular  = pl->getSpecular();
+                    dst.constant  = pl->getConstant();
+                    dst.linear    = pl->getLinear();
+                    dst.quadratic = pl->getQuadratic();
+                    ++pIdx;
+                }
             }
-        }
-        shader.setInt("numPointLights", index);
+            ctx.materialData->material_numPointLights = pIdx;
 
-        index = 0;
-        for (const auto& sl : spots) {
-            if (sl && sl->isVisible()) {
-                sl->bind(&shader, index);
-                ++index;
+            int sIdx = 0;
+            for (const auto& sl : spots) {
+                if (sl && sl->isVisible() && sIdx < 8) {
+                    auto& dst = ctx.materialData->material_spotLights[sIdx];
+                    dst.position    = sl->getPosition();
+                    dst.direction   = glm::normalize(sl->getDirection() - sl->getPosition());
+                    dst.ambient     = sl->getAmbient();
+                    dst.diffuse     = sl->getDiffuse();
+                    dst.specular    = sl->getSpecular();
+                    dst.constant    = sl->getConstant();
+                    dst.linear      = sl->getLinear();
+                    dst.quadratic   = sl->getQuadratic();
+                    dst.cutOff      = glm::cos(glm::radians(sl->getCutOff()));
+                    dst.outerCutOff = glm::cos(glm::radians(sl->getOuterCutOff()));
+                    dst.pulse       = sl->isPulse() ? 1 : 0;
+                    ++sIdx;
+                }
             }
+            ctx.materialData->material_numSpotLights = sIdx;
+            if (ctx.materialDirty) *ctx.materialDirty = true;
         }
-        shader.setInt("numSpotLights", index);
     }
 
     std::shared_ptr<IMaterialFeature> LightingFeature::clone() const {

@@ -39,12 +39,12 @@ void main()
     vec3 lightAlbedo = texture(material.ambient, TexCoords).rgb;
     vec3 lightSpecular = texture(material.specular, TexCoords).rgb;
 
-    for (int i = 0; i < numPointLights; i++) {
-        final += CalcPointLight(pointLight[i], normal, fragPos, viewDir, baseColor, lightAlbedo, lightSpecular);
+    for (int i = 0; i < material_numPointLights; i++) {
+        final += CalcPointLight(material_pointLights[i], normal, fragPos, viewDir, baseColor, lightAlbedo, lightSpecular);
     }
 
-    for (int i = 0; i < numSpotLights; i++) {
-        final += CalcSpotLight(spotLight[i], normal, fragPos, viewDir, baseColor, 0.0, lightAlbedo, lightSpecular);
+    for (int i = 0; i < material_numSpotLights; i++) {
+        final += CalcSpotLight(material_spotLights[i], normal, fragPos, viewDir, baseColor, 0.0, lightAlbedo, lightSpecular);
     }
 
     FragColor = vec4(pow(final, vec3(1.0 / 2.2)), vColor.a);

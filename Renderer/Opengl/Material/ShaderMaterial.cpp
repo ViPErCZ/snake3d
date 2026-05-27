@@ -62,6 +62,48 @@ namespace Material {
             cpu.material_dirLight_diffuse   = glm::vec3(0.0f);
             cpu.material_dirLight_specular  = glm::vec3(0.0f);
         }
+        // D1.1d: per-material point + spot light arrays migrated into the
+        // MaterialData UBO. Mirror the legacy SpotLight::bind transformations
+        // (normalize(dir-pos), cos(radians(cutOff)), bool->int) so respawn.fs
+        // / explosion.fs read the same values the per-program setUniform
+        // path produced pre-D1.1d.
+        {
+            int pIdx = 0;
+            for (const auto& pl : pointLights) {
+                if (pl && pIdx < 8) {
+                    auto& dst = cpu.material_pointLights[pIdx];
+                    dst.position  = pl->getPosition();
+                    dst.ambient   = pl->getAmbient();
+                    dst.diffuse   = pl->getDiffuse();
+                    dst.specular  = pl->getSpecular();
+                    dst.constant  = pl->getConstant();
+                    dst.linear    = pl->getLinear();
+                    dst.quadratic = pl->getQuadratic();
+                    ++pIdx;
+                }
+            }
+            cpu.material_numPointLights = pIdx;
+
+            int sIdx = 0;
+            for (const auto& sl : spotLights) {
+                if (sl && sIdx < 8) {
+                    auto& dst = cpu.material_spotLights[sIdx];
+                    dst.position    = sl->getPosition();
+                    dst.direction   = glm::normalize(sl->getDirection() - sl->getPosition());
+                    dst.ambient     = sl->getAmbient();
+                    dst.diffuse     = sl->getDiffuse();
+                    dst.specular    = sl->getSpecular();
+                    dst.constant    = sl->getConstant();
+                    dst.linear      = sl->getLinear();
+                    dst.quadratic   = sl->getQuadratic();
+                    dst.cutOff      = glm::cos(glm::radians(sl->getCutOff()));
+                    dst.outerCutOff = glm::cos(glm::radians(sl->getOuterCutOff()));
+                    dst.pulse       = sl->isPulse() ? 1 : 0;
+                    ++sIdx;
+                }
+            }
+            cpu.material_numSpotLights = sIdx;
+        }
         materialUbo.upload(cpu);
         materialUbo.bind();
         if (shader->hasUniform("view") && uniforms.contains("view") == false) {
@@ -87,27 +129,10 @@ namespace Material {
             directionalLight->bind(shader.get());
         }
 
-        // POINT LIGHT
-        // --------------------------------
-        shader->setInt("numPointLights", static_cast<int>(pointLights.size()));
-        int index = 0;
-        for (const auto &pointLight: pointLights) {
-            pointLight->bind(shader.get(), index);
-            index++;
-        }
-        // --------------------------------
-        // END POINT LIGHT
-
-        // SPOT LIGHT
-        // --------------------------------
-        shader->setInt("numSpotLights", static_cast<int>(spotLights.size()));
-        index = 0;
-        for (const auto &spotLight: spotLights) {
-            spotLight->bind(shader.get(), index);
-            index++;
-        }
-        // -----------------------------------------------
-        // END SPOT LIGHT
+        // D1.1d: per-light setUniform loops removed -- point + spot light
+        // arrays were just written into the MaterialData UBO above. Shaders
+        // (respawn.fs, explosion.fs) read material_pointLights[] /
+        // material_spotLights[] / material_numPointLights / numSpotLights.
 
         for (auto& [name, value] : uniforms) {
             std::visit([&]<typename T0>(T0&& arg) {

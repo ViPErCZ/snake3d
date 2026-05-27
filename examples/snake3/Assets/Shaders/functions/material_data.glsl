@@ -31,6 +31,35 @@ struct DirLight {
     vec3 specular;
 };
 
+// D1.1d: PointLight / SpotLight struct definitions moved here from
+// lights.glsl. The UBO block below references them, so they must be visible
+// before the `layout(std140) uniform MaterialData` block. Field order MUST
+// match Manager::PointLightStd140 / SpotLightStd140 byte-for-byte; vec3+pad
+// padding is implicit in std140, but field ORDER is load-bearing.
+struct PointLight {
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float constant;
+    float linear;
+    float quadratic;
+    float cutOff;
+    float outerCutOff;
+    bool  pulse; // std140: bool is 4 B
+};
+
 layout(std140) uniform MaterialData {
     vec3  material_ambientLightColor;     float material_alpha;
     float material_ambientLightColorIntensity;
@@ -61,6 +90,13 @@ layout(std140) uniform MaterialData {
     vec3  material_dirLight_ambient;
     vec3  material_dirLight_diffuse;
     vec3  material_dirLight_specular;
+    // D1.1d per-material point/spot light arrays + counts. Tile material
+    // (snake body) leaves these at zero so the body stays pure-ambient red
+    // even when the rest of the scene has active street lamps.
+    PointLight material_pointLights[8];
+    SpotLight  material_spotLights[8];
+    int        material_numPointLights;
+    int        material_numSpotLights;
 };
 
 #endif
