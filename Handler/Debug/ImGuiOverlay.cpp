@@ -23,6 +23,8 @@
 #include "../../Manager/RenderManager.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderRegistry.h"
+#include "../../Physic/CollisionSystem3D.h"
+#include "../../Physic/Dynamics/DynamicBody.h"
 #include "../../Renderer/Opengl/RenderStats.h"
 #include "../../Tools/Transform.h"
 
@@ -67,6 +69,10 @@ namespace Handler::Debug {
 
     void ImGuiOverlay::setScene(std::weak_ptr<Scenes::Scene> sc) {
         scene = std::move(sc);
+    }
+
+    void ImGuiOverlay::setCollisionSystem(std::weak_ptr<Physic::CollisionSystem3D> cs) {
+        collisionSystem = std::move(cs);
     }
 
     void ImGuiOverlay::beginFrame() {
@@ -431,6 +437,39 @@ namespace Handler::Debug {
             propagateSelection(*manipulatorHandler, items[0]);
         }
 
+        // Auto-pause DynamicBody owning the selected CollisionShape3D.
+        // Důvod: resolveTopContact reading shape's AABB během step() by jinak
+        // tlačil hlavu při edit scale/transform v inspektoru. Pause body
+        // dokud zůstává shape vybraný; restore při změně selection (i na "none").
+        std::shared_ptr<Physic::Dynamics::DynamicBody> targetPause;
+        if (active) {
+            if (const auto shape = std::dynamic_pointer_cast<CollisionShape::CollisionShape3D>(active)) {
+                if (const auto owner = shape->getParent()) {
+                    if (const auto cs = collisionSystem.lock()) {
+                        targetPause = cs->findDynamicBody(owner);
+                        if (!targetPause) {
+                            // Walking up jeden krok - body je někdy registrované
+                            // proti grandparentu (group node nad mesh segmentem).
+                            if (const auto grand = owner->getParent()) {
+                                targetPause = cs->findDynamicBody(grand);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (const auto prev = inspectorPausedBody.lock(); prev && prev != targetPause) {
+            prev->setEnabled(inspectorPausedBodyPriorEnabled);
+            inspectorPausedBody.reset();
+        }
+
+        if (targetPause && targetPause != inspectorPausedBody.lock()) {
+            inspectorPausedBodyPriorEnabled = targetPause->isEnabled();
+            targetPause->setEnabled(false);
+            inspectorPausedBody = targetPause;
+        }
+
         const char* preview = "(none)";
         for (const auto& it : items) {
             if (it.transform == active) {
@@ -440,6 +479,17 @@ namespace Handler::Debug {
         }
 
         if (ImGui::BeginCombo("Active object", preview)) {
+            // "(none)" první - umožní deselect (a tím restore physics body).
+            // PushID s -1 ho odliší od indexovaných items níže.
+            const bool noneSelected = !active;
+            ImGui::PushID(-1);
+            if (ImGui::Selectable("(none)", noneSelected)) {
+                inspectorSelected.reset();
+                // Restore se odehraje příští frame v selection-change logice
+                // nahoře (targetPause = nullptr, prev != targetPause => restore).
+            }
+            ImGui::PopID();
+
             for (size_t i = 0; i < items.size(); ++i) {
                 const auto& it = items[i];
                 const bool isSelected = (it.transform == active);

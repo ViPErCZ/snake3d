@@ -47,6 +47,11 @@ namespace Model {
         [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
 
         shared_ptr<MeshNode3D> getParent() const { return parent.lock(); }
+        // Public setter pro případy, kdy node není přidaný přes addNode (e.g.
+        // CollisionShape3D pod SnakeMeshNode3D::setCollisionShape - žije v
+        // collisionShapes, ne children, ale parent chain je potřeba pro
+        // inspector/physics lookup via shape->getParent()).
+        void setParent(const shared_ptr<MeshNode3D> &p) { parent = p; }
 
         [[nodiscard]] const vector<shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
 

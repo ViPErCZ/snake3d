@@ -55,6 +55,12 @@ namespace Physic {
         // run broad/narrow phase (update()) -> resolve "landing from above" contacts.
         // Safe to call with no dynamic bodies registered (degenerates to plain update()).
         void step(float dt);
+
+        // Vrátí DynamicBody zaregistrovaný pro daný node, nebo nullptr když node
+        // dynamic body nemá. Lineární scan přes dynamicBodies (≤ desítky v praxi),
+        // určeno pro ad-hoc lookups z debug UI - ne pro hot path.
+        [[nodiscard]] std::shared_ptr<Dynamics::DynamicBody>
+            findDynamicBody(const std::shared_ptr<Model::MeshNode3D>& node) const;
     private:
         static void resolveTopContact(const DynamicBodyEntry &entry) ;
     };

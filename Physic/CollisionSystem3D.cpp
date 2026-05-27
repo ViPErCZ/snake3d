@@ -92,6 +92,15 @@ namespace Physic {
         dynamicBodies.clear();
     }
 
+    std::shared_ptr<DynamicBody>
+    CollisionSystem3D::findDynamicBody(const std::shared_ptr<MeshNode3D>& node) const {
+        if (!node) return nullptr;
+        for (const auto &entry : dynamicBodies) {
+            if (entry.node == node) return entry.body;
+        }
+        return nullptr;
+    }
+
     void CollisionSystem3D::step(const float dt) {
         // Phase 1: cache pre-integration bottom Z (used by resolveTopContact)
         //          and sync body position from the (authoritative) node position.

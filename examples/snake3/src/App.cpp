@@ -247,6 +247,7 @@ void App::run() {
                 if (imguiOverlay && mainScene) {
                     imguiOverlay->setManipulatorHandler(mainScene->getManipulatorHandler());
                     imguiOverlay->setScene(mainScene);
+                    imguiOverlay->setCollisionSystem(mainScene->getCollisionSystem());
                 }
             }
         }

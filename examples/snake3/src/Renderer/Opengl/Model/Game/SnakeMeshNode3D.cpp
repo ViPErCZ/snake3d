@@ -499,6 +499,9 @@ namespace Model {
 
     void SnakeMeshNode3D::setCollisionShape(const shared_ptr<CollisionShape3D> &collisionShape) {
         collisionShapes.clear();
+        // Wire parent chain like addNode does -- inspector + physics lookup
+        // need shape->getParent() to walk back to the owning head tile.
+        collisionShape->setParent(shared_from_this());
         collisionShapes.push_back(collisionShape);
     }
 

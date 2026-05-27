@@ -53,6 +53,12 @@ namespace Scenes {
 
         bool collectWorldSnapshot(Net::WorldSnapshotState &out) const override;
 
+        // Expose collisionSystem for debug-UI tooling (ImGuiOverlay needs it to
+        // pause DynamicBody when user selects its CollisionShape3D). Scene base
+        // class stores collisionSystem protected; getter sits on the concrete
+        // scene to avoid touching the parked Scene.h header.
+        [[nodiscard]] shared_ptr<CollisionSystem3D> getCollisionSystem() const { return collisionSystem; }
+
         void onClientHello(uint32_t peerId) override;
         void onWelcomeReceived() override;
         void onPeerDisconnected() override;

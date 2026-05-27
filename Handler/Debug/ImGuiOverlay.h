@@ -17,6 +17,13 @@ namespace Node3D {
     class Transform;
 }
 
+namespace Physic {
+    class CollisionSystem3D;
+    namespace Dynamics {
+        class DynamicBody;
+    }
+}
+
 namespace Handler::Debug {
     class ManipulatorHandler;
 }
@@ -46,6 +53,13 @@ namespace Handler::Debug {
         // app vlastní scene lifetime, overlay si jen půjčuje getter.
         void setScene(std::weak_ptr<Scenes::Scene> scene);
 
+        // Inspector pauses the DynamicBody owning the currently-selected
+        // CollisionShape3D so editing scale/transform doesn't fight the physics
+        // step (resolveTopContact would otherwise re-snap the head onto the
+        // floor every tick while user drags shape fields). Weak ref - app owns
+        // collision system lifetime.
+        void setCollisionSystem(std::weak_ptr<Physic::CollisionSystem3D> cs);
+
         // Begin a new ImGui frame. Call once per game frame, before drawing
         // any windows (i.e. before any ImGui::Begin in the engine/game).
         void beginFrame();
@@ -72,6 +86,13 @@ namespace Handler::Debug {
         std::shared_ptr<Manager::RenderManager> renderManager;
         std::shared_ptr<ManipulatorHandler> manipulatorHandler;
         std::weak_ptr<Scenes::Scene> scene;
+        std::weak_ptr<Physic::CollisionSystem3D> collisionSystem;
+
+        // Currently-paused DynamicBody (because inspector selected a CollisionShape
+        // whose owner has one). Restored to its prior enabled state when selection
+        // changes. Weak_ptr so we don't extend its lifetime.
+        mutable std::weak_ptr<Physic::Dynamics::DynamicBody> inspectorPausedBody;
+        mutable bool inspectorPausedBodyPriorEnabled = true;
 
         // Inspector vlastní "selected" state - nezávislý na handler::activeItem.
         // Více handlerů má vlastní activeItem (Light, Position, Scale, Rotation,
