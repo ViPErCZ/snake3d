@@ -5,15 +5,12 @@
 #include "../Tools/Transform.h"
 #include "../Manager/ShaderProgram.h"
 
-using namespace Node3D;
-using namespace Manager;
-
 namespace Lights {
     class DirectionalLight : public OrientableLight {
         float shininess = 32.0f;
 
     public:
-        void bind(const ShaderProgram *shader) const;
+        void bind(const Manager::ShaderProgram *shader) const;
     };
 } // Lights
 

@@ -1,5 +1,7 @@
 #include "DirectionalLight.h"
 
+using namespace Manager;
+
 namespace Lights {
     void DirectionalLight::bind(const ShaderProgram *shader) const {
         // D1.1c: pozice/směr/ambient/diffuse/specular se migrovaly do

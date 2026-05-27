@@ -4,14 +4,12 @@
 #include "Light.h"
 #include "../Tools/Visibility.h"
 
-using namespace Node3D;
-
 namespace Lights {
     // D1.1d: bind(ShaderProgram*, int) removed -- point lights are now
     // populated into MaterialData UBO directly by LightingFeature /
     // ShaderMaterial (see material_pointLights[] in MaterialUbo.h). The
     // light just exposes data via getters now.
-    class PointLight : public Visibility, public Light {
+    class PointLight : public Node3D::Visibility, public Light {
         float constant = 1.0f;
         float linear = 0.19f;
         float quadratic = 0.032f;

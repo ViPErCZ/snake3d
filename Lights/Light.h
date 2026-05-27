@@ -5,10 +5,8 @@
 
 #include "../Tools/Transform.h"
 
-using namespace Node3D;
-
 namespace Lights {
-    class Light : public Transform {
+    class Light : public Node3D::Transform {
     public:
 
         [[nodiscard]] glm::vec3 getAmbient() const;

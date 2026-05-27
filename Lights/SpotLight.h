@@ -4,14 +4,12 @@
 #include "OrientableLight.h"
 #include "../Tools/Visibility.h"
 
-using namespace Node3D;
-
 namespace Lights {
     // D1.1d: bind(ShaderProgram*, int) removed -- spot lights are now
     // populated into MaterialData UBO directly by LightingFeature /
     // ShaderMaterial (see material_spotLights[] in MaterialUbo.h). The
     // light just exposes data via getters now.
-    class SpotLight : public Visibility, public OrientableLight {
+    class SpotLight : public Node3D::Visibility, public OrientableLight {
         float constant = 1.0f;
         float linear = 0.19f;
         float quadratic = 0.032f;
