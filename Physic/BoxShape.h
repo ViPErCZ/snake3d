@@ -17,14 +17,14 @@ namespace Physic {
 
     public:
         explicit BoxShape(
-            const shared_ptr<Manager::ResourceManager> &resourceManager,
-            const shared_ptr<Tools::ContextState> &contextState,
+            const std::shared_ptr<Manager::ResourceManager> &resourceManager,
+            const std::shared_ptr<Tools::ContextState> &contextState,
             glm::vec3 boxSize = glm::vec3(1.0f)
         );
 
         ShapeType getType() override { return ShapeType::Box; }
 
-        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
 
         [[nodiscard]] OBB BuildOBB(const glm::mat4 &modelMatrix) const;
 
@@ -38,10 +38,10 @@ namespace Physic {
 
         glm::vec3 size;
 
-        shared_ptr<Material::MaterialInstance> material;
-        shared_ptr<Feature::AlbedoFeature> albedoFeature;
-        shared_ptr<Manager::ResourceManager> resourceManager;
-        shared_ptr<Tools::ContextState> contextState;
+        std::shared_ptr<Material::MaterialInstance> material;
+        std::shared_ptr<Feature::AlbedoFeature> albedoFeature;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Tools::ContextState> contextState;
     };
 } // Physic
 

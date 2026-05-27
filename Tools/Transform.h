@@ -6,8 +6,6 @@
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-using namespace std;
-
 namespace Node3D {
     class Transform {
     public:
@@ -17,7 +15,7 @@ namespace Node3D {
 
         void setPosition(const glm::vec3 &position);
 
-        void setPosition(const shared_ptr<Transform> &object);
+        void setPosition(const std::shared_ptr<Transform> &object);
 
         [[nodiscard]] const glm::vec3 &getPosition() const;
 
@@ -39,7 +37,7 @@ namespace Node3D {
 
         [[nodiscard]] float getRotationZ() const;
 
-        void setTransform(const shared_ptr<Transform> &transform);
+        void setTransform(const std::shared_ptr<Transform> &transform);
 
         // Dirty tag pro skip recompute v scene graph (computeWorldMatrix
         // short-circuit). Setters níže nastaví true; volající (MeshNode3D)

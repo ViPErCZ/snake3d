@@ -2,6 +2,8 @@
 
 #include <memory>
 
+using namespace std;
+
 namespace Manager {
     Camera::Camera(glm::vec3 position, glm::vec3 up) : front(glm::vec3(0.0f, 0.0f, -1.0f)) {
         this->position = position;

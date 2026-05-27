@@ -4,6 +4,7 @@
 
 using namespace Model;
 using namespace Build;
+using namespace std;
 
 namespace Physic {
     CylinderShape::CylinderShape(const shared_ptr<ResourceManager> &resourceManager,

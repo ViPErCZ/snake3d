@@ -5,6 +5,7 @@
 
 using namespace Model;
 using namespace Build;
+using namespace std;
 
 namespace Physic {
     SphereShape::SphereShape(const shared_ptr<ResourceManager> &resourceManager,

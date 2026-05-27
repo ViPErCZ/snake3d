@@ -27,7 +27,7 @@ namespace Physic {
         virtual ~Shape() = default;
 
         virtual ShapeType getType() = 0;
-        virtual void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) = 0;
+        virtual void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) = 0;
         virtual AABB calculateAABB(const glm::mat4& modelMatrix) = 0;
 
         void setColliding(const bool colliding) { this->colliding = colliding; }
@@ -36,7 +36,7 @@ namespace Physic {
         [[nodiscard]] bool isCollisionEnabled() const { return collisionEnabled; }
 
         // Model:: is required !!!
-        [[nodiscard]] const shared_ptr<Model::MeshNode3D> &getMeshNode() const { return meshNode; }
+        [[nodiscard]] const std::shared_ptr<Model::MeshNode3D> &getMeshNode() const { return meshNode; }
 
         static AABB CalculateAABB(const glm::mat4& modelMatrix, const glm::vec3& localHalfExtents) {
 
@@ -54,7 +54,7 @@ namespace Physic {
             return { center - newHalfExtents, center + newHalfExtents };
         }
 
-        static vector<glm::vec3> GetAABBCorners(const AABB& aabb) {
+        static std::vector<glm::vec3> GetAABBCorners(const AABB& aabb) {
             std::vector<glm::vec3> corners(8);
 
             // Spodní stěna (Y = min.y)
@@ -73,7 +73,7 @@ namespace Physic {
         }
 
     protected:
-        shared_ptr<Model::MeshNode3D> meshNode; // Model:: is required !!!
+        std::shared_ptr<Model::MeshNode3D> meshNode; // Model:: is required !!!
     private:
         bool colliding = false;
         bool collisionEnabled = true;

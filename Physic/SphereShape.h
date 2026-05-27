@@ -17,14 +17,14 @@ namespace Physic {
 
     private:
         float radius;
-        shared_ptr<Material::MaterialInstance> material;
-        shared_ptr<Feature::AlbedoFeature> albedoFeature;
-        shared_ptr<Tools::ContextState> contextState;
-        shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Material::MaterialInstance> material;
+        std::shared_ptr<Feature::AlbedoFeature> albedoFeature;
+        std::shared_ptr<Tools::ContextState> contextState;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
 
     public:
-        explicit SphereShape(const shared_ptr<Manager::ResourceManager> &resourceManager,
-            const shared_ptr<Tools::ContextState> &contextState, float radius = 1.0f);
+        explicit SphereShape(const std::shared_ptr<Manager::ResourceManager> &resourceManager,
+            const std::shared_ptr<Tools::ContextState> &contextState, float radius = 1.0f);
 
         ShapeType getType() override { return ShapeType::Sphere; }
 
@@ -42,7 +42,7 @@ namespace Physic {
             };
         }
 
-        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, glm::mat4 t) override;
     };
 } // Physic
 

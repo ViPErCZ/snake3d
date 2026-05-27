@@ -1,5 +1,7 @@
 #include "../Tools/Transform.h"
 
+using namespace std;
+
 namespace Node3D {
 
     const glm::vec3 &Transform::getPosition() const {
