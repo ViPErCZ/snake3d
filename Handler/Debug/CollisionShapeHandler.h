@@ -42,7 +42,7 @@ namespace Handler::Debug {
         shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<CollisionShape3D> > items;
         shared_ptr<CollisionShape3D> activeItem = nullptr;
-        shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
+        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
     };
 } // Debug

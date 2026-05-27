@@ -15,7 +15,8 @@ using namespace std;
 using namespace Manager;
 
 namespace Model {
-    class MeshNode2D : public enable_shared_from_this<MeshNode2D>, public Transform, public Visibility, public Vector3i {
+    class MeshNode2D : public enable_shared_from_this<MeshNode2D>,
+        public Node3D::Transform, public Node3D::Visibility, public Node3D::Vector3i {
     public:
         explicit MeshNode2D(const shared_ptr<ContextState> &contextState,
             const shared_ptr<BaseNode2D> &mesh, const shared_ptr<ResourceManager> &resourceManager);

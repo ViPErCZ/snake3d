@@ -47,7 +47,7 @@ namespace Debug {
         shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<MeshNode3D> > items;
         shared_ptr<MeshNode3D> activeItem = nullptr;
-        shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
+        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
         glm::vec3 currentWorldCenter{};
         glm::vec3 worldMax{};

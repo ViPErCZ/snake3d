@@ -49,6 +49,7 @@ namespace Scenes {
 
         const auto shape = make_shared<CylinderShape>(resourceManager, contextState, 0.3f, 0.90f);
         const auto collisionShape = make_shared<CollisionShape3D>(contextState, resourceManager, shape);
+        collisionShape->setName("Barrel shape");
         collisionShape->setPosition(glm::vec3(0, 0.40f, 0));
 
         barrel->addNode(collisionShape);

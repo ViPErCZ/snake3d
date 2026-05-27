@@ -22,7 +22,7 @@ using namespace Handler::Debug;
 using namespace Build;
 
 namespace Scenes {
-    class Scene : public enable_shared_from_this<Scene>, public Named {
+    class Scene : public enable_shared_from_this<Scene>, public Node3D::Named {
     public:
         virtual ~Scene();
 

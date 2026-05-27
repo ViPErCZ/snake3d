@@ -24,7 +24,8 @@ namespace CollisionShape {
 
 namespace Model {
     class MeshNode3D : public enable_shared_from_this<MeshNode3D>,
-        public Named, public Tagged, public Transform, public Visibility, public Vector3i {
+        public Node3D::Named, public Node3D::Tagged, public Node3D::Transform,
+        public Node3D::Visibility, public Node3D::Vector3i {
     public:
         explicit MeshNode3D(const shared_ptr<ContextState> &contextState,
             const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);

@@ -62,7 +62,7 @@ namespace Handler::Debug {
         shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<Light> > items;
         shared_ptr<Light> activeItem = nullptr;
-        shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
+        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
         Focus focus = Focus::Ambient;
         shared_ptr<Material::LabelSettings> labelSettings;
