@@ -1,5 +1,8 @@
 #include "FadeInUniform.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Uniform {
     void FadeInUniform::bind(const shared_ptr<ShaderProgram> &shader, const string &name) {
         if (timer->isRunning()) {

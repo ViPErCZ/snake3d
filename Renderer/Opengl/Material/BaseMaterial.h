@@ -5,14 +5,12 @@
 
 #include "Interface/BlendingInterface.h"
 
-using namespace std;
-
 namespace Material {
     class BaseMaterial : public BlendingInterface {
     public:
         ~BaseMaterial() override = default;
 
-        [[nodiscard]] virtual shared_ptr<BaseMaterial> clone() const = 0;
+        [[nodiscard]] virtual std::shared_ptr<BaseMaterial> clone() const = 0;
     };
 } // Material
 

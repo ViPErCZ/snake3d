@@ -3,6 +3,8 @@
 #include <utility>
 #include <variant>
 
+using namespace std;
+
 namespace Material {
     ShaderMaterial::ShaderMaterial(shared_ptr<ShaderProgram> baseShader,
                                    shared_ptr<ShaderProgram> shadowDepthShader)

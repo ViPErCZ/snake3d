@@ -3,6 +3,7 @@
 #include <utility>
 
 using namespace std;
+using namespace Manager;
 using namespace Material;
 
 namespace Uniform {

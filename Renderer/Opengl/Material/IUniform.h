@@ -2,17 +2,15 @@
 #define SNAKE3_IUNIFORM_H
 
 #include <memory>
+#include <string>
 #include "../../../Manager/ShaderProgram.h"
-
-using namespace std;
-using namespace Manager;
 
 namespace Material {
     class IUniform {
     public:
         virtual ~IUniform() = default;
-        virtual void bind(const shared_ptr<ShaderProgram>& shader, const string& name) = 0;
-        [[nodiscard]] virtual shared_ptr<IUniform> clone() const = 0;
+        virtual void bind(const std::shared_ptr<Manager::ShaderProgram>& shader, const std::string& name) = 0;
+        [[nodiscard]] virtual std::shared_ptr<IUniform> clone() const = 0;
     };
 } // Material
 
