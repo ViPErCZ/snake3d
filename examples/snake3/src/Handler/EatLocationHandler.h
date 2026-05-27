@@ -5,7 +5,6 @@
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
-using namespace ItemsDto;
 using namespace Physic;
 using namespace std;
 

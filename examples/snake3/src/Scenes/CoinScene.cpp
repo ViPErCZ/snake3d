@@ -10,6 +10,8 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Tools/Layers.h"
 
+using namespace Animation;
+
 namespace Scenes {
     CoinScene::CoinScene(
         const shared_ptr<DirectionalLight> &directionalLight,

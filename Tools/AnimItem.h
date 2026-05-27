@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace ItemsDto {
+namespace Animation {
     template <typename T>
     struct KeyFrame {
         T data;

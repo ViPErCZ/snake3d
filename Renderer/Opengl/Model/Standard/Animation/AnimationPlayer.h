@@ -14,7 +14,6 @@
 #include "../../Utils/Tree.h"
 
 using namespace std;
-using namespace ItemsDto;
 using namespace ModelUtils;
 
 namespace Animations {
@@ -26,22 +25,22 @@ namespace Animations {
         bool pause;
         float alpha;
         glm::mat4 world_transform;
-        shared_ptr<Animation> current_animation{};
+        shared_ptr<Animation::Animation> current_animation{};
     };
     class AnimationPlayer {
     public:
         AnimationPlayer() = default;
         explicit AnimationPlayer(const string &name);
         AnimationPlayer(const vector<shared_ptr<Mesh> > &meshes,
-                        const map<string, shared_ptr<Animation>> &animations,
-                        const vector<shared_ptr<Bone> > &bones, const Tree<uint32_t> &skeleton,
+                        const map<string, shared_ptr<Animation::Animation>> &animations,
+                        const vector<shared_ptr<Animation::Bone> > &bones, const Tree<uint32_t> &skeleton,
                         const unordered_map<std::string, uint32_t> &bones_map,
                         const glm::mat4 &global_matrix
         );
 
         void createAnimation(const string &name);
 
-        void addAnimationNode(const string &name, const shared_ptr<AnimationNode> &animationNode, int duration);
+        void addAnimationNode(const string &name, const shared_ptr<Animation::AnimationNode> &animationNode, int duration);
 
         void setAcceleration(float acceleration);
 
@@ -72,11 +71,11 @@ namespace Animations {
         shared_ptr<AnimationPlayer> clone() const;
 
     protected:
-        void updateBonesAnimation(const shared_ptr<Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
-        static shared_ptr<AnimationNode> findAnimationNode(const shared_ptr<Animation> &animation, const shared_ptr<Bone> &bone);
+        void updateBonesAnimation(const shared_ptr<Animation::Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
+        static shared_ptr<Animation::AnimationNode> findAnimationNode(const shared_ptr<Animation::Animation> &animation, const shared_ptr<Animation::Bone> &bone);
 
     private:
-        map<string, shared_ptr<Animation> > animations;
+        map<string, shared_ptr<Animation::Animation> > animations;
         unordered_map<string, shared_ptr<AnimationMeta> > metadata;
         float acceleration = 1.0f;
         bool repeat = false;
@@ -84,7 +83,7 @@ namespace Animations {
 
         std::function<void(AnimationPlayer*)> completedCallback;
         vector<shared_ptr<Mesh> > meshes;
-        vector<shared_ptr<Bone> > bones;
+        vector<shared_ptr<Animation::Bone> > bones;
         vector<shared_ptr<Mesh> > noBonesMeshes;
         unordered_map<std::string, uint32_t> bones_map;
         optional<Tree<uint32_t> > skeleton;

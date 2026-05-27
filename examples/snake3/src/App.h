@@ -15,7 +15,6 @@
 #include "Handler/Debug/ImGuiOverlay.h"
 
 namespace fs = std::filesystem;
-using namespace ItemsDto;
 using namespace Manager;
 using namespace Renderer;
 using namespace Handler;

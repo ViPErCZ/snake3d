@@ -1,23 +1,23 @@
 #include "../Tools/AnimItem.h"
 
-ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept
+Animation::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept
         : rotations(std::move(rotations))
         , positions(std::move(positions))
         , scales(std::move(scales))
         , bone(_bone) {
 }
 
-ItemsDto::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept
+Animation::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept
     : rotations(std::move(rotations))
     , positions(std::move(positions))
     , scales(std::move(scales)) {
 }
 
-void ItemsDto::AnimationNode::setAlphaFrames(decltype(alphas) alphas) noexcept {
+void Animation::AnimationNode::setAlphaFrames(decltype(alphas) alphas) noexcept {
     this->alphas = std::move(alphas);
 }
 
-glm::vec3 ItemsDto::AnimationNode::positionLerp(const double anim_time) const {
+glm::vec3 Animation::AnimationNode::positionLerp(const double anim_time) const {
     if (positions.empty()) {
         return glm::vec3{0.0f};
     }
@@ -44,7 +44,7 @@ glm::vec3 ItemsDto::AnimationNode::positionLerp(const double anim_time) const {
     //return a.data * static_cast<float>(1.0 - norm) + b.data * static_cast<float>(norm);
 }
 
-glm::fquat ItemsDto::AnimationNode::rotationLerp(const double anim_time) const {
+glm::fquat Animation::AnimationNode::rotationLerp(const double anim_time) const {
     if (rotations.empty()) {
         return glm::fquat{1.f, 0.f, 0.f, 0.f};
     }
@@ -66,7 +66,7 @@ glm::fquat ItemsDto::AnimationNode::rotationLerp(const double anim_time) const {
     return glm::normalize(glm::slerp(a.data, b.data, static_cast<float>(norm)));
 }
 
-float ItemsDto::AnimationNode::alphaLerp(const double anim_time) const {
+float Animation::AnimationNode::alphaLerp(const double anim_time) const {
     if (alphas.empty()) {
         return 1.0f;
     }
@@ -91,7 +91,7 @@ float ItemsDto::AnimationNode::alphaLerp(const double anim_time) const {
     return static_cast<float>(a.data + (b.data - a.data) * t);
 }
 
-glm::vec3 ItemsDto::AnimationNode::scalingLerp(const double anim_time) const {
+glm::vec3 Animation::AnimationNode::scalingLerp(const double anim_time) const {
     if (scales.empty()) {
         return glm::vec3{1.f};
     }
@@ -114,7 +114,7 @@ glm::vec3 ItemsDto::AnimationNode::scalingLerp(const double anim_time) const {
     return glm::mix(a.data, b.data, norm);
 }
 
-double ItemsDto::AnimationNode::ease(double t, const double curve) {
+double Animation::AnimationNode::ease(double t, const double curve) {
     if (t < 0.0) t = 0.0;
     else if (t > 1.0) t = 1.0;
 
@@ -127,7 +127,7 @@ double ItemsDto::AnimationNode::ease(double t, const double curve) {
     return t;
 }
 
-size_t ItemsDto::AnimationNode::findPositionKeyframe(const double anim_time) const {
+size_t Animation::AnimationNode::findPositionKeyframe(const double anim_time) const {
     for (size_t i = 0; i < positions.size() - 1; ++i) {
         if (anim_time <= positions[i + 1].time) {
             return i;
@@ -137,7 +137,7 @@ size_t ItemsDto::AnimationNode::findPositionKeyframe(const double anim_time) con
     throw std::out_of_range("no position keyframe for time " + std::to_string(anim_time));
 }
 
-size_t ItemsDto::AnimationNode::findRotationKeyframe(const double anim_time) const {
+size_t Animation::AnimationNode::findRotationKeyframe(const double anim_time) const {
     for (size_t i = 0; i < rotations.size() - 1; ++i) {
         if (anim_time <= rotations[i + 1].time)
             return i;
@@ -146,7 +146,7 @@ size_t ItemsDto::AnimationNode::findRotationKeyframe(const double anim_time) con
     throw std::out_of_range("no rotation keyframe for time " + std::to_string(anim_time));
 }
 
-size_t ItemsDto::AnimationNode::findScalingKeyframe(const double anim_time) const {
+size_t Animation::AnimationNode::findScalingKeyframe(const double anim_time) const {
     for (size_t i = 0; i < scales.size() - 1; ++i) {
         if (anim_time <= scales[i + 1].time)
             return i;
@@ -155,7 +155,7 @@ size_t ItemsDto::AnimationNode::findScalingKeyframe(const double anim_time) cons
     throw std::out_of_range("no scaling keyframe for time " + std::to_string(anim_time));
 }
 
-size_t ItemsDto::AnimationNode::findAlphaKeyframe(const double anim_time) const {
+size_t Animation::AnimationNode::findAlphaKeyframe(const double anim_time) const {
     for (size_t i = 0; i < alphas.size() - 1; ++i) {
         if (anim_time <= alphas[i + 1].time)
             return i;

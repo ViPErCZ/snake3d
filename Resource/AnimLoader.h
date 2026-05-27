@@ -41,13 +41,13 @@ namespace Resource {
             static shared_ptr<AnimationPlayer> loadObj(const fs::path &path);
         protected:
             static void processNode(const aiNode *node, const aiScene *scene, vector<shared_ptr<Mesh>> &meshes, const glm::mat4 &parentTransformation,
-                unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones);
-            static shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Bone> >& bones);
+                unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Animation::Bone> >& bones);
+            static shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene, unordered_map<std::string, uint32_t>& bone_map, vector<shared_ptr<Animation::Bone> >& bones);
             static glm::mat4 AiMatrix4x4ToGlm(const aiMatrix4x4 *from);
-            static map<string, shared_ptr<Animation> > loadAnimations(const aiScene* scene, vector<shared_ptr<Bone>>& bones,
+            static map<string, shared_ptr<Animation::Animation> > loadAnimations(const aiScene* scene, vector<shared_ptr<Animation::Bone>>& bones,
                 const unordered_map<std::string, uint32_t>& bone_map);
-            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, vector<shared_ptr<Bone>> &bones, unordered_map<std::string, uint32_t> &bone_map,
-                map<string, shared_ptr<Animation> > &anim);
+            static Tree<uint32_t> loadAnimationTree(const aiScene* scene, vector<shared_ptr<Animation::Bone>> &bones, unordered_map<std::string, uint32_t> &bone_map,
+                map<string, shared_ptr<Animation::Animation> > &anim);
     };
 
 } // Resource
