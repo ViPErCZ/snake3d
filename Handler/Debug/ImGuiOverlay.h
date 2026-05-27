@@ -88,11 +88,12 @@ namespace Handler::Debug {
         std::weak_ptr<Scenes::Scene> scene;
         std::weak_ptr<Physic::CollisionSystem3D> collisionSystem;
 
-        // Currently-paused DynamicBody (because inspector selected a CollisionShape
-        // whose owner has one). Restored to its prior enabled state when selection
-        // changes. Weak_ptr so we don't extend its lifetime.
+        // Currently-frozen DynamicBody (because inspector selected a CollisionShape
+        // whose owner has one). Cleared when selection changes. Weak_ptr so we
+        // don't extend its lifetime. Uses DynamicBody::setDebugFrozen, which is
+        // separate from `enabled` so SnakeMoveHandler-style gameplay toggling
+        // can't undo the UI pause.
         mutable std::weak_ptr<Physic::Dynamics::DynamicBody> inspectorPausedBody;
-        mutable bool inspectorPausedBodyPriorEnabled = true;
 
         // Inspector vlastní "selected" state - nezávislý na handler::activeItem.
         // Více handlerů má vlastní activeItem (Light, Position, Scale, Rotation,

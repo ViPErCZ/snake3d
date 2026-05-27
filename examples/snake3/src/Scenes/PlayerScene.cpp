@@ -87,6 +87,7 @@ namespace Scenes {
 
         const auto sphereShape = make_shared<SphereShape>(resourceManager, contextState,0.77f);
         const auto shape = make_shared<CollisionShape3D>(contextState, resourceManager, sphereShape);
+        shape->setName("Snake head shape");
         shape->setCollisionLayer(PLAYER);
         shape->setCollisionMask(WORLD | ENEMY | ENEMY_BODY | PLAYER_BODY | FLOOR);
 
@@ -98,7 +99,7 @@ namespace Scenes {
             collisionSystem->addCollider(snake);
             // The head is the only segment with a dynamic body - gravity catches
             // it the moment there's no floor underneath (level holes, board edge).
-            snakeBody = make_shared<Physic::Dynamics::DynamicBody>();
+            snakeBody = make_shared<Dynamics::DynamicBody>();
             snakeBody->setUseGravity(true);
             // SnakeMoveHandler opts the body in once the snake is out of respawn
             // and (in multiplayer) under server control. Keeping it disabled here

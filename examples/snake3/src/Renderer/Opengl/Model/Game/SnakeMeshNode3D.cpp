@@ -18,10 +18,6 @@ namespace Model {
     namespace {
         void copyExplosionSourceMaterial(const shared_ptr<ShaderMaterial>& crashMaterial,
             const shared_ptr<BaseMaterial>& sourceMaterial) {
-            // All snake materials are MaterialInstance after B6. Walk its
-            // feature pack to pick up albedo / color and feed the explosion
-            // shader the same uniforms it used to read from
-            // StandardMaterial::getAlbedo / getColor.
             const auto sourceInstance = dynamic_pointer_cast<Material::MaterialInstance>(sourceMaterial);
             if (!sourceInstance) {
                 crashMaterial->setUniform("hasAlbedoTexture", false);

@@ -105,14 +105,14 @@ namespace Physic {
         // Phase 1: cache pre-integration bottom Z (used by resolveTopContact)
         //          and sync body position from the (authoritative) node position.
         for (auto &[node, body, previousBottomZ] : dynamicBodies) {
-            if (!node || !body || !body->isEnabled()) continue;
+            if (!node || !body || !body->isActive()) continue;
             body->setPosition(node->getPosition());
             previousBottomZ = computeBottomZ(node);
         }
 
         // Phase 2: integrate each enabled body and apply to its node.
         for (const auto &entry : dynamicBodies) {
-            if (!entry.node || !entry.body || !entry.body->isEnabled()) continue;
+            if (!entry.node || !entry.body || !entry.body->isActive()) continue;
             // Transform::getModelMatrix multiplies setPosition by scale (S*T*R
             // composition), so node.position lives in setPos-units while the
             // world gravity is in world-units. Scale gravity inversely so the
@@ -136,7 +136,7 @@ namespace Physic {
 
         // Phase 4: resolve top contacts (snap onto surface, kill downward velocity).
         for (auto &entry : dynamicBodies) {
-            if (!entry.node || !entry.body || !entry.body->isEnabled()) continue;
+            if (!entry.node || !entry.body || !entry.body->isActive()) continue;
             resolveTopContact(entry);
         }
     }

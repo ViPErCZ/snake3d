@@ -6,7 +6,7 @@ namespace Physic::Dynamics {
         : position(initialPosition) {}
 
     void DynamicBody::integrate(const float dt, const glm::vec3 &gravity) {
-        if (!enabled || dt <= 0.0f) {
+        if (!enabled || debugFrozen || dt <= 0.0f) {
             return;
         }
         if (useGravity) {

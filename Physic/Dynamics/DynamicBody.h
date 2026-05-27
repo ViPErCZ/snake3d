@@ -36,6 +36,18 @@ namespace Physic::Dynamics {
         void setEnabled(const bool e) { enabled = e; }
         [[nodiscard]] bool isEnabled() const { return enabled; }
 
+        // Debug-only freeze that the gameplay layer is NOT supposed to touch.
+        // ImGui Inspector sets this when the user is editing the body's owner
+        // (e.g. snake head's collision shape) so the physics step skips it.
+        // Separate from `enabled` because gameplay handlers (SnakeMoveHandler)
+        // toggle `enabled` every frame and would otherwise immediately undo
+        // a UI-level pause.
+        void setDebugFrozen(const bool f) { debugFrozen = f; }
+        [[nodiscard]] bool isDebugFrozen() const { return debugFrozen; }
+
+        // Effective "is this body live this tick" -- both gates must be clear.
+        [[nodiscard]] bool isActive() const { return enabled && !debugFrozen; }
+
         // Advances velocity (gravity acceleration if enabled) and integrates
         // position by `velocity * dt`. No-op when the body is disabled.
         void integrate(float dt, const glm::vec3 &gravity);
@@ -46,6 +58,7 @@ namespace Physic::Dynamics {
         float gravityScale = 1.0f;
         bool useGravity = true;
         bool enabled = true;
+        bool debugFrozen = false;
     };
 
 } // namespace Physic::Dynamics

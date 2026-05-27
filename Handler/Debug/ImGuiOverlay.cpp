@@ -459,14 +459,17 @@ namespace Handler::Debug {
             }
         }
 
+        // Použijeme debugFrozen místo enabled -- enabled si toggluje gameplay
+        // (SnakeMoveHandler::update setEnabled(true) každý frame pro živého
+        // hada), takže UI-level pause přes enabled by byl okamžitě anulován
+        // a hlava by každý frame propadla podlahou.
         if (const auto prev = inspectorPausedBody.lock(); prev && prev != targetPause) {
-            prev->setEnabled(inspectorPausedBodyPriorEnabled);
+            prev->setDebugFrozen(false);
             inspectorPausedBody.reset();
         }
 
         if (targetPause && targetPause != inspectorPausedBody.lock()) {
-            inspectorPausedBodyPriorEnabled = targetPause->isEnabled();
-            targetPause->setEnabled(false);
+            targetPause->setDebugFrozen(true);
             inspectorPausedBody = targetPause;
         }
 
