@@ -1,5 +1,7 @@
 #include "Ebo.h"
 
+using namespace std;
+
 namespace ModelUtils {
     Ebo::Ebo(const vector<GLuint> &indices) {
         glGenBuffers(1, &ID);

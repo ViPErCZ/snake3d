@@ -5,14 +5,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-using namespace std;
-
 namespace ModelUtils {
 
     class Ebo {
     public:
         // Constructor that generates a Elements Buffer Object and links it to indices
-        explicit Ebo(const vector<GLuint>& indices);
+        explicit Ebo(const std::vector<GLuint>& indices);
         // ID reference of Elements Buffer Object
         GLuint ID{};
         // Binds the EBO

@@ -8,9 +8,6 @@
 #include "Ebo.h"
 #include "../../Material/2D/Font.h"
 
-using namespace std;
-using namespace Material;
-
 namespace ModelUtils {
     class TextMesh {
     public:
@@ -20,7 +17,7 @@ namespace ModelUtils {
 
         void bind() const;
 
-        void update(const std::string &text, const shared_ptr<Font> &font);
+        void update(const std::string &text, const std::shared_ptr<Material::Font> &font);
 
         [[nodiscard]] std::vector<float> getVertices() const;
 
@@ -29,8 +26,8 @@ namespace ModelUtils {
         [[nodiscard]] float getWidth() const;
 
     protected:
-        shared_ptr<Vao> vao{};
-        shared_ptr<Vbo> vbo{};
+        std::shared_ptr<Vao> vao{};
+        std::shared_ptr<Vbo> vbo{};
         std::vector<float> vertices;
         float maxSizeY = 0.0f;
         float width = 0.0f;

@@ -1,5 +1,8 @@
 #include "TextMesh.h"
 
+using namespace std;
+using namespace Material;
+
 namespace ModelUtils {
     TextMesh::TextMesh() {
         vao = nullptr;

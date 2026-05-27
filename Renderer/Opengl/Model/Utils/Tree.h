@@ -3,8 +3,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace ModelUtils {
     template <typename T>
     class Tree {
