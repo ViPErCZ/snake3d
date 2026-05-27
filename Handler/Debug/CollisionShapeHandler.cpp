@@ -7,6 +7,8 @@
 #include "../../Physic/CylinderShape.h"
 #include "../../Physic/SphereShape.h"
 
+using namespace Physic;
+
 namespace Handler::Debug {
     CollisionShapeHandler::CollisionShapeHandler(const shared_ptr<Camera> &camera) : camera(camera), enabled(false) {
         cameraOriginalStickyPoint = camera->getStickyPoint();

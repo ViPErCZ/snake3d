@@ -5,10 +5,9 @@
 
 #include "BaseProcessMaterial.h"
 
-using namespace Manager;
-using namespace std;
-
 namespace Material {
+    using std::shared_ptr;
+
     class ParticleProcessMaterial : public BaseProcessMaterial {
         struct ParticleDataGPU {
             glm::vec4 u_lifeSizeStretch;    // x=lifeMin, y=lifeMax, z=sizeMin, w=sizeMax
@@ -25,11 +24,11 @@ namespace Material {
     public:
         ~ParticleProcessMaterial() override;
 
-        explicit ParticleProcessMaterial(const shared_ptr<ResourceManager> &resource_manager);
+        explicit ParticleProcessMaterial(const shared_ptr<Manager::ResourceManager> &resource_manager);
 
-        void bind(shared_ptr<ShaderProgram> shader) const override;
+        void bind(shared_ptr<Manager::ShaderProgram> shader) const override;
 
-        void update(shared_ptr<ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset,
+        void update(shared_ptr<Manager::ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset,
                     float stepDt) override;
 
     private:

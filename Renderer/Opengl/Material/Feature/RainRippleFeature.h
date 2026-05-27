@@ -4,10 +4,6 @@
 #include "IMaterialFeature.h"
 #include "../../../../Manager/MaterialUbo.h"
 
-using namespace Material;
-using namespace Manager;
-using namespace std;
-
 namespace Feature {
 
     class RainRippleFeature : public IMaterialFeature {
@@ -17,11 +13,11 @@ namespace Feature {
                                    const float density = 20.0f)
             : enabled(enabled), speed(speed), density(density) {}
 
-        [[nodiscard]] ShaderFeatureMask flag() const override {
-            return static_cast<ShaderFeatureMask>(ShaderFeature::RainRipple);
+        [[nodiscard]] Manager::ShaderFeatureMask flag() const override {
+            return static_cast<Manager::ShaderFeatureMask>(Manager::ShaderFeature::RainRipple);
         }
 
-        void bind(ShaderProgram& /*shader*/, const RenderContext& ctx) const override {
+        void bind(Manager::ShaderProgram& /*shader*/, const Material::RenderContext& ctx) const override {
             if (ctx.materialData) {
                 ctx.materialData->material_rainDropEnable = enabled ? 1 : 0;
                 ctx.materialData->material_rainSpeed = speed;

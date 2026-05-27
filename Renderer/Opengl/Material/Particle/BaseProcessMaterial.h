@@ -9,9 +9,9 @@
 
 #include "../../../../Manager/ResourceManager.h"
 
-using namespace std;
-
 namespace Material {
+    using std::shared_ptr;
+
     class BaseProcessMaterial;
 
     enum ParticleMode {
@@ -24,7 +24,7 @@ namespace Material {
     public:
         virtual ~BaseProcessMaterial() = default;
 
-        explicit BaseProcessMaterial(const shared_ptr<ResourceManager> &resource_manager);
+        explicit BaseProcessMaterial(const shared_ptr<Manager::ResourceManager> &resource_manager);
 
         [[nodiscard]] float get_life_min() const;
 
@@ -154,9 +154,9 @@ namespace Material {
 
         void set_spawn_window(float spawn_window);
 
-        virtual void bind(shared_ptr<ShaderProgram> shader) const = 0;
+        virtual void bind(shared_ptr<Manager::ShaderProgram> shader) const = 0;
 
-        virtual void update(shared_ptr<ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
+        virtual void update(shared_ptr<Manager::ShaderProgram> shader, int maxParticles, float timeAccum, float timeOffset, float stepDt) = 0;
 
     protected:
         float lifeMin = 1.0f;
@@ -201,7 +201,7 @@ namespace Material {
         std::string texture;
         ParticleMode mode = Billboard;
 
-        shared_ptr<ResourceManager> resourceManager;
+        shared_ptr<Manager::ResourceManager> resourceManager;
     };
 } // Material
 

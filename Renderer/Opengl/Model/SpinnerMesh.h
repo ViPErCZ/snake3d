@@ -5,8 +5,6 @@
 #include "Standard/StandardMesh.h"
 #include "Standard/TringleMesh3D.h"
 
-using namespace ModelUtils;
-
 namespace Model {
     class SpinnerMesh final : public TringleMesh3D {
     public:

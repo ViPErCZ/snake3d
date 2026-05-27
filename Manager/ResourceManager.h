@@ -14,6 +14,8 @@
 #include "../Resource/ResourceLoader.h"
 
 namespace Manager {
+        using ModelUtils::Mesh;
+
         template<class>
         inline constexpr bool always_false = false;
 

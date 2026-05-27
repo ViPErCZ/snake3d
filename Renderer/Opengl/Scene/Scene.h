@@ -65,7 +65,7 @@ namespace Scenes {
             this->environment = environment;
         }
 
-        void setCollisionSystem(const shared_ptr<CollisionSystem3D> &collisionSystem);
+        void setCollisionSystem(const shared_ptr<Physic::CollisionSystem3D> &collisionSystem);
 
         void setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler);
         [[nodiscard]] shared_ptr<ManipulatorHandler> getManipulatorHandler() const { return manipulatorHandler; }
@@ -99,7 +99,7 @@ namespace Scenes {
         shared_ptr<Camera> camera;
         shared_ptr<ContextState> contextState;
         shared_ptr<ManipulatorHandler> manipulatorHandler;
-        shared_ptr<CollisionSystem3D> collisionSystem;
+        shared_ptr<Physic::CollisionSystem3D> collisionSystem;
         unique_ptr<SoundManager> soundManager;
         glm::mat4 projection;
         unordered_map<string, shared_ptr<Scene>> nodes;

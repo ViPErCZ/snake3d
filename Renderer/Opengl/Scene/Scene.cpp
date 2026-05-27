@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <functional>
 
+using namespace Physic;
+
 namespace Scenes {
     Scene::Scene(
         const shared_ptr<DirectionalLight> &directionalLight,

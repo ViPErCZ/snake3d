@@ -13,8 +13,8 @@ namespace Handler {
     public:
         ~EatLocationHandler() override;
 
-        explicit EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
-                                    const shared_ptr<CoinMeshNode3D> &eat);
+        explicit EatLocationHandler(const shared_ptr<Model::MeshNode3D> &barriers, const shared_ptr<Model::SnakeMeshNode3D> &snake,
+                                    const shared_ptr<Model::CoinMeshNode3D> &eat);
 
         void onDefaultHandler() override;
 
@@ -32,12 +32,12 @@ namespace Handler {
 
         void clearBarriers();
 
-        void setBarriers(const shared_ptr<MeshNode3D> &barriers) { this->barriers = barriers; }
+        void setBarriers(const shared_ptr<Model::MeshNode3D> &barriers) { this->barriers = barriers; }
 
     protected:
-        shared_ptr<MeshNode3D> barriers;
-        shared_ptr<SnakeMeshNode3D> snake;
-        shared_ptr<CoinMeshNode3D> eat;
+        shared_ptr<Model::MeshNode3D> barriers;
+        shared_ptr<Model::SnakeMeshNode3D> snake;
+        shared_ptr<Model::CoinMeshNode3D> eat;
         int counter;
 
         void addTile();

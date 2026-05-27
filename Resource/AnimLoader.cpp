@@ -6,6 +6,7 @@
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 using namespace Animation;
+using namespace ModelUtils;
 
 namespace Resource {
     shared_ptr<AnimationPlayer> AnimLoader::loadObj(const fs::path &path) {

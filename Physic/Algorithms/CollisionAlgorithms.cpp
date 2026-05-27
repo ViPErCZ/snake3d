@@ -5,6 +5,8 @@
 #include "../CapsuleShape.h"
 #include "../CylinderShape.h"
 
+using namespace Physic;
+
 namespace {
     // Helper function to find closest point on segment p0-p1 to point q
     glm::vec3 ClosestPointOnSegment(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& q) {

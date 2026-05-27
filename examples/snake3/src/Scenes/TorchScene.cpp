@@ -16,6 +16,8 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
+using namespace Physic;
+
 namespace Scenes {
     TorchScene::TorchScene(
         const shared_ptr<DirectionalLight> &directionalLight,

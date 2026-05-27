@@ -10,7 +10,7 @@
 
 using namespace Model;
 using namespace CollisionShape;
-using namespace Dynamics;
+using namespace Physic::Dynamics;
 
 namespace Physic {
     namespace {

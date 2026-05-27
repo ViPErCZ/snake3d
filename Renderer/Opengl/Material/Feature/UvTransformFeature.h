@@ -6,9 +6,6 @@
 #include "IMaterialFeature.h"
 #include "../../../../Manager/MaterialUbo.h"
 
-using namespace Manager;
-using namespace Material;
-
 namespace Feature {
         class UvTransformFeature final : public IMaterialFeature {
     public:
@@ -16,10 +13,10 @@ namespace Feature {
                                     const glm::vec2 offset = glm::vec2(0.0f))
             : scale(scale), offset(offset) {}
 
-        [[nodiscard]] ShaderFeatureMask flag() const override { return 0; }
+        [[nodiscard]] Manager::ShaderFeatureMask flag() const override { return 0; }
 
-        void bind(ShaderProgram& /*shader*/,
-                  const RenderContext& ctx) const override {
+        void bind(Manager::ShaderProgram& /*shader*/,
+                  const Material::RenderContext& ctx) const override {
             if (ctx.materialData) {
                 ctx.materialData->material_uvScale = scale;
                 ctx.materialData->material_uvOffset = offset;

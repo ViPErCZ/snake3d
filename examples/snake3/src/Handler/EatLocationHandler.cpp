@@ -2,6 +2,8 @@
 #include <random>
 #include <cmath>
 
+using namespace Model;
+
 namespace Handler {
     EatLocationHandler::EatLocationHandler(const shared_ptr<MeshNode3D> &barriers, const shared_ptr<SnakeMeshNode3D> &snake,
                                            const shared_ptr<CoinMeshNode3D> &eat)

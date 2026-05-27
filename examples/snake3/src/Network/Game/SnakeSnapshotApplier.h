@@ -10,11 +10,11 @@ namespace Net {
 
     std::vector<glm::vec3> buildStraightSnakePositions(const glm::vec3 &headPosition,
                                                        size_t segmentCount,
-                                                       SnakeMeshNode3D::eDIRECTION direction);
+                                                       Model::SnakeMeshNode3D::eDIRECTION direction);
 
-    void applyExactSnakePositions(const std::shared_ptr<SnakeMeshNode3D> &snake,
+    void applyExactSnakePositions(const std::shared_ptr<Model::SnakeMeshNode3D> &snake,
                                   const std::vector<glm::vec3> &positions,
-                                  SnakeMeshNode3D::eDIRECTION direction,
+                                  Model::SnakeMeshNode3D::eDIRECTION direction,
                                   bool stopped);
 } // Net
 

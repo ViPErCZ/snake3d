@@ -1,5 +1,7 @@
 #include "NetGameSnapshot.h"
 
+using namespace Model;
+
 namespace Net {
     uint8_t encodeNetDirection(const SnakeMeshNode3D::eDIRECTION direction) {
         return direction == SnakeMeshNode3D::NONE ? 255u : static_cast<uint8_t>(direction);

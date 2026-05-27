@@ -4,6 +4,8 @@
 #include <functional>
 #include <ranges>
 
+using namespace ModelUtils;
+
 namespace Animation {
     AnimationPlayer::AnimationPlayer(const string &name) {
         createAnimation(name);

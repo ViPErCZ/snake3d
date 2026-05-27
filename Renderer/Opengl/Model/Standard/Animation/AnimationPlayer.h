@@ -13,14 +13,17 @@
 #include "../../Utils/Mesh.h"
 #include "../../Utils/Tree.h"
 
-using namespace std;
-using namespace ModelUtils;
-
 namespace Animation {
+    using std::shared_ptr;
+    using std::vector;
+    using std::string;
+    using std::map;
+    using std::unordered_map;
+
     struct AnimationMeta {
         std::string name;
-        chrono::time_point<std::chrono::steady_clock> last_time;
-        chrono::duration<double> animation_duration;
+        std::chrono::time_point<std::chrono::steady_clock> last_time;
+        std::chrono::duration<double> animation_duration;
         vector<glm::mat4> bone_transform;
         bool pause;
         float alpha;
@@ -31,9 +34,9 @@ namespace Animation {
     public:
         AnimationPlayer() = default;
         explicit AnimationPlayer(const string &name);
-        AnimationPlayer(const vector<shared_ptr<Mesh> > &meshes,
+        AnimationPlayer(const vector<shared_ptr<ModelUtils::Mesh> > &meshes,
                         const map<string, shared_ptr<Animation::AnimationClip>> &animations,
-                        const vector<shared_ptr<Animation::Bone> > &bones, const Tree<uint32_t> &skeleton,
+                        const vector<shared_ptr<Animation::Bone> > &bones, const ModelUtils::Tree<uint32_t> &skeleton,
                         const unordered_map<std::string, uint32_t> &bones_map,
                         const glm::mat4 &global_matrix
         );
@@ -56,9 +59,9 @@ namespace Animation {
 
         shared_ptr<AnimationMeta> play(const string &name);
 
-        vector<shared_ptr<Mesh> > getNoBonesMeshes() const;
+        vector<shared_ptr<ModelUtils::Mesh> > getNoBonesMeshes() const;
 
-        vector<shared_ptr<Mesh> > getMeshes() const;
+        vector<shared_ptr<ModelUtils::Mesh> > getMeshes() const;
 
         bool isCompleted() const;
 
@@ -82,11 +85,11 @@ namespace Animation {
         bool completed = false;
 
         std::function<void(AnimationPlayer*)> completedCallback;
-        vector<shared_ptr<Mesh> > meshes;
+        vector<shared_ptr<ModelUtils::Mesh> > meshes;
         vector<shared_ptr<Animation::Bone> > bones;
-        vector<shared_ptr<Mesh> > noBonesMeshes;
+        vector<shared_ptr<ModelUtils::Mesh> > noBonesMeshes;
         unordered_map<std::string, uint32_t> bones_map;
-        optional<Tree<uint32_t> > skeleton;
+        std::optional<ModelUtils::Tree<uint32_t> > skeleton;
         glm::mat4 global_inverse{};
     };
 } // Animation

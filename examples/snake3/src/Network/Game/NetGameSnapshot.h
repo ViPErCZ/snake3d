@@ -13,7 +13,7 @@ namespace Net {
         // Per-segment world position. Z is replicated so clients see jump arcs
         // and falls through holes the same way the server does.
         std::vector<glm::vec3> positions;
-        SnakeMeshNode3D::eDIRECTION direction = SnakeMeshNode3D::NONE;
+        Model::SnakeMeshNode3D::eDIRECTION direction = Model::SnakeMeshNode3D::NONE;
         uint32_t segmentCount = 0;
         uint32_t respawnSerial = 0;
         bool crashActive = false;
@@ -32,8 +32,8 @@ namespace Net {
         bool winning = false;
     };
 
-    uint8_t encodeNetDirection(SnakeMeshNode3D::eDIRECTION direction);
-    SnakeMeshNode3D::eDIRECTION decodeNetDirection(uint8_t value);
+    uint8_t encodeNetDirection(Model::SnakeMeshNode3D::eDIRECTION direction);
+    Model::SnakeMeshNode3D::eDIRECTION decodeNetDirection(uint8_t value);
 
     void writeSnakeSnapshotState(BufferWriter &writer, const SnakeSnapshotState &state);
     bool readSnakeSnapshotState(BufferReader &reader, SnakeSnapshotState &state);

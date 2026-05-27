@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+using namespace Model;
+
 namespace Net {
     namespace {
         void applyHeadVisualDirection(const std::shared_ptr<SnakeMeshNode3D> &snake,

@@ -11,6 +11,7 @@
 #include "Tools/Layers.h"
 
 using namespace Animation;
+using namespace Physic;
 
 namespace Scenes {
     CoinScene::CoinScene(

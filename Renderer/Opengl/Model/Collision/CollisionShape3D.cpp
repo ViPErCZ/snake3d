@@ -1,5 +1,8 @@
 #include "CollisionShape3D.h"
 
+using namespace Physic;
+using namespace Model;
+
 namespace CollisionShape {
     CollisionShape3D::CollisionShape3D(const shared_ptr<ContextState> &contextState,
         const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Shape> &shape)
