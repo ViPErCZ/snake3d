@@ -8,6 +8,8 @@
 #include "../../Material/ShaderMaterial.h"
 #include "../../RenderStats.h"
 
+using namespace Animation;
+
 namespace Model {
     AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
                                            const shared_ptr<ShaderProgram> &baseShader, const string &animationName)

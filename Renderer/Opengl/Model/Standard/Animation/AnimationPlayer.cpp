@@ -4,15 +4,13 @@
 #include <functional>
 #include <ranges>
 
-using namespace Animation;
-
-namespace Animations {
+namespace Animation {
     AnimationPlayer::AnimationPlayer(const string &name) {
         createAnimation(name);
     }
 
     AnimationPlayer::AnimationPlayer(const vector<shared_ptr<Mesh>> &meshes,
-                                     const map<string, shared_ptr<Animation::Animation>> &animations, const vector<shared_ptr<Bone>> &bones,
+                                     const map<string, shared_ptr<Animation::AnimationClip>> &animations, const vector<shared_ptr<Bone>> &bones,
                                      const Tree<uint32_t> &skeleton, const unordered_map<std::string, uint32_t> &bones_map,
                                      const glm::mat4 &global_matrix) :
         animations(animations), meshes(meshes), bones(bones), bones_map(bones_map), skeleton(skeleton),
@@ -43,7 +41,7 @@ namespace Animations {
     }
 
     void AnimationPlayer::createAnimation(const string &name) {
-        animations.emplace(name, make_shared<Animation::Animation>(name, 0, 25));
+        animations.emplace(name, make_shared<Animation::AnimationClip>(name, 0, 25));
         const auto meta = make_shared<AnimationMeta>();
         meta->name = name;
         meta->animation_duration = std::chrono::seconds(0);
@@ -247,7 +245,7 @@ namespace Animations {
     }
 
     void AnimationPlayer::updateBonesAnimation(
-        const shared_ptr<Animation::Animation> &anim, const shared_ptr<AnimationMeta> &meta, const double animation_time) const {
+        const shared_ptr<Animation::AnimationClip> &anim, const shared_ptr<AnimationMeta> &meta, const double animation_time) const {
         function<void(const Tree<uint32_t> &, const glm::mat4 &)> node_traversal;
         node_traversal = [&](const Tree<uint32_t> &node, const glm::mat4 &parent_mat) {
             const auto anim_node = findAnimationNode(anim, bones[*node]);
@@ -288,7 +286,7 @@ namespace Animations {
     }
 
     shared_ptr<AnimationNode> AnimationPlayer::findAnimationNode(
-        const shared_ptr<Animation::Animation> &animation, const shared_ptr<Bone> &bone) {
+        const shared_ptr<Animation::AnimationClip> &animation, const shared_ptr<Bone> &bone) {
         for (const auto &node: animation->nodes) {
             if (node->bone == bone) {
                 return node;

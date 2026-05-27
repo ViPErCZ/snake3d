@@ -11,7 +11,6 @@
 
 using namespace Handler;
 using namespace Model;
-using namespace Animations;
 
 namespace Scenes {
     class PlayerScene final : public Scene {

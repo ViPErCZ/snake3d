@@ -8,6 +8,8 @@
 #include "../../Material/ShaderMaterial.h"
 #include "../../RenderStats.h"
 
+using namespace Animation;
+
 namespace Model {
     StandardMesh::StandardMesh(shared_ptr<ShaderProgram> baseShader)
         : baseShader(std::move(baseShader)), localMin(+FLT_MAX), localMax(-FLT_MIN), worldMin(+FLT_MAX), worldMax(-FLT_MIN) {

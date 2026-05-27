@@ -45,9 +45,9 @@ namespace Resource {
                                                 glm::inverse(global_matrix));
     }
 
-    map<string, shared_ptr<Animation::Animation> > AnimLoader::loadAnimations(
+    map<string, shared_ptr<Animation::AnimationClip> > AnimLoader::loadAnimations(
         const aiScene* scene, std::vector<shared_ptr<Bone> > &bones, const unordered_map<std::string, uint32_t>& bone_map) {
-        map<string, shared_ptr<Animation::Animation> > animations;
+        map<string, shared_ptr<Animation::AnimationClip> > animations;
 
         for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
             const auto* anim = scene->mAnimations[i];
@@ -88,7 +88,7 @@ namespace Resource {
                 anim_nodes.emplace_back(make_shared<AnimationNode>(pos_frames, rot_frames, scale_frames, bone));
             }
 
-            animations.emplace(anim_name, make_shared<Animation::Animation>(
+            animations.emplace(anim_name, make_shared<Animation::AnimationClip>(
                 anim_name, anim->mDuration, anim->mTicksPerSecond > 0 ? anim->mTicksPerSecond : 25, anim_nodes));
         }
 
@@ -96,8 +96,8 @@ namespace Resource {
     }
 
     Tree<uint32_t> AnimLoader::loadAnimationTree(const aiScene* scene, vector<shared_ptr<Bone> > &bones,
-        unordered_map<std::string, uint32_t>& bone_map, map<string, shared_ptr<Animation::Animation> >& anim) {
-        auto bone_finder = [&] (const std::string& str, map<string, shared_ptr<Animation::Animation> >&) {
+        unordered_map<std::string, uint32_t>& bone_map, map<string, shared_ptr<Animation::AnimationClip> >& anim) {
+        auto bone_finder = [&] (const std::string& str, map<string, shared_ptr<Animation::AnimationClip> >&) {
             if (const auto bi = bone_map.find(str); bi != bone_map.end()) {
                 return bi->second;
             }

@@ -16,7 +16,7 @@
 using namespace std;
 using namespace ModelUtils;
 
-namespace Animations {
+namespace Animation {
     struct AnimationMeta {
         std::string name;
         chrono::time_point<std::chrono::steady_clock> last_time;
@@ -25,14 +25,14 @@ namespace Animations {
         bool pause;
         float alpha;
         glm::mat4 world_transform;
-        shared_ptr<Animation::Animation> current_animation{};
+        shared_ptr<Animation::AnimationClip> current_animation{};
     };
     class AnimationPlayer {
     public:
         AnimationPlayer() = default;
         explicit AnimationPlayer(const string &name);
         AnimationPlayer(const vector<shared_ptr<Mesh> > &meshes,
-                        const map<string, shared_ptr<Animation::Animation>> &animations,
+                        const map<string, shared_ptr<Animation::AnimationClip>> &animations,
                         const vector<shared_ptr<Animation::Bone> > &bones, const Tree<uint32_t> &skeleton,
                         const unordered_map<std::string, uint32_t> &bones_map,
                         const glm::mat4 &global_matrix
@@ -71,11 +71,11 @@ namespace Animations {
         shared_ptr<AnimationPlayer> clone() const;
 
     protected:
-        void updateBonesAnimation(const shared_ptr<Animation::Animation> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
-        static shared_ptr<Animation::AnimationNode> findAnimationNode(const shared_ptr<Animation::Animation> &animation, const shared_ptr<Animation::Bone> &bone);
+        void updateBonesAnimation(const shared_ptr<Animation::AnimationClip> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
+        static shared_ptr<Animation::AnimationNode> findAnimationNode(const shared_ptr<Animation::AnimationClip> &animation, const shared_ptr<Animation::Bone> &bone);
 
     private:
-        map<string, shared_ptr<Animation::Animation> > animations;
+        map<string, shared_ptr<Animation::AnimationClip> > animations;
         unordered_map<string, shared_ptr<AnimationMeta> > metadata;
         float acceleration = 1.0f;
         bool repeat = false;

@@ -81,20 +81,20 @@ namespace Animation {
         [[nodiscard]] double static ease(double t, double curve);
     };
 
-    struct Animation {
+    struct AnimationClip {
         std::vector<shared_ptr<AnimationNode> > nodes;
         std::string name;
         double duration;
         double tps;
 
-        Animation(std::string name, const double duration, const double tps, decltype(nodes) nodes) noexcept
+        AnimationClip(std::string name, const double duration, const double tps, decltype(nodes) nodes) noexcept
                 : nodes(std::move(nodes))
                 , name(std::move(name))
                 , duration(duration)
                 , tps(tps) {
         }
 
-        Animation(std::string name, const double duration, const double tps) noexcept
+        AnimationClip(std::string name, const double duration, const double tps) noexcept
                 : name(std::move(name))
                 , duration(duration)
                 , tps(tps) {

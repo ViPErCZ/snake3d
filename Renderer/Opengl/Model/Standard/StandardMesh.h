@@ -11,7 +11,6 @@
 
 using namespace ModelUtils;
 using namespace Material;
-using namespace Animations;
 using namespace Tools;
 using namespace std;
 
@@ -47,9 +46,9 @@ namespace Model {
 
         [[nodiscard]] shared_ptr<StandardMesh> deepCopy() const;
 
-        void setAnimationPlayer(const shared_ptr<AnimationPlayer> &animationPlayer);
+        void setAnimationPlayer(const shared_ptr<Animation::AnimationPlayer> &animationPlayer);
 
-        [[nodiscard]] const shared_ptr<AnimationPlayer> &getAnimationPlayer() const;
+        [[nodiscard]] const shared_ptr<Animation::AnimationPlayer> &getAnimationPlayer() const;
 
         void setBlending(Blending blending);
 
@@ -77,7 +76,7 @@ namespace Model {
         shared_ptr<Mesh> mesh;
         shared_ptr<BaseMaterial> material;
         shared_ptr<ShaderProgram> baseShader;
-        shared_ptr<AnimationPlayer> animationPlayer;
+        shared_ptr<Animation::AnimationPlayer> animationPlayer;
         glm::vec3 localMin;
         glm::vec3 localMax;
         glm::vec3 worldMin;

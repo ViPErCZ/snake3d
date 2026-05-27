@@ -4,6 +4,8 @@
 #include "../Resource/ShaderLoader.h"
 #include "../Resource/TextureLoader.h"
 
+using namespace Animation;
+
 namespace Manager {
     ResourceManager::ResourceManager() {
         std::unique_lock lock(mutex);

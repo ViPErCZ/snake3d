@@ -9,6 +9,8 @@
 #include "Resource/ShaderLoader.h"
 #include "Resource/TextureLoader.h"
 
+using namespace Animation;
+
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();
     shaderRegistry = make_shared<ShaderRegistry>();

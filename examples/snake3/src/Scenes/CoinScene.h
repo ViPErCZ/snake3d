@@ -8,7 +8,6 @@
 #include "Renderer/Opengl/Scene/Scene.h"
 
 using namespace Model;
-using namespace Animations;
 
 namespace Scenes {
     class CoinScene final : public Scene {

@@ -15,7 +15,6 @@
 
 using namespace std;
 using namespace Resource;
-using namespace Animations;
 
 namespace Manager {
         template<class>
@@ -35,7 +34,7 @@ namespace Manager {
 
         void addModel(const string &name, shared_ptr<Mesh> &res);
 
-        void addModel(const string &name, shared_ptr<AnimationPlayer> res);
+        void addModel(const string &name, shared_ptr<Animation::AnimationPlayer> res);
 
         shared_ptr<TextureManager> getTexture(const string &name) const;
         bool hasTexture(const string &name) const;
@@ -56,7 +55,7 @@ namespace Manager {
 
         shared_ptr<Mesh> getModel(const string &name) const;
 
-        shared_ptr<AnimationPlayer> getAnimationModel(const string &name) const;
+        shared_ptr<Animation::AnimationPlayer> getAnimationModel(const string &name) const;
 
         void loadAsyncTexture(const string &path, const string &name, bool albedo, const function<void()> &onReady = nullptr);
 
@@ -86,8 +85,8 @@ namespace Manager {
                             }
                             --loadingCount;
                         });
-                    } else if constexpr (std::is_same_v<T, AnimationPlayer>) {
-                        loader->enqueueAnimation(path, [this, name, onReady](const std::shared_ptr<AnimationPlayer> &model) {
+                    } else if constexpr (std::is_same_v<T, Animation::AnimationPlayer>) {
+                        loader->enqueueAnimation(path, [this, name, onReady](const std::shared_ptr<Animation::AnimationPlayer> &model) {
                             {
                                 std::lock_guard guard(pendingMutex);
                                 pendingAnim.push({name, model, onReady});
@@ -121,7 +120,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<TextureManager> > texture;
         std::unordered_map<std::string, std::shared_ptr<ShaderProgram> > shader;
         std::unordered_map<std::string, std::shared_ptr<Mesh> > model;
-        std::unordered_map<std::string, std::shared_ptr<AnimationPlayer> > animationModel;
+        std::unordered_map<std::string, std::shared_ptr<Animation::AnimationPlayer> > animationModel;
         std::shared_ptr<ShaderRegistry> shaderRegistry;
         std::shared_ptr<Feature::FogFeature> fogFeature;
         std::unique_ptr<ResourceLoader> loader;
@@ -136,7 +135,7 @@ namespace Manager {
 
         struct PendingAnimation {
             std::string name;
-            std::shared_ptr<AnimationPlayer> model;
+            std::shared_ptr<Animation::AnimationPlayer> model;
             std::function<void()> onReady;
         };
 
