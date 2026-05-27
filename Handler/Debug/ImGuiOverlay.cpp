@@ -415,8 +415,13 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawObjectInspector() const {
         if (!manipulatorHandler) return;
 
-        // Stack pod Shader Inspector. Fixed width, max výška + scroll.
-        const float maxH = std::max(150.0f, (ImGui::GetIO().DisplaySize.y - 20.0f - 2.0f * kStackGap) / 3.0f);
+        // Stack pod Shader Inspector. Object Inspector je vždy poslední v
+        // sloupci, takže max výšku spočteme jako "co zbývá do spodního okraje" -
+        // tím se přizpůsobí stavu Shader Inspectoru (sbalený -> Object má
+        // skoro celou výšku, expandovaný -> Object dostane zbytek).
+        const float displayH = ImGui::GetIO().DisplaySize.y;
+        constexpr float kBottomMargin = 10.0f;
+        const float maxH = std::max(150.0f, displayH - stackCursorY - kBottomMargin);
         ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(kPanelWidth, 0), ImGuiCond_Always);
         ImGui::SetNextWindowSizeConstraints(ImVec2(kPanelWidth, 0), ImVec2(kPanelWidth, maxH));
