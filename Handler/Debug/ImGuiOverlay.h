@@ -106,7 +106,10 @@ namespace Handler::Debug {
         // + GetWindowSize.y) a další panel na něj naváže přes SetNextWindowPos
         // ImGuiCond_Always. Trade-off: panely jsou NoMove (jinak by drag mohl
         // rozhodit pořadí + dynamic height by overlap následujícího panelu).
+        // Fixed width + max-height-with-scroll garantuje, že tři expandované
+        // panely se vždy vejdou do okna hry (1/3 výšky každý).
         static constexpr float kStackGap = 6.0f;
+        static constexpr float kPanelWidth = 480.0f;
         mutable float stackCursorY = 10.0f;
 
         // Cache pro tristate checkbox "Collision shapes". Scene::collect-

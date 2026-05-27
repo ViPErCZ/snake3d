@@ -75,6 +75,8 @@ namespace Manager {
         void setReflectionsCallback(ReflectionsToggleCallback cb);
 
         [[nodiscard]] bool isFogEnabled() const;
+        [[nodiscard]] bool isShadowsEnabled() const { return shadows; }
+        [[nodiscard]] bool isBloomEnabled() const { return bloom; }
 
         [[nodiscard]] std::shared_ptr<Camera> getCamera() const { return camera; }
         [[nodiscard]] std::shared_ptr<ResourceManager> getResourceManager() const { return resourceManager; }

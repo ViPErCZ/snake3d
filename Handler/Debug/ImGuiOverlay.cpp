@@ -115,10 +115,13 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawEnginePanel() const {
         if (!renderManager) return;
 
-        // Stack-anchored: vždy na (10, stackCursorY). Renderer panel je top
-        // sloupce, takže stackCursorY = 10 (počáteční hodnota z renderPanels).
+        // Stack-anchored: vždy na (10, stackCursorY). Fixed width, max výška
+        // = třetina display height, scrollbar uvnitř pokud obsah přeteče.
+        const float maxH = std::max(150.0f, (ImGui::GetIO().DisplaySize.y - 20.0f - 2.0f * kStackGap) / 3.0f);
         ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
-        if (!ImGui::Begin("Engine", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+        ImGui::SetNextWindowSize(ImVec2(kPanelWidth, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(kPanelWidth, 0), ImVec2(kPanelWidth, maxH));
+        if (!ImGui::Begin("Engine", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize)) {
             stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
@@ -159,13 +162,16 @@ namespace Handler::Debug {
         // poskytují discoverable UI + state preview bez nutnosti pamatovat
         // klávesy.
         ImGui::TextDisabled("Rendering toggles");
-        bool shadows = false;  // RenderManager dnes nemá isShadowsEnabled getter.
+        bool shadows = renderManager->isShadowsEnabled();
+        bool bloom = renderManager->isBloomEnabled();
         bool fog = renderManager->isFogEnabled();
         bool reflections = renderManager->isReflectionsEnabled();
-        // Bloom/shadows toggle - jediný způsob jak zjistit jejich stav je
-        // přes toggle (RenderManager nemá getter). Read-only checkbox by lhal,
-        // takže ukážeme klávesovou nápovědu:
-        ImGui::TextDisabled("  V = shadows, B = bloom (no getter)");
+        if (ImGui::Checkbox("Shadows (V)", &shadows)) {
+            renderManager->toggleShadows();
+        }
+        if (ImGui::Checkbox("Bloom (B)", &bloom)) {
+            renderManager->toggleBloom();
+        }
         if (ImGui::Checkbox("Fog (F)", &fog)) {
             renderManager->toggleFog();
         }
@@ -194,18 +200,8 @@ namespace Handler::Debug {
             }
         }
 
-        ImGui::Separator();
-        ImGui::TextDisabled("Shader cache");
-        // ShaderRegistry inspector - počet cached programů + hot reload trigger.
-        if (renderManager) {
-            // RenderManager nedrží registry přímo - jdeme přes ResourceManager.
-            // Pro MVP necháváme inspector minimal; full per-program list je
-            // v F1 iter 3 plánu.
-            if (ImGui::Button("Reload shaders (F10)")) {
-                renderManager->reloadShaders();
-                std::cout << "[ImGuiOverlay] reloadShaders requested\n";
-            }
-        }
+        // Shader cache / reload tlačítko duplikovalo Shader Inspector --
+        // odstraněno, F10 + Shader Inspector tlačítko stačí.
 
         stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
         ImGui::End();
@@ -419,10 +415,12 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawObjectInspector() const {
         if (!manipulatorHandler) return;
 
-        // Stack pod Shader Inspector. Pevná šířka, výška auto.
+        // Stack pod Shader Inspector. Fixed width, max výška + scroll.
+        const float maxH = std::max(150.0f, (ImGui::GetIO().DisplaySize.y - 20.0f - 2.0f * kStackGap) / 3.0f);
         ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(520, 0), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin("Object Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+        ImGui::SetNextWindowSize(ImVec2(kPanelWidth, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(kPanelWidth, 0), ImVec2(kPanelWidth, maxH));
+        if (!ImGui::Begin("Object Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize)) {
             stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
@@ -585,9 +583,12 @@ namespace Handler::Debug {
 
         // Pod Engine panelem. Default sbalený - shader tabulka zabírá hodně
         // místa a typický debug-session ji potřebuje jen občas.
+        const float maxH = std::max(150.0f, (ImGui::GetIO().DisplaySize.y - 20.0f - 2.0f * kStackGap) / 3.0f);
         ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(kPanelWidth, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(kPanelWidth, 0), ImVec2(kPanelWidth, maxH));
         ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin("Shader Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+        if (!ImGui::Begin("Shader Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize)) {
             stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
