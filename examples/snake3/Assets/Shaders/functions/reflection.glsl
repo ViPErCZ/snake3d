@@ -1,6 +1,4 @@
-uniform vec4 clipPlane = vec4(0, 0, 1, 1.01);
 uniform sampler2D reflectionTexture;
-uniform bool reflectionEnable = false;
 
 vec3 calcReflexion(vec4 spacePos, vec3 color);
 

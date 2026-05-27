@@ -1,5 +1,7 @@
 #include "MaterialUbo.h"
 
+#include "UboBindings.h"
+
 namespace Manager {
 
     void MaterialUbo::upload(const MaterialDataStd140& data) {

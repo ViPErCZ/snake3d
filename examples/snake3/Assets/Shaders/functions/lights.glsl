@@ -63,10 +63,6 @@ uniform SpotLight spotLight[NR_POINT_LIGHTS];
 uniform Material material;
 uniform int numPointLights = 0;
 uniform int numSpotLights = 0;
-uniform bool useMaterial = false;
-uniform bool normalMapEnabled = false;
-uniform bool specularMapEnabled = false;
-uniform bool hasAlbedoTexture = false;
 uniform samplerCube environmentMap;
 uniform bool iblEnabled = false;
 uniform float uShadowAmbientDarken = 0.85; // how much to darken ambient in shadow (0..1)
@@ -106,16 +102,16 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // combine results
     vec3 ambient = ambientColor;
-    if (useMaterial == false) {
+    if (material_useMaterial == 0) {
         ambient = vec3(texture(material.ambient, TexCoords));
     }
 
     vec3 diffuse = light.diffuse * diff;
-    if (normalMapEnabled) {
+    if (material_normalMapEnabled != 0) {
         diffuse *= vec3(texture(material.diffuse, TexCoords));
     }
     vec3 specular = light.specular * spec;
-    if (specularMapEnabled) {
+    if (material_specularMapEnabled != 0) {
         specular *= vec3(texture(material.specular, TexCoords));
     }
 
@@ -203,10 +199,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     ld = max(ld, 0.1);
     float attenuation = 1.0 / ld;
 
-    vec3 albedo = hasAlbedoTexture ? albedoColor : materialColor;
+    vec3 albedo = (material_hasAlbedoTexture != 0) ? albedoColor : materialColor;
     vec3 ambient = light.ambient * albedo;
     vec3 diffuse = light.diffuse * diff * albedo;
-    vec3 specular = useMaterial ? light.specular * spec : light.specular * spec * specularColor;
+    vec3 specular = (material_useMaterial != 0) ? light.specular * spec : light.specular * spec * specularColor;
 
     return (ambient + diffuse + specular) * attenuation;
 }
@@ -288,10 +284,10 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     float epsilon = currentCutOff - currentOuterCutOff;
     float intensity = clamp((theta - currentOuterCutOff) / epsilon, 0.0, 1.0);
     // combine results
-    vec3 ambient = light.ambient * (hasAlbedoTexture ? albedoColor : materialColor);
+    vec3 ambient = light.ambient * ((material_hasAlbedoTexture != 0) ? albedoColor : materialColor);
     vec3 diffuse = light.diffuse * diff;
     vec3 specular = light.specular * spec;
-    if (specularMapEnabled) {
+    if (material_specularMapEnabled != 0) {
         specular = specular * specularColor;
     }
     ambient *= attenuation * intensity;

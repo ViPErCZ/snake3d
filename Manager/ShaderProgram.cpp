@@ -227,7 +227,11 @@ namespace Manager {
     void ShaderProgram::setUniform(const std::string &name, const UniformValue &value) const {
         GLint location = getUniformLocation(name);
         if (location == -1) {
-            std::cerr << "Uniform " << name << " not found in shader\n";
+            // D1.2c: per-material UBO migration moves some uniforms out of
+            // basic.fs/lights.glsl, but ShaderMaterial callers (SnakeMeshNode3D
+            // crash/respawn) still ask for "useMaterial" / "hasAlbedoTexture"
+            // on those shaders. Match setInt/setFloat/setBool/etc. and stay
+            // silent on missing locations; D1.2e will rewrite the call sites.
             return;
         }
 

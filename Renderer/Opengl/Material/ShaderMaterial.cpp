@@ -14,9 +14,37 @@ namespace Material {
         uniforms[name] = value;
     }
 
+    namespace {
+        // Read a typed value from the uniforms map; returns fallback if the
+        // key is missing or holds a different variant alternative.
+        template <typename T>
+        T readUniformOr(const std::map<std::string, UniformValue>& uniforms,
+                        const std::string& key, T fallback) {
+            const auto it = uniforms.find(key);
+            if (it == uniforms.end()) return fallback;
+            if (const auto* v = std::get_if<T>(&it->second)) return *v;
+            return fallback;
+        }
+    }
+
     void ShaderMaterial::bind(const glm::vec3 &posView, const glm::mat4 &view, const glm::mat4 &projection,
         const glm::mat4 &model, const bool shadows) const {
         shader->use();
+
+        // Populate MaterialData UBO so lights.glsl's `material_*` reads are
+        // deterministic when ShaderMaterial-driven shaders (respawn.fs,
+        // explosion.fs) call CalcDirLight. Defaults match legacy uniform
+        // defaults; uniforms map overrides what the owner set explicitly.
+        cpu.material_alpha = alpha;
+        cpu.material_ambientLightColor = glm::vec3(1.0f);
+        cpu.material_ambientLightColorIntensity = 1.0f;
+        cpu.material_useMaterial =
+            readUniformOr<bool>(uniforms, "useMaterial", false) ? 1 : 0;
+        cpu.material_hasAlbedoTexture =
+            readUniformOr<bool>(uniforms, "hasAlbedoTexture", false) ? 1 : 0;
+        cpu.material_overrideColorMesh = 0;
+        materialUbo.upload(cpu);
+        materialUbo.bind();
         if (shader->hasUniform("view") && uniforms.contains("view") == false) {
             shader->setMat4("view", view);
         }

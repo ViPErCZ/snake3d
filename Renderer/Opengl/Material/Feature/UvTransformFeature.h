@@ -4,24 +4,27 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
+#include "../../../../Manager/MaterialUbo.h"
+
+using namespace Manager;
+using namespace Material;
 
 namespace Feature {
-    // UV scale + offset pro tiling textur. Plane používá scale (48, 48) aby
-    // se gamefield texture opakovala přes celou podlahu; default (1, 1) /
-    // (0, 0) je no-op. Žádný shader feature flag - uvScale/uvOffset uniformy
-    // jsou v basic.vs vždy přítomny.
-    class UvTransformFeature final : public IMaterialFeature {
+        class UvTransformFeature final : public IMaterialFeature {
     public:
-        explicit UvTransformFeature(glm::vec2 scale = glm::vec2(1.0f),
-                                    glm::vec2 offset = glm::vec2(0.0f))
+        explicit UvTransformFeature(const glm::vec2 scale = glm::vec2(1.0f),
+                                    const glm::vec2 offset = glm::vec2(0.0f))
             : scale(scale), offset(offset) {}
 
-        [[nodiscard]] Manager::ShaderFeatureMask flag() const override { return 0; }
+        [[nodiscard]] ShaderFeatureMask flag() const override { return 0; }
 
-        void bind(Manager::ShaderProgram& shader,
-                  const Material::RenderContext& /*ctx*/) const override {
-            shader.setVec2("uvScale", scale);
-            shader.setVec2("uvOffset", offset);
+        void bind(ShaderProgram& /*shader*/,
+                  const RenderContext& ctx) const override {
+            if (ctx.materialData) {
+                ctx.materialData->material_uvScale = scale;
+                ctx.materialData->material_uvOffset = offset;
+                if (ctx.materialDirty) *ctx.materialDirty = true;
+            }
         }
 
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override {

@@ -79,7 +79,7 @@ namespace Model {
         void stopRespawn();
         unique_ptr<Timer> timer;
         shared_ptr<SphereMesh> createTileNode() const;
-        shared_ptr<Material::MaterialInstance> tileMaterial;
+        shared_ptr<MaterialInstance> tileMaterial;
         shared_ptr<Feature::LightingFeature> tileLightingFeature;
         shared_ptr<BaseMaterial> headMaterial;
         shared_ptr<ShaderMaterial> crashMaterial;
@@ -91,10 +91,8 @@ namespace Model {
         eDIRECTION direction = NONE;
         bool respawned = false;
         bool bodySegment = false;
-        // Preserve collider visibility across crash/respawn cycle - crash hides
-        // the shape for the explosion animation, respawn restores whatever
-        // the user had toggled in the inspector before the crash.
         bool collisionShapeVisibleBeforeCrash = true;
+        bool crashedSinceLastRespawn = false;
         std::function<void()> postCrashRespawnHandler;
     };
 } // Model

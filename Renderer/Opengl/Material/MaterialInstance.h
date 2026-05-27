@@ -7,6 +7,7 @@
 #include "BaseMaterial.h"
 #include "Feature/IMaterialFeature.h"
 #include "RenderContext.h"
+#include "../../../Manager/MaterialUbo.h"
 #include "../../../Manager/ShaderProgram.h"
 
 namespace Material {
@@ -46,6 +47,16 @@ namespace Material {
     private:
         std::shared_ptr<Manager::ShaderProgram> program;
         std::vector<std::shared_ptr<Feature::IMaterialFeature>> features;
+
+        // Per-material UBO (binding slot 1). D1.2b uploaded data dormant;
+        // D1.2c flips features (starting with AlbedoFeature) to write into
+        // `cpu` via the RenderContext pointer and read on the GPU as
+        // `material_*` instead of legacy setUniform names. `cpu` is mutable
+        // because MaterialInstance::bind() is const but features mutate the
+        // shadow through ctx.materialData during that call.
+        mutable Manager::MaterialUbo materialUbo;
+        mutable Manager::MaterialDataStd140 cpu{};
+        mutable bool dirty = true;
     };
 } // Material
 

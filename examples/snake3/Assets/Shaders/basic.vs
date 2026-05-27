@@ -32,8 +32,9 @@ uniform mat4 projection;
 // set useBones explicitly, the non-bones path runs (gl_Position from aPos).
 // Skeletal materials (AnimationArrayMesh) set useBones=true explicitly.
 uniform bool useBones = false;
-uniform vec2 uvScale = vec2(1.0, 1.0);
-uniform vec2 uvOffset = vec2(0.0, 0.0);
+// D1.2d.1: uvScale / uvOffset migrated to MaterialData UBO
+// (material_uvScale / material_uvOffset). Legacy uniform vec2 declarations
+// removed -- UvTransformFeature writes the UBO shadow instead.
 uniform vec3 lightPos = vec3(0.0, 0.0, 0.0);
 //uniform vec3 cameraPos;
 
@@ -53,7 +54,7 @@ void main()
         gl_Position = projection * viewModel * vec4(aPos, 1.0);
     }
 
-    vec2 uv = aTexCoords * uvScale + uvOffset;
+    vec2 uv = aTexCoords * material_uvScale + material_uvOffset;
     TexCoords = uv;
     fragPos = vec3(model * (useBones ? boneTransform(boneIds, weights) : vec4(aPos, 1.0)));
 
@@ -76,6 +77,6 @@ void main()
     camPos = viewPos;
     meshColor = aColor;
     viewMatrix = view;
-    outUvScale = uvScale;
+    outUvScale = material_uvScale;
     clipSpacePos = gl_Position;
 }

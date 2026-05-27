@@ -114,8 +114,20 @@ namespace Model {
     void SnakeMeshNode3D::respawn() {
         bodySegment = false;
         respawned = false;
+        // Determine target collider visibility:
+        //  - after a crash: restore the value crash() captured (= what the user
+        //    had via CollisionShapeHandler before the explosion animation).
+        //  - on every other respawn path (initial spawn, winner-screen reset,
+        //    multiplayer rebuild): keep whatever the head shape currently shows
+        //    so the user's inspector toggle is respected.
+        const bool keepVisible = !collisionShapes.empty()
+            ? (crashedSinceLastRespawn
+                   ? collisionShapeVisibleBeforeCrash
+                   : collisionShapes.begin()->get()->isVisible())
+            : true;
+        crashedSinceLastRespawn = false;
         if (!collisionShapes.empty()) {
-            collisionShapes.begin()->get()->setVisible(collisionShapeVisibleBeforeCrash);
+            collisionShapes.begin()->get()->setVisible(keepVisible);
         }
 
         for (const auto &child: children) {
@@ -251,13 +263,13 @@ namespace Model {
 
         addNode(tile5);
 
-        // Propagate pre-crash collider visibility to every freshly-created
+        // Propagate the resolved target visibility to every freshly-created
         // body tile so user toggles from CollisionShapeHandler are respected
         // even though the new shapes were never registered with the handler.
         for (const auto& child : children) {
             if (const auto t = dynamic_pointer_cast<SnakeMeshNode3D>(child)) {
                 if (!t->getCollisionShapes().empty()) {
-                    t->getCollisionShapes()[0]->setVisible(collisionShapeVisibleBeforeCrash);
+                    t->getCollisionShapes()[0]->setVisible(keepVisible);
                 }
             }
         }
@@ -276,6 +288,7 @@ namespace Model {
         copyExplosionSourceMaterial(crashMaterial, mesh->getMaterial());
         mesh->setMaterial(crashMaterial);
         collisionShapeVisibleBeforeCrash = collisionShapes.begin()->get()->isVisible();
+        crashedSinceLastRespawn = true;
         collisionShapes.begin()->get()->setVisible(false);
 
         for (auto &child: children) {

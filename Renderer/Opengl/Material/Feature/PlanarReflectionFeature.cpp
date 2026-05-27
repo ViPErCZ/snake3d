@@ -1,6 +1,7 @@
 #include "PlanarReflectionFeature.h"
 
 #include "../TextureSlots.h"
+#include "../../../../Manager/MaterialUbo.h"
 
 namespace Feature {
     PlanarReflectionFeature::PlanarReflectionFeature(std::shared_ptr<Manager::TextureManager> reflection,
@@ -12,9 +13,12 @@ namespace Feature {
     }
 
     void PlanarReflectionFeature::bind(Manager::ShaderProgram& shader,
-                                       const Material::RenderContext& /*ctx*/) const {
-        shader.setBool("reflectionEnable", enabled);
-        shader.setVec4("clipPlane", clipPlane);
+                                       const Material::RenderContext& ctx) const {
+        if (ctx.materialData) {
+            ctx.materialData->material_reflectionEnable = enabled ? 1 : 0;
+            ctx.materialData->material_clipPlane = clipPlane;
+            if (ctx.materialDirty) *ctx.materialDirty = true;
+        }
 
         if (enabled && reflection && reflection->hasTexture()) {
             shader.setInt("reflectionTexture", Material::TextureSlots::PlanarReflection);

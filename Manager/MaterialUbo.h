@@ -3,23 +3,10 @@
 
 #include <glm/glm.hpp>
 
-#include "UboBindings.h"
 #include "UniformBuffer.h"
 
 namespace Manager {
 
-    // Per-material UBO bound to binding point 1 (UBO_BINDING_MATERIAL).
-    // Each MaterialInstance owns one; uploaded on dirty, bound on draw.
-    //
-    // D1.2a state: layout and C++/GLSL plumbing exist, but no shader code
-    // reads any `material_*` field yet. This file lands the std140 struct
-    // and a typed wrapper so D1.2b can attach it to MaterialInstance without
-    // further infra churn.
-    //
-    // std140 packing: vec3+float pair fills one vec4 slot (16B). A vec4
-    // member forces the block base alignment to 16 and inserts padding
-    // before itself if needed. The sizeof() static_assert below catches
-    // any drift between this C++ layout and material_data.glsl.
     struct alignas(16) MaterialDataStd140 {
         // 0    : vec3 + float pair (one vec4 slot, 16B)
         glm::vec3 material_ambientLightColor{1.0F, 1.0F, 1.0F};

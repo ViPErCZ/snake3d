@@ -1,6 +1,7 @@
 #include "PbrFeature.h"
 
 #include "../TextureSlots.h"
+#include "../../../../Manager/MaterialUbo.h"
 
 namespace Feature {
     PbrFeature::PbrFeature(std::shared_ptr<Manager::TextureManager> metalness,
@@ -12,12 +13,15 @@ namespace Feature {
     }
 
     void PbrFeature::bind(Manager::ShaderProgram& shader,
-                          const Material::RenderContext& /*ctx*/) const {
+                          const Material::RenderContext& ctx) const {
         const bool hasMetal = metalness && metalness->hasTexture();
         const bool hasRough = roughness && roughness->hasTexture();
         const bool hasAo    = aoMap && aoMap->hasTexture();
 
-        shader.setBool("pbrEnabled", hasMetal || hasRough);
+        if (ctx.materialData) {
+            ctx.materialData->material_pbrEnabled = (hasMetal || hasRough) ? 1 : 0;
+            if (ctx.materialDirty) *ctx.materialDirty = true;
+        }
 
         // NOTE on uniform names: StandardMaterial::bind historically called
         // setInt("roughness", 5) and setInt("aoMap", 7), but basic.fs declares

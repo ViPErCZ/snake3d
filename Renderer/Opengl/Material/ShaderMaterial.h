@@ -13,6 +13,7 @@
 #include "../../../Lights/DirectionalLight.h"
 #include "../../../Lights/PointLight.h"
 #include "../../../Lights/SpotLight.h"
+#include "../../../Manager/MaterialUbo.h"
 #include "../../../Manager/ShaderProgram.h"
 #include "../../../Manager/TextureManager.h"
 
@@ -102,6 +103,14 @@ namespace Material {
         shared_ptr<glm::vec3> color;
         float alpha = 1.0f;
         bool shadowsEnabled = false;
+
+        // Per-material UBO (slot 1) populated from uniforms map at bind time.
+        // Shared lights.glsl helpers (CalcDirLight et al.) read `material_*`
+        // fields from this block, so ShaderMaterial-driven shaders (respawn.fs,
+        // explosion.fs) get a deterministic UBO state instead of stale data
+        // from whatever MaterialInstance was bound last.
+        mutable Manager::MaterialUbo materialUbo;
+        mutable Manager::MaterialDataStd140 cpu{};
     };
 } // Material
 

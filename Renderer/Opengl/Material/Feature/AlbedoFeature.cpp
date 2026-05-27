@@ -1,6 +1,7 @@
 #include "AlbedoFeature.h"
 
 #include "../TextureSlots.h"
+#include "../../../../Manager/MaterialUbo.h"
 
 namespace Feature {
     AlbedoFeature::AlbedoFeature(std::shared_ptr<Manager::TextureManager> albedo)
@@ -8,26 +9,26 @@ namespace Feature {
     }
 
     void AlbedoFeature::bind(Manager::ShaderProgram& shader,
-                             const Material::RenderContext& /*ctx*/) const {
-        shader.setFloat("alpha", alpha);
-        shader.setFloat("ambientLightColorIntensity", ambientIntensity);
-        shader.setInt("material.ambient", Material::TextureSlots::Albedo);
+                             const Material::RenderContext& ctx) const {
+        const bool hasTexture = albedo && albedo->hasTexture();
 
-        if (albedo && albedo->hasTexture()) {
-            shader.setBool("useMaterial", false);
-            shader.setBool("hasAlbedoTexture", true);
-            albedo->bind(Material::TextureSlots::Albedo);
-        } else {
-            shader.setBool("useMaterial", true);
-            shader.setBool("hasAlbedoTexture", false);
+        if (ctx.materialData) {
+            auto& md = *ctx.materialData;
+            md.material_alpha = alpha;
+            md.material_ambientLightColorIntensity = ambientIntensity;
+            md.material_ambientLightColor = color.value_or(glm::vec3(1.0F));
+            md.material_useMaterial = hasTexture ? 0 : 1;
+            md.material_hasAlbedoTexture = hasTexture ? 1 : 0;
+            md.material_overrideColorMesh = color.has_value() ? 1 : 0;
+            if (ctx.materialDirty) *ctx.materialDirty = true;
         }
 
-        if (color.has_value()) {
-            shader.setVec3("ambientLightColor", *color);
-            shader.setBool("overrideColorMesh", true);
-        } else {
-            shader.setVec3("ambientLightColor", glm::vec3(1.0f));
-            shader.setBool("overrideColorMesh", false);
+        // Sampler slot + texture binding stay legacy -- texture binding isn't
+        // part of the UBO migration. `material.ambient` is a sampler2D and
+        // samplers can't live inside a UBO.
+        shader.setInt("material.ambient", Material::TextureSlots::Albedo);
+        if (hasTexture) {
+            albedo->bind(Material::TextureSlots::Albedo);
         }
     }
 

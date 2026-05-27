@@ -28,7 +28,7 @@ namespace Handler {
         moveInterval = 1.0 / (tilesPerSecond * stepsPerTile);
     }
 
-    void SnakeMoveHandler::setDynamicBody(const std::shared_ptr<Physic::Dynamics::DynamicBody> &body) {
+    void SnakeMoveHandler::setDynamicBody(const std::shared_ptr<DynamicBody> &body) {
         // The chain-fall handler owns all vertical motion of the snake once a
         // tile crosses the edge, so the DynamicBody is only used as a hook to
         // freeze the head while we drive it ourselves (see onDefaultHandler).
@@ -84,11 +84,11 @@ namespace Handler {
     }
 
     bool SnakeMoveHandler::isHeadAirborne() const {
-        return activeJumps.find(snakeMeshNode.get()) != activeJumps.end();
+        return activeJumps.contains(snakeMeshNode.get());
     }
 
     void SnakeMoveHandler::startHeadJump() {
-        glm::vec3 directionVector(0.0f);
+        glm::vec3 directionVector;
         switch (snakeMeshNode->getDirection()) {
             case SnakeMeshNode3D::LEFT:  directionVector = {-1.0f, 0.0f, 0.0f}; break;
             case SnakeMeshNode3D::RIGHT: directionVector = { 1.0f, 0.0f, 0.0f}; break;
@@ -108,7 +108,7 @@ namespace Handler {
 
         const auto headPos = snakeMeshNode->getPosition();
         const glm::vec3 endPos = headPos + directionVector * distance;
-        auto trajectory = std::make_shared<Physic::Jump::JumpTrajectory>(headPos, endPos, duration, peakHeight);
+        const auto trajectory = std::make_shared<Jump::JumpTrajectory>(headPos, endPos, duration, peakHeight);
 
         // Body tiles will claim a slot as they each visit this exact cell.
         PendingTakeoff event{};
@@ -138,17 +138,17 @@ namespace Handler {
             if (!bodyTile) {
                 continue;
             }
-            if (activeJumps.find(bodyTile.get()) != activeJumps.end()) {
+            if (activeJumps.contains(bodyTile.get())) {
                 continue; // already arcing
             }
             // First pending event matching this tile's exact cell wins (FIFO).
-            for (auto it = pendingTakeoffs.begin(); it != pendingTakeoffs.end(); ++it) {
-                if (it->tilesRemaining <= 0) {
+            for (auto & pendingTakeoff : pendingTakeoffs) {
+                if (pendingTakeoff.tilesRemaining <= 0) {
                     continue;
                 }
-                if (bodyTile->x == it->virtualX && bodyTile->y == it->virtualY) {
-                    activeJumps[bodyTile.get()] = TileJumpState{it->trajectory, 0.0, bodyTile->getPosition().z};
-                    it->tilesRemaining -= 1;
+                if (bodyTile->x == pendingTakeoff.virtualX && bodyTile->y == pendingTakeoff.virtualY) {
+                    activeJumps[bodyTile.get()] = TileJumpState{pendingTakeoff.trajectory, 0.0, bodyTile->getPosition().z};
+                    pendingTakeoff.tilesRemaining -= 1;
                     break;
                 }
             }
@@ -209,7 +209,7 @@ namespace Handler {
 
     bool SnakeMoveHandler::isInChain(const SnakeMeshNode3D *tile) const {
         if (!tile) return false;
-        return tileJoinProgress.find(const_cast<SnakeMeshNode3D *>(tile)) != tileJoinProgress.end();
+        return tileJoinProgress.contains(const_cast<SnakeMeshNode3D *>(tile));
     }
 
     bool SnakeMoveHandler::allTilesInChain() const {
@@ -290,7 +290,7 @@ namespace Handler {
         // avoids spurious mid-snake triggers if body tiles happen to coincide
         // with a void cell during odd geometries.
         if (tile != snakeMeshNode) return;
-        if (activeJumps.find(tile.get()) != activeJumps.end()) return;
+        if (activeJumps.contains(tile.get())) return;
         // Cell centers are at (gridX*32 + 16, gridY*32 + 16); imagine a cube
         // tipping over: it only fits into the hole once the whole footprint is
         // over it, so we transition exactly at the center.
@@ -541,7 +541,7 @@ namespace Handler {
             for (const auto &child : children) {
                 const auto tile = dynamic_pointer_cast<SnakeMeshNode3D>(child);
                 if (!tile) continue;
-                if (activeJumps.find(tile.get()) != activeJumps.end()) {
+                if (activeJumps.contains(tile.get())) {
                     bodyArcingBefore.push_back(tile.get());
                 }
             }
@@ -556,7 +556,7 @@ namespace Handler {
             // drape and (since gravity then accelerates the whole chain
             // uniformly) free fall too.
             if (!chainActive && headWasArcing && headTrajectory &&
-                activeJumps.find(snakeMeshNode.get()) == activeJumps.end() &&
+                !activeJumps.contains(snakeMeshNode.get()) &&
                 voidPredicate &&
                 (snakeMeshNode->x - 16) % CUBE_SIZE == 0 &&
                 (snakeMeshNode->y - 16) % CUBE_SIZE == 0 &&
@@ -568,7 +568,7 @@ namespace Handler {
             // start dropping with the rest of the snake.
             if (chainActive) {
                 for (auto *tile : bodyArcingBefore) {
-                    if (activeJumps.find(tile) == activeJumps.end() &&
+                    if (!activeJumps.contains(tile) &&
                         tile->x == chainKinkVirtualX && tile->y == chainKinkVirtualY) {
                         joinChain(tile);
                     }
@@ -775,6 +775,25 @@ namespace Handler {
         const shared_ptr<SnakeMeshNode3D> tile = iter == children.begin()
                                                      ? snakeMeshNode
                                                      : dynamic_pointer_cast<SnakeMeshNode3D>(*(iter - 1));
+
+        // Spawn-spacing gate: freshly grown tiles share their predecessor's
+        // cell on the eat tick (`addTile` copies pos + virtual x/y). Without a
+        // gap check, the moment the predecessor moves a single sub-cell step
+        // the new tile picks up the chase via findDirection, and the entire
+        // freshly grown tail ends up packed at UNIT_MOVE-spacing instead of
+        // the 1-cell spacing the rest of the body has. By refusing to assign
+        // a direction until the predecessor is a full cell away we let the
+        // predecessor open a CUBE_SIZE gap first; from then on both tiles
+        // advance in lockstep and the gap stays at exactly 1 cell - matching
+        // the original snake's segment spacing. Established tiles are exactly
+        // CUBE_SIZE apart so the >= check passes for them.
+        const int rawDx = tile->x - iter->get()->x;
+        const int rawDy = tile->y - iter->get()->y;
+        const int dx = rawDx < 0 ? -rawDx : rawDx;
+        const int dy = rawDy < 0 ? -rawDy : rawDy;
+        if (dx + dy < CUBE_SIZE) {
+            return SnakeMeshNode3D::NONE;
+        }
 
         if (tile->getPosition().x > iter->get()->getPosition().x) {
             return SnakeMeshNode3D::RIGHT;

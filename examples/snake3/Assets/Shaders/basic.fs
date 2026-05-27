@@ -21,32 +21,31 @@ in vec2 outUvScale;
 
 uniform float uTime = 1;
 uniform vec3 viewPos;
-uniform vec3 ambientLightColor = vec3(1.0, 1.0, 1.0);
-uniform float ambientLightColorIntensity = 1.0;
+// D1.2c: ambientLightColor / ambientLightColorIntensity / overrideColorMesh
+// migrated to MaterialData UBO (read as material_*). Legacy declarations
+// removed -- AlbedoFeature now writes the UBO shadow instead of calling
+// setUniform on these names.
 uniform bool directionLightEnable = false;
 uniform bool shadowsEnable = false;
-uniform bool pbrEnabled = false;
-uniform bool overrideColorMesh = false;
+// D1.2d.4: pbrEnabled migrated to MaterialData UBO (material_pbrEnabled).
 uniform sampler2D metalness;
 uniform sampler2D roughnessMap;
 
-uniform bool rainDropEnable = false;
-uniform float rainSpeed = 0.2;
-uniform float rainDensity = 20.0;
+// D1.2d.8: rainDropEnable / rainSpeed / rainDensity migrated to MaterialData
+// UBO (material_rainDropEnable / material_rainSpeed / material_rainDensity).
 
 // Hole map: greyscale grid (e.g. 48x48) where r > 0.5 marks a "hole" -
 // the fragment is discarded so the player can see through the surface.
-// Gated by FEATURE_HOLE_MAP - materials must request the feature in
-// their mask AND set hasHoleMap=true at runtime to activate.
-uniform bool hasHoleMap = false;
+// D1.2d.5: hasHoleMap migrated to MaterialData UBO (material_hasHoleMap).
+// The holeMap sampler stays legacy.
 uniform sampler2D holeMap;
 
 #include "functions/material_data.glsl"
-#include "functions/fog.glsl"
+#include "functions/fog_material.glsl"
 #include "functions/lights.glsl"
 #include "functions/reflection.glsl"
 #include "functions/shadows.glsl"
-#include "functions/alpha.glsl"
+#include "functions/alpha_material.glsl"
 #include "functions/rainRipple.glsl"
 
 void main()
@@ -59,22 +58,22 @@ void main()
     //   Aktuální consumer: HoleMapFeature - hole_map_discard.glsl.
 
     float shadow = 0.0;
-    vec3 ambientColor = ambientLightColor * ambientLightColorIntensity;
-    vec4 albedoTexture = useMaterial ? vec4(meshColor, 1.0) : texture(material.ambient, TexCoords);
+    vec3 ambientColor = material_ambientLightColor * material_ambientLightColorIntensity;
+    vec4 albedoTexture = (material_useMaterial != 0) ? vec4(meshColor, 1.0) : texture(material.ambient, TexCoords);
 
-    if (overrideColorMesh && useMaterial) {
-        albedoTexture = vec4(ambientLightColor, 1.0);
+    if ((material_overrideColorMesh != 0) && (material_useMaterial != 0)) {
+        albedoTexture = vec4(material_ambientLightColor, 1.0);
     }
 
-    float metalness = pbrEnabled ? texture(metalness, TexCoords).b : 0.0;
-    float roughness = pbrEnabled ? texture(roughnessMap, TexCoords).g : 0.5;
+    float metalness = (material_pbrEnabled != 0) ? texture(metalness, TexCoords).b : 0.0;
+    float roughness = (material_pbrEnabled != 0) ? texture(roughnessMap, TexCoords).g : 0.5;
     vec3 F0 = vec3(0.04);
 
 #ifdef FEATURE_PBR
-    if (pbrEnabled) {
+    if (material_pbrEnabled != 0) {
         roughness = clamp(roughness, 0.05, 1.0);
         metalness = clamp(metalness, 0.0, 1.0);
-        F0 = useMaterial ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
+        F0 = (material_useMaterial != 0) ? mix(F0, pow(albedoTexture.xyz, vec3(2.2)), metalness) : mix(F0, pow(albedoTexture.rgb, vec3(2.2)), metalness);
     }
 #endif
 
@@ -83,20 +82,20 @@ void main()
     // and no distortion is applied anywhere.
     vec2 rippleOffset = vec2(0.0);
 #ifdef FEATURE_RAIN_RIPPLE
-    if (rainDropEnable) {
+    if (material_rainDropEnable != 0) {
         vec2 cleanUV = TexCoords / outUvScale * 2;
-        rippleOffset = getRainRippleDistortion(cleanUV, uTime, rainSpeed, rainDensity);
+        rippleOffset = getRainRippleDistortion(cleanUV, uTime, material_rainSpeed, material_rainDensity);
     }
 #endif
 
     vec3 normal = Normal;
 #ifdef FEATURE_NORMAL_MAP
-    if (normalMapEnabled) {
+    if (material_normalMapEnabled != 0) {
         vec3 tangentNormal = texture(material.diffuse, TexCoords).rgb;
         tangentNormal = tangentNormal * 2.0 - 1.0; // [0,1] -> [-1,1]
 
     #ifdef FEATURE_RAIN_RIPPLE
-        if (rainDropEnable) {
+        if (material_rainDropEnable != 0) {
             // Modifikujeme normálovou mapu před převodem do World Space
             tangentNormal.xy += rippleOffset * 2.0;
             tangentNormal = normalize(tangentNormal);
@@ -107,18 +106,18 @@ void main()
     }
 #endif
 #ifdef FEATURE_RAIN_RIPPLE
-    if (!normalMapEnabled && rainDropEnable) {
+    if ((material_normalMapEnabled == 0) && (material_rainDropEnable != 0)) {
         // Pokud není normal mapa, vytvoříme normálu jen z vlnek
         normal = normalize(TBN * vec3(rippleOffset, 1.0));
     }
 #endif
 
-    vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
+    vec3 color = (material_useMaterial != 0) ? albedoTexture.xyz : albedoTexture.rgb;
     vec3 viewDir = normalize(camPos - fragPos);
     vec3 ambient = vec3(0.0);
 
 #ifdef FEATURE_PBR
-    if (pbrEnabled) {
+    if (material_pbrEnabled != 0) {
         // A) PBR Ambient (IBL)
         vec3 kS = fresnelSchlick(max(dot(normal, viewDir), 0.0), F0);
         vec3 kD = 1.0 - kS;
@@ -135,7 +134,7 @@ void main()
         }
     #endif
         if (!iblEnabled) {
-            irradiance = ambientLightColor * 0.1;
+            irradiance = material_ambientLightColor * 0.1;
         }
 
         vec3 diffusePart = irradiance * albedoTexture.rgb;
@@ -145,12 +144,12 @@ void main()
         if (ao < 0.01) ao = 1.0;
 
         // Výsledný ambient scény
-        ambient = (kD * diffusePart + reflections) * ao * ambientLightColorIntensity;
+        ambient = (kD * diffusePart + reflections) * ao * material_ambientLightColorIntensity;
     }
 #endif
-    if (!pbrEnabled) {
-        vec3 color = useMaterial ? albedoTexture.xyz : albedoTexture.rgb;
-        ambient = useMaterial ? color : ambientLightColor * ambientLightColorIntensity * color;
+    if (material_pbrEnabled == 0) {
+        vec3 color = (material_useMaterial != 0) ? albedoTexture.xyz : albedoTexture.rgb;
+        ambient = (material_useMaterial != 0) ? color : material_ambientLightColor * material_ambientLightColorIntensity * color;
     }
 
     vec3 final = ambient;
@@ -158,16 +157,16 @@ void main()
 #ifdef FEATURE_DIRECTIONAL_LIGHT
     if (directionLightEnable) {
     #ifdef FEATURE_PBR
-        if (pbrEnabled) {
+        if (material_pbrEnabled != 0) {
             final += CalcDirLightPBR(dirLight, normal, fragPos, viewDir, ambient, roughness, metalness, F0);
         }
     #endif
-        if (!pbrEnabled) {
+        if (material_pbrEnabled == 0) {
     #ifdef FEATURE_SHADOWS
             if (shadowsEnable) {
                 vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
                 float viewDepth = -fragPosView.z;
-                vec3 shadowNormal = normalMapEnabled ? Normal : worldNormal;
+                vec3 shadowNormal = (material_normalMapEnabled != 0) ? Normal : worldNormal;
                 shadow = ShadowBlended(fragPos, shadowNormal, -dirLight.direction, viewDepth);
             }
     #endif
@@ -180,7 +179,7 @@ void main()
     vec3 lightSpecular = vec3(texture(material.specular, TexCoords));
 
 #ifdef FEATURE_PBR
-    if (pbrEnabled) {
+    if (material_pbrEnabled != 0) {
         for(int i = 0; i < numPointLights; i++)
         {
             final += CalcPointLightPBR(pointLight[i], normal, fragPos, viewDir,
@@ -188,7 +187,7 @@ void main()
         }
     }
 #endif
-    if (!pbrEnabled) {
+    if (material_pbrEnabled == 0) {
         for(int i = 0; i < numPointLights; i++)
         {
             final += CalcPointLight(pointLight[i], normal, fragPos, viewDir, ambient, lightAlbedo, lightSpecular);
@@ -196,7 +195,7 @@ void main()
     }
 
 #ifdef FEATURE_PBR
-    if (pbrEnabled) {
+    if (material_pbrEnabled != 0) {
         for(int i = 0; i < numSpotLights; i++)
         {
             final += CalcSpotLightPBR(spotLight[i], normal, fragPos, viewDir,
@@ -204,7 +203,7 @@ void main()
         }
     }
 #endif
-    if (!pbrEnabled) {
+    if (material_pbrEnabled == 0) {
         for(int i = 0; i < numSpotLights; i++)
         {
             final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
@@ -212,13 +211,13 @@ void main()
     }
 
 #ifdef FEATURE_FOG
-    if (fogEnable) {
+    if (material_fogEnable != 0) {
        float d = distance(viewPos, fragPos);
        float alpha = getFogFactor(d);
        FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
     }
 #endif
-    if (!fogEnable) {
+    if (material_fogEnable == 0) {
        FragColor = alphaBlending(pow(final, vec3(1.0/2.2)));
     }
 

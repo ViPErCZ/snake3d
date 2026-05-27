@@ -13,9 +13,6 @@ namespace Manager {
         glClearDepth(1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_TEXTURE_2D);
-        // NOTE: frameUbo.init() must not run here - this ctor is invoked
-        // during static-init of the global `app` shared_ptr (main.cpp:25),
-        // before glewInit(). FrameUbo lazy-inits on first uploadAndBind().
     }
 
     void RenderManager::populateAndUploadFrameUbo() {

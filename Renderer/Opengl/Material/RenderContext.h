@@ -3,13 +3,11 @@
 
 #include <glm/glm.hpp>
 
+namespace Manager {
+    struct MaterialDataStd140; // forward decl; full type in Manager/MaterialUbo.h
+}
+
 namespace Material {
-    // Per-draw kontext sdílený napříč features. Nahrazuje historickou
-    // signaturu `bind(posView, view, projection, model, shadows)` jedním
-    // strukturovaným parametrem.
-    //
-    // Vyrobí ho mesh renderer (typicky StandardMesh::render po B6) a předá
-    // do `MaterialInstance::bind`. Features čtou jen pole která potřebují.
     struct RenderContext {
         glm::vec3 viewPos{0.0f};
         glm::mat4 view{1.0f};
@@ -17,6 +15,8 @@ namespace Material {
         glm::mat4 model{1.0f};
         float uTime = 0.0f;
         bool shadows = false;
+        mutable Manager::MaterialDataStd140* materialData = nullptr;
+        mutable bool* materialDirty = nullptr;
     };
 } // Material
 

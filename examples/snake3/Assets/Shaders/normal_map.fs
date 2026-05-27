@@ -18,7 +18,7 @@ uniform sampler2D specularMap;
 
 uniform vec3 viewPos;
 uniform bool parallaxEnable = false;
-
+uniform bool useMaterial = false;
 vec2 TexCoords = fs_in.TexCoords;
 
 #include "pipeline/parallax/parallax.glsl"

@@ -2,6 +2,7 @@
 #define SNAKE3_RAINRIPPLEFEATURE_H
 
 #include "IMaterialFeature.h"
+#include "../../../../Manager/MaterialUbo.h"
 
 using namespace Material;
 using namespace Manager;
@@ -20,10 +21,13 @@ namespace Feature {
             return static_cast<ShaderFeatureMask>(ShaderFeature::RainRipple);
         }
 
-        void bind(ShaderProgram& shader, const RenderContext& /*ctx*/) const override {
-            shader.setBool("rainDropEnable", enabled);
-            shader.setFloat("rainSpeed", speed);
-            shader.setFloat("rainDensity", density);
+        void bind(ShaderProgram& /*shader*/, const RenderContext& ctx) const override {
+            if (ctx.materialData) {
+                ctx.materialData->material_rainDropEnable = enabled ? 1 : 0;
+                ctx.materialData->material_rainSpeed = speed;
+                ctx.materialData->material_rainDensity = density;
+                if (ctx.materialDirty) *ctx.materialDirty = true;
+            }
         }
 
         [[nodiscard]] std::shared_ptr<IMaterialFeature> clone() const override {
