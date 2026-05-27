@@ -179,18 +179,23 @@ namespace Model {
     }
 
     void MeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {
-        // Short-circuit: pokud ani naše transform ani rodičovský nezměnil, cache
-        // v worldMatrixCache je stále valid - skip recompute + skip recursion
-        // pro celou subtree. Static collision shape children (2300+ floor cells
-        // pro snake3 level) tak po 1. frame stojí 0 work.
+        // Skip vlastní recompute, pokud ani naše transform ani rodičovský
+        // se nezměnil. Static collision shape children (2300+ floor cells
+        // pro snake3 level) tak po 1. frame stojí 0 work na samotném
+        // self-recompute.
+        //
+        // ALE: vždycky musíme rekurzovat do children -- child může mít
+        // vlastní transformDirty (např. ImGui inspector mění collision
+        // shape's position pod nezměněným barrelem). Kdyby parent
+        // short-circuitoval pryč, child by nikdy nepřepočítal svůj
+        // worldMatrixCache a vizuál by se "lepil" na staré místo.
         const bool localDirty = isTransformDirty();
         const bool changed = localDirty || (parentTransform != lastParentMatrix);
-        if (!changed) {
-            return;
+        if (changed) {
+            worldMatrixCache = parentTransform * this->getModelMatrix();
+            lastParentMatrix = parentTransform;
+            clearTransformDirty();
         }
-        worldMatrixCache = parentTransform * this->getModelMatrix();
-        lastParentMatrix = parentTransform;
-        clearTransformDirty();
 
         for (auto &node: children) {
             const bool isCollisionShapeNode = node->isCollisionShapeNode();
