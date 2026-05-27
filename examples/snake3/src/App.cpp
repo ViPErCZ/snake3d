@@ -470,22 +470,6 @@ void App::InitResourceManager() const {
         std::cout << "Shader debugQuadShader ready!" << std::endl;
     });
 
-    resourceManager->loadAsyncShader("rain", "Assets/Shaders/rain/rain.vs", "", "Assets/Shaders/rain/rain.fs", []() {
-        std::cout << "Shader rain ready!" << std::endl;
-    });
-
-    resourceManager->loadAsyncShader("rainDrop", "Assets/Shaders/basic.vs", "", "Assets/Shaders/rain/raindrop.fs", []() {
-        std::cout << "Shader rainDrop ready!" << std::endl;
-    });
-
-    resourceManager->loadAsyncShader("fire", "Assets/Shaders/fire/fire.vs", "", "Assets/Shaders/fire/fire.fs", []() {
-        std::cout << "Shader fire ready!" << std::endl;
-    });
-
-    resourceManager->loadAsyncShader("smoke", "Assets/Shaders/fire/smoke.vs", "", "Assets/Shaders/fire/smoke.fs", []() {
-        std::cout << "Shader smoke ready!" << std::endl;
-    });
-
     resourceManager->loadAsyncShader("boltShader", "Assets/Shaders/bolt/bolt.vs", "", "Assets/Shaders/bolt/bolt.fs", []() {
         std::cout << "Shader boltShader ready!" << std::endl;
     });
