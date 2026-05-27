@@ -21,6 +21,13 @@ namespace Node3D {
 
         [[nodiscard]] virtual glm::mat4 getModelMatrix() const;
 
+        // World-space transform. Pro plain Transform (bez scene-graph parenta)
+        // je world == local. MeshNode3D override vrací worldMatrixCache, kde
+        // už je započítán celý parent chain. Camera::focusOn ho potřebuje, aby
+        // mířila na skutečné světové umístění (např. collision shape jako
+        // child barrelu se nepočítá od (0,0,0)).
+        [[nodiscard]] virtual glm::mat4 getWorldMatrix() const { return getModelMatrix(); }
+
         [[nodiscard]] const glm::vec3 &getScale() const;
 
         void setScale(const glm::vec3 &scale);

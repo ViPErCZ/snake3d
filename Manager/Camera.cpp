@@ -97,7 +97,10 @@ namespace Manager {
     void Camera::focusOn(const shared_ptr<Transform>& target) {
         if (!target) return;
 
-        const auto targetPos = glm::vec3(target->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+        // World-space target -- collision shapes / nested children mají non-
+        // trivial parent chain a getModelMatrix() vrací jen local. getWorldMatrix()
+        // je virtual; pro plain Transform fallbackuje na getModelMatrix().
+        const auto targetPos = glm::vec3(target->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
         position = targetPos + offsetFromTarget;
 
         const glm::vec3 dirToTarget = glm::normalize(targetPos - position);
@@ -143,7 +146,7 @@ namespace Manager {
                     // z známé pozice. V čistém spectator (žádný sticky, např. po
                     // focusOn z ImGui Inspectoru) jen zapneme rotaci - kamera
                     // zůstane tam kde ji uživatel nechal.
-                    const auto targetPos = glm::vec3(stickyPoint->getModelMatrix() * glm::vec4(0, 0, 0, 1));
+                    const auto targetPos = glm::vec3(stickyPoint->getWorldMatrix() * glm::vec4(0, 0, 0, 1));
                     position = targetPos + offsetFromTarget;
 
                     const glm::vec3 dirToTarget = glm::normalize(targetPos - position);

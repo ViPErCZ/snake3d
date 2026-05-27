@@ -80,7 +80,7 @@ namespace Model {
 
         virtual void computeWorldMatrix(const glm::mat4 &parentTransform);
 
-        [[nodiscard]] const glm::mat4 &getWorldMatrix() const { return worldMatrixCache; };
+        [[nodiscard]] glm::mat4 getWorldMatrix() const override { return worldMatrixCache; }
 
     protected:
         shared_ptr<MeshNode3D> deepCopy() const;
