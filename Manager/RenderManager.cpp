@@ -21,19 +21,11 @@ namespace Manager {
         frameData.viewPos = camera->getPosition();
         frameData.uTime = static_cast<float>(glfwGetTime());
 
-        if (directionalLight) {
-            frameData.dirLight.position  = directionalLight->getPosition();
-            frameData.dirLight.direction = directionalLight->getDirection();
-            frameData.dirLight.ambient   = directionalLight->getAmbient();
-            frameData.dirLight.diffuse   = directionalLight->getDiffuse();
-            frameData.dirLight.specular  = directionalLight->getSpecular();
-            frameData.directionLightEnable = 1;
-        } else {
-            frameData.directionLightEnable = 0;
-        }
-
-        // numPointLights / numSpotLights / arrays remain zero until D1.1d.
-
+        // D1.1c-fix: dirLight už není ve FrameData. Snake body/head si vozí
+        // vlastní DirectionalLight (PlayerScene/RemoteSnakeScene) -- jeden
+        // sdílený frame UBO by je přebil globálním (jasnějším) světlem.
+        // Per-material dirLight je teď v MaterialData UBO, LightingFeature
+        // / ShaderMaterial::bind ho tam zapisují.
         frameUbo.upload(frameData);
         frameUbo.bind();
     }
@@ -79,7 +71,7 @@ namespace Manager {
     void RenderManager::render(const float dt) {
         // Per-frame stats reset - voláno hned na začátku, draw call counter
         // se inkrementuje v glDraw* sites, ImGui Engine panel čte lastFrame.
-        Renderer::RenderStats::newFrame();
+        RenderStats::newFrame();
 
         // Reset depth state in case a previous pass disabled depth writes/tests.
         contextState->setDepthWrite(true);
@@ -87,10 +79,10 @@ namespace Manager {
 
         if (reflections && planarReflectionRenderer) {
             camera->syncFollowPosition();
-            Renderer::RenderStats::setPass(Renderer::RenderPass::Reflection);
+            RenderStats::setPass(RenderPass::Reflection);
             planarReflectionRenderer->render3D(dt, gFrameId);
         }
-        Renderer::RenderStats::setPass(Renderer::RenderPass::Main);
+        RenderStats::setPass(RenderPass::Main);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glEnable(GL_DEPTH_TEST);
@@ -123,23 +115,16 @@ namespace Manager {
                 sceneMax = Iter->renderer->compareSceneMax(sceneMax);
             }
 
-            //constexpr float padding = 2.0f;
-            //sceneMin -= glm::vec3(padding);
-            //sceneMax += glm::vec3(padding);
-
-            // constexpr glm::vec3 centerScene = {0, 0.0f, 0.0f}; //(sceneMin + sceneMax) / 2.0f;
-
             shared_ptr<DirectionalLight> light = directionalLight;
             if (directionalLight == nullptr) {
                 light = make_shared<DirectionalLight>();
                 light->setPosition({0.0f, 7.0f, 11.0f});
                 light->setDirection({1, 1.0, -3});
             }
-            //const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrixForPlane(light, centerScene, 14, 14);
             const auto lightSpacesMatrix = depthMapRenderer->computeLightSpaceMatrix(light, sceneMin, sceneMax);
             int index = 0;
 
-            Renderer::RenderStats::setPass(Renderer::RenderPass::Shadow);
+            RenderStats::setPass(RenderPass::Shadow);
             for (auto & matrix : lightSpacesMatrix) {
                 depthMapRenderer->beforeRender(index);
                 depthMapRenderer->bind(index, matrix);
@@ -159,7 +144,6 @@ namespace Manager {
                 glViewport(0, 0, width, height);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 depthMapRenderer->render(dt);
-                // depthMapRenderer->afterRender();
 
                 index++;
             }
@@ -174,7 +158,7 @@ namespace Manager {
             bloomRenderer->beforeRender(MODE::bloom);
         }
 
-        Renderer::RenderStats::setPass(Renderer::RenderPass::Main);
+        RenderStats::setPass(RenderPass::Main);
 
         // CPU + GPU timing main pass. CPU-only = chrono mezi start a end loop.
         // CPU+GPU = chrono přes glFinish (forced sync). Rozdíl = pure GPU.
@@ -194,9 +178,9 @@ namespace Manager {
         const auto cpuEnd = std::chrono::steady_clock::now();
         glFinish();
         const auto gpuEnd = std::chrono::steady_clock::now();
-        Renderer::RenderStats::mainPassMsCpuOnly =
+        RenderStats::mainPassMsCpuOnly =
             std::chrono::duration<float, std::milli>(cpuEnd - mainStart).count();
-        Renderer::RenderStats::mainPassMsCpu =
+        RenderStats::mainPassMsCpu =
             std::chrono::duration<float, std::milli>(gpuEnd - mainStart).count();
 
         if (bloom) {

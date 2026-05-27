@@ -6,11 +6,30 @@
 // permutation. Layout MUST match Manager::MaterialDataStd140 byte-for-byte
 // (std140 packing).
 //
-// D1.2a state: this block is declared in basic.vs/basic.fs/lights.glsl but
-// NO shader code reads any `material_*` member yet. Purpose of D1.2a is
-// purely to land the plumbing -- features still write the legacy
-// `uniform vec3 ambientLightColor; ...` etc. via setUniform. Successive
-// D1.2x phases migrate readers one feature at a time.
+// D1.2x state (rolling migration): most ambient / fog / reflection /
+// rain / uv / hole flags now read from this UBO instead of legacy
+// `uniform vec3 ambientLightColor; ...` etc. D1.1c also moves the
+// directional light gate (material_directionLightEnable) in here so
+// the tile material (snake body) can opt out without an extra setBool
+// call per draw.
+//
+// D1.1c-fix: directional light fields (direction/ambient/diffuse/specular)
+// migrated from FrameData into MaterialData. The snake body/head scenes
+// build their own dim DirectionalLight per material; making them per-
+// material restores the pre-D1 visuals (FrameData would have forced the
+// global bright light onto the snake).
+
+// DirLight struct lives here now (was in frame_data.glsl during D1.1c).
+// lights.glsl includes this file so CalcDirLight* signatures resolve the
+// type. position field dropped -- it wasn't read by CalcDirLight* (only by
+// basic.vs's TangentLightPos output, which basic.fs declares but never
+// reads -- dead code).
+struct DirLight {
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
 
 layout(std140) uniform MaterialData {
     vec3  material_ambientLightColor;     float material_alpha;
@@ -29,6 +48,19 @@ layout(std140) uniform MaterialData {
     float material_rainDensity;
     vec4  material_clipPlane;
     vec2  material_uvScale;               vec2 material_uvOffset;
+    // D1.1c per-material opt-out for the directional light. Tile material
+    // (snake body) keeps this at 0 so the directional block is skipped and
+    // the sphere stays pure-ambient red, matching pre-D1 visuals.
+    int   material_directionLightEnable;
+    // D1.1c-fix per-material directional light fields. Each material carries
+    // its own copy so PlayerScene's dim local DirectionalLight is honored
+    // (pre-D1 LightingFeature wrote these as `dirLight.*` per-program
+    // uniforms). Synthesized into a local DirLight at the call site in
+    // basic.fs / respawn.fs / explosion.fs.
+    vec3  material_dirLight_direction;
+    vec3  material_dirLight_ambient;
+    vec3  material_dirLight_diffuse;
+    vec3  material_dirLight_specular;
 };
 
 #endif

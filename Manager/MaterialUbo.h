@@ -46,9 +46,34 @@ namespace Manager {
         // 96   : two vec2s, each aligned to 8B -> they pack into one vec4 slot
         glm::vec2 material_uvScale{1.0F, 1.0F};
         glm::vec2 material_uvOffset{0.0F, 0.0F};
-        // 112  : end; multiple of 16 so no trailing pad needed.
+
+        // 112  : D1.1c per-material opt-out for the directional light. The
+        // tile material (snake body spheres) sets this to 0 so the directional
+        // shading block is skipped and only the ambient red shows through,
+        // matching pre-D1 visuals. All other materials default to 1 once
+        // LightingFeature has a directional light wired in.
+        int material_directionLightEnable{0};
+        float _pad3{0.0F};
+        float _pad4{0.0F};
+        float _pad5{0.0F};
+
+        // 128  : D1.1c-fix per-material directional light. Snake body/head
+        // materials carry their own (intentionally dim) DirectionalLight in
+        // PlayerScene / RemoteSnakeScene; pre-D1 the LightingFeature copied
+        // those into per-program `dirLight.*` uniforms. After D1.1c they need
+        // to live next to material_directionLightEnable so each material
+        // brings its own light parameters in.
+        //
+        // std140: each vec3 is aligned to 16B and consumes a full vec4 slot
+        // (trailing 4B padding). We mirror that with explicit `_pad` floats
+        // so sizeof() matches the GLSL view byte-for-byte.
+        glm::vec3 material_dirLight_direction{0.0F}; float _pad6{0.0F};   // 128
+        glm::vec3 material_dirLight_ambient{0.0F};   float _pad7{0.0F};   // 144
+        glm::vec3 material_dirLight_diffuse{0.0F};   float _pad8{0.0F};   // 160
+        glm::vec3 material_dirLight_specular{0.0F};  float _pad9{0.0F};   // 176
+        // 192  : end; multiple of 16 so no trailing pad needed.
     };
-    static_assert(sizeof(MaterialDataStd140) == 112,
+    static_assert(sizeof(MaterialDataStd140) == 192,
                   "MaterialDataStd140 must match GLSL std140 layout in material_data.glsl");
 
     class MaterialUbo {

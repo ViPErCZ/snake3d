@@ -43,6 +43,25 @@ namespace Material {
         cpu.material_hasAlbedoTexture =
             readUniformOr<bool>(uniforms, "hasAlbedoTexture", false) ? 1 : 0;
         cpu.material_overrideColorMesh = 0;
+        // D1.1c: gate the directional light block from the same UBO so the
+        // setBool("directionLightEnable") call disappears. respawn.fs doesn't
+        // gate its CalcDirLight call -- it always runs -- so the flag is more
+        // for explosion.fs, but populating it costs nothing.
+        cpu.material_directionLightEnable = directionalLight ? 1 : 0;
+        // D1.1c-fix: per-material dirLight fields, mirrored from
+        // LightingFeature's contract. Default-zero when no light is wired in
+        // (matches MaterialDataStd140's struct defaults).
+        if (directionalLight) {
+            cpu.material_dirLight_direction = directionalLight->getDirection();
+            cpu.material_dirLight_ambient   = directionalLight->getAmbient();
+            cpu.material_dirLight_diffuse   = directionalLight->getDiffuse();
+            cpu.material_dirLight_specular  = directionalLight->getSpecular();
+        } else {
+            cpu.material_dirLight_direction = glm::vec3(0.0f);
+            cpu.material_dirLight_ambient   = glm::vec3(0.0f);
+            cpu.material_dirLight_diffuse   = glm::vec3(0.0f);
+            cpu.material_dirLight_specular  = glm::vec3(0.0f);
+        }
         materialUbo.upload(cpu);
         materialUbo.bind();
         if (shader->hasUniform("view") && uniforms.contains("view") == false) {
@@ -61,8 +80,11 @@ namespace Material {
         }
 
         if (directionalLight) {
+            // D1.1c: DirectionalLight::bind now only sets material.shininess
+            // + sampler ints; pozice/směr/ambient/diffuse/specular jsou v
+            // FrameData UBO. Gate `directionLightEnable` je v MaterialData
+            // UBO (nahoře už nastaven na 1).
             directionalLight->bind(shader.get());
-            shader->setBool("directionLightEnable", true);
         }
 
         // POINT LIGHT

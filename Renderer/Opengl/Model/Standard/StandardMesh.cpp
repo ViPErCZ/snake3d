@@ -64,23 +64,21 @@ namespace Model {
                 shadows
             );
         } else {
+            // Fallback branch: mesh has no MaterialInstance / ShaderMaterial.
+            // D1.1b: view/projection/viewPos arrive via FrameData UBO bound
+            // by RenderManager once per pass - no per-draw setMat4 needed.
+            (void)alpha;
             baseShader->use();
-            baseShader->setMat4("view", camera->getViewMatrix());
-            baseShader->setMat4("projection", projection);
             baseShader->setMat4("model", worldTransform);
-            baseShader->setVec3("viewPos", camera->getPosition());
-            baseShader->setBool("useMaterial", true);
             baseShader->setBool("useBones", false);
             baseShader->setBool("shadowsEnable", false);
             baseShader->setBool("iblEnabled", false);
-            baseShader->setBool("pbrEnabled", false);
-            baseShader->setBool("overrideColorMesh", false);
-            baseShader->setFloat("ambientLightColorIntensity", 0.05);
-            baseShader->setBool("fogEnable", false);
             baseShader->setInt("numPointLights", 0);
             baseShader->setInt("numSpotLights", 0);
-            baseShader->setBool("directionLightEnable", false);
-            baseShader->setFloat("alpha", alpha);
+            // D1.1c: directionLightEnable migrated to MaterialData UBO; the
+            // fallback branch doesn't drive a MaterialInstance so the UBO
+            // shadow stays at its zero default -- which is also the desired
+            // off state. Nothing to set here.
         }
 
         mesh->bind();

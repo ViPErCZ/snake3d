@@ -37,11 +37,10 @@ namespace Model {
                 shadows
             );
         } else {
+            // Fallback branch: no MaterialInstance / ShaderMaterial.
+            // D1.1b: view/projection/viewPos arrive via FrameData UBO -
+            // bound by RenderManager once per pass.
             baseShader->use();
-            baseShader->setMat4("view", camera->getViewMatrix());
-            baseShader->setMat4("projection", projection);
-            baseShader->setVec3("viewPos", camera->getPosition());
-            baseShader->setBool("useMaterial", true);
             baseShader->setMat4("model", parentTransform);
         }
 

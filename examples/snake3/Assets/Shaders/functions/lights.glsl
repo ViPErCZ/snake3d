@@ -1,4 +1,10 @@
+// D1.1c-fix: DirLight struct + per-material dirLight fields live in
+// material_data.glsl. frame_data.glsl is camera-only again. We still
+// pull frame_data.glsl here so frame_uTime / frame_viewPos resolve in
+// the few helpers below that reference them (and for compatibility with
+// shaders that include lights.glsl alone -- e.g. respawn.fs).
 #include "material_data.glsl"
+#include "frame_data.glsl"
 
 struct Material {
     sampler2D ambient;
@@ -6,15 +12,6 @@ struct Material {
     sampler2D specular;
     sampler2D aoMap;
     float shininess;
-};
-
-struct DirLight {
-    vec3 position;
-    vec3 direction;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 };
 
 struct MaterialDirLight {
@@ -56,7 +53,10 @@ struct SpotLight {
 
 #define NR_POINT_LIGHTS 8
 
-uniform DirLight dirLight;
+// D1.1c-fix: dirLight fields přesunuty do MaterialData UBO
+// (material_dirLight_direction/ambient/diffuse/specular). Volající strana
+// (basic.fs, respawn.fs, explosion.fs) si z nich složí lokální DirLight
+// a předá ho do CalcDirLight* by-value.
 uniform MaterialDirLight materialDirLight;
 uniform PointLight pointLight[NR_POINT_LIGHTS];
 uniform SpotLight spotLight[NR_POINT_LIGHTS];

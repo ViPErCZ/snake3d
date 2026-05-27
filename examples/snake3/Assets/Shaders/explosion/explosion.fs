@@ -13,7 +13,9 @@ in vec2 TexCoords;
 uniform bool hasFallbackColor = false;
 uniform vec3 fallbackColor = vec3(1.0, 1.0, 1.0);
 uniform vec3 viewPos;
-uniform bool directionLightEnable = false;
+// D1.1c: directionLightEnable migrated to MaterialData UBO. The gate is
+// material_directionLightEnable (ShaderMaterial::bind sets it to 1 when
+// directionalLight is wired in, otherwise 0).
 
 out vec4 FragColor;
 
@@ -24,8 +26,14 @@ void main()
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 final = baseColor;
 
-    if (directionLightEnable) {
-        final = CalcDirLight(dirLight, normal, viewDir, baseColor, 0.0);
+    if (material_directionLightEnable != 0) {
+        // D1.1c-fix: dirLight fields jsou v MaterialData UBO (per-materiál).
+        DirLight dl;
+        dl.direction = material_dirLight_direction;
+        dl.ambient   = material_dirLight_ambient;
+        dl.diffuse   = material_dirLight_diffuse;
+        dl.specular  = material_dirLight_specular;
+        final = CalcDirLight(dl, normal, viewDir, baseColor, 0.0);
     }
 
     vec3 lightAlbedo = texture(material.ambient, TexCoords).rgb;

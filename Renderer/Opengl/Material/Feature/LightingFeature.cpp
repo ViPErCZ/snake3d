@@ -1,5 +1,7 @@
 #include "LightingFeature.h"
 
+#include "../../../../Manager/MaterialUbo.h"
+
 namespace Feature {
     LightingFeature::LightingFeature(std::shared_ptr<Lights::DirectionalLight> directional,
                                      std::vector<std::shared_ptr<Lights::PointLight>> points,
@@ -24,13 +26,28 @@ namespace Feature {
     }
 
     void LightingFeature::bind(Manager::ShaderProgram& shader,
-                               const Material::RenderContext& /*ctx*/) const {
+                               const Material::RenderContext& ctx) const {
+        // D1.1c-fix: directional light fields (direction, ambient, diffuse,
+        // specular) live per-material in MaterialData UBO. Snake body/head
+        // materials use their own (intentionally dim) DirectionalLight from
+        // PlayerScene / RemoteSnakeScene -- if we shoved this into FrameData
+        // they'd silently get the global brighter light. Per-material UBO
+        // copy mirrors the pre-D1 per-program `dirLight.*` uniform model.
+        // The opt-out gate (material_directionLightEnable) also lives here.
+        // directional->bind() still runs (when present) so material.shininess
+        // + sampler ints land on the program.
+        if (ctx.materialData) {
+            ctx.materialData->material_directionLightEnable = directional ? 1 : 0;
+            if (directional) {
+                ctx.materialData->material_dirLight_direction = directional->getDirection();
+                ctx.materialData->material_dirLight_ambient   = directional->getAmbient();
+                ctx.materialData->material_dirLight_diffuse   = directional->getDiffuse();
+                ctx.materialData->material_dirLight_specular  = directional->getSpecular();
+            }
+            if (ctx.materialDirty) *ctx.materialDirty = true;
+        }
         if (directional) {
             directional->bind(&shader);
-            shader.setBool("directionLightEnable", true);
-        } else {
-            shader.setBool("directionLightEnable", false);
-            shader.setVec3("lightPos", glm::vec3(0.0f));
         }
 
         int index = 0;

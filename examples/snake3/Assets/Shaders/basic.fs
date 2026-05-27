@@ -19,13 +19,18 @@ in mat4 viewMatrix;
 in vec4 clipSpacePos;
 in vec2 outUvScale;
 
-uniform float uTime = 1;
-uniform vec3 viewPos;
+// D1.1b: uTime / viewPos migrated to FrameData UBO (slot 0). Read via
+// frame_uTime / frame_viewPos below.
+// D1.1c-fix: dirLight (direction/ambient/diffuse/specular) lives in
+// MaterialData UBO so each material brings its own light parameters
+// (PlayerScene/RemoteSnakeScene use intentionally dim local lights). We
+// synthesize a local DirLight `dl` from material_dirLight_* below. The
+// per-material gate material_directionLightEnable also lives in
+// MaterialData UBO -- read as material_directionLightEnable below.
 // D1.2c: ambientLightColor / ambientLightColorIntensity / overrideColorMesh
 // migrated to MaterialData UBO (read as material_*). Legacy declarations
 // removed -- AlbedoFeature now writes the UBO shadow instead of calling
 // setUniform on these names.
-uniform bool directionLightEnable = false;
 uniform bool shadowsEnable = false;
 // D1.2d.4: pbrEnabled migrated to MaterialData UBO (material_pbrEnabled).
 uniform sampler2D metalness;
@@ -40,6 +45,7 @@ uniform sampler2D roughnessMap;
 // The holeMap sampler stays legacy.
 uniform sampler2D holeMap;
 
+#include "functions/frame_data.glsl"
 #include "functions/material_data.glsl"
 #include "functions/fog_material.glsl"
 #include "functions/lights.glsl"
@@ -84,7 +90,7 @@ void main()
 #ifdef FEATURE_RAIN_RIPPLE
     if (material_rainDropEnable != 0) {
         vec2 cleanUV = TexCoords / outUvScale * 2;
-        rippleOffset = getRainRippleDistortion(cleanUV, uTime, material_rainSpeed, material_rainDensity);
+        rippleOffset = getRainRippleDistortion(cleanUV, frame_uTime, material_rainSpeed, material_rainDensity);
     }
 #endif
 
@@ -155,10 +161,19 @@ void main()
     vec3 final = ambient;
 
 #ifdef FEATURE_DIRECTIONAL_LIGHT
-    if (directionLightEnable) {
+    if (material_directionLightEnable != 0) {
+        // D1.1c-fix: skládáme lokální DirLight z MaterialData UBO. Snake
+        // tělo/hlava si vozí vlastní (tlumené) hodnoty, zbytek scény bere
+        // jasnější MainScene light -- to je přesně to, co LightingFeature
+        // před D1.1c psal do per-program `dirLight.*` uniformů.
+        DirLight dl;
+        dl.direction = material_dirLight_direction;
+        dl.ambient   = material_dirLight_ambient;
+        dl.diffuse   = material_dirLight_diffuse;
+        dl.specular  = material_dirLight_specular;
     #ifdef FEATURE_PBR
         if (material_pbrEnabled != 0) {
-            final += CalcDirLightPBR(dirLight, normal, fragPos, viewDir, ambient, roughness, metalness, F0);
+            final += CalcDirLightPBR(dl, normal, fragPos, viewDir, ambient, roughness, metalness, F0);
         }
     #endif
         if (material_pbrEnabled == 0) {
@@ -167,10 +182,10 @@ void main()
                 vec4 fragPosView = viewMatrix * vec4(fragPos, 1.0);
                 float viewDepth = -fragPosView.z;
                 vec3 shadowNormal = (material_normalMapEnabled != 0) ? Normal : worldNormal;
-                shadow = ShadowBlended(fragPos, shadowNormal, -dirLight.direction, viewDepth);
+                shadow = ShadowBlended(fragPos, shadowNormal, -dl.direction, viewDepth);
             }
     #endif
-            final = CalcDirLight(dirLight, normal, viewDir, ambient, shadow);
+            final = CalcDirLight(dl, normal, viewDir, ambient, shadow);
         }
     }
 #endif
@@ -199,20 +214,20 @@ void main()
         for(int i = 0; i < numSpotLights; i++)
         {
             final += CalcSpotLightPBR(spotLight[i], normal, fragPos, viewDir,
-                                      uTime, ambient, roughness, metalness, F0);
+                                      frame_uTime, ambient, roughness, metalness, F0);
         }
     }
 #endif
     if (material_pbrEnabled == 0) {
         for(int i = 0; i < numSpotLights; i++)
         {
-            final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, uTime, lightAlbedo, lightSpecular);
+            final += CalcSpotLight(spotLight[i], normalize(Normal), fragPos, viewDir, ambient, frame_uTime, lightAlbedo, lightSpecular);
         }
     }
 
 #ifdef FEATURE_FOG
     if (material_fogEnable != 0) {
-       float d = distance(viewPos, fragPos);
+       float d = distance(frame_viewPos, fragPos);
        float alpha = getFogFactor(d);
        FragColor = mix(vec4(final, 1.0), vec4(0.6f, 0.6f, 0.7f, 0.9f), alpha);
     }

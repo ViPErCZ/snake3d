@@ -60,7 +60,14 @@ void main()
     vec3 finalColor = mix(meshColor.rgb, emission, stepValue);
     vec3 viewDir = normalize(camPos - fragPos);
 
-    finalColor = CalcDirLight(dirLight, Normal, viewDir, emission, 0.0);
+    // D1.1c-fix: dirLight fields jsou v MaterialData UBO (per-materiál).
+    // ShaderMaterial::bind populuje material_dirLight_* z directionalLight.
+    DirLight dl;
+    dl.direction = material_dirLight_direction;
+    dl.ambient   = material_dirLight_ambient;
+    dl.diffuse   = material_dirLight_diffuse;
+    dl.specular  = material_dirLight_specular;
+    finalColor = CalcDirLight(dl, Normal, viewDir, emission, 0.0);
     finalColor /= 1;
 
     FragColor = vec4(pow(finalColor, vec3(1.0/2.2)), 1.0);

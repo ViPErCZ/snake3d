@@ -24,10 +24,7 @@ out mat4 viewMatrix;
 out vec4 clipSpacePos;
 out vec2 outUvScale;
 
-uniform vec3 viewPos;
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
 // Default false: when FEATURE_BONES isn't injected and a caller forgets to
 // set useBones explicitly, the non-bones path runs (gl_Position from aPos).
 // Skeletal materials (AnimationArrayMesh) set useBones=true explicitly.
@@ -35,23 +32,29 @@ uniform bool useBones = false;
 // D1.2d.1: uvScale / uvOffset migrated to MaterialData UBO
 // (material_uvScale / material_uvOffset). Legacy uniform vec2 declarations
 // removed -- UvTransformFeature writes the UBO shadow instead.
-uniform vec3 lightPos = vec3(0.0, 0.0, 0.0);
-//uniform vec3 cameraPos;
+// D1.1c: lightPos uniform removed. TangentLightPos výstup byl historicky
+// určený pro tangent-space directional shading, ale basic.fs ho nikde
+// nečte (mrtvý kód). Zachovávám výstup, abychom neměnili VS/FS interface,
+// a po D1.1c-fix ho už neplníme (pozice světla nemáme -- DirLight v
+// MaterialData UBO drží jenom direction). Nastavujeme na vec3(0.0).
 
+// D1.1b: view / projection / viewPos migrated to FrameData UBO (slot 0).
+// Read via frame_view / frame_projection / frame_viewPos below.
+#include "functions/frame_data.glsl"
 #include "functions/bonesTransform.glsl"
 #include "functions/material_data.glsl"
 
 void main()
 {
-    mat4 viewModel = view * model;
+    mat4 viewModel = frame_view * model;
 
 #ifdef FEATURE_BONES
     if (useBones) {
-        gl_Position = projection * viewModel * boneTransform(boneIds, weights);
+        gl_Position = frame_projection * viewModel * boneTransform(boneIds, weights);
     }
 #endif
     if (!useBones) {
-        gl_Position = projection * viewModel * vec4(aPos, 1.0);
+        gl_Position = frame_projection * viewModel * vec4(aPos, 1.0);
     }
 
     vec2 uv = aTexCoords * material_uvScale + material_uvOffset;
@@ -65,18 +68,18 @@ void main()
     vec3 B = cross(N, T);
 
     TBN = mat3(T, B, N);
-    TangentLightPos = TBN * lightPos;
+    TangentLightPos = TBN * vec3(0.0);
     TangentFragPos  = TBN * fragPos;
-    TangentViewPos  = TBN * viewPos;
+    TangentViewPos  = TBN * frame_viewPos;
 
     Normal = mat3(transpose(inverse(viewModel))) * aNormal;
     worldNormal = mat3(model) * aNormal;
     //worldNormal = normalize(normalMatrix * aNormal);
     modelNormal = normalize(transpose(inverse(mat3(model))) * aNormal);
     //Normal = mat3(model) * aNormal;
-    camPos = viewPos;
+    camPos = frame_viewPos;
     meshColor = aColor;
-    viewMatrix = view;
+    viewMatrix = frame_view;
     outUvScale = material_uvScale;
     clipSpacePos = gl_Position;
 }
