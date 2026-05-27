@@ -7,17 +7,14 @@
 
 #include "../Renderer/Opengl/Model/Utils/Mesh.h"
 
-using namespace std;
-using namespace ModelUtils;
-
 namespace fs = std::filesystem;
 
 namespace Resource {
 
     class ObjModelLoader {
     public:
-        static vector<shared_ptr<Mesh>> loadObj(const fs::path& path);
-        static vector<shared_ptr<Mesh>> loadObjFromStr(const fs::path& path, const string& str);
+        static std::vector<std::shared_ptr<ModelUtils::Mesh>> loadObj(const fs::path& path);
+        static std::vector<std::shared_ptr<ModelUtils::Mesh>> loadObjFromStr(const fs::path& path, const std::string& str);
     };
 
 } // Resource

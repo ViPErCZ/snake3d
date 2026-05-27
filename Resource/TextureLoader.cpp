@@ -9,6 +9,9 @@
 #include "../Manager/TextureManager.h"
 #include "../Thirdparty/stbimage/stb_image.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Resource {
     unsigned int TextureLoader::loadTexture(const fs::path &path, const bool isAlbedo) {
         unsigned int textureID;

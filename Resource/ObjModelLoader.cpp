@@ -10,6 +10,9 @@
 
 #include "TextureLoader.h"
 
+using namespace std;
+using namespace ModelUtils;
+
 namespace Resource {
     std::vector<TextureInfo> loadMaterialTextures(std::unordered_map<std::string, TextureInfo> &loadedTexturesCache,
                                                   const aiMaterial *mat, const aiTextureType type,

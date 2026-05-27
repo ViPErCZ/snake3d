@@ -6,22 +6,20 @@
 #include <set>
 #include <vector>
 
-using namespace std;
-
 namespace fs = std::filesystem;
 
 namespace Resource {
     struct vShader {
-        vector<unsigned char> vertex;
+        std::vector<unsigned char> vertex;
     };
     struct fvShader {
-        vector<unsigned char> fragment;
-        vector<unsigned char> vertex;
+        std::vector<unsigned char> fragment;
+        std::vector<unsigned char> vertex;
     };
     struct fgvShader {
-        vector<unsigned char> fragment;
-        vector<unsigned char> geometry;
-        vector<unsigned char> vertex;
+        std::vector<unsigned char> fragment;
+        std::vector<unsigned char> geometry;
+        std::vector<unsigned char> vertex;
     };
     class shader_file_not_found final : public std::runtime_error {
     public:
@@ -47,23 +45,23 @@ namespace Resource {
 
         // Načte zdroj a vyresolveuje `#include` direktivy. Bez kompilace.
         // Použití: ShaderRegistry potřebuje string před `injectDefines`.
-        static string loadShaderSource(const fs::path& path);
+        static std::string loadShaderSource(const fs::path& path);
 
         // C4 hot reload: stejné jako loadShaderSource(path), ale navíc do
         // `includedFiles` appendne všechny soubory zatřízené include cestou
         // (root path je první). ShaderRegistry to dál sleduje pro mtime
         // změny - úprava `functions/fog.glsl` reload zachytí, stejně jako
         // master shader.
-        static string loadShaderSource(const fs::path& path,
+        static std::string loadShaderSource(const fs::path& path,
                                        std::vector<fs::path>& includedFiles);
 
-        static unsigned int bindFromBuffer(const string& vertexStr, const string& fragmentStr);
-        static unsigned int bindFromBuffer(const string& vertexStr, const string& geometryStr, const string& fragmentStr);
+        static unsigned int bindFromBuffer(const std::string& vertexStr, const std::string& fragmentStr);
+        static unsigned int bindFromBuffer(const std::string& vertexStr, const std::string& geometryStr, const std::string& fragmentStr);
     protected:
         // Backward-compatible wrapper kolem stateful resolveru. Inicializuje
         // file table prázdně, neguarduje proti dvojímu includu globálně mezi
         // sebou-volajícími.
-        static void replaceIncludes(const fs::path& base_dir, const string &path, string &source);
+        static void replaceIncludes(const fs::path& base_dir, const std::string &path, std::string &source);
 
         // Rozresolvuje `#include "..."` direktivy v `src`. Stará verze.
         // Necháváme dostupné pro místa která nepotřebují file table.
@@ -78,11 +76,11 @@ namespace Resource {
                                              std::vector<fs::path>& fileTable,
                                              int currentFileIndex);
 
-        static void checkCompileErrors(unsigned int shader, const string &type);
-        static unsigned int compileShader(const string &vertexStr);
-        static unsigned int compileShader(const string &vertexStr, const string &fragmentStr);
-        static unsigned int compileShader(const string &vertexStr, const string &fragmentStr, const string &geometryStr);
-        static string readFile(const string &filePath);
+        static void checkCompileErrors(unsigned int shader, const std::string &type);
+        static unsigned int compileShader(const std::string &vertexStr);
+        static unsigned int compileShader(const std::string &vertexStr, const std::string &fragmentStr);
+        static unsigned int compileShader(const std::string &vertexStr, const std::string &fragmentStr, const std::string &geometryStr);
+        static std::string readFile(const std::string &filePath);
     };
 
 } // Resource

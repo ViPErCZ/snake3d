@@ -4,6 +4,8 @@
 #include <sstream>
 #include <GL/glew.h>
 
+using namespace std;
+
 namespace Resource {
     unsigned int ShaderLoader::loadShader(const fs::path &vertexPath) {
         const auto vertex = loadShaderToBuffer(vertexPath);

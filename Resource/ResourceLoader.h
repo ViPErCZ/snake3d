@@ -12,15 +12,13 @@
 #include "../Manager/TextureManager.h"
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
-using namespace Manager;
-
 namespace Resource {
     class ResourceLoader {
     public:
         using Callback = std::function<void(std::vector<std::shared_ptr<Mesh>>)>;
         using AnimCallback = std::function<void(std::shared_ptr<Animation::AnimationPlayer>)>;
-        using TextureCallback = std::function<void(vector<unsigned char>, bool albedo)>;
-        using ShaderCallback = std::function<void(vector<unsigned char>, vector<unsigned char>, vector<unsigned char>)>;
+        using TextureCallback = std::function<void(std::vector<unsigned char>, bool albedo)>;
+        using ShaderCallback = std::function<void(std::vector<unsigned char>, std::vector<unsigned char>, std::vector<unsigned char>)>;
 
         ResourceLoader();
         ~ResourceLoader();
