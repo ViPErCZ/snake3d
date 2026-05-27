@@ -84,9 +84,16 @@ namespace Handler::Debug {
 
     void ImGuiOverlay::renderPanels() {
         if (!initialized) return;
+        // Auto-stack panely v levém sloupci. Engine -> Shader (default sbalený)
+        // -> Object Inspector. Každý panel si po End() zachytí svou outer-rect
+        // bottom (window pos.y + size.y) v `stackCursorY`, příští panel se
+        // SetNextWindowPos posadí přesně tam s ImGuiCond_Always. Cena: panely
+        // už nejsou ručně přetahovatelné (overlap mezi nimi by jinak zlobil
+        // kvůli dynamicky se měnící výšce po collapse / window resize).
+        stackCursorY = 10.0f;
         drawEnginePanel();
-        drawObjectInspector();
         drawShaderInspector();
+        drawObjectInspector();
     }
 
     void ImGuiOverlay::endFrame() {
@@ -108,9 +115,11 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawEnginePanel() const {
         if (!renderManager) return;
 
-        // Default position v levém horním rohu, lze přetáhnout.
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin("Engine", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        // Stack-anchored: vždy na (10, stackCursorY). Renderer panel je top
+        // sloupce, takže stackCursorY = 10 (počáteční hodnota z renderPanels).
+        ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
+        if (!ImGui::Begin("Engine", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+            stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
         }
@@ -198,6 +207,7 @@ namespace Handler::Debug {
             }
         }
 
+        stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
         ImGui::End();
     }
 
@@ -409,11 +419,11 @@ namespace Handler::Debug {
     void ImGuiOverlay::drawObjectInspector() const {
         if (!manipulatorHandler) return;
 
-        // Default pozice pod Engine panelem (ten je u (10,10) + auto-resize cca
-        // 280px tall pro všechny stats). User si může drag později.
-        ImGui::SetNextWindowPos(ImVec2(10, 380), ImGuiCond_FirstUseEver);
+        // Stack pod Shader Inspector. Pevná šířka, výška auto.
+        ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(520, 0), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin("Object Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        if (!ImGui::Begin("Object Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+            stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
         }
@@ -421,6 +431,7 @@ namespace Handler::Debug {
         const auto items = collectItems(*manipulatorHandler);
         if (items.empty()) {
             ImGui::TextDisabled("No objects registered for debug.");
+            stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
         }
@@ -521,6 +532,7 @@ namespace Handler::Debug {
         }
 
         if (!active) {
+            stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
         }
@@ -560,6 +572,7 @@ namespace Handler::Debug {
         }
 
         ImGui::PopItemWidth();
+        stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
         ImGui::End();
     }
 
@@ -570,8 +583,12 @@ namespace Handler::Debug {
         const auto registry = resourceManager->getShaderRegistry();
         if (!registry) return;
 
-        ImGui::SetNextWindowPos(ImVec2(540, 10), ImGuiCond_FirstUseEver);
-        if (!ImGui::Begin("Shader Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        // Pod Engine panelem. Default sbalený - shader tabulka zabírá hodně
+        // místa a typický debug-session ji potřebuje jen občas.
+        ImGui::SetNextWindowPos(ImVec2(10, stackCursorY), ImGuiCond_Always);
+        ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
+        if (!ImGui::Begin("Shader Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+            stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
             ImGui::End();
             return;
         }
@@ -627,6 +644,7 @@ namespace Handler::Debug {
         }
         ImGui::SetItemTooltip("Same as F10 - mtime-driven hot reload pro changed sources.");
 
+        stackCursorY = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y + kStackGap;
         ImGui::End();
     }
 } // Handler::Debug

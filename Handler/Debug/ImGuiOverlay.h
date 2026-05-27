@@ -102,6 +102,13 @@ namespace Handler::Debug {
         // přes click v Selectable.
         mutable std::weak_ptr<Node3D::Transform> inspectorSelected;
 
+        // Auto-stack left column: každý draw* zachytí bottom Y (GetWindowPos.y
+        // + GetWindowSize.y) a další panel na něj naváže přes SetNextWindowPos
+        // ImGuiCond_Always. Trade-off: panely jsou NoMove (jinak by drag mohl
+        // rozhodit pořadí + dynamic height by overlap následujícího panelu).
+        static constexpr float kStackGap = 6.0f;
+        mutable float stackCursorY = 10.0f;
+
         // Cache pro tristate checkbox "Collision shapes". Scene::collect-
         // CollisionShapeCounts walkuje celý scene graf (level boxy mají 2k+
         // floor cells), per-frame call srazí FPS pod 10. Refresh každých
