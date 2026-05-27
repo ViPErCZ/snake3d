@@ -1,5 +1,7 @@
 #include "VboIndexer.h"
 
+using namespace std;
+
 namespace Manager {
     void VboIndexer::indexVBO(vector<glm::vec3> &in_vertices, vector<glm::vec2> &in_uvs, vector<glm::vec3> &in_normals,
                               vector<unsigned int> &out_indices, vector<glm::vec3> &out_vertices,

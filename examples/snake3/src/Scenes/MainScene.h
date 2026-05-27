@@ -126,12 +126,12 @@ namespace Scenes {
         shared_ptr<RemoteSnakeScene> remoteSnakeScene;
         shared_ptr<CoinScene> coinScene;
         shared_ptr<BarriersScene> barriersScene;
-        shared_ptr<EatLocationHandler> eatLocationHandler;
-        shared_ptr<EatLocationHandler> remoteEatLocationHandler;
+        shared_ptr<Handler::EatLocationHandler> eatLocationHandler;
+        shared_ptr<Handler::EatLocationHandler> remoteEatLocationHandler;
         unique_ptr<EatManager> eatManager;
         unique_ptr<EatManager> remoteEatManager;
         shared_ptr<LevelManager> levelManager;
-        shared_ptr<SnakeMoveHandler> snakeMoveHandler;
+        shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
         unique_ptr<SceneHud> hud;
         shared_ptr<MaterialInstance> planeMaterial;
         shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;

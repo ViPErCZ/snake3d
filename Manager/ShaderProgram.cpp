@@ -5,6 +5,8 @@
 #include "UboBindings.h"
 #include "../Renderer/Opengl/RenderStats.h"
 
+using namespace std;
+
 namespace Manager {
 
     // Per-program one-time setup: UBO block bindings + shininess=0 default.

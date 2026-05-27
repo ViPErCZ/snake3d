@@ -9,9 +9,6 @@
 #include <functional>
 #include <vector>
 
-using namespace std;
-using namespace Renderer;
-
 namespace Manager {
     enum class RenderPassType {
         Shadow,
@@ -21,14 +18,14 @@ namespace Manager {
 
     class RenderManager final {
     public:
-        RenderManager(const shared_ptr<ContextState> &contextState,
-                      const shared_ptr<Camera> &camera, const shared_ptr<ResourceManager> &resourceManager,
+        RenderManager(const std::shared_ptr<Tools::ContextState> &contextState,
+                      const std::shared_ptr<Camera> &camera, const std::shared_ptr<ResourceManager> &resourceManager,
                       const glm::mat4 &projection,
                       int width, int height);
 
         ~RenderManager() = default;
 
-        [[nodiscard]] shared_ptr<ContextState> getContextState() const;
+        [[nodiscard]] std::shared_ptr<Tools::ContextState> getContextState() const;
 
         void initBloom();
 
@@ -38,14 +35,14 @@ namespace Manager {
 
         void render(float dt);
 
-        void addRenderer(shared_ptr<BaseRenderer> renderer, int priority = 0);
-        bool removeRenderer(const shared_ptr<BaseRenderer> &renderer);
+        void addRenderer(std::shared_ptr<Renderer::BaseRenderer> renderer, int priority = 0);
+        bool removeRenderer(const std::shared_ptr<Renderer::BaseRenderer> &renderer);
 
-        void setDepthMapRenderer(unique_ptr<DepthMapRenderer> &depthMapRenderer);
+        void setDepthMapRenderer(std::unique_ptr<Renderer::DepthMapRenderer> &depthMapRenderer);
 
-        void setBloomRenderer(unique_ptr<BloomRenderer> &bloomRenderer);
+        void setBloomRenderer(std::unique_ptr<Renderer::BloomRenderer> &bloomRenderer);
 
-        void setPlanarReflectionRenderer(unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer);
+        void setPlanarReflectionRenderer(std::unique_ptr<Renderer::PlanarReflectionRenderer> planarReflectionRenderer);
 
         void setWidth(int width);
 
@@ -79,28 +76,28 @@ namespace Manager {
 
         [[nodiscard]] bool isFogEnabled() const;
 
-        [[nodiscard]] shared_ptr<Camera> getCamera() const { return camera; }
-        [[nodiscard]] shared_ptr<ResourceManager> getResourceManager() const { return resourceManager; }
+        [[nodiscard]] std::shared_ptr<Camera> getCamera() const { return camera; }
+        [[nodiscard]] std::shared_ptr<ResourceManager> getResourceManager() const { return resourceManager; }
 
         void reloadShaders() const;
 
         void reset();
 
-        [[nodiscard]] const vector<RendererEntry> &getRenderers() const;
+        [[nodiscard]] const std::vector<Renderer::RendererEntry> &getRenderers() const;
 
-        void updateDirectionalLight(const shared_ptr<DirectionalLight> & light);
+        void updateDirectionalLight(const std::shared_ptr<Lights::DirectionalLight> & light);
 
     protected:
         void updateShadows();
 
-        vector<RendererEntry> renderers;
-        unique_ptr<DepthMapRenderer> depthMapRenderer;
-        unique_ptr<BloomRenderer> bloomRenderer;
-        unique_ptr<PlanarReflectionRenderer> planarReflectionRenderer;
-        shared_ptr<DirectionalLight> directionalLight;
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<Camera> camera;
-        shared_ptr<ContextState> contextState;
+        std::vector<Renderer::RendererEntry> renderers;
+        std::unique_ptr<Renderer::DepthMapRenderer> depthMapRenderer;
+        std::unique_ptr<Renderer::BloomRenderer> bloomRenderer;
+        std::unique_ptr<Renderer::PlanarReflectionRenderer> planarReflectionRenderer;
+        std::shared_ptr<Lights::DirectionalLight> directionalLight;
+        std::shared_ptr<ResourceManager> resourceManager;
+        std::shared_ptr<Camera> camera;
+        std::shared_ptr<Tools::ContextState> contextState;
         glm::mat4 projection{};
         int width;
         int height;

@@ -13,6 +13,8 @@
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Tools/Layers.h"
 
+using namespace Handler;
+
 namespace Scenes {
     RemoteSnakeScene::RemoteSnakeScene(
         const shared_ptr<DirectionalLight> &directionalLight,

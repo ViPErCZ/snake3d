@@ -24,7 +24,7 @@ namespace Scenes {
         void init(int priority) override;
 
         [[nodiscard]] shared_ptr<SnakeMeshNode3D> getSnake() const;
-        [[nodiscard]] shared_ptr<SnakeMoveHandler> getMoveHandler() const;
+        [[nodiscard]] shared_ptr<Handler::SnakeMoveHandler> getMoveHandler() const;
 
         void setServerControlled(bool enabled) const;
         void setActive(bool active) const;
@@ -45,7 +45,7 @@ namespace Scenes {
         static void setCollisionEnabledRecursive(const shared_ptr<MeshNode3D> &node, bool enabled);
 
         shared_ptr<SnakeMeshNode3D> snake;
-        shared_ptr<SnakeMoveHandler> snakeMoveHandler;
+        shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
         shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
     };
 } // Scenes

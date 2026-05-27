@@ -1,5 +1,8 @@
 #include "KeyboardManager.h"
 
+using namespace std;
+using namespace Handler;
+
 namespace Manager {
 
     void KeyboardManager::onKeyPress(const int keyCode, const int scancode, const int action, const int mods, float deltaTime) {

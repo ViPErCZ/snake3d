@@ -6,19 +6,16 @@
 #include <memory>
 #include <vector>
 
-using namespace std;
-using namespace Handler;
-
 namespace Manager {
 
     class KeyboardManager {
     public:
         virtual ~KeyboardManager() = default;
-        void addEventHandler(shared_ptr<BaseKeydownHandle> handler);
+        void addEventHandler(std::shared_ptr<Handler::BaseKeydownHandle> handler);
         void onKeyPress(int keyCode, int scancode, int action, int mods, float deltaTime);
         void runDefault();
     protected:
-        vector<shared_ptr<BaseKeydownHandle> > handlers;
+        std::vector<std::shared_ptr<Handler::BaseKeydownHandle> > handlers;
     };
 
 } // Manager

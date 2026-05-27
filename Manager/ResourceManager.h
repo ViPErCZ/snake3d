@@ -13,9 +13,6 @@
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Resource/ResourceLoader.h"
 
-using namespace std;
-using namespace Resource;
-
 namespace Manager {
         template<class>
         inline constexpr bool always_false = false;
@@ -26,38 +23,38 @@ namespace Manager {
 
         ~ResourceManager();
 
-        void addTexture(const string &name, const shared_ptr<TextureManager> &res);
+        void addTexture(const std::string &name, const std::shared_ptr<TextureManager> &res);
 
-        void replaceTexture(const string &name, const shared_ptr<TextureManager> &res);
+        void replaceTexture(const std::string &name, const std::shared_ptr<TextureManager> &res);
 
-        void addShader(const string &name, const shared_ptr<ShaderProgram> &res);
+        void addShader(const std::string &name, const std::shared_ptr<ShaderProgram> &res);
 
-        void addModel(const string &name, shared_ptr<Mesh> &res);
+        void addModel(const std::string &name, std::shared_ptr<Mesh> &res);
 
-        void addModel(const string &name, shared_ptr<Animation::AnimationPlayer> res);
+        void addModel(const std::string &name, std::shared_ptr<Animation::AnimationPlayer> res);
 
-        shared_ptr<TextureManager> getTexture(const string &name) const;
-        bool hasTexture(const string &name) const;
+        std::shared_ptr<TextureManager> getTexture(const std::string &name) const;
+        bool hasTexture(const std::string &name) const;
 
-        shared_ptr<ShaderProgram> getShader(const string &name) const;
+        std::shared_ptr<ShaderProgram> getShader(const std::string &name) const;
 
         // B5c: optional handle to the shader registry. App sets it during
         // bootstrap; scenes use it through MaterialBuilder. Will become the
         // primary shader API in B6 once ResourceManager::getShader is retired.
-        void setShaderRegistry(shared_ptr<ShaderRegistry> registry) { shaderRegistry = std::move(registry); }
-        [[nodiscard]] shared_ptr<ShaderRegistry> getShaderRegistry() const { return shaderRegistry; }
+        void setShaderRegistry(std::shared_ptr<ShaderRegistry> registry) { shaderRegistry = std::move(registry); }
+        [[nodiscard]] std::shared_ptr<ShaderRegistry> getShaderRegistry() const { return shaderRegistry; }
 
         // Global fog feature - shared across every basicShader material composition
         // so the F-key toggle propagates to all 3D materials in one mutation.
         // App bootstraps it; RenderManager::toggleFog mutates setEnabled.
-        void setFogFeature(shared_ptr<Feature::FogFeature> feature) { fogFeature = std::move(feature); }
-        [[nodiscard]] shared_ptr<Feature::FogFeature> getFogFeature() const { return fogFeature; }
+        void setFogFeature(std::shared_ptr<Feature::FogFeature> feature) { fogFeature = std::move(feature); }
+        [[nodiscard]] std::shared_ptr<Feature::FogFeature> getFogFeature() const { return fogFeature; }
 
-        shared_ptr<Mesh> getModel(const string &name) const;
+        std::shared_ptr<Mesh> getModel(const std::string &name) const;
 
-        shared_ptr<Animation::AnimationPlayer> getAnimationModel(const string &name) const;
+        std::shared_ptr<Animation::AnimationPlayer> getAnimationModel(const std::string &name) const;
 
-        void loadAsyncTexture(const string &path, const string &name, bool albedo, const function<void()> &onReady = nullptr);
+        void loadAsyncTexture(const std::string &path, const std::string &name, bool albedo, const std::function<void()> &onReady = nullptr);
 
         void loadAsyncShader(
             const std::string &name,
@@ -123,7 +120,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<Animation::AnimationPlayer> > animationModel;
         std::shared_ptr<ShaderRegistry> shaderRegistry;
         std::shared_ptr<Feature::FogFeature> fogFeature;
-        std::unique_ptr<ResourceLoader> loader;
+        std::unique_ptr<Resource::ResourceLoader> loader;
 
         mutable std::mutex pendingMutex;
 
@@ -141,16 +138,16 @@ namespace Manager {
 
         struct PendingTexture {
             std::string name;
-            vector<unsigned char> buffer;
+            std::vector<unsigned char> buffer;
             bool albedo;
             std::function<void()> onReady;
         };
 
         struct PendingShader {
             std::string name;
-            vector<unsigned char> vertexBuffer;
-            vector<unsigned char> geometryBuffer;
-            vector<unsigned char> fragmentBuffer;
+            std::vector<unsigned char> vertexBuffer;
+            std::vector<unsigned char> geometryBuffer;
+            std::vector<unsigned char> fragmentBuffer;
             std::function<void()> onReady;
         };
 

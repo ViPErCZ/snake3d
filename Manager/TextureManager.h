@@ -4,8 +4,6 @@
 #include <vector>
 #include <assimp/texture.h>
 
-using namespace std;
-
 namespace Manager {
     class TextureManager final {
     public:
@@ -39,8 +37,8 @@ namespace Manager {
         [[nodiscard]] bool hasTexture() const;
 
     protected:
-        vector<unsigned int> textures;
-        vector<unsigned char> buffer;
+        std::vector<unsigned int> textures;
+        std::vector<unsigned char> buffer;
         int widthImg, heightImg, numColCh;
     };
 } // Manager

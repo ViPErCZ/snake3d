@@ -8,6 +8,8 @@
 #include "../Resource/ShaderLoader.h"
 #include "../Resource/ShaderPreprocessor.h"
 
+using namespace std;
+
 namespace Manager {
     namespace {
         int64_t fileMtime(const std::string& path) {

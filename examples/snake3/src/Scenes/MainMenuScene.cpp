@@ -7,6 +7,8 @@
 #include "Resource/TextureLoader.h"
 #include "Thirdparty/stbimage/stb_image.h"
 
+using namespace Resource;
+
 namespace Scenes {
     namespace {
         constexpr float kCursorScale = 0.9f;

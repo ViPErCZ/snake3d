@@ -4,7 +4,9 @@
 #include "../Resource/ShaderLoader.h"
 #include "../Resource/TextureLoader.h"
 
+using namespace std;
 using namespace Animation;
+using namespace Resource;
 
 namespace Manager {
     ResourceManager::ResourceManager() {
