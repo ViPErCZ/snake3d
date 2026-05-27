@@ -5,15 +5,14 @@
 #include "../../Manager/Camera.h"
 #include "../../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 
-using namespace Manager;
-using namespace CollisionShape;
-
 // Collision shape size manipulation
 // ==============================================
 namespace Handler::Debug {
+    using CollisionShape::CollisionShape3D;
+
     class CollisionShapeHandler : public BaseKeydownHandle {
     public:
-        explicit CollisionShapeHandler(const shared_ptr<Camera> &camera);
+        explicit CollisionShapeHandler(const shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 
@@ -40,7 +39,7 @@ namespace Handler::Debug {
         void setActiveItem(const shared_ptr<CollisionShape3D>& item);
 
     protected:
-        shared_ptr<Camera> camera = nullptr;
+        shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<CollisionShape3D> > items;
         shared_ptr<CollisionShape3D> activeItem = nullptr;
         shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;

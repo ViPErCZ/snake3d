@@ -11,19 +11,19 @@
 #include "../../Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "../../Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 
-using namespace Manager;
-using namespace Lights;
-using namespace Material;
-using namespace Model;
-
 namespace Handler::Debug {
+    using Lights::Light;
+    using Model::LabelNode2D;
+    using Model::MeshNode2D;
+    using Model::DirectionalLightNode3D;
+
     enum class Focus {
         Ambient, Diffuse, Specular, Direction, Position,
     };
     class LightsHandler : public BaseKeydownHandle {
     public:
-        explicit LightsHandler(const shared_ptr<ContextState> &contextState,
-            const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Camera> &camera);
+        explicit LightsHandler(const shared_ptr<Tools::ContextState> &contextState,
+            const shared_ptr<Manager::ResourceManager> &resourceManager, const shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 
@@ -59,13 +59,13 @@ namespace Handler::Debug {
     protected:
         [[nodiscard]] glm::vec3 getColorByFocus() const;
         void setColorByFocus(glm::vec3 color) const;
-        shared_ptr<Camera> camera = nullptr;
+        shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<Light> > items;
         shared_ptr<Light> activeItem = nullptr;
         shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
         Focus focus = Focus::Ambient;
-        shared_ptr<LabelSettings> labelSettings;
+        shared_ptr<Material::LabelSettings> labelSettings;
         shared_ptr<LabelNode2D> focusText;
         shared_ptr<MeshNode2D> focusTextNode;
         shared_ptr<LabelNode2D> colorText;

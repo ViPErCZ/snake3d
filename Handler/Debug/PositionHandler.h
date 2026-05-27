@@ -5,14 +5,10 @@
 #include "../../Manager/Camera.h"
 #include "../BaseKeydownHandle.h"
 
-using namespace Model;
-using namespace Manager;
-using namespace ::Debug;
-
 namespace Handler::Debug {
-    class PositionHandler final : public BaseKeydownHandle, public BaseTransform {
+    class PositionHandler final : public BaseKeydownHandle, public ::Debug::BaseTransform {
     public:
-        explicit PositionHandler(const shared_ptr<Camera> &camera);
+        explicit PositionHandler(const shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 

@@ -6,14 +6,10 @@
 #include "../../Manager/Camera.h"
 #include "../../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
-using namespace Model;
-using namespace Manager;
-using namespace ::Debug;
-
 namespace Handler::Debug {
-    class ScaleHandler final : public BaseKeydownHandle, public BaseTransform {
+    class ScaleHandler final : public BaseKeydownHandle, public ::Debug::BaseTransform {
     public:
-        explicit ScaleHandler(const shared_ptr<Camera> &camera);
+        explicit ScaleHandler(const shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 

@@ -4,13 +4,12 @@
 #include "../../Manager/Camera.h"
 #include "../../Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
-using namespace Model;
-using namespace Manager;
-
 namespace Debug {
+    using Model::MeshNode3D;
+
     class BaseTransform {
     public:
-        explicit BaseTransform(const shared_ptr<Camera> &camera);
+        explicit BaseTransform(const shared_ptr<Manager::Camera> &camera);
 
         void addItem(const shared_ptr<MeshNode3D> &item);
 
@@ -45,7 +44,7 @@ namespace Debug {
     protected:
         void computeWorld();
 
-        shared_ptr<Camera> camera = nullptr;
+        shared_ptr<Manager::Camera> camera = nullptr;
         vector<shared_ptr<MeshNode3D> > items;
         shared_ptr<MeshNode3D> activeItem = nullptr;
         shared_ptr<Transform> cameraOriginalStickyPoint = nullptr;

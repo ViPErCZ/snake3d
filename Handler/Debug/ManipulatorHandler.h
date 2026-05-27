@@ -11,13 +11,11 @@
 #include "../BaseKeydownHandle.h"
 #include "../../Manager/Camera.h"
 
-using namespace Manager;
-
 namespace Handler::Debug {
         class ManipulatorHandler final : public BaseKeydownHandle {
         public:
-                explicit ManipulatorHandler(const shared_ptr<ContextState> &contextState,
-                        const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Camera> &camera);
+                explicit ManipulatorHandler(const shared_ptr<Tools::ContextState> &contextState,
+                        const shared_ptr<Manager::ResourceManager> &resourceManager, const shared_ptr<Manager::Camera> &camera);
                 void onDefaultHandler() override;
                 void onEventHandler(unsigned key, int scancode, int action, int mods, float deltaTime) override;
                 [[nodiscard]] shared_ptr<PositionHandler> getPositionHandler() const { return positionHandler; }
