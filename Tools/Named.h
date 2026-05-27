@@ -3,17 +3,15 @@
 
 #include <string>
 
-using namespace std;
-
 namespace Node3D {
     class Named {
     public:
-        void setName(const string &name);
+        void setName(const std::string &name);
 
-        [[nodiscard]] string getName();
+        [[nodiscard]] std::string getName();
 
     protected:
-        string name;
+        std::string name;
     };
 } // Node3D
 

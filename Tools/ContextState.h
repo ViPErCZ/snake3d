@@ -8,8 +8,6 @@
 #include "BlendFactor.h"
 #include "DepthFunc.h"
 
-using namespace std;
-
 namespace Tools {
     class ContextState {
     public:
@@ -26,7 +24,7 @@ namespace Tools {
         void setDepthMask(DepthMask mask) noexcept;
     protected:
         void init() noexcept;
-        unordered_map<Capabilities, bool> capability_map;
+        std::unordered_map<Capabilities, bool> capability_map;
         BlendFactor src_factor {BlendFactor::None};
         BlendFactor dst_factor {BlendFactor::Zero};
         DepthFunc depth_func {DepthFunc::Less};

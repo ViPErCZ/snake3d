@@ -1,5 +1,7 @@
 #include "../Tools/AnimItem.h"
 
+using namespace std;
+
 Animation::AnimationNode::AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept
         : rotations(std::move(rotations))
         , positions(std::move(positions))

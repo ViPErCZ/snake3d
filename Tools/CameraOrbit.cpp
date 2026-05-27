@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace Manager;
+
 namespace Tools {
     void CameraOrbit::reset() {
         initialized = false;

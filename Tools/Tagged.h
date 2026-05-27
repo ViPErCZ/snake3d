@@ -5,16 +5,14 @@
 #include <string>
 #include <set>
 
-using namespace std;
-
 namespace Node3D {
     class Tagged {
         public:
-        void addTag(const string &tag);
-        void removeTag(const string &tag);
-        bool hasTag(string tag);
+        void addTag(const std::string &tag);
+        void removeTag(const std::string &tag);
+        bool hasTag(std::string tag);
     private:
-        set<shared_ptr<string> > tags;
+        std::set<std::shared_ptr<std::string> > tags;
     };
 } // Node3D
 

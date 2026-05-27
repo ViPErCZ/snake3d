@@ -5,8 +5,7 @@
 #include <array>
 #include <vector>
 #include <glm/gtx/quaternion.hpp>
-
-using namespace std;
+#include <string>
 
 namespace Animation {
     template <typename T>
@@ -25,7 +24,7 @@ namespace Animation {
         glm::mat4 node_transform {1.0f};
         glm::mat4 offset_matrix {1.0f};
 
-        Bone(string name, string meshName, const glm::mat4& _offset_matrix) noexcept
+        Bone(std::string name, std::string meshName, const glm::mat4& _offset_matrix) noexcept
                 : name {std::move(name)}
                 , meshName {std::move(meshName)}
                 , offset_matrix {_offset_matrix} {
@@ -52,11 +51,11 @@ namespace Animation {
     };
 
     struct AnimationNode {
-        vector<KeyFrame<glm::fquat>> rotations;
-        vector<KeyFrame<glm::vec3>> positions;
-        vector<KeyFrame<glm::vec3>> scales;
-        vector<KeyFrame<float>> alphas;
-        shared_ptr<Bone> bone = nullptr;
+        std::vector<KeyFrame<glm::fquat>> rotations;
+        std::vector<KeyFrame<glm::vec3>> positions;
+        std::vector<KeyFrame<glm::vec3>> scales;
+        std::vector<KeyFrame<float>> alphas;
+        std::shared_ptr<Bone> bone = nullptr;
         float easing_value = 0.0f;
 //      0 → linear
 //      0.5 → mírné ease-out
@@ -64,7 +63,7 @@ namespace Animation {
 //      –2 → silné ease-in
 //      –15 → ultra rychlý ease-in
 
-        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const shared_ptr<Bone> &_bone) noexcept;
+        AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales, const std::shared_ptr<Bone> &_bone) noexcept;
         AnimationNode(decltype(positions) positions, decltype(rotations) rotations, decltype(scales) scales) noexcept;
 
         //void addFrame(double time, const glm::fquat &rotation, const glm::vec3 &position, const glm::vec3 &scale) noexcept;
@@ -82,7 +81,7 @@ namespace Animation {
     };
 
     struct AnimationClip {
-        std::vector<shared_ptr<AnimationNode> > nodes;
+        std::vector<std::shared_ptr<AnimationNode> > nodes;
         std::string name;
         double duration;
         double tps;

@@ -6,8 +6,6 @@
 
 #include "../Manager/Camera.h"
 
-using namespace Manager;
-
 namespace Tools {
     class CameraOrbit {
     public:
@@ -18,11 +16,11 @@ namespace Tools {
         void setBackOffset(float offset);
         void setWorldUp(const glm::vec3 &up);
 
-        void initFromCamera(const Camera &camera);
-        void initFromCamera(const std::shared_ptr<Camera> &camera);
+        void initFromCamera(const Manager::Camera &camera);
+        void initFromCamera(const std::shared_ptr<Manager::Camera> &camera);
 
-        void update(Camera &camera, float deltaTime);
-        void update(const std::shared_ptr<Camera> &camera, float deltaTime);
+        void update(Manager::Camera &camera, float deltaTime);
+        void update(const std::shared_ptr<Manager::Camera> &camera, float deltaTime);
 
         [[nodiscard]] bool isInitialized() const;
 
