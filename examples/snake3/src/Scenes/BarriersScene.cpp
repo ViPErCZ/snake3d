@@ -1,6 +1,6 @@
 #include "BarriersScene.h"
 
-#include "Physic/BoxShape.h"
+#include <snake3d/Physic/BoxShape.h>
 #include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"

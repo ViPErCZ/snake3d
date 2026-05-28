@@ -1,6 +1,6 @@
 #include "SnakeMoveHandler.h"
 
-#include "Physic/Dynamics/DynamicBody.h"
+#include <snake3d/Physic/Dynamics/DynamicBody.h>
 
 using namespace Build;
 using namespace Physic;

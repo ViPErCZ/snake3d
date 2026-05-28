@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "Physic/SphereShape.h"
+#include <snake3d/Physic/SphereShape.h>
 #include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/BonesFeature.h"

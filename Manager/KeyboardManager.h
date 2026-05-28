@@ -2,7 +2,7 @@
 #define SNAKE3_KEYBOARDMANAGER_H
 
 #include <stdafx.h>
-#include "../Handler/BaseKeydownHandle.h"
+#include <snake3d/Handler/BaseKeydownHandle.h>
 #include <memory>
 #include <vector>
 

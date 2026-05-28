@@ -285,25 +285,25 @@ set(ENGINE_SOURCES
         engine/include/snake3d/Lights/IOrientable.h
         engine/include/snake3d/Lights/OrientableLight.h
         # --- Physic
-        Physic/Shape.h
-        Physic/BoxShape.cpp
-        Physic/BoxShape.h
-        Physic/SphereShape.cpp
-        Physic/SphereShape.h
-        Physic/CapsuleShape.cpp
-        Physic/CapsuleShape.h
-        Physic/CylinderShape.cpp
-        Physic/CylinderShape.h
-        Physic/CollisionCheck.cpp
-        Physic/CollisionCheck.h
-        Physic/CollisionSystem3D.cpp
-        Physic/CollisionSystem3D.h
-        Physic/Algorithms/CollisionAlgorithms.cpp
-        Physic/Algorithms/CollisionAlgorithms.h
-        Physic/Dynamics/DynamicBody.cpp
-        Physic/Dynamics/DynamicBody.h
-        Physic/Jump/JumpTrajectory.cpp
-        Physic/Jump/JumpTrajectory.h
+        engine/include/snake3d/Physic/Shape.h
+        engine/src/Physic/BoxShape.cpp
+        engine/include/snake3d/Physic/BoxShape.h
+        engine/src/Physic/SphereShape.cpp
+        engine/include/snake3d/Physic/SphereShape.h
+        engine/src/Physic/CapsuleShape.cpp
+        engine/include/snake3d/Physic/CapsuleShape.h
+        engine/src/Physic/CylinderShape.cpp
+        engine/include/snake3d/Physic/CylinderShape.h
+        engine/src/Physic/CollisionCheck.cpp
+        engine/include/snake3d/Physic/CollisionCheck.h
+        engine/src/Physic/CollisionSystem3D.cpp
+        engine/include/snake3d/Physic/CollisionSystem3D.h
+        engine/src/Physic/Algorithms/CollisionAlgorithms.cpp
+        engine/include/snake3d/Physic/Algorithms/CollisionAlgorithms.h
+        engine/src/Physic/Dynamics/DynamicBody.cpp
+        engine/include/snake3d/Physic/Dynamics/DynamicBody.h
+        engine/src/Physic/Jump/JumpTrajectory.cpp
+        engine/include/snake3d/Physic/Jump/JumpTrajectory.h
         # --- Tools
         engine/src/Tools/AnimItem.cpp
         engine/include/snake3d/Tools/AnimItem.h
@@ -349,25 +349,25 @@ set(ENGINE_SOURCES
         engine/src/Network/NetClock.cpp
         engine/include/snake3d/Network/NetClock.h
         # --- Handler (base + debug-mode handlers - generic)
-        Handler/BaseHandler.cpp
-        Handler/BaseHandler.h
-        Handler/BaseKeydownHandle.h
-        Handler/Debug/BaseTransform.cpp
-        Handler/Debug/BaseTransform.h
-        Handler/Debug/PositionHandler.cpp
-        Handler/Debug/PositionHandler.h
-        Handler/Debug/RotationHandler.cpp
-        Handler/Debug/RotationHandler.h
-        Handler/Debug/ScaleHandler.cpp
-        Handler/Debug/ScaleHandler.h
-        Handler/Debug/CollisionShapeHandler.cpp
-        Handler/Debug/CollisionShapeHandler.h
-        Handler/Debug/LightsHandler.cpp
-        Handler/Debug/LightsHandler.h
-        Handler/Debug/ManipulatorHandler.cpp
-        Handler/Debug/ManipulatorHandler.h
-        Handler/Debug/ImGuiOverlay.cpp
-        Handler/Debug/ImGuiOverlay.h
+        engine/src/Handler/BaseHandler.cpp
+        engine/include/snake3d/Handler/BaseHandler.h
+        engine/include/snake3d/Handler/BaseKeydownHandle.h
+        engine/src/Handler/Debug/BaseTransform.cpp
+        engine/include/snake3d/Handler/Debug/BaseTransform.h
+        engine/src/Handler/Debug/PositionHandler.cpp
+        engine/include/snake3d/Handler/Debug/PositionHandler.h
+        engine/src/Handler/Debug/RotationHandler.cpp
+        engine/include/snake3d/Handler/Debug/RotationHandler.h
+        engine/src/Handler/Debug/ScaleHandler.cpp
+        engine/include/snake3d/Handler/Debug/ScaleHandler.h
+        engine/src/Handler/Debug/CollisionShapeHandler.cpp
+        engine/include/snake3d/Handler/Debug/CollisionShapeHandler.h
+        engine/src/Handler/Debug/LightsHandler.cpp
+        engine/include/snake3d/Handler/Debug/LightsHandler.h
+        engine/src/Handler/Debug/ManipulatorHandler.cpp
+        engine/include/snake3d/Handler/Debug/ManipulatorHandler.h
+        engine/src/Handler/Debug/ImGuiOverlay.cpp
+        engine/include/snake3d/Handler/Debug/ImGuiOverlay.h
 )
 
 set(GAME_LIB_SOURCES

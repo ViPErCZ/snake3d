@@ -5,7 +5,7 @@
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include <snake3d/Resource/MaterialLoader.h>
 
-#include "Physic/SphereShape.h"
+#include <snake3d/Physic/SphereShape.h>
 #include "Renderer/Opengl/Material/Uniform/TextureUniform.h"
 #include "Renderer/Opengl/Material/Uniform/TimerUniform.h"
 #include <snake3d/Tools/Layers.h>

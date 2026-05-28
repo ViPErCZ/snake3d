@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Physic/Dynamics/DynamicBody.h"
+#include <snake3d/Physic/Dynamics/DynamicBody.h>
 #include "../Handler/SnakeMoveHandler.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 #include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"

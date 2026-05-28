@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
-#include "Handler/Debug/ManipulatorHandler.h"
+#include <snake3d/Handler/Debug/ManipulatorHandler.h>
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/CallbackUniform.h"
 

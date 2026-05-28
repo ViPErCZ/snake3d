@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "Physic/Algorithms/CollisionAlgorithms.h"
+#include <snake3d/Physic/Algorithms/CollisionAlgorithms.h>
 #include <snake3d/Tools/Timer.h>
 #include "Renderer/Opengl/Material/MaterialInstance.h"
 #include "Renderer/Opengl/Material/ShaderMaterial.h"

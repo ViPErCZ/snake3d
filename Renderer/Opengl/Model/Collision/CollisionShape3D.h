@@ -1,7 +1,7 @@
 #ifndef SNAKE3_COLLISIONSHAPE3D_H
 #define SNAKE3_COLLISIONSHAPE3D_H
 
-#include "../../../../Physic/Shape.h"
+#include <snake3d/Physic/Shape.h>
 #include "../Standard/MeshNode3D.h"
 #include <memory>
 #include <set>

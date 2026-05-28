@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Handler/BaseKeydownHandle.h"
-#include "Physic/Jump/JumpTrajectory.h"
+#include <snake3d/Handler/BaseKeydownHandle.h>
+#include <snake3d/Physic/Jump/JumpTrajectory.h>
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
 using namespace Model;

@@ -2,9 +2,9 @@
 
 #include <glm/gtc/random.hpp>
 
-#include "Handler/Debug/PositionHandler.h"
-#include "Physic/BoxShape.h"
-#include "Physic/CylinderShape.h"
+#include <snake3d/Handler/Debug/PositionHandler.h>
+#include <snake3d/Physic/BoxShape.h>
+#include <snake3d/Physic/CylinderShape.h>
 #include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"

@@ -12,7 +12,7 @@
 #include <snake3d/Tools/BuildSettings.h>
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
-#include "Handler/Debug/ImGuiOverlay.h"
+#include <snake3d/Handler/Debug/ImGuiOverlay.h>
 
 namespace fs = std::filesystem;
 using namespace Manager;
