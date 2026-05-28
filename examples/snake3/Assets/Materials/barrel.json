@@ -1,5 +1,5 @@
 {
-  "_comment": "Feature ORDER must match the original C++ insertion order - shader permutation hash depends on it. Barrel textures (albedo, normalMap) are intentionally omitted: BarrelNode3D::update polls feature->getAlbedo()==nullptr and assigns the async-loaded model texture lazily.",
+  "_comment": "Barrel textures (albedo, normalMap) are intentionally omitted: BarrelNode3D::update polls feature->getAlbedo()==nullptr and assigns the async-loaded model texture lazily. Feature order is NOT load-bearing - shader cache key is built from a feature bitmask (ShaderRegistry::makeKey), so reordering is safe.",
   "master": "basicShader",
   "blending": "opaque",
   "features": [

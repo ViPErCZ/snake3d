@@ -115,3 +115,70 @@ What stays legacy (still per-draw `setUniform`): `model`, `material.shininess` (
 Shader-side: GLSL blocks live in `examples/snake3/Assets/Shaders/functions/frame_data.glsl` and `material_data.glsl` (both declared `layout(std140)`). For helpers shared between basic.fs and 2D/shadow shaders, `alpha.glsl`/`fog.glsl` keep the legacy uniform path, while `alpha_material.glsl`/`fog_material.glsl` are the UBO variants used only by `basic.fs`. `ShaderProgram` ctor (`setupProgramDefaults`) calls `setUniformBlock("FrameData", 0)` and `setUniformBlock("MaterialData", 1)` on every program — programs that don't declare the block silently no-op (GL_INVALID_INDEX).
 
 Measured impact (Debug build, MainScene steady state, ~609 draws/frame): post-migration ≈ 23,926 `setUniform` calls per frame (~39.3 per draw). Pre-D1.1b+D1.2 estimate adds back ~5 camera/time + ~15 material uniforms per draw, i.e. roughly 36k calls/frame — ~34% reduction. Remaining per-draw budget is dominated by light uniforms, `material.shininess`, sampler-index `setInt`s and a few feature-specific scalars still on the legacy path.
+
+### Data-driven materials (D3)
+
+A pilot set of materials is described in JSON instead of inline `MaterialBuilder` chains so designers can tweak feature lists, colors, textures and scalar params without recompiling. Files live in `examples/snake3/Assets/Materials/` (game side) and are copied into the build dir by the existing `copy_assets` target. Current pilot materials: `snake_tile.json`, `barrel.json`, `torch.json`.
+
+**Loader API.** `Manager::ResourceManager::loadMaterial(path)` returns a `Resource::MaterialSpec`:
+
+```cpp
+struct MaterialSpec {
+    Material::MaterialBuilder builder;     // pre-populated with STATIC features in JSON order
+    bool hasLighting{false};                // runtime-wired flags (see below)
+    bool hasShadow{false};
+    bool hasFog{false};
+    Tools::Blending blending{Tools::Blending::Opaque};
+};
+```
+
+Underlying impl: `Resource::MaterialLoader::loadFromFile(path, rm)` / `loadFromJson(json, rm)` in `Resource/MaterialLoader.{h,cpp}`. The `ResourceManager` wrapper exists so callsites don't need to `#include <nlohmann/json.hpp>` or `MaterialLoader.h` directly.
+
+**Static vs runtime-wired features.** The loader constructs these features from JSON alone (texture keys are resolved through `rm.getTexture(name)`):
+- `albedo` → `AlbedoFeature` (params: `texture?`, `color?` as `[r,g,b]`, `alpha?`, `ambientIntensity?`)
+- `normalMap` → `NormalMapFeature` (params: `texture?`; lazy-load: omit `texture` for a `nullptr` feature whose albedo/normal is set later, e.g. `BarrelNode3D::update`)
+- `specular` → `SpecularFeature` (params: `texture`, `shininess?` defaults 32.0)
+- `pbr` → `PbrFeature` (params: `metalness`, `roughness`, `aoMap?` — all texture-name strings)
+- `uvTransform` → `UvTransformFeature` (params: `scale?` as `[u,v]`, `offset?` as `[u,v]`)
+- `bones` → `BonesFeature` (params: `useBones?` bool)
+- `ibl` → `IblFeature` (params: `texture`)
+
+These three need live C++ objects (lights, depth texture, the shared fog singleton) that JSON cannot reference, so the loader only flips a flag:
+- `lighting` → `spec.hasLighting = true` (callsite injects `LightingFeature(dir, points, spots)`)
+- `shadow` → `spec.hasShadow = true` (callsite injects `ShadowFeature(depthTex, shadowsShader)`)
+- `fog` → `spec.hasFog = true` (callsite appends `resourceManager->getFogFeature()`)
+
+**Standard wiring pattern** (verbatim from pilot callsites):
+
+```cpp
+auto spec = resourceManager->loadMaterial("Assets/Materials/foo.json");
+// (optional) extract pointers to lazy-init features via spec.builder.featuresView()
+// + dynamic_pointer_cast — needed only when the callsite mutates them later.
+if (spec.hasLighting) spec.builder.with(make_shared<Feature::LightingFeature>(dir, points, spots));
+if (spec.hasShadow)   spec.builder.with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader));
+if (spec.hasFog)      spec.builder.with(resourceManager->getFogFeature());
+auto material = spec.builder.build(*resourceManager->getShaderRegistry());
+material->setBlending(spec.blending);
+```
+
+**Feature order is NOT required to match a specific layout.** `ShaderRegistry::makeKey` builds the cache key as an OR-combined `ShaderFeatureMask` from feature flags, so the bitmask is permutation-invariant. JSON authors can reorder features freely. The `_comment` strings in current pilot JSON files predate this clarification — they're kept for documentation but are not load-bearing.
+
+**JSON schema.** Top-level: `master` (required), `blending` (optional, default `"opaque"`), `features` (array). Accepted `blending` values: `"opaque"`, `"translucent"`, `"additive"`, `"alphaAdditive"`, `"modulate"`, `"text"`. Unknown blending → warning to stderr + fallback to opaque. A top-level `_comment` key (or any other unknown key) is silently ignored. Unknown feature `type` strings emit a warning and are skipped without aborting the load.
+
+Example (`snake_tile.json`):
+```json
+{
+  "master": "basicShader",
+  "blending": "opaque",
+  "features": [
+    { "type": "lighting" },
+    { "type": "shadow" },
+    { "type": "albedo", "color": [0.88, 0.05, 0.05] },
+    { "type": "fog" }
+  ]
+}
+```
+
+**Adding a new material to the pilot set.** (1) Create `examples/snake3/Assets/Materials/<name>.json` listing the desired features. (2) At the callsite, replace the inline `MaterialBuilder` chain with `auto spec = resourceManager->loadMaterial("Assets/Materials/<name>.json");`. (3) Wire the three runtime features by translating each `spec.hasLighting/Shadow/Fog` flag into a `spec.builder.with(...)` call as shown in the standard pattern above, then `spec.builder.build(...)` and `setBlending(spec.blending)`.
+
+**Out of scope for D3.** Hot-reload (would need a JSON mtime watcher alongside `ShaderRegistry::reloadIfChanged`); GUI material editor; migration of materials with rich runtime state — coin's animated `MaterialInstance`, the plane's `PlanarReflectionFeature` (depends on per-frame mirrored camera UBO), `HoleMapFeature` with live textures, etc. The pilot deliberately picks materials whose only runtime-bound features are the three covered by the flag triplet.

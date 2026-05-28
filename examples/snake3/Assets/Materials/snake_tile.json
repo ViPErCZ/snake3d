@@ -1,5 +1,5 @@
 {
-  "_comment": "Feature ORDER must match the original C++ insertion order - shader permutation hash depends on it.",
+  "_comment": "Feature order is NOT load-bearing - ShaderRegistry::makeKey OR-combines feature flags into a bitmask, so the cache key is permutation-invariant. Reorder freely.",
   "master": "basicShader",
   "blending": "opaque",
   "features": [
