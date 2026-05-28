@@ -8,17 +8,17 @@ namespace Scenes {
     class BarriersScene final : public Scene {
     public:
         BarriersScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<Lights::DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<Lights::SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<Lights::PointLight> > &pointLights,
+            const std::shared_ptr<Manager::RenderManager> &rendererManager, const std::shared_ptr<Manager::Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<Manager::ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
 
-        [[nodiscard]] shared_ptr<LevelManager> getLevelManager() const;
+        [[nodiscard]] std::shared_ptr<Manager::LevelManager> getLevelManager() const;
 
-        [[nodiscard]] shared_ptr<MeshNode3D> getLevelBoxes() const;
+        [[nodiscard]] std::shared_ptr<Model::MeshNode3D> getLevelBoxes() const;
 
         void nextLevel(int targetLevel = -1);
 
@@ -27,9 +27,9 @@ namespace Scenes {
 
         void initLevelManager();
 
-        shared_ptr<LevelManager> levelManager;
-        shared_ptr<MeshNode3D> levelBoxes;
-        shared_ptr<MeshNode3D> perimeterBoxes;
+        std::shared_ptr<Manager::LevelManager> levelManager;
+        std::shared_ptr<Model::MeshNode3D> levelBoxes;
+        std::shared_ptr<Model::MeshNode3D> perimeterBoxes;
     };
 } // Scenes
 

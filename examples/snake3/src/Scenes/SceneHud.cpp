@@ -5,9 +5,12 @@
 #include "Renderer/Opengl/Material/2D/LabelSettings.h"
 #include "Renderer/Opengl/Scene/Scene.h"
 
+using namespace std;
 using namespace Material;
 using namespace Model;
 using namespace Uniform;
+using namespace Manager;
+using namespace Tools;
 
 namespace Scenes {
     SceneHud::SceneHud(Scene &parent,

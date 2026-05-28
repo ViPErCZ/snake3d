@@ -20,15 +20,15 @@ namespace Model {
 
     class GPUParticle3D : public MeshNode3D {
     public:
-        GPUParticle3D(const shared_ptr<Material::ParticleProcessMaterial> &material,
-            const shared_ptr<ContextState> &contextState, const shared_ptr<Manager::Camera> &camera,
-            const shared_ptr<StandardMesh> &mesh, const shared_ptr<Manager::ResourceManager> &resourceManager, int maxParticles);
+        GPUParticle3D(const std::shared_ptr<Material::ParticleProcessMaterial> &material,
+            const std::shared_ptr<Tools::ContextState> &contextState, const std::shared_ptr<Manager::Camera> &camera,
+            const std::shared_ptr<StandardMesh> &mesh, const std::shared_ptr<Manager::ResourceManager> &resourceManager, int maxParticles);
 
         ~GPUParticle3D() override;
 
         void update(float dt, uint64_t frameId) override;
 
-        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
         void setTimeOffset(const float timeOffset) { this->timeOffset = timeOffset; }
@@ -53,12 +53,12 @@ namespace Model {
         float timeOffset = 0.0f;
         float timeScale = 1.0f;
 
-        shared_ptr<Manager::ResourceManager> resourceManager;
-        shared_ptr<Manager::Camera> camera;
-        shared_ptr<Material::ParticleProcessMaterial> material;
-        shared_ptr<ShaderProgram> update_shader;
-        shared_ptr<ShaderProgram> render_shader;
-        shared_ptr<ShaderProgram> render_texture_shader;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Manager::Camera> camera;
+        std::shared_ptr<Material::ParticleProcessMaterial> material;
+        std::shared_ptr<Manager::ShaderProgram> update_shader;
+        std::shared_ptr<Manager::ShaderProgram> render_shader;
+        std::shared_ptr<Manager::ShaderProgram> render_texture_shader;
     };
 } // Model
 

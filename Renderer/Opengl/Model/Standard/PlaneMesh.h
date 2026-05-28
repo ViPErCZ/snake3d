@@ -6,7 +6,7 @@
 namespace Model {
     class PlaneMesh final : public StandardMesh {
     public:
-        explicit PlaneMesh(std::shared_ptr<ShaderProgram> baseShader, float width, float height);
+        explicit PlaneMesh(std::shared_ptr<Manager::ShaderProgram> baseShader, float width, float height);
     };
 } // Model
 

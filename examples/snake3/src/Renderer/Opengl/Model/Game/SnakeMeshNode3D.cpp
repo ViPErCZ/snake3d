@@ -18,6 +18,8 @@ using namespace Uniform;
 using namespace Physic;
 using namespace CollisionShape;
 using namespace Material;
+using namespace Manager;
+using namespace Lights;
 
 namespace Model {
     namespace {

@@ -9,6 +9,9 @@
 using namespace std;
 using namespace Model;
 using namespace Material;
+using namespace Manager;
+using namespace Lights;
+using namespace Tools;
 
 namespace Scenes {
     WeatherScene::WeatherScene(

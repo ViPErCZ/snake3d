@@ -17,6 +17,10 @@ using namespace std;
 using namespace Handler;
 using namespace Model;
 using namespace Physic;
+using namespace Manager;
+using namespace Lights;
+using namespace Tools;
+using namespace CollisionShape;
 
 namespace Scenes {
     RemoteSnakeScene::RemoteSnakeScene(

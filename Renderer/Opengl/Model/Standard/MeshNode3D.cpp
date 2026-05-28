@@ -3,6 +3,10 @@
 #include "../Collision/CollisionShape3D.h"
 
 using namespace Build;
+using namespace Tools;
+using namespace Lights;
+using namespace Manager;
+using namespace std;
 
 namespace Model {
     MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,

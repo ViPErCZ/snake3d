@@ -17,8 +17,14 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
+using namespace std;
 using namespace Material;
 using namespace Physic;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+using namespace Tools;
+using namespace CollisionShape;
 
 namespace Scenes {
     TorchScene::TorchScene(

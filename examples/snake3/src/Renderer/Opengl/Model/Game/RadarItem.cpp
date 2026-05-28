@@ -4,6 +4,10 @@
 
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+
 namespace Model {
     RadarItem::RadarItem(const shared_ptr<ContextState> &contextState, const shared_ptr<ResourceManager> &resourceManager,
         const shared_ptr<MeshNode3D> &mesh, const glm::vec3 &color, std::string name)

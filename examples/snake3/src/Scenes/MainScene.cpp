@@ -42,6 +42,15 @@ using Renderer::RenderStats;
 
 using namespace std;
 using namespace Uniform;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+using namespace Tools;
+using namespace Material;
+using namespace Physic;
+using namespace Build;
+using namespace Handler::Debug;
+using namespace CollisionShape;
 using namespace Physic;
 using namespace Material;
 using namespace Manager;

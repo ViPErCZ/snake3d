@@ -6,6 +6,8 @@
 using namespace Model;
 using namespace Build;
 using namespace std;
+using namespace Manager;
+using namespace Tools;
 
 namespace Physic {
     BoxShape::BoxShape(const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<ContextState> &contextState,

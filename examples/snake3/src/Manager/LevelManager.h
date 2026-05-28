@@ -15,6 +15,9 @@
 using namespace Physic;
 using namespace CollisionShape;
 using namespace Model;
+using namespace Lights;
+using namespace Tools;
+using namespace Manager;
 using namespace std;
 
 namespace Manager {

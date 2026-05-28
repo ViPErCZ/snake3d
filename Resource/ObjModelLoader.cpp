@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace ModelUtils;
+using namespace Manager;
 
 namespace Resource {
     std::vector<TextureInfo> loadMaterialTextures(std::unordered_map<std::string, TextureInfo> &loadedTexturesCache,

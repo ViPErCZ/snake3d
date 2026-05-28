@@ -1,5 +1,8 @@
 #include "BaseProcessMaterial.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Material {
     BaseProcessMaterial::BaseProcessMaterial(const shared_ptr<ResourceManager> &resource_manager)
         : resourceManager(resource_manager) {

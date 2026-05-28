@@ -1,5 +1,9 @@
 #include "OrbitSceneBase.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Lights;
+
 namespace Scenes {
     namespace {
         constexpr glm::vec3 kDefaultOrbitCenter = {1.0f, 1.0f, -1.0f};

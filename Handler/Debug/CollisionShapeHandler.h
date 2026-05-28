@@ -12,21 +12,21 @@ namespace Handler::Debug {
 
     class CollisionShapeHandler : public BaseKeydownHandle {
     public:
-        explicit CollisionShapeHandler(const shared_ptr<Manager::Camera> &camera);
+        explicit CollisionShapeHandler(const std::shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 
         void onEventHandler(unsigned key, int scancode, int action, int mods, float deltaTime) override;
 
-        void addItem(const shared_ptr<CollisionShape3D> &item);
+        void addItem(const std::shared_ptr<CollisionShape3D> &item);
         
         void active();
         
         void deactivate() { enabled = false; }
         
-        shared_ptr<CollisionShape3D> findNextItem();
+        std::shared_ptr<CollisionShape3D> findNextItem();
 
-        shared_ptr<CollisionShape3D> findFirstVisible();
+        std::shared_ptr<CollisionShape3D> findFirstVisible();
 
         // Globální toggle viditelnosti všech collision shapes (ImGui overlay).
         // Per-shape F8 cycling stále funguje paralelně - po setAllVisible(false)
@@ -34,15 +34,15 @@ namespace Handler::Debug {
         void setAllVisible(bool visible);
         [[nodiscard]] bool isAllVisible() const;
 
-        [[nodiscard]] const vector<shared_ptr<CollisionShape3D>>& getItems() const { return items; }
-        [[nodiscard]] shared_ptr<CollisionShape3D> getActiveItem() const { return activeItem; }
-        void setActiveItem(const shared_ptr<CollisionShape3D>& item);
+        [[nodiscard]] const std::vector<std::shared_ptr<CollisionShape3D>>& getItems() const { return items; }
+        [[nodiscard]] std::shared_ptr<CollisionShape3D> getActiveItem() const { return activeItem; }
+        void setActiveItem(const std::shared_ptr<CollisionShape3D>& item);
 
     protected:
-        shared_ptr<Manager::Camera> camera = nullptr;
-        vector<shared_ptr<CollisionShape3D> > items;
-        shared_ptr<CollisionShape3D> activeItem = nullptr;
-        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
+        std::shared_ptr<Manager::Camera> camera = nullptr;
+        std::vector<std::shared_ptr<CollisionShape3D> > items;
+        std::shared_ptr<CollisionShape3D> activeItem = nullptr;
+        std::shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
     };
 } // Debug

@@ -6,6 +6,8 @@
 
 using namespace std;
 using namespace Manager;
+using namespace Tools;
+using namespace Lights;
 
 namespace Renderer {
     PlanarReflectionRenderer::PlanarReflectionRenderer(

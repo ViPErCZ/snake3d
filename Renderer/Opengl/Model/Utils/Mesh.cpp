@@ -2,6 +2,8 @@
 
 #include <utility>
 
+using namespace std;
+
 namespace ModelUtils {
     Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const bool hasBones, string name)
         : vertices(vertices), indices(indices), hasBones(hasBones), name(std::move(name)), localMin(+FLT_MAX),

@@ -2,6 +2,9 @@
 
 #include "../../../../Manager/UboBindings.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Material {
     ParticleProcessMaterial::~ParticleProcessMaterial() {
         glDeleteBuffers(1, &uboID);

@@ -12,16 +12,16 @@ namespace Model {
     class MarkRingNode3D : public MeshNode3D {
     public:
         explicit MarkRingNode3D(
-            const std::shared_ptr<ContextState> &contextState,
-            const std::shared_ptr<ResourceManager> &resourceManager,
+            const std::shared_ptr<Tools::ContextState> &contextState,
+            const std::shared_ptr<Manager::ResourceManager> &resourceManager,
             const std::shared_ptr<Handler::Debug::ManipulatorHandler> &manipulatorHandler);
 
         void init();
 
-        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        void renderShadows(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void renderShadows(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
             const glm::mat4 &parentTransform) const override;
 
     private:

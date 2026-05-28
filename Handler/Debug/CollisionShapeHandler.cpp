@@ -7,7 +7,10 @@
 #include "../../Physic/CylinderShape.h"
 #include "../../Physic/SphereShape.h"
 
+using namespace std;
 using namespace Physic;
+using namespace Manager;
+using namespace Model;
 
 namespace Handler::Debug {
     CollisionShapeHandler::CollisionShapeHandler(const shared_ptr<Camera> &camera) : camera(camera), enabled(false) {

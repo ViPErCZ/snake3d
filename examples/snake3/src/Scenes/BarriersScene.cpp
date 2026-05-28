@@ -10,6 +10,11 @@
 #include "Renderer/Opengl/Model/Standard/BoxMesh.h"
 #include "Tools/Layers.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+
 namespace Scenes {
     BarriersScene::BarriersScene(
         const shared_ptr<DirectionalLight> &directionalLight,

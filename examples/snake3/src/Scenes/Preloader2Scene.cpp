@@ -6,7 +6,12 @@
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
 using Uniform::TimerUniform;
+using namespace std;
 using namespace Material;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+using namespace Tools;
 
 namespace Scenes {
     Preloader2Scene::Preloader2Scene(

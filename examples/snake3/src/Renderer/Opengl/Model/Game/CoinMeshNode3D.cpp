@@ -1,5 +1,10 @@
 #include "CoinMeshNode3D.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+using namespace Lights;
+
 namespace Model {
     CoinMeshNode3D::CoinMeshNode3D(const shared_ptr<SpotLight> &spotLight, const shared_ptr<ContextState> &contextState,
                                    const shared_ptr<StandardMesh> &mesh,

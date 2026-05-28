@@ -12,6 +12,9 @@ using namespace Resource;
 using namespace Material;
 using namespace Model;
 using namespace Uniform;
+using namespace Manager;
+using namespace Lights;
+using namespace Tools;
 
 namespace Scenes {
     namespace {

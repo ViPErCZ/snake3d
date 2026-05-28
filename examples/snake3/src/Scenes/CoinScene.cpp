@@ -10,8 +10,14 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Tools/Layers.h"
 
+using namespace std;
 using namespace Animation;
 using namespace Physic;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+using namespace Tools;
+using namespace CollisionShape;
 
 namespace Scenes {
     CoinScene::CoinScene(

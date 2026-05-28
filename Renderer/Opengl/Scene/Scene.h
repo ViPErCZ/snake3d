@@ -15,24 +15,18 @@
 #include "../../../Tools/BuildSettings.h"
 #include "../../../Tools/Environment.h"
 
-using namespace std;
-using namespace Model;
-using namespace Manager;
-using namespace Handler::Debug;
-using namespace Build;
-
 namespace Scenes {
-    class Scene : public enable_shared_from_this<Scene>, public Node3D::Named {
+    class Scene : public std::enable_shared_from_this<Scene>, public Node3D::Named {
     public:
         virtual ~Scene();
 
         explicit Scene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager,
-            const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-            const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<Lights::DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<Lights::SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<Lights::PointLight> > &pointLights,
+            const std::shared_ptr<Manager::RenderManager> &rendererManager,
+            const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection,
+            const std::shared_ptr<Manager::ResourceManager> &rm, int width, int height);
 
         virtual void init(int priority);
 
@@ -47,7 +41,7 @@ namespace Scenes {
         void addNode(const std::shared_ptr<Scene>& node);
         void addNode(const std::string &name, const std::shared_ptr<Scene> &node);
         [[nodiscard]] bool hasNode(const std::string &name) const;
-        [[nodiscard]] shared_ptr<Scene> getNode(const std::string &name) const;
+        [[nodiscard]] std::shared_ptr<Scene> getNode(const std::string &name) const;
         bool removeNode(const std::string &name);
         bool replaceNode(const std::string &name, const std::shared_ptr<Scene> &node);
         void attachRenderer();
@@ -56,19 +50,19 @@ namespace Scenes {
 
         virtual void keyboardInput(GLFWwindow *window, int keyCode, int scancode, int action, int mods);
 
-        void addMeshNode3D(shared_ptr<MeshNode3D> node, int priority = 0);
-        void addMeshNode2D(shared_ptr<MeshNode2D> node, int priority = 0);
-        
-        vector<RendererEntry3D> getAllMeshNodes3D() const;
+        void addMeshNode3D(std::shared_ptr<Model::MeshNode3D> node, int priority = 0);
+        void addMeshNode2D(std::shared_ptr<Model::MeshNode2D> node, int priority = 0);
 
-        void setEnvironment(const shared_ptr<Environment> &environment) {
+        std::vector<RendererEntry3D> getAllMeshNodes3D() const;
+
+        void setEnvironment(const std::shared_ptr<Tools::Environment> &environment) {
             this->environment = environment;
         }
 
-        void setCollisionSystem(const shared_ptr<Physic::CollisionSystem3D> &collisionSystem);
+        void setCollisionSystem(const std::shared_ptr<Physic::CollisionSystem3D> &collisionSystem);
 
-        void setManipulatorHandler(const shared_ptr<ManipulatorHandler> &manipulatorHandler);
-        [[nodiscard]] shared_ptr<ManipulatorHandler> getManipulatorHandler() const { return manipulatorHandler; }
+        void setManipulatorHandler(const std::shared_ptr<Handler::Debug::ManipulatorHandler> &manipulatorHandler);
+        [[nodiscard]] std::shared_ptr<Handler::Debug::ManipulatorHandler> getManipulatorHandler() const { return manipulatorHandler; }
 
         // C/D ImGui debug: bulk toggle všech CollisionShape3D ve scéně i v
         // sub-scénách (rekurzivně přes nodes mapu + MeshNode3D children).
@@ -83,27 +77,27 @@ namespace Scenes {
         // přepisovat neměly.
         void collectCollisionShapeCounts(int& total, int& visible) const;
 
-        SoundManager &getSoundManager() const;
+        Manager::SoundManager &getSoundManager() const;
 
     protected:
-        vector<RendererEntry3D> meshNode3d;
-        vector<RendererEntry2D> meshNode2d;
-        shared_ptr<Environment> environment;
-        shared_ptr<DirectionalLight> directionalLight;
-        vector<shared_ptr<SpotLight> > spotLights;
-        vector<shared_ptr<PointLight> > pointLights;
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<SceneRenderer> sceneRenderer;
-        shared_ptr<RenderManager> rendererManager;
-        unique_ptr<KeyboardManager> keyboardManager;
-        shared_ptr<Camera> camera;
-        shared_ptr<ContextState> contextState;
-        shared_ptr<ManipulatorHandler> manipulatorHandler;
-        shared_ptr<Physic::CollisionSystem3D> collisionSystem;
-        unique_ptr<SoundManager> soundManager;
+        std::vector<RendererEntry3D> meshNode3d;
+        std::vector<RendererEntry2D> meshNode2d;
+        std::shared_ptr<Tools::Environment> environment;
+        std::shared_ptr<Lights::DirectionalLight> directionalLight;
+        std::vector<std::shared_ptr<Lights::SpotLight> > spotLights;
+        std::vector<std::shared_ptr<Lights::PointLight> > pointLights;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<SceneRenderer> sceneRenderer;
+        std::shared_ptr<Manager::RenderManager> rendererManager;
+        std::unique_ptr<Manager::KeyboardManager> keyboardManager;
+        std::shared_ptr<Manager::Camera> camera;
+        std::shared_ptr<Tools::ContextState> contextState;
+        std::shared_ptr<Handler::Debug::ManipulatorHandler> manipulatorHandler;
+        std::shared_ptr<Physic::CollisionSystem3D> collisionSystem;
+        std::unique_ptr<Manager::SoundManager> soundManager;
         glm::mat4 projection;
-        unordered_map<string, shared_ptr<Scene>> nodes;
-        weak_ptr<Scene> parent;
+        std::unordered_map<std::string, std::shared_ptr<Scene>> nodes;
+        std::weak_ptr<Scene> parent;
         int depth = 0;
         int width;
         int height;

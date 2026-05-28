@@ -6,6 +6,11 @@
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+using namespace Material;
+
 namespace Model {
     StreetLampNode3D::StreetLampNode3D(const shared_ptr<ContextState> &contextState,
         const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(contextState, nullptr, resourceManager) {

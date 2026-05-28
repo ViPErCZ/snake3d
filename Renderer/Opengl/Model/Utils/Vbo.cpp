@@ -1,5 +1,7 @@
 #include "Vbo.h"
 
+using namespace std;
+
 namespace ModelUtils {
     Vbo::Vbo(const vector<Vertex> &vertices) {
         glGenBuffers(1, &ID);

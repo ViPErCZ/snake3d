@@ -16,18 +16,18 @@ namespace Model {
             float brightness;
         };
 
-        BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderProgram> &shader);
+        BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const std::shared_ptr<Manager::ShaderProgram> &shader);
         ~BoltLinesNode2D() override;
 
-        void setSegments(const vector<Segment> &segs);
+        void setSegments(const std::vector<Segment> &segs);
         void clearSegments();
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &ortho, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
                     const glm::mat4 &parentTransform) const override;
 
     private:
         glm::mat4 perspectiveProj;
-        vector<Segment> segments;
+        std::vector<Segment> segments;
         GLuint linesVAO = 0;
         GLuint linesVBO = 0;
 

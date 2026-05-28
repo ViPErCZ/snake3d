@@ -2,7 +2,9 @@
 
 #include <GLFW/glfw3.h>
 
+using namespace std;
 using namespace Tools;
+using namespace Manager;
 
 namespace Model {
     BoltLinesNode2D::BoltLinesNode2D(const glm::mat4 &perspectiveProjection, const shared_ptr<ShaderProgram> &shader)

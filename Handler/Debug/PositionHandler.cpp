@@ -2,6 +2,10 @@
 
 #include "../../Lights/DirectionalLight.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Lights;
+
 namespace Handler::Debug {
     PositionHandler::PositionHandler(const shared_ptr<Camera> &camera): BaseTransform(camera) {
         cameraOriginalStickyPoint = camera->getStickyPoint();

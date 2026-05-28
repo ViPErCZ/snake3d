@@ -1,5 +1,7 @@
 #include "Mesh2D.h"
 
+using namespace std;
+
 namespace ModelUtils {
     Mesh2D::Mesh2D(const vector<Vertex2D> &vertices, const vector<unsigned int> &indices, string name)
         : vertices(vertices), indices(indices), name(std::move(name)) {

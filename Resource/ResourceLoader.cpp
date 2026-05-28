@@ -6,6 +6,9 @@
 #include "ShaderLoader.h"
 #include "TextureLoader.h"
 
+using namespace std;
+using namespace ModelUtils;
+
 namespace Resource {
     ResourceLoader::ResourceLoader() {
         modelWorker = std::thread([this]() { workerLoop(); });

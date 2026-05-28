@@ -48,12 +48,12 @@ namespace Scenes {
         };
 
         MainMenuScene(
-            const std::shared_ptr<DirectionalLight> &directionalLight,
-            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
-            const std::vector<std::shared_ptr<PointLight> > &pointLights,
-            const std::shared_ptr<RenderManager> &rendererManager,
-            const std::shared_ptr<Camera> &camera, const glm::mat4 &projection,
-            const std::shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<Lights::DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<Lights::SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<Lights::PointLight> > &pointLights,
+            const std::shared_ptr<Manager::RenderManager> &rendererManager,
+            const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection,
+            const std::shared_ptr<Manager::ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
         void update() override;
@@ -146,7 +146,7 @@ namespace Scenes {
         std::shared_ptr<Model::MeshNode2D> cursorNode;
         std::shared_ptr<Material::ParticleProcessMaterial> cursorTrailMaterial;
         std::shared_ptr<Model::GPUParticle2D> cursorTrail;
-        std::shared_ptr<TextureManager> cursorTexture;
+        std::shared_ptr<Manager::TextureManager> cursorTexture;
         glm::vec2 cursorSize{0.0f, 0.0f};
         glm::vec2 cursorHotspot{0.0f, 0.0f};
         glm::vec2 lastCursorScreenPos{0.0f, 0.0f};

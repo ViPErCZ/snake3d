@@ -8,6 +8,7 @@
 #include <limits>
 #include <unordered_set>
 
+using namespace std;
 using namespace Model;
 using namespace CollisionShape;
 using namespace Physic::Dynamics;

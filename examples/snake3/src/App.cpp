@@ -10,6 +10,8 @@
 #include "Resource/TextureLoader.h"
 
 using namespace Animation;
+using namespace Build;
+using namespace Handler::Debug;
 
 App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
     resourceManager = make_shared<ResourceManager>();

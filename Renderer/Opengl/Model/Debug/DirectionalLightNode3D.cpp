@@ -1,5 +1,10 @@
 #include "DirectionalLightNode3D.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+using namespace Lights;
+
 namespace Model {
     DirectionalLightNode3D::DirectionalLightNode3D(const shared_ptr<ContextState> &contextState,
                                                    const shared_ptr<ShaderProgram> &baseShader,

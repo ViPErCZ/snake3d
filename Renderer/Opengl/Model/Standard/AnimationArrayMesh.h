@@ -9,13 +9,13 @@
 namespace Model {
     class AnimationArrayMesh final : public StandardMesh {
     public:
-        AnimationArrayMesh(const std::shared_ptr<Animation::AnimationPlayer> &model, const std::shared_ptr<ShaderProgram>& baseShader, const std::string &animationName);
-        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
-        void renderShadowMap(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
+        AnimationArrayMesh(const std::shared_ptr<Animation::AnimationPlayer> &model, const std::shared_ptr<Manager::ShaderProgram>& baseShader, const std::string &animationName);
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform, bool shadows) const override;
+        void renderShadowMap(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt, const glm::mat4 &parentTransform) const override;
 
     protected:
         void renderMesh(const glm::mat4 &parentTransform, bool animPlay = true) const;
-        std::shared_ptr<ShaderProgram> baseShader;
+        std::shared_ptr<Manager::ShaderProgram> baseShader;
     };
 } // Model
 

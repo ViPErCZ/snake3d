@@ -5,6 +5,7 @@
 
 #include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
+using namespace std;
 using namespace Animation;
 using namespace ModelUtils;
 

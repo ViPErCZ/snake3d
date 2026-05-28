@@ -22,59 +22,59 @@ namespace Handler::Debug {
     };
     class LightsHandler : public BaseKeydownHandle {
     public:
-        explicit LightsHandler(const shared_ptr<Tools::ContextState> &contextState,
-            const shared_ptr<Manager::ResourceManager> &resourceManager, const shared_ptr<Manager::Camera> &camera);
+        explicit LightsHandler(const std::shared_ptr<Tools::ContextState> &contextState,
+            const std::shared_ptr<Manager::ResourceManager> &resourceManager, const std::shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 
         void onEventHandler(unsigned key, int scancode, int action, int mods, float deltaTime) override;
 
-        void addItem(const shared_ptr<Light> &item);
+        void addItem(const std::shared_ptr<Light> &item);
 
         void active();
 
         void deactivate();
 
-        shared_ptr<Light> findNextItem();
+        std::shared_ptr<Light> findNextItem();
 
-        shared_ptr<MeshNode2D> getFocusLabel() { return focusTextNode; }
+        std::shared_ptr<MeshNode2D> getFocusLabel() { return focusTextNode; }
 
-        shared_ptr<MeshNode2D> getColorLabel() { return colorTextNode; }
+        std::shared_ptr<MeshNode2D> getColorLabel() { return colorTextNode; }
 
-        shared_ptr<MeshNode2D> getPositionLabel() { return positionTextNode; }
+        std::shared_ptr<MeshNode2D> getPositionLabel() { return positionTextNode; }
 
-        shared_ptr<MeshNode2D> getDirectionLabel() { return directionTextNode; }
+        std::shared_ptr<MeshNode2D> getDirectionLabel() { return directionTextNode; }
 
-        shared_ptr<DirectionalLightNode3D> getDirLightNode() { return dirLightNode; }
+        std::shared_ptr<DirectionalLightNode3D> getDirLightNode() { return dirLightNode; }
 
-        [[nodiscard]] shared_ptr<Light> getActiveItem() const { return activeItem; }
+        [[nodiscard]] std::shared_ptr<Light> getActiveItem() const { return activeItem; }
         [[nodiscard]] bool isEnabled() const { return enabled; }
-        [[nodiscard]] const vector<shared_ptr<Light>>& getItems() const { return items; }
+        [[nodiscard]] const std::vector<std::shared_ptr<Light>>& getItems() const { return items; }
 
         // ImGui dropdown setter - cyklický next-item key pattern (findNextItem)
         // nestačí, GUI potřebuje přímý jump na zvolené světlo. Zachovává
         // camera sticky behavior tím, že kopíruje původní logiku z active().
-        void setActiveItem(const shared_ptr<Light>& item);
+        void setActiveItem(const std::shared_ptr<Light>& item);
 
     protected:
         [[nodiscard]] glm::vec3 getColorByFocus() const;
         void setColorByFocus(glm::vec3 color) const;
-        shared_ptr<Manager::Camera> camera = nullptr;
-        vector<shared_ptr<Light> > items;
-        shared_ptr<Light> activeItem = nullptr;
-        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
+        std::shared_ptr<Manager::Camera> camera = nullptr;
+        std::vector<std::shared_ptr<Light> > items;
+        std::shared_ptr<Light> activeItem = nullptr;
+        std::shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
         Focus focus = Focus::Ambient;
-        shared_ptr<Material::LabelSettings> labelSettings;
-        shared_ptr<LabelNode2D> focusText;
-        shared_ptr<MeshNode2D> focusTextNode;
-        shared_ptr<LabelNode2D> colorText;
-        shared_ptr<MeshNode2D> colorTextNode;
-        shared_ptr<LabelNode2D> positionText;
-        shared_ptr<MeshNode2D> positionTextNode;
-        shared_ptr<LabelNode2D> directionText;
-        shared_ptr<MeshNode2D> directionTextNode;
-        shared_ptr<DirectionalLightNode3D> dirLightNode;
+        std::shared_ptr<Material::LabelSettings> labelSettings;
+        std::shared_ptr<LabelNode2D> focusText;
+        std::shared_ptr<MeshNode2D> focusTextNode;
+        std::shared_ptr<LabelNode2D> colorText;
+        std::shared_ptr<MeshNode2D> colorTextNode;
+        std::shared_ptr<LabelNode2D> positionText;
+        std::shared_ptr<MeshNode2D> positionTextNode;
+        std::shared_ptr<LabelNode2D> directionText;
+        std::shared_ptr<MeshNode2D> directionTextNode;
+        std::shared_ptr<DirectionalLightNode3D> dirLightNode;
     };
 }
 

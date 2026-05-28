@@ -1,5 +1,8 @@
 #include "LightNode3D.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Model {
     LightNode3D::LightNode3D(const shared_ptr<ShaderProgram> &baseShader) {
         arrowMesh = make_shared<WireframeArrowMesh>(baseShader);

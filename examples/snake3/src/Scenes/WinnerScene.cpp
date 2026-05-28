@@ -6,7 +6,12 @@
 #include "Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h"
 #include "Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 
+using namespace std;
 using namespace Material;
+using namespace Manager;
+using namespace Lights;
+using namespace Model;
+using namespace Tools;
 
 namespace Scenes {
     namespace {

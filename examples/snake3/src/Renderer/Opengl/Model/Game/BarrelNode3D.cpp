@@ -6,6 +6,11 @@
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
 #include "Resource/MaterialLoader.h"
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+using namespace Material;
+
 namespace Model {
     BarrelNode3D::BarrelNode3D(const shared_ptr<ContextState> &contextState,
                                const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(

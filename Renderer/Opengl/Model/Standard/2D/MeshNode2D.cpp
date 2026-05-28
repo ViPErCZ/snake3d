@@ -2,7 +2,9 @@
 
 #include <ranges>
 
+using namespace std;
 using namespace Tools;
+using namespace Manager;
 
 namespace Model {
     MeshNode2D::MeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<BaseNode2D> &mesh,

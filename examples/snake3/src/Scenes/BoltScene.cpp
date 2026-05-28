@@ -8,6 +8,8 @@ using namespace std;
 using namespace Model;
 using namespace Material;
 using namespace Tools;
+using namespace Manager;
+using namespace Lights;
 
 namespace Scenes {
     namespace {

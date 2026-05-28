@@ -6,7 +6,7 @@
 namespace Model {
     class CylinderMesh final : public StandardMesh {
     public:
-        CylinderMesh(std::shared_ptr<ShaderProgram> baseShader,
+        CylinderMesh(std::shared_ptr<Manager::ShaderProgram> baseShader,
                      float topRadius, float bottomRadius,
                      float height, int rings, int segments);
     };

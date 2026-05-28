@@ -6,7 +6,7 @@
 namespace Model {
     class TringleNode2D : public BaseNode2D {
         public:
-            explicit TringleNode2D(float width, float height, const shared_ptr<ShaderProgram> &baseShader = nullptr);
+            explicit TringleNode2D(float width, float height, const shared_ptr<Manager::ShaderProgram> &baseShader = nullptr);
     };
 } // Model
 

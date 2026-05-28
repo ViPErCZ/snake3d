@@ -8,6 +8,8 @@ using namespace std;
 using namespace Material;
 using namespace Uniform;
 using namespace Handler::Debug;
+using namespace Manager;
+using namespace Tools;
 
 namespace Model {
     MarkRingNode3D::MarkRingNode3D(const shared_ptr<ContextState> &contextState,

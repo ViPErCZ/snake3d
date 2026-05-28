@@ -7,7 +7,7 @@ namespace Model {
     class BoxMesh final : public StandardMesh {
         float depth;
     public:
-        explicit BoxMesh(std::shared_ptr<ShaderProgram> baseShader, float width, float height, float depth);
+        explicit BoxMesh(std::shared_ptr<Manager::ShaderProgram> baseShader, float width, float height, float depth);
     };
 } // Model
 

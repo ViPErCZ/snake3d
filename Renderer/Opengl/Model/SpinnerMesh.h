@@ -8,8 +8,8 @@
 namespace Model {
     class SpinnerMesh final : public TringleMesh3D {
     public:
-        explicit SpinnerMesh(const shared_ptr<ShaderProgram> &baseShader);
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        explicit SpinnerMesh(const std::shared_ptr<Manager::ShaderProgram> &baseShader);
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                             const glm::mat4 &parentTransform, bool shadows) const override;
         void update(float dt) override;
     protected:

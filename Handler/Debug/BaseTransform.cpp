@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+using namespace std;
+using namespace Manager;
+using namespace Model;
+
 namespace Debug {
     BaseTransform::BaseTransform(const shared_ptr<Camera> &camera) : camera(camera), enabled(false) {
     }

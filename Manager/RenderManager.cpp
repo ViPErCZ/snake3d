@@ -7,6 +7,8 @@
 
 using namespace std;
 using namespace Renderer;
+using namespace Tools;
+using namespace Lights;
 
 namespace Manager {
     RenderManager::RenderManager(const shared_ptr<ContextState> &contextState, const shared_ptr<Camera> &camera,

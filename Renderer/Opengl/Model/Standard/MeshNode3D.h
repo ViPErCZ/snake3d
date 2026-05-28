@@ -14,52 +14,48 @@
 #include "../../../../Lights/SpotLight.h"
 #include "../../../../Tools/ContextState.h"
 
-using namespace Tools;
-using namespace Lights;
-using namespace std;
-
 namespace CollisionShape {
     class CollisionShape3D;
 }
 
 namespace Model {
-    class MeshNode3D : public enable_shared_from_this<MeshNode3D>,
+    class MeshNode3D : public std::enable_shared_from_this<MeshNode3D>,
         public Node3D::Named, public Node3D::Tagged, public Node3D::Transform,
         public Node3D::Visibility, public Node3D::Vector3i {
     public:
-        explicit MeshNode3D(const shared_ptr<ContextState> &contextState,
-            const shared_ptr<StandardMesh> &mesh, const shared_ptr<ResourceManager> &resourceManager);
+        explicit MeshNode3D(const std::shared_ptr<Tools::ContextState> &contextState,
+            const std::shared_ptr<StandardMesh> &mesh, const std::shared_ptr<Manager::ResourceManager> &resourceManager);
 
         ~MeshNode3D() override;
 
-        [[nodiscard]] virtual shared_ptr<StandardMesh> getMesh() const;
+        [[nodiscard]] virtual std::shared_ptr<StandardMesh> getMesh() const;
 
         void addNode(const std::shared_ptr<MeshNode3D> &node);
 
-        virtual void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        virtual void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows);
 
         virtual void update(float dt, uint64_t frameId);
 
-        virtual void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        virtual void renderShadows(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const;
 
-        [[nodiscard]] const vector<shared_ptr<MeshNode3D> > &getChildren() const;
+        [[nodiscard]] const std::vector<std::shared_ptr<MeshNode3D> > &getChildren() const;
 
-        shared_ptr<MeshNode3D> getParent() const { return parent.lock(); }
+        std::shared_ptr<MeshNode3D> getParent() const { return parent.lock(); }
         // Public setter pro případy, kdy node není přidaný přes addNode (e.g.
         // CollisionShape3D pod SnakeMeshNode3D::setCollisionShape - žije v
         // collisionShapes, ne children, ale parent chain je potřeba pro
         // inspector/physics lookup via shape->getParent()).
-        void setParent(const shared_ptr<MeshNode3D> &p) { parent = p; }
+        void setParent(const std::shared_ptr<MeshNode3D> &p) { parent = p; }
 
-        [[nodiscard]] const vector<shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
+        [[nodiscard]] const std::vector<std::shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
 
-        virtual void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light);
+        virtual void setDirectionalLight(const std::shared_ptr<Lights::DirectionalLight> &directional_light);
 
-        virtual void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light);
+        virtual void setSpotLights(const std::vector<std::shared_ptr<Lights::SpotLight> > &spot_light);
 
-        virtual void setPointLights(const vector<shared_ptr<PointLight> > &point_light);
+        virtual void setPointLights(const std::vector<std::shared_ptr<Lights::PointLight> > &point_light);
 
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
@@ -67,19 +63,19 @@ namespace Model {
 
         bool hasChildrenChangedSignal() const;
 
-        void animationStart(const string &name, bool loop = true);
+        void animationStart(const std::string &name, bool loop = true);
 
-        void animationStop(const string &name) const;
+        void animationStop(const std::string &name) const;
 
-        void animationPause(const string &name) const;
+        void animationPause(const std::string &name) const;
 
-        void animationResume(const string &name) const;
+        void animationResume(const std::string &name) const;
 
         void disablePlanarReflection();
 
         [[nodiscard]] bool isIncludeInPlanarReflection() const;
 
-        string getAnimation() { return animation; }
+        std::string getAnimation() { return animation; }
 
         [[nodiscard]] virtual bool isCollisionShapeNode() const { return false; }
 
@@ -88,23 +84,23 @@ namespace Model {
         [[nodiscard]] glm::mat4 getWorldMatrix() const override { return worldMatrixCache; }
 
     protected:
-        shared_ptr<MeshNode3D> deepCopy() const;
+        std::shared_ptr<MeshNode3D> deepCopy() const;
 
-        shared_ptr<ContextState> contextState;
-        shared_ptr<StandardMesh> mesh;
-        weak_ptr<MeshNode3D> parent;
-        vector<shared_ptr<MeshNode3D> > children;
-        vector<shared_ptr<CollisionShape::CollisionShape3D> > collisionShapes;
-        shared_ptr<ResourceManager> resourceManager;
-        shared_ptr<DirectionalLight> directionalLight;
-        vector<shared_ptr<SpotLight> > spotLights;
-        vector<shared_ptr<PointLight> > pointLights;
+        std::shared_ptr<Tools::ContextState> contextState;
+        std::shared_ptr<StandardMesh> mesh;
+        std::weak_ptr<MeshNode3D> parent;
+        std::vector<std::shared_ptr<MeshNode3D> > children;
+        std::vector<std::shared_ptr<CollisionShape::CollisionShape3D> > collisionShapes;
+        std::shared_ptr<Manager::ResourceManager> resourceManager;
+        std::shared_ptr<Lights::DirectionalLight> directionalLight;
+        std::vector<std::shared_ptr<Lights::SpotLight> > spotLights;
+        std::vector<std::shared_ptr<Lights::PointLight> > pointLights;
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;
         bool includePlanarReflection = true;
         int childrenChangedSignalCycles = 0;
-        string animation;
+        std::string animation;
         uint64_t lastUpdatedFrame;
         glm::mat4 worldMatrixCache;
         // Snapshot rodičovské matice z minulého frame - když přijde stejná +

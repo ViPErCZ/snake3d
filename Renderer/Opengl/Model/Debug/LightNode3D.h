@@ -8,14 +8,14 @@
 namespace Model {
     class LightNode3D {
     public:
-        explicit LightNode3D(const shared_ptr<ShaderProgram> &baseShader);
+        explicit LightNode3D(const std::shared_ptr<Manager::ShaderProgram> &baseShader);
 
         virtual ~LightNode3D() = default;
 
     protected:
         glm::mat4 calculateArrowTransform(glm::vec3 position, glm::vec3 direction);
 
-        shared_ptr<WireframeArrowMesh> arrowMesh;
+        std::shared_ptr<WireframeArrowMesh> arrowMesh;
     };
 } // Model
 

@@ -11,11 +11,11 @@ namespace Scenes {
     class TorchScene final : public Scene {
     public:
         TorchScene(
-            const std::shared_ptr<DirectionalLight> &directionalLight,
-            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
-            const std::vector<std::shared_ptr<PointLight> > &pointLights,
-            const std::shared_ptr<RenderManager> &rendererManager, const std::shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const std::shared_ptr<ResourceManager> &rm, int width, int height
+            const std::shared_ptr<Lights::DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<Lights::SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<Lights::PointLight> > &pointLights,
+            const std::shared_ptr<Manager::RenderManager> &rendererManager, const std::shared_ptr<Manager::Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<Manager::ResourceManager> &rm, int width, int height
         );
 
         void init(int priority) override;

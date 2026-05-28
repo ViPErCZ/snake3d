@@ -9,7 +9,7 @@
 namespace Handler::Debug {
     class RotationHandler : public BaseKeydownHandle, public ::Debug::BaseTransform {
     public:
-        explicit RotationHandler(const shared_ptr<Manager::Camera> &camera);
+        explicit RotationHandler(const std::shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 

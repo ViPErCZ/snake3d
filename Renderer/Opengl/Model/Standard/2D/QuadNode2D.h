@@ -6,7 +6,7 @@
 namespace Model {
     class QuadNode2D : public BaseNode2D {
         public:
-            explicit QuadNode2D(float width, float height, const shared_ptr<ShaderProgram> &baseShader = nullptr);
+            explicit QuadNode2D(float width, float height, const shared_ptr<Manager::ShaderProgram> &baseShader = nullptr);
     };
 } // Model
 

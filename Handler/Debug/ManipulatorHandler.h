@@ -14,15 +14,15 @@
 namespace Handler::Debug {
         class ManipulatorHandler final : public BaseKeydownHandle {
         public:
-                explicit ManipulatorHandler(const shared_ptr<Tools::ContextState> &contextState,
-                        const shared_ptr<Manager::ResourceManager> &resourceManager, const shared_ptr<Manager::Camera> &camera);
+                explicit ManipulatorHandler(const std::shared_ptr<Tools::ContextState> &contextState,
+                        const std::shared_ptr<Manager::ResourceManager> &resourceManager, const std::shared_ptr<Manager::Camera> &camera);
                 void onDefaultHandler() override;
                 void onEventHandler(unsigned key, int scancode, int action, int mods, float deltaTime) override;
-                [[nodiscard]] shared_ptr<PositionHandler> getPositionHandler() const { return positionHandler; }
-                [[nodiscard]] shared_ptr<ScaleHandler> getScaleHandler() const { return scaleHandler; }
-                [[nodiscard]] shared_ptr<RotationHandler> getRotationHandler() const { return rotationHandler; }
-                [[nodiscard]] shared_ptr<CollisionShapeHandler> getCollisionShapeHandler() const { return collisionShapeHandler; }
-                [[nodiscard]] shared_ptr<LightsHandler> getLightsHandler() const { return lightsHandler; }
+                [[nodiscard]] std::shared_ptr<PositionHandler> getPositionHandler() const { return positionHandler; }
+                [[nodiscard]] std::shared_ptr<ScaleHandler> getScaleHandler() const { return scaleHandler; }
+                [[nodiscard]] std::shared_ptr<RotationHandler> getRotationHandler() const { return rotationHandler; }
+                [[nodiscard]] std::shared_ptr<CollisionShapeHandler> getCollisionShapeHandler() const { return collisionShapeHandler; }
+                [[nodiscard]] std::shared_ptr<LightsHandler> getLightsHandler() const { return lightsHandler; }
                 [[nodiscard]] bool isActive() const;
                 [[nodiscard]] bool isPositionHandlerActive() const { return positionEnable; }
                 [[nodiscard]] bool isScaleHandlerActive() const { return scaleEnable; }
@@ -33,11 +33,11 @@ namespace Handler::Debug {
                 [[nodiscard]] glm::vec3 getWorldMin() const;
                 [[nodiscard]] glm::vec3 getWorldMax() const;
         protected:
-                shared_ptr<PositionHandler> positionHandler;
-                shared_ptr<ScaleHandler> scaleHandler;
-                shared_ptr<RotationHandler> rotationHandler;
-                shared_ptr<CollisionShapeHandler> collisionShapeHandler;
-                shared_ptr<LightsHandler> lightsHandler;
+                std::shared_ptr<PositionHandler> positionHandler;
+                std::shared_ptr<ScaleHandler> scaleHandler;
+                std::shared_ptr<RotationHandler> rotationHandler;
+                std::shared_ptr<CollisionShapeHandler> collisionShapeHandler;
+                std::shared_ptr<LightsHandler> lightsHandler;
                 bool positionEnable = false;
                 bool scaleEnable = false;
                 bool rotateEnable = false;

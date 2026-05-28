@@ -2,6 +2,10 @@
 
 #include <ranges>
 
+using namespace std;
+using namespace Manager;
+using namespace Tools;
+
 namespace Model {
     RadarMeshNode2D::RadarMeshNode2D(const shared_ptr<ContextState> &contextState, const shared_ptr<QuadNode2D> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager)

@@ -9,9 +9,6 @@
 
 #include "../../../../Manager/TextureManager.h"
 
-using namespace Manager;
-using namespace std;
-
 namespace ModelUtils {
 
     enum class TextureType {
@@ -25,7 +22,7 @@ namespace ModelUtils {
     struct TextureInfo {
         std::string path;  // Cesta k souboru nebo klíč pro embedded texturu
         TextureType type;
-        shared_ptr<TextureManager> texture;
+        std::shared_ptr<Manager::TextureManager> texture;
     };
 
     // Structure to standardize the vertices used in the meshes
@@ -50,8 +47,8 @@ namespace ModelUtils {
     class Vbo {
     public:
         // Constructor that generates a Vertex Buffer Object and links it to vertices
-        explicit Vbo(const vector<Vertex>& vertices);
-        explicit Vbo(const vector<Vertex2D>& vertices);
+        explicit Vbo(const std::vector<Vertex>& vertices);
+        explicit Vbo(const std::vector<Vertex2D>& vertices);
         explicit Vbo();
         // Reference ID of the Vertex Buffer Object
         GLuint ID{};

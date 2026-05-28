@@ -8,7 +8,7 @@
 namespace Handler::Debug {
     class PositionHandler final : public BaseKeydownHandle, public ::Debug::BaseTransform {
     public:
-        explicit PositionHandler(const shared_ptr<Manager::Camera> &camera);
+        explicit PositionHandler(const std::shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 

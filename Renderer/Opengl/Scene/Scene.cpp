@@ -2,6 +2,13 @@
 #include <algorithm>
 #include <functional>
 
+using namespace std;
+using namespace Model;
+using namespace Manager;
+using namespace Handler::Debug;
+using namespace Build;
+using namespace Lights;
+using namespace Tools;
 using namespace Physic;
 
 namespace Scenes {

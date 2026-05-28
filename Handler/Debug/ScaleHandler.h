@@ -9,7 +9,7 @@
 namespace Handler::Debug {
     class ScaleHandler final : public BaseKeydownHandle, public ::Debug::BaseTransform {
     public:
-        explicit ScaleHandler(const shared_ptr<Manager::Camera> &camera);
+        explicit ScaleHandler(const std::shared_ptr<Manager::Camera> &camera);
 
         void onDefaultHandler() override;
 

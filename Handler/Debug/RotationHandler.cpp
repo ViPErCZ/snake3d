@@ -1,5 +1,8 @@
 #include "RotationHandler.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Handler::Debug {
     RotationHandler::RotationHandler(const shared_ptr<Camera> &camera) : BaseTransform(camera) {
         cameraOriginalStickyPoint = camera->getStickyPoint();

@@ -28,9 +28,9 @@ namespace Model {
 
         using MeshNode3D::MeshNode3D;
 
-        explicit SnakeMeshNode3D(const std::shared_ptr<ContextState> &contextState,
+        explicit SnakeMeshNode3D(const std::shared_ptr<Tools::ContextState> &contextState,
                                  const std::shared_ptr<StandardMesh> &mesh,
-                                 const std::shared_ptr<ResourceManager> &resourceManager,
+                                 const std::shared_ptr<Manager::ResourceManager> &resourceManager,
                                  const std::shared_ptr<Physic::CollisionSystem3D> &collisionSystem
                                  );
 
@@ -40,11 +40,11 @@ namespace Model {
 
         void setPostCrashRespawnHandler(std::function<void()> handler);
 
-        void setDirectionalLight(const std::shared_ptr<DirectionalLight> &directional_light) override;
+        void setDirectionalLight(const std::shared_ptr<Lights::DirectionalLight> &directional_light) override;
 
-        void setSpotLights(const std::vector<std::shared_ptr<SpotLight> > &spot_light) override;
+        void setSpotLights(const std::vector<std::shared_ptr<Lights::SpotLight> > &spot_light) override;
 
-        void setPointLights(const std::vector<std::shared_ptr<PointLight> > &point_light) override;
+        void setPointLights(const std::vector<std::shared_ptr<Lights::PointLight> > &point_light) override;
 
         void setDirection(eDIRECTION direction);
 
@@ -54,10 +54,10 @@ namespace Model {
 
         [[nodiscard]] eDIRECTION getDirection() const;
 
-        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        void renderShadows(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void renderShadows(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const override;
 
         bool isReady() const;

@@ -1,6 +1,9 @@
 #include "SpinnerMesh.h"
 #include <vector>
 
+using namespace std;
+using namespace Manager;
+
 namespace Model {
     SpinnerMesh::SpinnerMesh(const shared_ptr<ShaderProgram> &baseShader)
         : TringleMesh3D(baseShader, 0.04, 0.04), time(0) {

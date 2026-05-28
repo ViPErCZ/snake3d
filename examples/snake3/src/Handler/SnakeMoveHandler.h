@@ -14,6 +14,7 @@
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 
 using namespace Model;
+using namespace std;
 
 namespace Handler {
 

@@ -1,5 +1,8 @@
 #include "ScaleHandler.h"
 
+using namespace std;
+using namespace Manager;
+
 namespace Handler::Debug {
     ScaleHandler::ScaleHandler(const shared_ptr<Camera> &camera) : BaseTransform(camera) {
         cameraOriginalStickyPoint = camera->getStickyPoint();

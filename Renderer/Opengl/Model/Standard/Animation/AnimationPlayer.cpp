@@ -5,6 +5,7 @@
 #include <ranges>
 
 using namespace ModelUtils;
+using namespace std;
 
 namespace Animation {
     AnimationPlayer::AnimationPlayer(const string &name) {

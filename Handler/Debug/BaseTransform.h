@@ -9,13 +9,13 @@ namespace Debug {
 
     class BaseTransform {
     public:
-        explicit BaseTransform(const shared_ptr<Manager::Camera> &camera);
+        explicit BaseTransform(const std::shared_ptr<Manager::Camera> &camera);
 
-        void addItem(const shared_ptr<MeshNode3D> &item);
+        void addItem(const std::shared_ptr<MeshNode3D> &item);
 
-        shared_ptr<MeshNode3D> findNextItem();
+        std::shared_ptr<MeshNode3D> findNextItem();
 
-        shared_ptr<MeshNode3D> findFirstVisible();
+        std::shared_ptr<MeshNode3D> findFirstVisible();
 
         [[nodiscard]] glm::vec3 getItemWorldCenter() const;
 
@@ -34,20 +34,20 @@ namespace Debug {
 
         [[nodiscard]] bool isActiveItemVisible() const;
 
-        [[nodiscard]] const vector<shared_ptr<MeshNode3D>>& getItems() const { return items; }
-        [[nodiscard]] shared_ptr<MeshNode3D> getActiveItem() const { return activeItem; }
+        [[nodiscard]] const std::vector<std::shared_ptr<MeshNode3D>>& getItems() const { return items; }
+        [[nodiscard]] std::shared_ptr<MeshNode3D> getActiveItem() const { return activeItem; }
 
         // GUI direct selection - bypass keyboard cycling. Camera sticky point
         // se přepne na vybrané item; world bounds přepočte.
-        void setActiveItem(const shared_ptr<MeshNode3D>& item);
+        void setActiveItem(const std::shared_ptr<MeshNode3D>& item);
 
     protected:
         void computeWorld();
 
-        shared_ptr<Manager::Camera> camera = nullptr;
-        vector<shared_ptr<MeshNode3D> > items;
-        shared_ptr<MeshNode3D> activeItem = nullptr;
-        shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
+        std::shared_ptr<Manager::Camera> camera = nullptr;
+        std::vector<std::shared_ptr<MeshNode3D> > items;
+        std::shared_ptr<MeshNode3D> activeItem = nullptr;
+        std::shared_ptr<Node3D::Transform> cameraOriginalStickyPoint = nullptr;
         bool enabled;
         glm::vec3 currentWorldCenter{};
         glm::vec3 worldMax{};

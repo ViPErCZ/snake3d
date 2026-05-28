@@ -9,29 +9,29 @@
 namespace CollisionShape {
     class CollisionShape3D : public Model::MeshNode3D {
     public:
-        CollisionShape3D(const shared_ptr<ContextState> &contextState,
-                         const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<Physic::Shape> &shape);
+        CollisionShape3D(const std::shared_ptr<Tools::ContextState> &contextState,
+                         const std::shared_ptr<Manager::ResourceManager> &resourceManager, const std::shared_ptr<Physic::Shape> &shape);
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Manager::Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
         [[nodiscard]] bool isCollisionShapeNode() const override { return true; }
 
-        shared_ptr<Physic::Shape> getShape() const { return shape; }
+        std::shared_ptr<Physic::Shape> getShape() const { return shape; }
 
-        shared_ptr<Model::StandardMesh> getMesh() const override;
+        std::shared_ptr<Model::StandardMesh> getMesh() const override;
 
         void clearCollisions() { collidingBodies.clear(); }
 
-        void addCollidingBody(const shared_ptr<Model::MeshNode3D> &body) {
+        void addCollidingBody(const std::shared_ptr<Model::MeshNode3D> &body) {
             collidingBodies.insert(body);
         }
 
-        bool isCollidingWith(const shared_ptr<Model::MeshNode3D> &body) const {
+        bool isCollidingWith(const std::shared_ptr<Model::MeshNode3D> &body) const {
             return collidingBodies.contains(body);
         }
 
-        const std::set<shared_ptr<Model::MeshNode3D> > &getCollidingBodies() const {
+        const std::set<std::shared_ptr<Model::MeshNode3D> > &getCollidingBodies() const {
             return collidingBodies;
         }
 
@@ -48,8 +48,8 @@ namespace CollisionShape {
         }
 
     private:
-        shared_ptr<Physic::Shape> shape;
-        set<shared_ptr<Model::MeshNode3D> > collidingBodies;
+        std::shared_ptr<Physic::Shape> shape;
+        std::set<std::shared_ptr<Model::MeshNode3D> > collidingBodies;
         uint32_t collisionLayer = 1;
         uint32_t collisionMask = 1;
     };

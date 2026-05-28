@@ -9,14 +9,14 @@
 namespace ModelUtils {
     class Mesh2D {
     public:
-        Mesh2D(const vector<Vertex2D> &vertices, const vector<unsigned int> &indices, string name = "");
+        Mesh2D(const std::vector<Vertex2D> &vertices, const std::vector<unsigned int> &indices, std::string name = "");
 
         virtual ~Mesh2D();
 
-        [[nodiscard]] const vector<GLuint> &getIndices() const;
-        [[nodiscard]] const vector<Vertex2D> &getVertices() const;
+        [[nodiscard]] const std::vector<GLuint> &getIndices() const;
+        [[nodiscard]] const std::vector<Vertex2D> &getVertices() const;
         [[nodiscard]] const glm::mat4 &getGlobalTransformation() const;
-        [[nodiscard]] const string &getName() const;
+        [[nodiscard]] const std::string &getName() const;
         void setGlobalTransformation(const glm::mat4 &globalTransformation);
 
         void initialize();
@@ -24,11 +24,11 @@ namespace ModelUtils {
         void bind();
 
     protected:
-        vector<Vertex2D> vertices;
-        vector<unsigned int> indices;
+        std::vector<Vertex2D> vertices;
+        std::vector<unsigned int> indices;
         Vao *vao;
         glm::mat4 globalTransformation{};
-        string name;
+        std::string name;
     };
 } // ModelUtils
 

@@ -6,6 +6,8 @@
 using namespace Model;
 using namespace Build;
 using namespace std;
+using namespace Manager;
+using namespace Tools;
 
 namespace Physic {
     SphereShape::SphereShape(const shared_ptr<ResourceManager> &resourceManager,
