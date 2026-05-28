@@ -31,5 +31,15 @@
 *.app
 
 cmake-build-debug
+cmake-build-release
 .idea/
 build/
+
+# Editor / tooling metadata
+.clang-format
+.claude/
+
+# Local Claude Code project instructions + design docs
+CLAUDE.md
+CONTRIBUTING.md
+ENGINE_BOUNDARY.md
