@@ -9,32 +9,27 @@
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Tools/Timer.h"
 
-using namespace std;
-using namespace Model;
-using namespace Material;
-using namespace Tools;
-
 namespace Scenes {
     class BoltScene final : public Scene {
     public:
         BoltScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight>> &spotLights,
-            const vector<shared_ptr<PointLight>> &pointLights,
-            const shared_ptr<RenderManager> &rendererManager,
-            const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-            const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight>> &spotLights,
+            const std::vector<std::shared_ptr<PointLight>> &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager,
+            const std::shared_ptr<Camera> &camera, const glm::mat4 &projection,
+            const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
         void update() override;
 
     private:
-        shared_ptr<BoltLinesNode2D> boltLines;
-        shared_ptr<MeshNode2D> boltMeshNode;
-        shared_ptr<ShaderMaterial> flashMaterial;
-        shared_ptr<MeshNode2D> flashNode;
+        std::shared_ptr<Model::BoltLinesNode2D> boltLines;
+        std::shared_ptr<Model::MeshNode2D> boltMeshNode;
+        std::shared_ptr<Material::ShaderMaterial> flashMaterial;
+        std::shared_ptr<Model::MeshNode2D> flashNode;
 
-        Timer boltTimer;
+        Tools::Timer boltTimer;
         float nextBoltIn = 0.0f;
         bool boltActive = false;
         float boltElapsed = 0.0f;

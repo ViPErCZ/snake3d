@@ -12,11 +12,6 @@
 #include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
 #include "Renderer/Opengl/Model/Standard/SphereMesh.h"
 
-using namespace Tools;
-using namespace Uniform;
-using namespace Physic;
-using namespace std;
-
 namespace Model {
     class SnakeMeshNode3D final : public MeshNode3D {
     public:
@@ -33,10 +28,10 @@ namespace Model {
 
         using MeshNode3D::MeshNode3D;
 
-        explicit SnakeMeshNode3D(const shared_ptr<ContextState> &contextState,
-                                 const shared_ptr<StandardMesh> &mesh,
-                                 const shared_ptr<ResourceManager> &resourceManager,
-                                 const shared_ptr<CollisionSystem3D> &collisionSystem
+        explicit SnakeMeshNode3D(const std::shared_ptr<ContextState> &contextState,
+                                 const std::shared_ptr<StandardMesh> &mesh,
+                                 const std::shared_ptr<ResourceManager> &resourceManager,
+                                 const std::shared_ptr<Physic::CollisionSystem3D> &collisionSystem
                                  );
 
         void respawn();
@@ -45,11 +40,11 @@ namespace Model {
 
         void setPostCrashRespawnHandler(std::function<void()> handler);
 
-        void setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) override;
+        void setDirectionalLight(const std::shared_ptr<DirectionalLight> &directional_light) override;
 
-        void setSpotLights(const vector<shared_ptr<SpotLight> > &spot_light) override;
+        void setSpotLights(const std::vector<std::shared_ptr<SpotLight> > &spot_light) override;
 
-        void setPointLights(const vector<shared_ptr<PointLight> > &point_light) override;
+        void setPointLights(const std::vector<std::shared_ptr<PointLight> > &point_light) override;
 
         void setDirection(eDIRECTION direction);
 
@@ -59,17 +54,17 @@ namespace Model {
 
         [[nodiscard]] eDIRECTION getDirection() const;
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void renderShadows(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                            const glm::mat4 &parentTransform) const override;
 
         bool isReady() const;
         bool isCrashing() const;
         bool isRespawning() const;
 
-        void setCollisionShape(const shared_ptr<CollisionShape::CollisionShape3D> &collisionShape);
+        void setCollisionShape(const std::shared_ptr<CollisionShape::CollisionShape3D> &collisionShape);
 
         void computeWorldMatrix(const glm::mat4 &parentTransform) override;
 
@@ -77,17 +72,17 @@ namespace Model {
 
     private:
         void stopRespawn();
-        unique_ptr<Timer> timer;
-        shared_ptr<SphereMesh> createTileNode() const;
-        shared_ptr<Material::MaterialInstance> tileMaterial;
-        shared_ptr<Feature::LightingFeature> tileLightingFeature;
-        shared_ptr<Material::BaseMaterial> headMaterial;
-        shared_ptr<Material::ShaderMaterial> crashMaterial;
-        shared_ptr<Material::ShaderMaterial> respawnMaterial;
-        shared_ptr<Material::ShaderMaterial> headRespawnMaterial;
-        shared_ptr<TimerUniform> timerUniform;
-        shared_ptr<TimerUniform> timerUniform2;
-        shared_ptr<CollisionSystem3D> collisionSystem;
+        std::unique_ptr<Tools::Timer> timer;
+        std::shared_ptr<SphereMesh> createTileNode() const;
+        std::shared_ptr<Material::MaterialInstance> tileMaterial;
+        std::shared_ptr<Feature::LightingFeature> tileLightingFeature;
+        std::shared_ptr<Material::BaseMaterial> headMaterial;
+        std::shared_ptr<Material::ShaderMaterial> crashMaterial;
+        std::shared_ptr<Material::ShaderMaterial> respawnMaterial;
+        std::shared_ptr<Material::ShaderMaterial> headRespawnMaterial;
+        std::shared_ptr<Uniform::TimerUniform> timerUniform;
+        std::shared_ptr<Uniform::TimerUniform> timerUniform2;
+        std::shared_ptr<Physic::CollisionSystem3D> collisionSystem;
         eDIRECTION direction = NONE;
         bool respawned = false;
         bool bodySegment = false;

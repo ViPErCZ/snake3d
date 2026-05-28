@@ -5,6 +5,10 @@
 #include "Renderer/Opengl/Material/2D/LabelSettings.h"
 #include "Renderer/Opengl/Scene/Scene.h"
 
+using namespace Material;
+using namespace Model;
+using namespace Uniform;
+
 namespace Scenes {
     SceneHud::SceneHud(Scene &parent,
                        std::shared_ptr<Tools::ContextState> contextState,

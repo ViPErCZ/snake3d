@@ -7,7 +7,11 @@
 #include "Resource/TextureLoader.h"
 #include "Thirdparty/stbimage/stb_image.h"
 
+using namespace std;
 using namespace Resource;
+using namespace Material;
+using namespace Model;
+using namespace Uniform;
 
 namespace Scenes {
     namespace {

@@ -11,19 +11,15 @@ namespace Model {
     class GPUParticle3D;
 }
 
-using namespace Model;
-using namespace Tools;
-using namespace std;
-
 namespace Scenes {
     class WinnerScene final : public OrbitSceneBase {
     public:
         WinnerScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager, const std::shared_ptr<Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
         void update() override;
@@ -31,8 +27,8 @@ namespace Scenes {
         void initExplosion();
         static glm::vec3 randomExplosionPosition();
 
-        shared_ptr<QuadMesh3D> quad;
-        std::vector<std::shared_ptr<GPUParticle3D>> explosions;
+        std::shared_ptr<Model::QuadMesh3D> quad;
+        std::vector<std::shared_ptr<Model::GPUParticle3D>> explosions;
         std::vector<float> explosionMoveTimers;
         float explosionCycleDuration = 0.0f;
     };

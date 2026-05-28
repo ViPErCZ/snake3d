@@ -6,6 +6,10 @@
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 #include "BoltScene.h"
 
+using namespace std;
+using namespace Model;
+using namespace Material;
+
 namespace Scenes {
     WeatherScene::WeatherScene(
         const shared_ptr<DirectionalLight> &directionalLight,

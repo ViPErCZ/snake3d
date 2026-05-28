@@ -22,21 +22,16 @@
 #include "../Network/Game/NetGameSnapshot.h"
 #include "SceneHud.h"
 
-using namespace Uniform;
-using namespace Physic;
-using namespace Scenes;
-using namespace std;
-
 namespace Scenes {
     class MainScene final : public Scene, public Net::NetWorldSource, public Net::NetWorldSink {
     public:
         explicit MainScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager,
-            const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-            const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager,
+            const std::shared_ptr<Camera> &camera, const glm::mat4 &projection,
+            const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
 
@@ -57,7 +52,7 @@ namespace Scenes {
         // pause DynamicBody when user selects its CollisionShape3D). Scene base
         // class stores collisionSystem protected; getter sits on the concrete
         // scene to avoid touching the parked Scene.h header.
-        [[nodiscard]] shared_ptr<CollisionSystem3D> getCollisionSystem() const { return collisionSystem; }
+        [[nodiscard]] std::shared_ptr<Physic::CollisionSystem3D> getCollisionSystem() const { return collisionSystem; }
 
         void onClientHello(uint32_t peerId) override;
         void onWelcomeReceived() override;
@@ -67,7 +62,7 @@ namespace Scenes {
         void requestLocalCrash() override;
         void requestRemoteCrash() override;
         void scheduleLocalRespawnAfterCrash(const std::vector<glm::vec3> &positions,
-                                            SnakeMeshNode3D::eDIRECTION direction) override;
+                                            Model::SnakeMeshNode3D::eDIRECTION direction) override;
         void applyLocalSnakePositions(const Net::SnakeSnapshotState &snake) override;
         void applyRemoteSnakePositions(const Net::SnakeSnapshotState &snake) override;
 
@@ -96,7 +91,7 @@ namespace Scenes {
         void initPlane();
 
         void initEatManager();
-        void handleCoinEaten(const EatManager &manager);
+        void handleCoinEaten(const Manager::EatManager &manager);
         void initializeMultiplayerState();
         void shutdownMultiplayerState(bool showMenu);
         void rebuildRadarItems(bool includeRemote) const;
@@ -105,7 +100,7 @@ namespace Scenes {
         [[nodiscard]] bool localSnakeHitRemote() const;
         [[nodiscard]] bool remoteSnakeHitLocal() const;
         [[nodiscard]] glm::vec3 findRemoteSpawnPosition() const;
-        static std::vector<glm::vec3> collectSnakePositions(const shared_ptr<SnakeMeshNode3D> &snake);
+        static std::vector<glm::vec3> collectSnakePositions(const std::shared_ptr<Model::SnakeMeshNode3D> &snake);
 
         void initPreloader();
         void initMainMenu();
@@ -128,26 +123,26 @@ namespace Scenes {
         void startNetworkGame();
         void enterWinningState();
 
-        shared_ptr<PlayerScene> playerScene;
-        shared_ptr<RemoteSnakeScene> remoteSnakeScene;
-        shared_ptr<CoinScene> coinScene;
-        shared_ptr<BarriersScene> barriersScene;
-        shared_ptr<Handler::EatLocationHandler> eatLocationHandler;
-        shared_ptr<Handler::EatLocationHandler> remoteEatLocationHandler;
-        unique_ptr<EatManager> eatManager;
-        unique_ptr<EatManager> remoteEatManager;
-        shared_ptr<LevelManager> levelManager;
-        shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
-        unique_ptr<SceneHud> hud;
-        shared_ptr<MaterialInstance> planeMaterial;
-        shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;
-        shared_ptr<Feature::PlanarReflectionFeature> planeReflectionFeature;
-        shared_ptr<Feature::RainRippleFeature> planeRainRippleFeature;
-        shared_ptr<WeatherScene> weatherScene;
-        shared_ptr<TextureManager> holeMapTexture;
-        shared_ptr<Preloader2Scene> preLoader;
-        shared_ptr<WinnerScene> winnerScene;
-        shared_ptr<MainMenuScene> mainMenuScene;
+        std::shared_ptr<PlayerScene> playerScene;
+        std::shared_ptr<RemoteSnakeScene> remoteSnakeScene;
+        std::shared_ptr<CoinScene> coinScene;
+        std::shared_ptr<BarriersScene> barriersScene;
+        std::shared_ptr<Handler::EatLocationHandler> eatLocationHandler;
+        std::shared_ptr<Handler::EatLocationHandler> remoteEatLocationHandler;
+        std::unique_ptr<Manager::EatManager> eatManager;
+        std::unique_ptr<Manager::EatManager> remoteEatManager;
+        std::shared_ptr<Manager::LevelManager> levelManager;
+        std::shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
+        std::unique_ptr<SceneHud> hud;
+        std::shared_ptr<Material::MaterialInstance> planeMaterial;
+        std::shared_ptr<Feature::HoleMapFeature> planeHoleMapFeature;
+        std::shared_ptr<Feature::PlanarReflectionFeature> planeReflectionFeature;
+        std::shared_ptr<Feature::RainRippleFeature> planeRainRippleFeature;
+        std::shared_ptr<WeatherScene> weatherScene;
+        std::shared_ptr<Manager::TextureManager> holeMapTexture;
+        std::shared_ptr<Preloader2Scene> preLoader;
+        std::shared_ptr<WinnerScene> winnerScene;
+        std::shared_ptr<MainMenuScene> mainMenuScene;
         glm::mat4 ortho{};
         bool loading = true;
         bool winning = false;

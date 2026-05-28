@@ -14,10 +14,6 @@
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 #include "Tools/ContextState.h"
 
-using namespace Material;
-using namespace Model;
-using namespace Uniform;
-
 namespace Scenes {
     class Scene;
 
@@ -43,7 +39,7 @@ namespace Scenes {
         void triggerCounterFadeIn() const;
 
         void clearRadarItems() const;
-        void addRadarItem(const std::shared_ptr<MeshNode3D> &item, const glm::vec3 &color, const std::string &name) const;
+        void addRadarItem(const std::shared_ptr<Model::MeshNode3D> &item, const glm::vec3 &color, const std::string &name) const;
         void setCoinVisible(bool visible);
         void setRadarVisible(bool visible) const;
         [[nodiscard]] bool isRadarVisible() const;
@@ -63,16 +59,16 @@ namespace Scenes {
         int width;
         int height;
 
-        std::shared_ptr<LabelNode2D> tilesCounterText;
-        std::shared_ptr<MeshNode2D> helpText;
-        std::shared_ptr<MeshNode2D> tilesCounterNode;
+        std::shared_ptr<Model::LabelNode2D> tilesCounterText;
+        std::shared_ptr<Model::MeshNode2D> helpText;
+        std::shared_ptr<Model::MeshNode2D> tilesCounterNode;
 
         std::shared_ptr<Material::ShaderMaterial> radarExpansionIn;
         std::shared_ptr<Material::ShaderMaterial> radarExpansionOut;
         std::shared_ptr<Uniform::FadeInUniform> radarFadeInUniform;
         std::shared_ptr<Uniform::FadeOutUniform> radarFadeOutUniform;
-        std::shared_ptr<QuadNode2D> radarNode;
-        std::shared_ptr<RadarMeshNode2D> radarMeshNode;
+        std::shared_ptr<Model::QuadNode2D> radarNode;
+        std::shared_ptr<Model::RadarMeshNode2D> radarMeshNode;
 
         std::shared_ptr<Uniform::FadeOutUniform> labelFadeOutUniform;
         std::shared_ptr<Uniform::FadeInUniform> counterFadeInUniform;

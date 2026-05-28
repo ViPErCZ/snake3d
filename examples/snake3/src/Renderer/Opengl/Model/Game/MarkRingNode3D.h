@@ -8,29 +8,25 @@
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/CallbackUniform.h"
 
-using namespace Uniform;
-using namespace Handler::Debug;
-using namespace std;
-
 namespace Model {
     class MarkRingNode3D : public MeshNode3D {
     public:
         explicit MarkRingNode3D(
-            const shared_ptr<ContextState> &contextState,
-            const shared_ptr<ResourceManager> &resourceManager,
-            const shared_ptr<ManipulatorHandler> &manipulatorHandler);
+            const std::shared_ptr<ContextState> &contextState,
+            const std::shared_ptr<ResourceManager> &resourceManager,
+            const std::shared_ptr<Handler::Debug::ManipulatorHandler> &manipulatorHandler);
 
         void init();
 
-        void render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void render(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
                     const glm::mat4 &parentTransform, bool shadows) override;
 
-        void renderShadows(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
+        void renderShadows(const std::shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
             const glm::mat4 &parentTransform) const override;
 
     private:
-        shared_ptr<Material::ShaderMaterial> material;
-        shared_ptr<ManipulatorHandler> manipulatorHandler;
+        std::shared_ptr<Material::ShaderMaterial> material;
+        std::shared_ptr<Handler::Debug::ManipulatorHandler> manipulatorHandler;
     };
 } // Model
 

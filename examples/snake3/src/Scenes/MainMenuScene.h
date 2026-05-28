@@ -17,10 +17,6 @@
 #include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
-using namespace Material;
-using namespace Model;
-using namespace Uniform;
-
 namespace Scenes {
     class MainMenuScene final : public OrbitSceneBase {
     public:
@@ -52,12 +48,12 @@ namespace Scenes {
         };
 
         MainMenuScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager,
-            const shared_ptr<Camera> &camera, const glm::mat4 &projection,
-            const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager,
+            const std::shared_ptr<Camera> &camera, const glm::mat4 &projection,
+            const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
         void update() override;
@@ -80,11 +76,11 @@ namespace Scenes {
             glm::vec2 center{};
             glm::vec2 size{};
             glm::vec2 labelOffset{};
-            shared_ptr<MeshNode2D> backgroundNode;
-            shared_ptr<MeshNode2D> labelNode;
-            shared_ptr<LabelNode2D> labelMesh;
-            shared_ptr<ShaderMaterial> backgroundMaterial;
-            shared_ptr<ShaderMaterial> textMaterial;
+            std::shared_ptr<Model::MeshNode2D> backgroundNode;
+            std::shared_ptr<Model::MeshNode2D> labelNode;
+            std::shared_ptr<Model::LabelNode2D> labelMesh;
+            std::shared_ptr<Material::ShaderMaterial> backgroundMaterial;
+            std::shared_ptr<Material::ShaderMaterial> textMaterial;
             bool hovered = false;
         };
 
@@ -108,9 +104,9 @@ namespace Scenes {
         glm::vec2 cursorScreenPos{ -1.0f, -1.0f };
         bool cursorValid = false;
 
-        shared_ptr<Font> buttonFont;
-        shared_ptr<LabelSettings> buttonSettings;
-        shared_ptr<TimerUniform> titleTimer;
+        std::shared_ptr<Material::Font> buttonFont;
+        std::shared_ptr<Material::LabelSettings> buttonSettings;
+        std::shared_ptr<Uniform::TimerUniform> titleTimer;
         MenuButton startButton;
         MenuButton networkButton;
         MenuButton newGameButton;
@@ -128,29 +124,29 @@ namespace Scenes {
         int caretIndex = 0;
         std::string lastIpRender;
         bool joinRequested = false;
-        shared_ptr<Font> netInfoFont;
-        shared_ptr<LabelSettings> netInfoSettings;
-        shared_ptr<LabelNode2D> localIpMesh;
-        shared_ptr<MeshNode2D> localIpNode;
-        shared_ptr<ShaderMaterial> localIpMaterial;
-        shared_ptr<LabelNode2D> ipHintMesh;
-        shared_ptr<MeshNode2D> ipHintNode;
-        shared_ptr<ShaderMaterial> ipHintMaterial;
-        shared_ptr<LabelNode2D> netStatusMesh;
-        shared_ptr<MeshNode2D> netStatusNode;
-        shared_ptr<ShaderMaterial> netStatusMaterial;
+        std::shared_ptr<Material::Font> netInfoFont;
+        std::shared_ptr<Material::LabelSettings> netInfoSettings;
+        std::shared_ptr<Model::LabelNode2D> localIpMesh;
+        std::shared_ptr<Model::MeshNode2D> localIpNode;
+        std::shared_ptr<Material::ShaderMaterial> localIpMaterial;
+        std::shared_ptr<Model::LabelNode2D> ipHintMesh;
+        std::shared_ptr<Model::MeshNode2D> ipHintNode;
+        std::shared_ptr<Material::ShaderMaterial> ipHintMaterial;
+        std::shared_ptr<Model::LabelNode2D> netStatusMesh;
+        std::shared_ptr<Model::MeshNode2D> netStatusNode;
+        std::shared_ptr<Material::ShaderMaterial> netStatusMaterial;
         std::string localIpLabel = "IP: -";
         std::string networkStatus = "Status: idle";
         NetworkSessionState networkSessionState = NetworkSessionState::Idle;
         glm::vec2 networkInfoBase{0.0f, 0.0f};
-        shared_ptr<MeshNode2D> backdropNode;
-        shared_ptr<MeshNode2D> titleNode;
+        std::shared_ptr<Model::MeshNode2D> backdropNode;
+        std::shared_ptr<Model::MeshNode2D> titleNode;
 
-        shared_ptr<ImageNode2D> cursorMesh;
-        shared_ptr<MeshNode2D> cursorNode;
-        shared_ptr<ParticleProcessMaterial> cursorTrailMaterial;
-        shared_ptr<GPUParticle2D> cursorTrail;
-        shared_ptr<TextureManager> cursorTexture;
+        std::shared_ptr<Model::ImageNode2D> cursorMesh;
+        std::shared_ptr<Model::MeshNode2D> cursorNode;
+        std::shared_ptr<Material::ParticleProcessMaterial> cursorTrailMaterial;
+        std::shared_ptr<Model::GPUParticle2D> cursorTrail;
+        std::shared_ptr<TextureManager> cursorTexture;
         glm::vec2 cursorSize{0.0f, 0.0f};
         glm::vec2 cursorHotspot{0.0f, 0.0f};
         glm::vec2 lastCursorScreenPos{0.0f, 0.0f};

@@ -12,6 +12,11 @@
 #include "Tools/Layers.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
+using namespace std;
+using namespace Handler;
+using namespace Model;
+using namespace Physic;
+
 namespace Scenes {
     PlayerScene::PlayerScene(
         const shared_ptr<DirectionalLight> &directionalLight,

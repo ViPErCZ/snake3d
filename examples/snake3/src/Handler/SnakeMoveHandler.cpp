@@ -3,6 +3,7 @@
 #include "Physic/Dynamics/DynamicBody.h"
 
 using namespace Build;
+using namespace Physic;
 using namespace Physic::Dynamics;
 
 namespace Handler {

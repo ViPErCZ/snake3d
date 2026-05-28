@@ -7,18 +7,15 @@
 #include "Renderer/Opengl/Model/Standard/GPUParticle3D.h"
 #include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
 
-using namespace Model;
-using namespace std;
-
 namespace Scenes {
     class TorchScene final : public Scene {
     public:
         TorchScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager, const std::shared_ptr<Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<ResourceManager> &rm, int width, int height
         );
 
         void init(int priority) override;
@@ -26,11 +23,11 @@ namespace Scenes {
     protected:
         void initTorch();
 
-        shared_ptr<GPUParticle3D> initFire();
-        shared_ptr<GPUParticle3D> initSmoke();
+        std::shared_ptr<Model::GPUParticle3D> initFire();
+        std::shared_ptr<Model::GPUParticle3D> initSmoke();
 
-        shared_ptr<QuadMesh3D> quad;
-        shared_ptr<MeshNode3D> torchNode;
+        std::shared_ptr<Model::QuadMesh3D> quad;
+        std::shared_ptr<Model::MeshNode3D> torchNode;
     };
 } // Scenes
 

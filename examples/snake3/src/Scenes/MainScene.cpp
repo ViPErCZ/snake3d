@@ -40,6 +40,12 @@
 
 using Renderer::RenderStats;
 
+using namespace std;
+using namespace Uniform;
+using namespace Physic;
+using namespace Material;
+using namespace Manager;
+
 namespace Scenes {
     MainScene::MainScene(
         const shared_ptr<DirectionalLight> &directionalLight,

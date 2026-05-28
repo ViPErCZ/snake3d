@@ -21,6 +21,7 @@ using namespace Handler;
 using namespace Resource;
 using namespace Model;
 using namespace Material;
+using namespace Scenes;
 
 class App {
     enum class SceneState {

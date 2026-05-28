@@ -4,6 +4,11 @@
 
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
 
+using namespace std;
+using namespace Model;
+using namespace Material;
+using namespace Tools;
+
 namespace Scenes {
     namespace {
         mt19937 &rng() {

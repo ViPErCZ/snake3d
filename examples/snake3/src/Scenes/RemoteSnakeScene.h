@@ -9,30 +9,28 @@
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
 #include "Renderer/Opengl/Scene/Scene.h"
 
-using namespace Model;
-
 namespace Scenes {
     class RemoteSnakeScene final : public Scene {
     public:
         RemoteSnakeScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager, const std::shared_ptr<Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
 
-        [[nodiscard]] shared_ptr<SnakeMeshNode3D> getSnake() const;
-        [[nodiscard]] shared_ptr<Handler::SnakeMoveHandler> getMoveHandler() const;
+        [[nodiscard]] std::shared_ptr<Model::SnakeMeshNode3D> getSnake() const;
+        [[nodiscard]] std::shared_ptr<Handler::SnakeMoveHandler> getMoveHandler() const;
 
         void setServerControlled(bool enabled) const;
         void setActive(bool active) const;
-        void setSpawnLayout(const glm::vec3 &headPosition, SnakeMeshNode3D::eDIRECTION direction) const;
+        void setSpawnLayout(const glm::vec3 &headPosition, Model::SnakeMeshNode3D::eDIRECTION direction) const;
         [[nodiscard]] std::vector<glm::vec3> collectPositions() const;
         void applyNetworkInput(int moveX, int moveY, uint8_t actions) const;
         void updateAuthoritative() const;
-        void respawnAt(const glm::vec3 &headPosition, SnakeMeshNode3D::eDIRECTION direction) const;
+        void respawnAt(const glm::vec3 &headPosition, Model::SnakeMeshNode3D::eDIRECTION direction) const;
 
     private:
         static int toVirtualCoord(float worldCoord);
@@ -40,13 +38,13 @@ namespace Scenes {
         void initMoveHandler();
         void ensureLength(size_t segmentCount) const;
         void configureCollisionLayers() const;
-        static void applyDirectionVisual(const shared_ptr<SnakeMeshNode3D> &node, SnakeMeshNode3D::eDIRECTION direction);
-        static void setVisibleRecursive(const shared_ptr<MeshNode3D> &node, bool visible);
-        static void setCollisionEnabledRecursive(const shared_ptr<MeshNode3D> &node, bool enabled);
+        static void applyDirectionVisual(const std::shared_ptr<Model::SnakeMeshNode3D> &node, Model::SnakeMeshNode3D::eDIRECTION direction);
+        static void setVisibleRecursive(const std::shared_ptr<Model::MeshNode3D> &node, bool visible);
+        static void setCollisionEnabledRecursive(const std::shared_ptr<Model::MeshNode3D> &node, bool enabled);
 
-        shared_ptr<SnakeMeshNode3D> snake;
-        shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
-        shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
+        std::shared_ptr<Model::SnakeMeshNode3D> snake;
+        std::shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
+        std::shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
     };
 } // Scenes
 

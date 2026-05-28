@@ -12,6 +12,10 @@
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/Model/Standard/SphereMesh.h"
 
+using namespace std;
+using namespace Tools;
+using namespace Uniform;
+using namespace Physic;
 using namespace CollisionShape;
 using namespace Material;
 

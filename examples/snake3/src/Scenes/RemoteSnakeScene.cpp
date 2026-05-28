@@ -13,7 +13,10 @@
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Tools/Layers.h"
 
+using namespace std;
 using namespace Handler;
+using namespace Model;
+using namespace Physic;
 
 namespace Scenes {
     RemoteSnakeScene::RemoteSnakeScene(

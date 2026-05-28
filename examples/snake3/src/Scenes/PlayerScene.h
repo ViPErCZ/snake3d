@@ -9,24 +9,21 @@
 #include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 #include "Renderer/Opengl/Scene/Scene.h"
 
-using namespace Handler;
-using namespace Model;
-
 namespace Scenes {
     class PlayerScene final : public Scene {
     public:
         PlayerScene(
-            const shared_ptr<DirectionalLight> &directionalLight,
-            const vector<shared_ptr<SpotLight> > &spotLights,
-            const vector<shared_ptr<PointLight> > &pointLights,
-            const shared_ptr<RenderManager> &rendererManager, const shared_ptr<Camera> &camera,
-            const glm::mat4 &projection, const shared_ptr<ResourceManager> &rm, int width, int height);
+            const std::shared_ptr<DirectionalLight> &directionalLight,
+            const std::vector<std::shared_ptr<SpotLight> > &spotLights,
+            const std::vector<std::shared_ptr<PointLight> > &pointLights,
+            const std::shared_ptr<RenderManager> &rendererManager, const std::shared_ptr<Camera> &camera,
+            const glm::mat4 &projection, const std::shared_ptr<ResourceManager> &rm, int width, int height);
 
         void init(int priority) override;
 
-        [[nodiscard]] shared_ptr<SnakeMeshNode3D> getSnake() const;
+        [[nodiscard]] std::shared_ptr<Model::SnakeMeshNode3D> getSnake() const;
 
-        [[nodiscard]] shared_ptr<SnakeMoveHandler> getSnakeMoveHandler() const;
+        [[nodiscard]] std::shared_ptr<Handler::SnakeMoveHandler> getSnakeMoveHandler() const;
 
         void winning() const;
         void setInputEnabled(bool enabled) const;
@@ -40,9 +37,9 @@ namespace Scenes {
 
         void buildStopMoveCallback() const;
 
-        shared_ptr<SnakeMeshNode3D> snake;
-        shared_ptr<SnakeMoveHandler> snakeMoveHandler;
-        shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
+        std::shared_ptr<Model::SnakeMeshNode3D> snake;
+        std::shared_ptr<Handler::SnakeMoveHandler> snakeMoveHandler;
+        std::shared_ptr<Physic::Dynamics::DynamicBody> snakeBody;
     };
 } // Scenes
 

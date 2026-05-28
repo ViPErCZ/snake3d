@@ -7,12 +7,10 @@
 #include "Lights/PointLight.h"
 #include "Lights/SpotLight.h"
 
-using namespace Lights;
-
 namespace Scenes {
     struct SceneLights {
-        std::vector<std::shared_ptr<SpotLight>> spotLights;
-        std::vector<std::shared_ptr<PointLight>> pointLights;
+        std::vector<std::shared_ptr<Lights::SpotLight>> spotLights;
+        std::vector<std::shared_ptr<Lights::PointLight>> pointLights;
     };
 
     class SceneLightFactory {
