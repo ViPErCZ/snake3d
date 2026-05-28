@@ -1,9 +1,9 @@
 #include "ResourceManager.h"
 
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "../Resource/MaterialLoader.h"
-#include "../Resource/ShaderLoader.h"
-#include "../Resource/TextureLoader.h"
+#include <snake3d/Resource/MaterialLoader.h>
+#include <snake3d/Resource/ShaderLoader.h>
+#include <snake3d/Resource/TextureLoader.h>
 
 using namespace std;
 using namespace Animation;

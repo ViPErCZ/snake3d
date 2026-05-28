@@ -1,10 +1,10 @@
-#include "ShaderPreprocessor.h"
+#include <snake3d/Resource/ShaderPreprocessor.h>
 
 #include <cctype>
 #include <iostream>
 #include <sstream>
 
-#include "../Manager/MaterialPlaceholder.h"
+#include "Manager/MaterialPlaceholder.h"
 
 namespace Resource {
     namespace {

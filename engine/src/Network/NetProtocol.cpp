@@ -1,4 +1,4 @@
-#include "NetProtocol.h"
+#include <snake3d/Network/NetProtocol.h>
 
 #include <cstring>
 

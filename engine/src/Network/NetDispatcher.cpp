@@ -1,4 +1,4 @@
-#include "NetDispatcher.h"
+#include <snake3d/Network/NetDispatcher.h>
 
 namespace Net {
     std::optional<NetMessage> NetDispatcher::decode(const PacketView &packet) {

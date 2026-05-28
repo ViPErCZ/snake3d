@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "NetManager.h"
-#include "NetMessages.h"
-#include "NetProtocol.h"
+#include <snake3d/Network/NetManager.h>
+#include <snake3d/Network/NetMessages.h>
+#include <snake3d/Network/NetProtocol.h>
 
 namespace Net {
     class NetClient final {

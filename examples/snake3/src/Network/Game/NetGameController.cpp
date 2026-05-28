@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Network/NetDispatcher.h"
+#include <snake3d/Network/NetDispatcher.h>
 #include <snake3d/Tools/BuildSettings.h>
 
 namespace Net {

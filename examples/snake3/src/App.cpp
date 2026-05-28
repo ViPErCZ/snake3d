@@ -5,9 +5,9 @@
 #include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 #include "Renderer/Opengl/RenderStats.h"
-#include "Resource/AnimLoader.h"
-#include "Resource/ShaderLoader.h"
-#include "Resource/TextureLoader.h"
+#include <snake3d/Resource/AnimLoader.h>
+#include <snake3d/Resource/ShaderLoader.h>
+#include <snake3d/Resource/TextureLoader.h>
 
 using namespace Animation;
 using namespace Build;

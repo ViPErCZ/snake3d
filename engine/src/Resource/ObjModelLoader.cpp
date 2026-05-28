@@ -6,9 +6,9 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "ObjModelLoader.h"
+#include <snake3d/Resource/ObjModelLoader.h>
 
-#include "TextureLoader.h"
+#include <snake3d/Resource/TextureLoader.h>
 
 using namespace std;
 using namespace ModelUtils;

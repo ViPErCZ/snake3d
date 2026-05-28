@@ -1,4 +1,4 @@
-#include "TextureLoader.h"
+#include <snake3d/Resource/TextureLoader.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -6,8 +6,8 @@
 #include <iostream>
 #include <GL/glew.h>
 
-#include "../Manager/TextureManager.h"
-#include "../Thirdparty/stbimage/stb_image.h"
+#include "Manager/TextureManager.h"
+#include "Thirdparty/stbimage/stb_image.h"
 
 using namespace std;
 using namespace Manager;

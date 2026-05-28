@@ -1,4 +1,4 @@
-#include "ShaderLoader.h"
+#include <snake3d/Resource/ShaderLoader.h>
 #include <algorithm>
 #include <iostream>
 #include <sstream>

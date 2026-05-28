@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "../Network/NetMessages.h"
-#include "../Network/NetProtocol.h"
-#include "../Network/NetDispatcher.h"
+#include <snake3d/Network/NetMessages.h>
+#include <snake3d/Network/NetProtocol.h>
+#include <snake3d/Network/NetDispatcher.h>
 
 using namespace Net;
 

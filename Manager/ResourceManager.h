@@ -11,7 +11,7 @@
 #include "ShaderProgram.h"
 #include "ShaderRegistry.h"
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "../Resource/ResourceLoader.h"
+#include <snake3d/Resource/ResourceLoader.h>
 
 // Forward-declare so callsites can use ResourceManager::loadMaterial without
 // pulling in nlohmann/json via MaterialLoader.h. Plný include zůstává v .cpp.

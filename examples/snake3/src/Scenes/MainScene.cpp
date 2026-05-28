@@ -15,7 +15,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../Network/Game/NetUtils.h"
-#include "Network/NetDispatcher.h"
+#include <snake3d/Network/NetDispatcher.h>
 #include "../Network/Game/SnakeSnapshotApplier.h"
 #include "PlayerScene.h"
 #include "SceneLightFactory.h"

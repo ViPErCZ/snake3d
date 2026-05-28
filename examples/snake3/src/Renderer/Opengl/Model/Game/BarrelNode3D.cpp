@@ -4,7 +4,7 @@
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Resource/MaterialLoader.h"
+#include <snake3d/Resource/MaterialLoader.h>
 
 using namespace std;
 using namespace Manager;

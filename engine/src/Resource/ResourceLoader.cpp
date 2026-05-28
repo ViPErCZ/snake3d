@@ -1,10 +1,10 @@
-#include "ResourceLoader.h"
+#include <snake3d/Resource/ResourceLoader.h>
 #include <iostream>
 #include <utility>
-#include "AnimLoader.h"
-#include "ObjModelLoader.h"
-#include "ShaderLoader.h"
-#include "TextureLoader.h"
+#include <snake3d/Resource/AnimLoader.h>
+#include <snake3d/Resource/ObjModelLoader.h>
+#include <snake3d/Resource/ShaderLoader.h>
+#include <snake3d/Resource/TextureLoader.h>
 
 using namespace std;
 using namespace ModelUtils;

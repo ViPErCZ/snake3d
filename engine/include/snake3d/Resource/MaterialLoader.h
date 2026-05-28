@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../Renderer/Opengl/Material/MaterialBuilder.h"
+#include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include <snake3d/Tools/Blending.h>
 
 namespace Manager { class ResourceManager; }

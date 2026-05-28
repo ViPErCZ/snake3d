@@ -1,5 +1,5 @@
 #include "BloomRenderer.h"
-#include "../../Resource/ShaderLoader.h"
+#include <snake3d/Resource/ShaderLoader.h>
 
 using namespace Manager;
 using namespace std;

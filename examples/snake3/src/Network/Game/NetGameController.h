@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-#include "Network/NetClientServer.h"
-#include "Network/NetClock.h"
-#include "Network/NetManager.h"
-#include "Network/NetMessages.h"
-#include "Network/NetProtocol.h"
+#include <snake3d/Network/NetClientServer.h>
+#include <snake3d/Network/NetClock.h>
+#include <snake3d/Network/NetManager.h>
+#include <snake3d/Network/NetMessages.h>
+#include <snake3d/Network/NetProtocol.h>
 #include "NetGameSnapshot.h"
 
 namespace Net {

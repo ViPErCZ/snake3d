@@ -1,4 +1,4 @@
-#include "NetClientServer.h"
+#include <snake3d/Network/NetClientServer.h>
 
 namespace Net {
     namespace {

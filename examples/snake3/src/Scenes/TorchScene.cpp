@@ -10,7 +10,7 @@
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Resource/MaterialLoader.h"
+#include <snake3d/Resource/MaterialLoader.h>
 #include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"

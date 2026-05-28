@@ -3,7 +3,7 @@
 #include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Resource/MaterialLoader.h"
+#include <snake3d/Resource/MaterialLoader.h>
 
 #include "Physic/SphereShape.h"
 #include "Renderer/Opengl/Material/Uniform/TextureUniform.h"

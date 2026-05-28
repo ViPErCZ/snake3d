@@ -9,8 +9,8 @@
 #include <filesystem>
 #include <memory>
 #include <condition_variable>
-#include "../Manager/TextureManager.h"
-#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+#include "Manager/TextureManager.h"
+#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 namespace Resource {
     class ResourceLoader {

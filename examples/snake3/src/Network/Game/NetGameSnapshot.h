@@ -6,7 +6,7 @@
 #include <glm/vec3.hpp>
 
 #include "../../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
-#include "Network/NetProtocol.h"
+#include <snake3d/Network/NetProtocol.h>
 
 namespace Net {
     struct SnakeSnapshotState {

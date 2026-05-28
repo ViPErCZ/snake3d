@@ -39,9 +39,9 @@ Physically move all engine headers and sources from root-level subdirs (`Manager
 
 - [x] **Step 5 — Batch 3: move `Tools/` (30 files)**
 
-- [ ] **Step 6 — Batch 4: move `Resource/` (14 files)**
+- [x] **Step 6 — Batch 4: move `Resource/` (14 files)**
 
-- [ ] **Step 7 — Batch 5: move `Network/` (12 files)**
+- [x] **Step 7 — Batch 5: move `Network/` (12 files)**
 
 - [ ] **Step 8 — Batch 6: move `Physic/` (19 files, 3 subdirs: Algorithms, Dynamics, Jump)**
 

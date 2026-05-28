@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include "TextureManager.h"
 
-#include "../Resource/TextureLoader.h"
+#include <snake3d/Resource/TextureLoader.h>
 
 using Resource::TextureLoader;
 

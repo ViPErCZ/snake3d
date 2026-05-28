@@ -5,8 +5,8 @@
 #include <ranges>
 #include <system_error>
 
-#include "../Resource/ShaderLoader.h"
-#include "../Resource/ShaderPreprocessor.h"
+#include <snake3d/Resource/ShaderLoader.h>
+#include <snake3d/Resource/ShaderPreprocessor.h>
 
 using namespace std;
 

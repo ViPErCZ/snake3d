@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "../Renderer/Opengl/Model/Utils/Mesh.h"
+#include "Renderer/Opengl/Model/Utils/Mesh.h"
 
 namespace fs = std::filesystem;
 

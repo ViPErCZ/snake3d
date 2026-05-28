@@ -1,4 +1,4 @@
-#include "NetMessages.h"
+#include <snake3d/Network/NetMessages.h>
 
 namespace Net {
     std::vector<uint8_t> encodeHello(const HelloMsg &msg) {

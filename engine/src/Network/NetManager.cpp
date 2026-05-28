@@ -1,4 +1,4 @@
-#include "NetManager.h"
+#include <snake3d/Network/NetManager.h>
 
 #include <cstring>
 

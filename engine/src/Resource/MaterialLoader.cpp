@@ -1,4 +1,4 @@
-#include "MaterialLoader.h"
+#include <snake3d/Resource/MaterialLoader.h>
 
 #include <fstream>
 #include <iostream>
@@ -6,14 +6,14 @@
 
 #include <glm/glm.hpp>
 
-#include "../Manager/ResourceManager.h"
-#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
-#include "../Renderer/Opengl/Material/Feature/IblFeature.h"
-#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "../Renderer/Opengl/Material/Feature/PbrFeature.h"
-#include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
-#include "../Renderer/Opengl/Material/Feature/UvTransformFeature.h"
+#include "Manager/ResourceManager.h"
+#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
+#include "Renderer/Opengl/Material/Feature/BonesFeature.h"
+#include "Renderer/Opengl/Material/Feature/IblFeature.h"
+#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
+#include "Renderer/Opengl/Material/Feature/PbrFeature.h"
+#include "Renderer/Opengl/Material/Feature/SpecularFeature.h"
+#include "Renderer/Opengl/Material/Feature/UvTransformFeature.h"
 
 namespace Resource {
     namespace {

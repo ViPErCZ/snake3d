@@ -1,6 +1,6 @@
 #include <catch2/catch_all.hpp>
 
-#include "../Resource/ShaderPreprocessor.h"
+#include <snake3d/Resource/ShaderPreprocessor.h>
 
 using Resource::ShaderPreprocessor;
 using Resource::shader_placeholder_error;

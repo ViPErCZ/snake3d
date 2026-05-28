@@ -259,20 +259,20 @@ set(ENGINE_SOURCES
         Renderer/Opengl/Model/Utils/TextMesh.h
         Renderer/Opengl/Model/Utils/Tree.h
         # --- Resource
-        Resource/ResourceLoader.cpp
-        Resource/ResourceLoader.h
-        Resource/ObjModelLoader.cpp
-        Resource/ObjModelLoader.h
-        Resource/TextureLoader.cpp
-        Resource/TextureLoader.h
-        Resource/ShaderLoader.cpp
-        Resource/ShaderLoader.h
-        Resource/ShaderPreprocessor.cpp
-        Resource/ShaderPreprocessor.h
-        Resource/AnimLoader.cpp
-        Resource/AnimLoader.h
-        Resource/MaterialLoader.cpp
-        Resource/MaterialLoader.h
+        engine/src/Resource/ResourceLoader.cpp
+        engine/include/snake3d/Resource/ResourceLoader.h
+        engine/src/Resource/ObjModelLoader.cpp
+        engine/include/snake3d/Resource/ObjModelLoader.h
+        engine/src/Resource/TextureLoader.cpp
+        engine/include/snake3d/Resource/TextureLoader.h
+        engine/src/Resource/ShaderLoader.cpp
+        engine/include/snake3d/Resource/ShaderLoader.h
+        engine/src/Resource/ShaderPreprocessor.cpp
+        engine/include/snake3d/Resource/ShaderPreprocessor.h
+        engine/src/Resource/AnimLoader.cpp
+        engine/include/snake3d/Resource/AnimLoader.h
+        engine/src/Resource/MaterialLoader.cpp
+        engine/include/snake3d/Resource/MaterialLoader.h
         # --- Lights
         engine/src/Lights/Light.cpp
         engine/include/snake3d/Lights/Light.h
@@ -336,18 +336,18 @@ set(ENGINE_SOURCES
         engine/include/snake3d/Tools/BuildSettings.h
         engine/include/snake3d/Tools/Layers.h
         # --- Network (generic netcode only - Game/* is game-side)
-        Network/NetManager.cpp
-        Network/NetManager.h
-        Network/NetProtocol.cpp
-        Network/NetProtocol.h
-        Network/NetMessages.cpp
-        Network/NetMessages.h
-        Network/NetClientServer.cpp
-        Network/NetClientServer.h
-        Network/NetDispatcher.cpp
-        Network/NetDispatcher.h
-        Network/NetClock.cpp
-        Network/NetClock.h
+        engine/src/Network/NetManager.cpp
+        engine/include/snake3d/Network/NetManager.h
+        engine/src/Network/NetProtocol.cpp
+        engine/include/snake3d/Network/NetProtocol.h
+        engine/src/Network/NetMessages.cpp
+        engine/include/snake3d/Network/NetMessages.h
+        engine/src/Network/NetClientServer.cpp
+        engine/include/snake3d/Network/NetClientServer.h
+        engine/src/Network/NetDispatcher.cpp
+        engine/include/snake3d/Network/NetDispatcher.h
+        engine/src/Network/NetClock.cpp
+        engine/include/snake3d/Network/NetClock.h
         # --- Handler (base + debug-mode handlers - generic)
         Handler/BaseHandler.cpp
         Handler/BaseHandler.h

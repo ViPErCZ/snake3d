@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "NetProtocol.h"
+#include <snake3d/Network/NetProtocol.h>
 
 namespace Net {
     namespace Protocol {

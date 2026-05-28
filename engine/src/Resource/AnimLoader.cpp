@@ -1,9 +1,9 @@
-#include "AnimLoader.h"
+#include <snake3d/Resource/AnimLoader.h>
 #include <assimp/postprocess.h>
 #include <functional>
 #include <iostream>
 
-#include "../Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 using namespace std;
 using namespace Animation;

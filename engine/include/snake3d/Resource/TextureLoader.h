@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "../Manager/TextureManager.h"
+#include "Manager/TextureManager.h"
 
 namespace fs = std::filesystem;
 

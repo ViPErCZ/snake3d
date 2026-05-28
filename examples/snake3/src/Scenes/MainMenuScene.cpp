@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "Resource/TextureLoader.h"
+#include <snake3d/Resource/TextureLoader.h>
 #include "Thirdparty/stbimage/stb_image.h"
 
 using namespace std;
