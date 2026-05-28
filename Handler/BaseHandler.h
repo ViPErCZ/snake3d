@@ -1,7 +1,7 @@
 #ifndef SNAKE3_BASEHANDLER_H
 #define SNAKE3_BASEHANDLER_H
 
-#include "../stdafx.h"
+#include <stdafx.h>
 
 namespace Handler {
 

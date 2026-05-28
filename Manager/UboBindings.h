@@ -1,7 +1,7 @@
 #ifndef SNAKE3_UBOBINDINGS_H
 #define SNAKE3_UBOBINDINGS_H
 
-#include "../stdafx.h"
+#include <stdafx.h>
 
 namespace Manager {
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include <stdafx.h>
 #include "App.h"
 #include "Renderer/Opengl/RenderStats.h"
 #include "Tools/BuildSettings.h"

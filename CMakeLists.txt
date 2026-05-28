@@ -452,6 +452,7 @@ add_library(snake3d_engine STATIC ${ENGINE_SOURCES})
 
 target_include_directories(snake3d_engine PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/include
 )
 
 target_link_libraries(snake3d_engine PUBLIC

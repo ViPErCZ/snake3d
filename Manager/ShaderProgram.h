@@ -1,7 +1,7 @@
 #ifndef SNAKE3_SHADERPROGRAM_H
 #define SNAKE3_SHADERPROGRAM_H
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include <string>
 #include <unordered_map>
 #include <variant>

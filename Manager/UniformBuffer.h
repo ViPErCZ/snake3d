@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-#include "../stdafx.h"
+#include <stdafx.h>
 
 namespace Manager {
 

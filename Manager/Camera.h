@@ -4,7 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include "../Tools/Transform.h"
 
 namespace Manager {
