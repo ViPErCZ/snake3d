@@ -1,9 +1,9 @@
 #include <catch2/catch_all.hpp>
 
-#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
-#include "../Renderer/Opengl/Material/MaterialBuilder.h"
-#include "../Renderer/Opengl/Material/TextureSlots.h"
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/HoleMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/TextureSlots.h>
 #include <snake3d/Manager/ShaderFeature.h>
 
 using Feature::HoleMapFeature;

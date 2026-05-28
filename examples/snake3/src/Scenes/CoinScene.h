@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "../Renderer/Opengl/Model/Game/CoinMeshNode3D.h"
-#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 namespace Scenes {
     class CoinScene final : public Scene {

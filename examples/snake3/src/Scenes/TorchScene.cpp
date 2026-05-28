@@ -5,17 +5,17 @@
 #include <snake3d/Handler/Debug/PositionHandler.h>
 #include <snake3d/Physic/BoxShape.h>
 #include <snake3d/Physic/CylinderShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
 #include <snake3d/Resource/MaterialLoader.h>
-#include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
+#include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/QuadMesh3D.h>
 
 using namespace std;
 using namespace Material;

@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <glm/vec3.hpp>
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
 
 namespace Model {
     class RadarItem {

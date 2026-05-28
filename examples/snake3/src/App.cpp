@@ -1,10 +1,10 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 #include "App.h"
-#include "Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "Renderer/Opengl/Material/Uniform/TextureArrayUniform.h"
-#include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/TextureArrayUniform.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/AnimationArrayMesh.h>
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <snake3d/Resource/AnimLoader.h>
 #include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Resource/TextureLoader.h>

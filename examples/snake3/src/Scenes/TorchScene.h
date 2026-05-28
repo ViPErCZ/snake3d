@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "Renderer/Opengl/Scene/Scene.h"
-#include "Renderer/Opengl/Model/Standard/GPUParticle3D.h"
-#include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/GPUParticle3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/QuadMesh3D.h>
 
 namespace Scenes {
     class TorchScene final : public Scene {

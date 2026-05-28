@@ -6,8 +6,8 @@
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
 #include "../Handler/SnakeMoveHandler.h"
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
-#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 namespace Scenes {
     class PlayerScene final : public Scene {

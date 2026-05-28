@@ -1,10 +1,10 @@
 #include "StreetLampNode3D.h"
 
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/IblFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/IblFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
 
 using namespace std;
 using namespace Manager;

@@ -1,8 +1,8 @@
 #include "MarkRingNode3D.h"
 
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Uniform/CallbackUniform.h"
-#include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/CallbackUniform.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/QuadMesh3D.h>
 
 using namespace std;
 using namespace Material;

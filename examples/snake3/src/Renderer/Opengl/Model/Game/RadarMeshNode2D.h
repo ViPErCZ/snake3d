@@ -4,9 +4,9 @@
 #include <map>
 
 #include "RadarItem.h"
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/QuadNode2D.h>
 
 namespace Model {
     class RadarMeshNode2D final : public MeshNode2D {

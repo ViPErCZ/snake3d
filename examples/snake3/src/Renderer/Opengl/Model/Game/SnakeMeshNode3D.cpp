@@ -1,16 +1,16 @@
 #include "SnakeMeshNode3D.h"
 
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
 #include <snake3d/Resource/MaterialLoader.h>
 
 #include <snake3d/Physic/SphereShape.h>
-#include "Renderer/Opengl/Material/Uniform/TextureUniform.h"
-#include "Renderer/Opengl/Material/Uniform/TimerUniform.h"
+#include <snake3d/Renderer/Opengl/Material/Uniform/TextureUniform.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/TimerUniform.h>
 #include <snake3d/Tools/Layers.h>
-#include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/SphereMesh.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/AnimationArrayMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/SphereMesh.h>
 
 using namespace std;
 using namespace Tools;

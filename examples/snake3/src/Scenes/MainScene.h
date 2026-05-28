@@ -13,11 +13,11 @@
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
 #include <snake3d/Manager/TextureManager.h>
-#include "Renderer/Opengl/Material/MaterialInstance.h"
-#include "Renderer/Opengl/Material/Feature/HoleMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
-#include "Renderer/Opengl/Material/Feature/RainRippleFeature.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialInstance.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/HoleMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/RainRippleFeature.h>
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 #include "../Network/Game/NetGameController.h"
 #include "../Network/Game/NetGameSnapshot.h"
 #include "SceneHud.h"

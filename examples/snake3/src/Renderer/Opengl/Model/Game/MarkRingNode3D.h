@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 #include <snake3d/Handler/Debug/ManipulatorHandler.h>
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Uniform/CallbackUniform.h"
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/CallbackUniform.h>
 
 namespace Model {
     class MarkRingNode3D : public MeshNode3D {

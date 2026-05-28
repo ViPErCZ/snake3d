@@ -13,8 +13,8 @@
 #include <snake3d/Handler/Debug/RotationHandler.h>
 #include <snake3d/Handler/Debug/ScaleHandler.h>
 #include <snake3d/Lights/Light.h>
-#include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 #include <snake3d/Lights/DirectionalLight.h>
 #include <snake3d/Lights/OrientableLight.h>
 #include <snake3d/Lights/PointLight.h>
@@ -25,7 +25,7 @@
 #include <snake3d/Manager/ShaderRegistry.h>
 #include <snake3d/Physic/CollisionSystem3D.h>
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <snake3d/Tools/Transform.h>
 
 #include <glm/geometric.hpp>

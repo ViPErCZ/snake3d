@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <random>
 #include <fstream>
 #include <vector>
@@ -21,21 +21,21 @@
 #include "SceneLightFactory.h"
 #include "TorchScene.h"
 #include "WeatherScene.h"
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/HoleMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Renderer/Opengl/Material/Feature/SpecularFeature.h"
-#include "Renderer/Opengl/Material/Feature/UvTransformFeature.h"
-#include "Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/HoleMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/SpecularFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/UvTransformFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h>
 #include "../Renderer/Opengl/Model/Game/MarkRingNode3D.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/PlaneMesh.h"
-#include "Renderer/Opengl/Model/Standard/SkyboxNode3D.h"
-#include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/PlaneMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/SkyboxNode3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/AnimationArrayMesh.h>
 #include <snake3d/Tools/Layers.h>
 
 using Renderer::RenderStats;

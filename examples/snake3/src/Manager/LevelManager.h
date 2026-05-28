@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 #include <snake3d/Physic/CollisionSystem3D.h>
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 using namespace Physic;
 using namespace CollisionShape;

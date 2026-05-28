@@ -1,13 +1,13 @@
 #include "CoinScene.h"
 
 #include <snake3d/Physic/BoxShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/IblFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/PbrFeature.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/IblFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PbrFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
 #include <snake3d/Tools/Layers.h>
 
 using namespace std;

@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include <snake3d/Manager/UboBindings.h>
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 
 using namespace std;
 

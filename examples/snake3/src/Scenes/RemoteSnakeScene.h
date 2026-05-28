@@ -7,7 +7,7 @@
 #include "../Handler/SnakeMoveHandler.h"
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
 #include "../Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 namespace Scenes {
     class RemoteSnakeScene final : public Scene {

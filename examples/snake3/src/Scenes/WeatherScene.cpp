@@ -1,9 +1,9 @@
 #include "WeatherScene.h"
 
-#include "Renderer/Opengl/Model/Standard/GPUParticle3D.h"
-#include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
-#include "Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/GPUParticle3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/QuadMesh3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/QuadNode2D.h>
 #include "BoltScene.h"
 
 using namespace std;

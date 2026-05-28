@@ -1,6 +1,6 @@
 #include <snake3d/Physic/CapsuleShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Model/Standard/CapsuleMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/CapsuleMesh.h>
 
 using namespace Model;
 using namespace Build;

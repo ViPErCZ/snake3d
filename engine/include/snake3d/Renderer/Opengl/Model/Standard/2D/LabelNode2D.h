@@ -1,0 +1,38 @@
+#ifndef SNAKE3_LABELNODE2D_H
+#define SNAKE3_LABELNODE2D_H
+
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/BaseNode2D.h>
+#include <snake3d/Renderer/Opengl/Material/2D/LabelSettings.h>
+#include <snake3d/Renderer/Opengl/Model/Utils/TextMesh.h>
+
+namespace Model {
+    using std::shared_ptr;
+    using std::string;
+
+    class LabelNode2D final : public BaseNode2D {
+    public:
+        explicit LabelNode2D(std::string text, const shared_ptr<Manager::ShaderProgram> &baseShader,
+                             const shared_ptr<Material::LabelSettings> &settings);
+
+        ~LabelNode2D() override = default;
+
+        [[nodiscard]] unsigned int getTextureId() const { return textureId; }
+
+        void setText(const string &text);
+
+        void render(const shared_ptr<Manager::Camera> &camera, const glm::mat4 &ortho, float dt,
+            const glm::mat4 &parentTransform) const override;
+
+        void alignVerticalCenter(float viewportWidth, float viewportHeight);
+        [[nodiscard]] float getWidth() const;
+        [[nodiscard]] float getHeight() const;
+
+    protected:
+        shared_ptr<ModelUtils::TextMesh> mesh;
+        const shared_ptr<Material::LabelSettings> settings;
+        string text;
+        glm::vec2 align{};
+    };
+} // Model
+
+#endif //SNAKE3_LABELNODE2D_H

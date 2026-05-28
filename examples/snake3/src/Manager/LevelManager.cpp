@@ -2,14 +2,14 @@
 #include <fstream>
 
 #include <snake3d/Physic/BoxShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Renderer/Opengl/Material/Feature/SpecularFeature.h"
-#include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
-#include "Renderer/Opengl/Model/Standard/BoxMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/SpecularFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/BoxMesh.h>
 #include <snake3d/Tools/Layers.h>
 
 namespace Manager {

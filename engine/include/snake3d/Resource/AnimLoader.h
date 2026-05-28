@@ -8,7 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
 
 namespace fs = std::filesystem;
 

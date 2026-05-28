@@ -4,7 +4,7 @@
 #include <snake3d/Handler/Debug/BaseTransform.h>
 #include <snake3d/Handler/BaseKeydownHandle.h>
 #include <snake3d/Manager/Camera.h>
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 namespace Handler::Debug {
     class ScaleHandler final : public BaseKeydownHandle, public ::Debug::BaseTransform {

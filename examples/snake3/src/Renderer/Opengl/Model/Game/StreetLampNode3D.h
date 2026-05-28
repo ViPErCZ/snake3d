@@ -1,12 +1,12 @@
 #ifndef SNAKE3_STREETLAMPNODE3D_H
 #define SNAKE3_STREETLAMPNODE3D_H
 
-#include "Renderer/Opengl/Material/MaterialInstance.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/PbrFeature.h"
-#include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialInstance.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PbrFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 namespace Model {
     class StreetLampNode3D final : public MeshNode3D {

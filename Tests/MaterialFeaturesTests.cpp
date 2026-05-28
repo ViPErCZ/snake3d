@@ -1,16 +1,16 @@
 #include <catch2/catch_all.hpp>
 
-#include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
-#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "../Renderer/Opengl/Material/Feature/IblFeature.h"
-#include "../Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "../Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "../Renderer/Opengl/Material/Feature/PbrFeature.h"
-#include "../Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"
-#include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
-#include "../Renderer/Opengl/Material/Feature/UvTransformFeature.h"
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/BonesFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/IblFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PbrFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/SpecularFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/UvTransformFeature.h>
 #include <snake3d/Manager/ShaderFeature.h>
 
 using Manager::ShaderFeature;

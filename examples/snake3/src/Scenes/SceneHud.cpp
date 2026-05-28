@@ -2,8 +2,8 @@
 
 #include <cstdio>
 
-#include "Renderer/Opengl/Material/2D/LabelSettings.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Material/2D/LabelSettings.h>
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 using namespace std;
 using namespace Material;

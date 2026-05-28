@@ -10,7 +10,7 @@
 #include <memory>
 #include <condition_variable>
 #include <snake3d/Manager/TextureManager.h>
-#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
 
 namespace Resource {
     class ResourceLoader {

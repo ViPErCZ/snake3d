@@ -6,10 +6,10 @@
 #include <snake3d/Lights/Light.h>
 #include <snake3d/Manager/Camera.h>
 #include <snake3d/Manager/ResourceManager.h>
-#include "Renderer/Opengl/Material/2D/LabelSettings.h"
-#include "Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
-#include "Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
+#include <snake3d/Renderer/Opengl/Material/2D/LabelSettings.h>
+#include <snake3d/Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/LabelNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
 
 namespace Handler::Debug {
     using Lights::Light;

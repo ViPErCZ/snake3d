@@ -1,7 +1,7 @@
 #ifndef SNAKE3_COINMESHNODE3D_H
 #define SNAKE3_COINMESHNODE3D_H
 
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 namespace Model {
     class CoinMeshNode3D final : public MeshNode3D {

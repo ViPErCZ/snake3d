@@ -1,7 +1,7 @@
 #include <snake3d/Physic/SphereShape.h>
 
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Model/Standard/SphereMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/SphereMesh.h>
 
 using namespace Model;
 using namespace Build;

@@ -2,9 +2,9 @@
 #define SNAKE3_CAPSULESHAPE_H
 
 #include <snake3d/Physic/Shape.h>
-#include "Renderer/Opengl/Material/MaterialInstance.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialInstance.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 namespace Physic {
     class CapsuleShape : public Shape {

@@ -5,12 +5,12 @@
 
 #include <snake3d/Physic/Algorithms/CollisionAlgorithms.h>
 #include <snake3d/Tools/Timer.h>
-#include "Renderer/Opengl/Material/MaterialInstance.h"
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Uniform/TimerUniform.h"
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
-#include "Renderer/Opengl/Model/Standard/SphereMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialInstance.h>
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/TimerUniform.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/SphereMesh.h>
 
 namespace Model {
     class SnakeMeshNode3D final : public MeshNode3D {

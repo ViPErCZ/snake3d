@@ -3,7 +3,7 @@
 #include <functional>
 #include <iostream>
 
-#include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
 
 using namespace std;
 using namespace Animation;

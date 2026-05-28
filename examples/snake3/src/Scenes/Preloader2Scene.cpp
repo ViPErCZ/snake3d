@@ -1,9 +1,9 @@
 #include "Preloader2Scene.h"
 
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Uniform/TimerUniform.h"
-#include "Renderer/Opengl/Model/SpinnerMesh.h"
-#include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/TimerUniform.h>
+#include <snake3d/Renderer/Opengl/Model/SpinnerMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/QuadNode2D.h>
 
 using Uniform::TimerUniform;
 using namespace std;

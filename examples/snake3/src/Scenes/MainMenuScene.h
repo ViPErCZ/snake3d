@@ -7,15 +7,15 @@
 
 #include "OrbitSceneBase.h"
 #include <snake3d/Manager/TextureManager.h>
-#include "Renderer/Opengl/Material/2D/LabelSettings.h"
-#include "Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h"
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Uniform/TimerUniform.h"
-#include "Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/ImageNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include <snake3d/Renderer/Opengl/Material/2D/LabelSettings.h>
+#include <snake3d/Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/TimerUniform.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/GPUParticle2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/ImageNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/LabelNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/QuadNode2D.h>
 
 namespace Scenes {
     class MainMenuScene final : public OrbitSceneBase {

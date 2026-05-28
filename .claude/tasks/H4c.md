@@ -49,7 +49,10 @@ Physically move all engine headers and sources from root-level subdirs (`Manager
 
 - [x] **Step 10 — Batch 8: move `Manager/` (28 files)**
 
-- [ ] **Step 11 — Batch 9: move `Renderer/` (141 files, 3 sub-batches: top+Scene, Material subtree, Model subtree)**
+- [x] **Step 11 — Batch 9: move `Renderer/` (141 files, 3 sub-batches: top+Scene, Material subtree, Model subtree)**
+  - [x] 9a: top-level (8 renderers) + Scene + Model top + Model/Utils + Model/Collision + Model/Debug — 42 files
+  - [x] 9b: Material subtree (Feature, Uniform, Interface, Particle, 2D) — 55 files
+  - [x] 9c: Model/Standard subtree (incl. Animation + 2D) — 44 files
 
 - [ ] **Step 12 — CMakeLists.txt update**: prefix ENGINE_SOURCES paths, change `target_include_directories(snake3d_engine PUBLIC engine/include)`, add game-layer include path
 

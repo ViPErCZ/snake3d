@@ -1,8 +1,8 @@
 #ifndef SNAKE3_COLLISIONSYSTEM3D_H
 #define SNAKE3_COLLISIONSYSTEM3D_H
 
-#include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
 #include <vector>
 

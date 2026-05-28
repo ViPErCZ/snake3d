@@ -1,10 +1,10 @@
 #ifndef SNAKE3_RENDERMANAGER_H
 #define SNAKE3_RENDERMANAGER_H
 
-#include "Renderer/Opengl/BaseRenderer.h"
-#include "Renderer/Opengl/DepthMapRenderer.h"
-#include "Renderer/Opengl/BloomRenderer.h"
-#include "Renderer/Opengl/PlanarReflectionRenderer.h"
+#include <snake3d/Renderer/Opengl/BaseRenderer.h>
+#include <snake3d/Renderer/Opengl/DepthMapRenderer.h>
+#include <snake3d/Renderer/Opengl/BloomRenderer.h>
+#include <snake3d/Renderer/Opengl/PlanarReflectionRenderer.h>
 #include <snake3d/Manager/FrameUbo.h>
 #include <functional>
 #include <vector>

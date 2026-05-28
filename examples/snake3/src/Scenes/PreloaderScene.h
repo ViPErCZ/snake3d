@@ -1,7 +1,7 @@
 #ifndef SNAKE3_PRELOADERSCENE_H
 #define SNAKE3_PRELOADERSCENE_H
 
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 namespace Scenes {
     class PreloaderScene : public Scene {

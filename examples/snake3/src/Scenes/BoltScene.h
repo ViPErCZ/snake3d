@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 #include "../Renderer/Opengl/Model/Game/BoltLinesNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
 #include <snake3d/Tools/Timer.h>
 
 namespace Scenes {

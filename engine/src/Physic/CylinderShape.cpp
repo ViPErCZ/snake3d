@@ -1,6 +1,6 @@
 #include <snake3d/Physic/CylinderShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Model/Standard/CylinderMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/CylinderMesh.h>
 
 using namespace Model;
 using namespace Build;

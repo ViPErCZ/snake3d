@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "Renderer/Opengl/Model/Standard/QuadMesh3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/QuadMesh3D.h>
 #include "OrbitSceneBase.h"
 
 namespace Model {

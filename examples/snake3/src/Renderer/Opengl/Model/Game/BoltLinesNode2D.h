@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#include "Renderer/Opengl/Model/Standard/2D/BaseNode2D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/BaseNode2D.h>
 
 namespace Model {
     class BoltLinesNode2D : public BaseNode2D {

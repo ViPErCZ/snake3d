@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <snake3d/Physic/CollisionCheck.h>
 #include <algorithm>
 #include <limits>

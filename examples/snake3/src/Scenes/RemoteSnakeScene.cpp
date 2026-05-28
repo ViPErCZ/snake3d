@@ -3,14 +3,14 @@
 #include <cmath>
 
 #include <snake3d/Physic/SphereShape.h>
-#include "Renderer/Opengl/Material/MaterialBuilder.h"
-#include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
-#include "Renderer/Opengl/Material/Feature/BonesFeature.h"
-#include "Renderer/Opengl/Material/Feature/LightingFeature.h"
-#include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
-#include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
-#include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
+#include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/BonesFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
+#include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/AnimationArrayMesh.h>
 #include <snake3d/Tools/Layers.h>
 
 using namespace std;

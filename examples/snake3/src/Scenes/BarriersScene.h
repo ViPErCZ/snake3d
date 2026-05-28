@@ -2,7 +2,7 @@
 #define SNAKE3_BARRIERSSCENE_H
 
 #include "../Manager/LevelManager.h"
-#include "Renderer/Opengl/Scene/Scene.h"
+#include <snake3d/Renderer/Opengl/Scene/Scene.h>
 
 namespace Scenes {
     class BarriersScene final : public Scene {

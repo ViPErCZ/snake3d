@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <snake3d/Handler/BaseKeydownHandle.h>
-#include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 using namespace Model;
 using namespace std;

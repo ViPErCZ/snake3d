@@ -1,6 +1,6 @@
 #include <snake3d/Manager/ResourceManager.h>
 
-#include "Renderer/Opengl/Material/Feature/FogFeature.h"
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
 #include <snake3d/Resource/MaterialLoader.h>
 #include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Resource/TextureLoader.h>

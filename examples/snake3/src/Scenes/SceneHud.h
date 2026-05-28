@@ -5,13 +5,13 @@
 #include <string>
 
 #include <snake3d/Manager/ResourceManager.h>
-#include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Renderer/Opengl/Material/Uniform/FadeInUniform.h"
-#include "Renderer/Opengl/Material/Uniform/FadeOutUniform.h"
+#include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/FadeInUniform.h>
+#include <snake3d/Renderer/Opengl/Material/Uniform/FadeOutUniform.h>
 #include "../Renderer/Opengl/Model/Game/RadarMeshNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
-#include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/LabelNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/MeshNode2D.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/2D/QuadNode2D.h>
 #include <snake3d/Tools/ContextState.h>
 
 namespace Scenes {

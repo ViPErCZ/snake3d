@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <chrono>
 
-#include "Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 
 using namespace std;
 using namespace Renderer;

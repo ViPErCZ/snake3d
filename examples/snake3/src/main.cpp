@@ -1,6 +1,6 @@
 #include <stdafx.h>
 #include "App.h"
-#include "Renderer/Opengl/RenderStats.h"
+#include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <snake3d/Tools/BuildSettings.h>
 #include <chrono>
 #include <iostream>

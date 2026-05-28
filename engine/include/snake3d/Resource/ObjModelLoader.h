@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "Renderer/Opengl/Model/Utils/Mesh.h"
+#include <snake3d/Renderer/Opengl/Model/Utils/Mesh.h>
 
 namespace fs = std::filesystem;
 
