@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+#include "../Resource/MaterialLoader.h"
 #include "../Resource/ShaderLoader.h"
 #include "../Resource/TextureLoader.h"
 
@@ -277,5 +278,9 @@ namespace Manager {
 
         // Zpracuj zbytek pending modelů
         processPending();
+    }
+
+    Resource::MaterialSpec ResourceManager::loadMaterial(const std::string &path) const {
+        return Resource::loadFromFile(path, *this);
     }
 } // Manager

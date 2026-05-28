@@ -1,0 +1,12 @@
+{
+  "_comment": "Feature ORDER must match the original C++ insertion order - shader permutation hash depends on it.",
+  "master": "basicShader",
+  "blending": "opaque",
+  "features": [
+    { "type": "lighting" },
+    { "type": "shadow" },
+    { "type": "normalMap", "texture": "torch_normal.png" },
+    { "type": "albedo", "texture": "torch.png" },
+    { "type": "fog" }
+  ]
+}

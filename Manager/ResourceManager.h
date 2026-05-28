@@ -13,6 +13,10 @@
 #include "../Renderer/Opengl/Material/Feature/FogFeature.h"
 #include "../Resource/ResourceLoader.h"
 
+// Forward-declare so callsites can use ResourceManager::loadMaterial without
+// pulling in nlohmann/json via MaterialLoader.h. Plný include zůstává v .cpp.
+namespace Resource { struct MaterialSpec; }
+
 namespace Manager {
         using ModelUtils::Mesh;
 
@@ -57,6 +61,13 @@ namespace Manager {
         std::shared_ptr<Animation::AnimationPlayer> getAnimationModel(const std::string &name) const;
 
         void loadAsyncTexture(const std::string &path, const std::string &name, bool albedo, const std::function<void()> &onReady = nullptr);
+
+        // D3.4: JSON-driven material spec loader.
+        // Tenký wrapper kolem Resource::loadFromFile - drží callsity bez include
+        // nlohmann/json. Vrací MaterialSpec s pre-naplněným builderem (static
+        // features) a flagy pro runtime-wired features (lighting/shadow/fog),
+        // které musí callsite doplnit z živých objektů.
+        [[nodiscard]] Resource::MaterialSpec loadMaterial(const std::string &path) const;
 
         void loadAsyncShader(
             const std::string &name,

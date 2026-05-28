@@ -271,6 +271,8 @@ set(ENGINE_SOURCES
         Resource/ShaderPreprocessor.h
         Resource/AnimLoader.cpp
         Resource/AnimLoader.h
+        Resource/MaterialLoader.cpp
+        Resource/MaterialLoader.h
         # --- Lights
         Lights/Light.cpp
         Lights/Light.h

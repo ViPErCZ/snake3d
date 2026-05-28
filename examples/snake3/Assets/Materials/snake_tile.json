@@ -1,0 +1,11 @@
+{
+  "_comment": "Feature ORDER must match the original C++ insertion order - shader permutation hash depends on it.",
+  "master": "basicShader",
+  "blending": "opaque",
+  "features": [
+    { "type": "lighting" },
+    { "type": "shadow" },
+    { "type": "albedo", "color": [0.88, 0.05, 0.05] },
+    { "type": "fog" }
+  ]
+}
