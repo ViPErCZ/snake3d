@@ -182,10 +182,12 @@ snake3d/
 - **H2:** CMake split into `snake3d_engine` + `snake3d_game` libs + Snake3 executable + Tests — ✓ done.
 - **H3:** physical file move into `examples/snake3/src/` and `examples/snake3/Assets/` — ✓ done.
 - **H4a:** open source bootstrap (README, CONTRIBUTING, MIT LICENSE, .clang-format, CI workflow) + selective public-header `using namespace` cleanup (IMaterialFeature.h) — partial.
-- **H4b:** full `using namespace` audit across engine headers — **mostly done**. Per-header migration with explicit `using std::shared_ptr;` etc. in consumer `.cpp` files, one engine subdir at a time:
+- **H4b:** full `using namespace` audit across engine headers — **done**. Per-header migration with explicit `using std::shared_ptr;` etc. in consumer `.cpp` files, one engine subdir at a time:
   - ✓ Lights/, Resource/, Manager/ (Camera.h unblocked), Physic/, Handler/Debug/, Tools/ + Transform.h unblock.
   - ✓ Namespace rename `ItemsDto` → `Animation` + unification with `Animations` (struct renamed `Animation` → `AnimationClip`).
-  - ✓ Renderer/Opengl/: Model/Utils/ (4/5), 8 leaf headers (Line, LabelSettings, BlendingInterface, Material/Uniform), Model/Standard/2D/, 7 leaf-subdirs (Model/Collision, SpinnerMesh, Material/Particle, Material/Feature, AnimationPlayer), Material/ top-level, Scene/SceneRenderer + 5 specialized renderers, Model/Standard/ (9/10 + sibling/game cascade).
-  - **Remaining: 3 parked headers** forming a mutually-load-bearing cluster: `Renderer/Opengl/Model/Utils/Vbo.h` (Manager+std), `Renderer/Opengl/Model/Standard/MeshNode3D.h` (Tools+Lights+std), `Renderer/Opengl/Scene/Scene.h` (std+Model+Manager+Handler::Debug+Build). Cleaning any one in isolation cascades into the others' consumers + ~16 game-scene headers in `examples/snake3/src/Scenes/*.h`. Needs coordinated combined batch when revisited.
-- **H4c TODO:** headers reorganized into `engine/include/snake3d/` canonical path. Defer until H4b's parked cluster is resolved so the moves don't churn includes twice.
+  - ✓ Renderer/Opengl/: Model/Utils/, all leaf headers (Line, LabelSettings, BlendingInterface, Material/Uniform), Model/Standard/2D/, Model/Collision, Material/Particle, Material/Feature, AnimationPlayer, Material/ top-level, Scene/SceneRenderer + 5 specialized renderers, Model/Standard/.
+  - ✓ Final cluster cleanup: Vbo.h + MeshNode3D.h + Scene.h cleaned together with their downstream cascade (Mesh2D, all Standard/* meshes, CollisionShape3D, LightNode3D, all Handler/Debug/*, all game scenes + game meshes). ~30 impl files received `using namespace X;` after includes per project convention.
+  - Engine-side headers (Renderer/, Manager/, Physic/, Tools/, Lights/, Resource/, Handler/, Network/) are now 100% free of `using namespace X;` at top level.
+  - **Game-side parked headers**: App.h, EatLocationHandler.h, SnakeMoveHandler.h, RadarHandler.h, LevelManager.h, EatManager.h still carry `using namespace` lines. Game-layer concerns, outside engine boundary — can be addressed independently when convenient.
+- **H4c TODO:** headers reorganized into `engine/include/snake3d/` canonical path. Now unblocked.
 - **H5:** feature plugin registry (data-driven `IMaterialFeature` factory).
