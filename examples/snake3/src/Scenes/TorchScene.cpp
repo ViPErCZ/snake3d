@@ -10,6 +10,7 @@
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
+#include "Resource/MaterialLoader.h"
 #include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../Renderer/Opengl/Model/Game/BarrelNode3D.h"
 #include "../Renderer/Opengl/Model/Game/StreetLampNode3D.h"
@@ -76,20 +77,25 @@ namespace Scenes {
         torch->fromMesh(resourceManager->getModel("torch"));
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
 
-        const auto torchAlbedo = resourceManager->getTexture("torch.png");
-        const auto torchNormal = resourceManager->getTexture("torch_normal.png");
-
-        const auto torchMaterial = Material::MaterialBuilder()
-            .useMaster("basicShader")
-            .with(make_shared<Feature::LightingFeature>(directionalLight,
-                                                       std::vector<std::shared_ptr<Lights::PointLight>>{},
-                                                       spotLights))
-            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
-            .with(make_shared<Feature::NormalMapFeature>(torchNormal))
-            .with(make_shared<Feature::AlbedoFeature>(torchAlbedo))
-            .with(resourceManager->getFogFeature())
-            .build(*resourceManager->getShaderRegistry());
-        torchMaterial->setBlending(Blending::Opaque);
+        // D3.7: JSON-driven spec. torch.png + torch_normal.png jsou v JSONu jako
+        // static features (MaterialLoader si je sám resolvne přes ResourceManager);
+        // runtime-wired lighting/shadow/fog doplňujeme z živých objektů.
+        auto spec = resourceManager->loadMaterial("Assets/Materials/torch.json");
+        if (spec.hasLighting) {
+            spec.builder.with(make_shared<Feature::LightingFeature>(
+                directionalLight,
+                std::vector<std::shared_ptr<Lights::PointLight>>{},
+                spotLights));
+        }
+        if (spec.hasShadow) {
+            spec.builder.with(make_shared<Feature::ShadowFeature>(
+                resourceManager->getTexture("depth"), shadowsShader));
+        }
+        if (spec.hasFog) {
+            spec.builder.with(resourceManager->getFogFeature());
+        }
+        const auto torchMaterial = spec.builder.build(*resourceManager->getShaderRegistry());
+        torchMaterial->setBlending(spec.blending);
 
         torch->setMaterial(torchMaterial);
 

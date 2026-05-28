@@ -3,6 +3,7 @@
 #include "Renderer/Opengl/Material/MaterialBuilder.h"
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
+#include "Resource/MaterialLoader.h"
 
 #include "Physic/SphereShape.h"
 #include "Renderer/Opengl/Material/Uniform/TextureUniform.h"
@@ -57,15 +58,21 @@ namespace Model {
             const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
 
             tileLightingFeature = make_shared<Feature::LightingFeature>(nullptr, std::vector<std::shared_ptr<PointLight>>{}, std::vector<std::shared_ptr<SpotLight>>{});
-            const auto tileAlbedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
-            tileAlbedoFeature->setColor({0.88f, 0.05f, 0.05f});
-            tileMaterial = Material::MaterialBuilder()
-                .useMaster("basicShader")
-                .with(tileLightingFeature)
-                .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
-                .with(tileAlbedoFeature)
-                .with(resourceManager->getFogFeature())
-                .build(*resourceManager->getShaderRegistry());
+            // D3.5: JSON-driven spec; runtime-wired features (lighting/shadow/fog)
+            // doplňujeme z živých objektů. Shader permutation hash je order-insensitive
+            // (OR ShaderFeatureMask), takže insertion order není potřeba zachovávat.
+            auto spec = resourceManager->loadMaterial("Assets/Materials/snake_tile.json");
+            if (spec.hasLighting) {
+                spec.builder.with(tileLightingFeature);
+            }
+            if (spec.hasShadow) {
+                spec.builder.with(make_shared<Feature::ShadowFeature>(
+                    resourceManager->getTexture("depth"), shadowsShader));
+            }
+            if (spec.hasFog) {
+                spec.builder.with(resourceManager->getFogFeature());
+            }
+            tileMaterial = spec.builder.build(*resourceManager->getShaderRegistry());
 
             headMaterial = mesh->getMaterial();
 

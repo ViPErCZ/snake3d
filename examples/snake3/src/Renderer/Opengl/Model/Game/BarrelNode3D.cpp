@@ -4,6 +4,7 @@
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
+#include "Resource/MaterialLoader.h"
 
 namespace Model {
     BarrelNode3D::BarrelNode3D(const shared_ptr<ContextState> &contextState,
@@ -20,20 +21,30 @@ namespace Model {
         setScale({0.13888889, 0.13888889, 0.13888889});
         setRotationX(90);
 
-        albedoFeature = make_shared<Feature::AlbedoFeature>(nullptr);
-        albedoFeature->setAmbientIntensity(2.5f);
-        normalFeature = make_shared<Feature::NormalMapFeature>(nullptr);
-        material = Material::MaterialBuilder()
-            .useMaster("basicShader")
-            .with(make_shared<Feature::LightingFeature>(directionalLight,
-                                                       pointLights,
-                                                       std::vector<std::shared_ptr<Lights::SpotLight>>{}))
-            .with(make_shared<Feature::ShadowFeature>(resourceManager->getTexture("depth"), shadowsShader))
-            .with(normalFeature)
-            .with(albedoFeature)
-            .with(resourceManager->getFogFeature())
-            .build(*resourceManager->getShaderRegistry());
-        material->setBlending(Blending::Opaque);
+        // D3.6: JSON-driven spec. Static features (normalMap + albedo bez textur)
+        // přijdou z JSONu - lazy texture pattern v update() je staví dál nullptr-
+        // checkem na albedoFeature/normalFeature. Členské pointery vytahujeme
+        // ze spec.builder přes featuresView().
+        auto spec = resourceManager->loadMaterial("Assets/Materials/barrel.json");
+        for (const auto& f : spec.builder.featuresView()) {
+            if (auto a = dynamic_pointer_cast<Feature::AlbedoFeature>(f))    albedoFeature = a;
+            if (auto n = dynamic_pointer_cast<Feature::NormalMapFeature>(f)) normalFeature = n;
+        }
+        if (spec.hasLighting) {
+            spec.builder.with(make_shared<Feature::LightingFeature>(
+                directionalLight,
+                pointLights,
+                std::vector<std::shared_ptr<Lights::SpotLight>>{}));
+        }
+        if (spec.hasShadow) {
+            spec.builder.with(make_shared<Feature::ShadowFeature>(
+                resourceManager->getTexture("depth"), shadowsShader));
+        }
+        if (spec.hasFog) {
+            spec.builder.with(resourceManager->getFogFeature());
+        }
+        material = spec.builder.build(*resourceManager->getShaderRegistry());
+        material->setBlending(spec.blending);
         barrel->setMaterial(material);
 
         mesh = barrel;
