@@ -2,7 +2,10 @@
 
 #include <filesystem>
 #include <iostream>
+#include <map>
+#include <optional>
 #include <ranges>
+#include <set>
 #include <system_error>
 #include <unordered_map>
 

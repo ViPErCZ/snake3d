@@ -1,5 +1,9 @@
 #include <snake3d/Manager/ResourceManager.h>
 
+#include <functional>
+#include <mutex>
+#include <thread>
+
 #include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
 #include <snake3d/Resource/FeatureRegistry.h>
 #include <snake3d/Resource/MaterialLoader.h>

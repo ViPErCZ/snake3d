@@ -1,5 +1,7 @@
 #include <snake3d/Manager/VboIndexer.h>
 
+#include <map>
+
 using namespace std;
 
 namespace Manager {

@@ -1,6 +1,7 @@
 #include <snake3d/Manager/ShaderProgram.h>
 
 #include <iostream>
+#include <variant>
 
 #include <snake3d/Manager/UboBindings.h>
 #include <snake3d/Renderer/Opengl/RenderStats.h>

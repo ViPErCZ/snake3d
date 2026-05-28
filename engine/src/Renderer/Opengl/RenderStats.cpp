@@ -1,5 +1,7 @@
 #include <snake3d/Renderer/Opengl/RenderStats.h>
 
+#include <atomic>
+
 namespace Renderer {
     std::atomic<int> RenderStats::drawCallsThisFrame{0};
     int RenderStats::drawCallsLastFrame = 0;

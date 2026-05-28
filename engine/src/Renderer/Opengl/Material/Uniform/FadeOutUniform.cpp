@@ -1,5 +1,7 @@
 #include <snake3d/Renderer/Opengl/Material/Uniform/FadeOutUniform.h>
 
+#include <functional>
+
 using namespace std;
 using namespace Tools;
 using namespace Manager;

@@ -1,6 +1,8 @@
 #ifndef SNAKE3_HOLEMAPFEATURE_H
 #define SNAKE3_HOLEMAPFEATURE_H
 
+#include <map>
+
 #include <snake3d/Renderer/Opengl/Material/Feature/IMaterialFeature.h>
 #include <snake3d/Manager/TextureManager.h>
 

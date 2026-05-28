@@ -1,6 +1,7 @@
 #ifndef SNAKE3_PLANARREFLECTIONFEATURE_H
 #define SNAKE3_PLANARREFLECTIONFEATURE_H
 
+#include <map>
 #include <memory>
 
 #include <glm/glm.hpp>

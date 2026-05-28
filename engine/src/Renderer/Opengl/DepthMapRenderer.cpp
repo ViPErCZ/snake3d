@@ -1,5 +1,7 @@
 #include <snake3d/Renderer/Opengl/DepthMapRenderer.h>
 
+#include <limits>
+
 using namespace Manager;
 using namespace Lights;
 using std::shared_ptr;

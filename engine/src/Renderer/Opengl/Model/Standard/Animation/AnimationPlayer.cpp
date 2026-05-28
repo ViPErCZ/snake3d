@@ -1,5 +1,6 @@
 #include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
 
+#include <algorithm>
 #include <chrono>
 #include <functional>
 #include <ranges>

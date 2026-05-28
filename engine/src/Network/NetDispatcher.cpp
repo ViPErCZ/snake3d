@@ -1,5 +1,7 @@
 #include <snake3d/Network/NetDispatcher.h>
 
+#include <optional>
+
 namespace Net {
     std::optional<NetMessage> NetDispatcher::decode(const PacketView &packet) {
         switch (packet.type) {

@@ -1,12 +1,14 @@
 #ifndef SNAKE3_RESOURCEMANAGER_H
 #define SNAKE3_RESOURCEMANAGER_H
 
+#include <atomic>
 #include <functional>
 #include <iostream>
-#include <mutex>
-#include <unordered_map>
 #include <memory>
+#include <mutex>
 #include <queue>
+#include <thread>
+#include <unordered_map>
 #include <snake3d/Manager/TextureManager.h>
 #include <snake3d/Manager/ShaderProgram.h>
 #include <snake3d/Manager/ShaderRegistry.h>

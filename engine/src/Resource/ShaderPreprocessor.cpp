@@ -2,6 +2,8 @@
 
 #include <cctype>
 #include <iostream>
+#include <map>
+#include <set>
 #include <sstream>
 
 #include <snake3d/Manager/MaterialPlaceholder.h>

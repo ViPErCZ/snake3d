@@ -1,5 +1,8 @@
 #include <snake3d/Resource/ResourceLoader.h>
+#include <filesystem>
 #include <iostream>
+#include <mutex>
+#include <thread>
 #include <utility>
 #include <snake3d/Resource/AnimLoader.h>
 #include <snake3d/Resource/ObjModelLoader.h>

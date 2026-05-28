@@ -1,5 +1,6 @@
 #include <snake3d/Resource/AnimLoader.h>
 #include <assimp/postprocess.h>
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <unordered_map>

@@ -1,6 +1,8 @@
 #include <snake3d/Resource/ShaderLoader.h>
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <GL/glew.h>
 

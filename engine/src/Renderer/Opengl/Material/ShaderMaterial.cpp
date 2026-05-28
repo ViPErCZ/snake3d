@@ -1,5 +1,6 @@
 #include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
 
+#include <map>
 #include <utility>
 #include <variant>
 
