@@ -274,16 +274,16 @@ set(ENGINE_SOURCES
         Resource/MaterialLoader.cpp
         Resource/MaterialLoader.h
         # --- Lights
-        Lights/Light.cpp
-        Lights/Light.h
-        Lights/DirectionalLight.cpp
-        Lights/DirectionalLight.h
-        Lights/PointLight.cpp
-        Lights/PointLight.h
-        Lights/SpotLight.cpp
-        Lights/SpotLight.h
-        Lights/IOrientable.h
-        Lights/OrientableLight.h
+        engine/src/Lights/Light.cpp
+        engine/include/snake3d/Lights/Light.h
+        engine/src/Lights/DirectionalLight.cpp
+        engine/include/snake3d/Lights/DirectionalLight.h
+        engine/src/Lights/PointLight.cpp
+        engine/include/snake3d/Lights/PointLight.h
+        engine/src/Lights/SpotLight.cpp
+        engine/include/snake3d/Lights/SpotLight.h
+        engine/include/snake3d/Lights/IOrientable.h
+        engine/include/snake3d/Lights/OrientableLight.h
         # --- Physic
         Physic/Shape.h
         Physic/BoxShape.cpp
@@ -305,36 +305,36 @@ set(ENGINE_SOURCES
         Physic/Jump/JumpTrajectory.cpp
         Physic/Jump/JumpTrajectory.h
         # --- Tools
-        Tools/AnimItem.cpp
-        Tools/AnimItem.h
-        Tools/Timer.cpp
-        Tools/Timer.h
-        Tools/Transform.cpp
-        Tools/Transform.h
-        Tools/Named.cpp
-        Tools/Named.h
-        Tools/Tagged.cpp
-        Tools/Tagged.h
-        Tools/Visibility.cpp
-        Tools/Visibility.h
-        Tools/Vector3i.cpp
-        Tools/Vector3i.h
-        Tools/Environment.cpp
-        Tools/Environment.h
-        Tools/WorldEnvironment.cpp
-        Tools/WorldEnvironment.h
-        Tools/ContextState.cpp
-        Tools/ContextState.h
-        Tools/CameraOrbit.cpp
-        Tools/CameraOrbit.h
-        Tools/Capabilities.h
-        Tools/Clear.h
-        Tools/Blending.h
-        Tools/BlendFactor.h
-        Tools/DepthFunc.h
-        Tools/DrawElement.h
-        Tools/BuildSettings.h
-        Tools/Layers.h
+        engine/src/Tools/AnimItem.cpp
+        engine/include/snake3d/Tools/AnimItem.h
+        engine/src/Tools/Timer.cpp
+        engine/include/snake3d/Tools/Timer.h
+        engine/src/Tools/Transform.cpp
+        engine/include/snake3d/Tools/Transform.h
+        engine/src/Tools/Named.cpp
+        engine/include/snake3d/Tools/Named.h
+        engine/src/Tools/Tagged.cpp
+        engine/include/snake3d/Tools/Tagged.h
+        engine/src/Tools/Visibility.cpp
+        engine/include/snake3d/Tools/Visibility.h
+        engine/src/Tools/Vector3i.cpp
+        engine/include/snake3d/Tools/Vector3i.h
+        engine/src/Tools/Environment.cpp
+        engine/include/snake3d/Tools/Environment.h
+        engine/src/Tools/WorldEnvironment.cpp
+        engine/include/snake3d/Tools/WorldEnvironment.h
+        engine/src/Tools/ContextState.cpp
+        engine/include/snake3d/Tools/ContextState.h
+        engine/src/Tools/CameraOrbit.cpp
+        engine/include/snake3d/Tools/CameraOrbit.h
+        engine/include/snake3d/Tools/Capabilities.h
+        engine/include/snake3d/Tools/Clear.h
+        engine/include/snake3d/Tools/Blending.h
+        engine/include/snake3d/Tools/BlendFactor.h
+        engine/include/snake3d/Tools/DepthFunc.h
+        engine/include/snake3d/Tools/DrawElement.h
+        engine/include/snake3d/Tools/BuildSettings.h
+        engine/include/snake3d/Tools/Layers.h
         # --- Network (generic netcode only - Game/* is game-side)
         Network/NetManager.cpp
         Network/NetManager.h

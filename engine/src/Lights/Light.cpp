@@ -1,4 +1,4 @@
-#include "Light.h"
+#include <snake3d/Lights/Light.h>
 
 namespace Lights {
     glm::vec3 Light::getAmbient() const {

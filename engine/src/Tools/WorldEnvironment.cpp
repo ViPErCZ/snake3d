@@ -1,4 +1,4 @@
-#include "WorldEnvironment.h"
+#include <snake3d/Tools/WorldEnvironment.h>
 
 namespace Tools {
     std::shared_ptr<Environment> WorldEnvironment::getEnvironment() const {

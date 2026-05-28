@@ -3,10 +3,10 @@
 
 #include <unordered_map>
 
-#include "Blending.h"
-#include "Capabilities.h"
-#include "BlendFactor.h"
-#include "DepthFunc.h"
+#include <snake3d/Tools/Blending.h>
+#include <snake3d/Tools/Capabilities.h>
+#include <snake3d/Tools/BlendFactor.h>
+#include <snake3d/Tools/DepthFunc.h>
 
 namespace Tools {
     class ContextState {

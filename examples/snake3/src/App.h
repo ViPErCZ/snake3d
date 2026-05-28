@@ -8,8 +8,8 @@
 #include "Manager/LevelManager.h"
 #include "Manager/Camera.h"
 #include "Manager/ShaderRegistry.h"
-#include "Tools/Environment.h"
-#include "Tools/BuildSettings.h"
+#include <snake3d/Tools/Environment.h>
+#include <snake3d/Tools/BuildSettings.h>
 #include "Scenes/MainScene.h"
 #include "Scenes/PreloaderScene.h"
 #include "Handler/Debug/ImGuiOverlay.h"

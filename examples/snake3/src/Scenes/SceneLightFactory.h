@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "Lights/PointLight.h"
-#include "Lights/SpotLight.h"
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
 
 namespace Scenes {
     struct SceneLights {

@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "App.h"
 #include "Renderer/Opengl/RenderStats.h"
-#include "Tools/BuildSettings.h"
+#include <snake3d/Tools/BuildSettings.h>
 #include <chrono>
 #include <iostream>
 

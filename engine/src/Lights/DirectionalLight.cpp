@@ -1,4 +1,4 @@
-#include "DirectionalLight.h"
+#include <snake3d/Lights/DirectionalLight.h>
 
 using namespace Manager;
 

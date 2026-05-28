@@ -2,7 +2,7 @@
 #define SNAKE3_TIMERUNIFORM_H
 
 #include "../IUniform.h"
-#include "../../../../Tools/Timer.h"
+#include <snake3d/Tools/Timer.h>
 #include <memory>
 
 namespace Uniform {

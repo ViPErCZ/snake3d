@@ -7,7 +7,7 @@
 #include "../Renderer/Opengl/Model/Game/BoltLinesNode2D.h"
 #include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
-#include "Tools/Timer.h"
+#include <snake3d/Tools/Timer.h>
 
 namespace Scenes {
     class BoltScene final : public Scene {

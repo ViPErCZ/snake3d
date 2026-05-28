@@ -1,8 +1,8 @@
 #ifndef SNAKE3_ORIENTABLELIGHT_H
 #define SNAKE3_ORIENTABLELIGHT_H
 
-#include "IOrientable.h"
-#include "Light.h"
+#include <snake3d/Lights/IOrientable.h>
+#include <snake3d/Lights/Light.h>
 
 namespace Lights {
     class OrientableLight : public Light, public IOrientable {

@@ -2,7 +2,7 @@
 #define SNAKE3_ORBITSCENEBASE_H
 
 #include "Renderer/Opengl/Scene/Scene.h"
-#include "Tools/CameraOrbit.h"
+#include <snake3d/Tools/CameraOrbit.h>
 
 namespace Scenes {
     class OrbitSceneBase : public Scene {

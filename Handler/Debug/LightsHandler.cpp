@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "../../Lights/SpotLight.h"
+#include <snake3d/Lights/SpotLight.h>
 #include "../../Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 
 using namespace std;

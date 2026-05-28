@@ -9,7 +9,7 @@
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"
 #include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
-#include "Tools/Layers.h"
+#include <snake3d/Tools/Layers.h>
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
 
 using namespace std;

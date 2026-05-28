@@ -1,7 +1,7 @@
 #ifndef SNAKE3_ANIMLOADER_H
 #define SNAKE3_ANIMLOADER_H
 
-#include "../Tools/AnimItem.h"
+#include <snake3d/Tools/AnimItem.h>
 #include <filesystem>
 #include <memory>
 #include <vector>

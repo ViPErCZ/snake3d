@@ -1,4 +1,4 @@
-#include "../Tools/AnimItem.h"
+#include <snake3d/Tools/AnimItem.h>
 
 using namespace std;
 

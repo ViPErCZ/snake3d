@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "../IUniform.h"
-#include "../../../../Tools/Timer.h"
+#include <snake3d/Tools/Timer.h>
 
 namespace Uniform {
     class FadeOutUniform : public Material::IUniform {

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "../BaseKeydownHandle.h"
-#include "../../Lights/Light.h"
+#include <snake3d/Lights/Light.h>
 #include "../../Manager/Camera.h"
 #include "../../Manager/ResourceManager.h"
 #include "../../Renderer/Opengl/Material/2D/LabelSettings.h"

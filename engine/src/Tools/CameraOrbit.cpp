@@ -1,4 +1,4 @@
-#include "CameraOrbit.h"
+#include <snake3d/Tools/CameraOrbit.h>
 
 #include <algorithm>
 #include <cmath>

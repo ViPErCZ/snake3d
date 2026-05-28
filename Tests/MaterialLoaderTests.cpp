@@ -14,7 +14,7 @@
 #include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Material/Feature/UvTransformFeature.h"
 #include "../Resource/MaterialLoader.h"
-#include "../Tools/Blending.h"
+#include <snake3d/Tools/Blending.h>
 
 using Manager::ResourceManager;
 using Manager::TextureManager;

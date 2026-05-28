@@ -12,7 +12,7 @@
 #include "Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"
 #include "Renderer/Opengl/Model/Standard/2D/MeshNode2D.h"
 #include "Renderer/Opengl/Model/Standard/2D/QuadNode2D.h"
-#include "Tools/ContextState.h"
+#include <snake3d/Tools/ContextState.h>
 
 namespace Scenes {
     class Scene;

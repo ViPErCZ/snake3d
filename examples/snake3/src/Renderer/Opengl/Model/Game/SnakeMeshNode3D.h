@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "Physic/Algorithms/CollisionAlgorithms.h"
-#include "Tools/Timer.h"
+#include <snake3d/Tools/Timer.h>
 #include "Renderer/Opengl/Material/MaterialInstance.h"
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Renderer/Opengl/Material/Feature/LightingFeature.h"

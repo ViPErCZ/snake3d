@@ -1,4 +1,4 @@
-#include "SpotLight.h"
+#include <snake3d/Lights/SpotLight.h>
 
 namespace Lights {
     float SpotLight::getConstant() const {

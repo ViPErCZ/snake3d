@@ -35,9 +35,9 @@ Physically move all engine headers and sources from root-level subdirs (`Manager
 
 - [ ] **Step 3 — Batch 1: move `stdafx.h`**
 
-- [ ] **Step 4 — Batch 2: move `Lights/` (10 files)**
+- [x] **Step 4 — Batch 2: move `Lights/` (10 files)**
 
-- [ ] **Step 5 — Batch 3: move `Tools/` (30 files)**
+- [x] **Step 5 — Batch 3: move `Tools/` (30 files)**
 
 - [ ] **Step 6 — Batch 4: move `Resource/` (14 files)**
 

@@ -2,7 +2,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <GLFW/glfw3.h>
 
-#include "../../../../Tools/ContextState.h"
+#include <snake3d/Tools/ContextState.h>
 #include "../../Material/MaterialInstance.h"
 #include "../../Material/RenderContext.h"
 #include "../../Material/ShaderMaterial.h"

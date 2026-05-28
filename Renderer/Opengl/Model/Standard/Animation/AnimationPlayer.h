@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../../../../Tools/AnimItem.h"
+#include <snake3d/Tools/AnimItem.h>
 #include "../../Utils/Mesh.h"
 #include "../../Utils/Tree.h"
 

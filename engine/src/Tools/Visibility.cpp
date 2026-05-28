@@ -1,4 +1,4 @@
-#include "../Tools/Visibility.h"
+#include <snake3d/Tools/Visibility.h>
 
 namespace Node3D {
     bool Visibility::isVisible() const {

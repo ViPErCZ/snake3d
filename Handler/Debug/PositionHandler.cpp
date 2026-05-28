@@ -1,6 +1,6 @@
 #include "PositionHandler.h"
 
-#include "../../Lights/DirectionalLight.h"
+#include <snake3d/Lights/DirectionalLight.h>
 
 using namespace std;
 using namespace Manager;

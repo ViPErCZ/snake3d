@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "../Tools/Transform.h"
+#include <snake3d/Tools/Transform.h>
 #include "../Manager/Camera.h"
-#include "../Tools/BuildSettings.h"
+#include <snake3d/Tools/BuildSettings.h>
 
 namespace Model {
     class MeshNode3D;

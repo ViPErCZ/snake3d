@@ -1,9 +1,9 @@
 #ifndef SNAKE3_DIRECTIONALLIGHT_H
 #define SNAKE3_DIRECTIONALLIGHT_H
 
-#include "OrientableLight.h"
-#include "../Tools/Transform.h"
-#include "../Manager/ShaderProgram.h"
+#include <snake3d/Lights/OrientableLight.h>
+#include <snake3d/Tools/Transform.h>
+#include "Manager/ShaderProgram.h"
 
 namespace Lights {
     class DirectionalLight : public OrientableLight {

@@ -4,15 +4,15 @@
 #include <memory>
 
 #include "StandardMesh.h"
-#include "../../../../Tools/Named.h"
-#include "../../../../Tools/Vector3i.h"
-#include "../../../../Tools/Tagged.h"
-#include "../../../../Tools/Visibility.h"
+#include <snake3d/Tools/Named.h>
+#include <snake3d/Tools/Vector3i.h>
+#include <snake3d/Tools/Tagged.h>
+#include <snake3d/Tools/Visibility.h>
 #include "../../../../Manager/ResourceManager.h"
-#include "../../../../Lights/DirectionalLight.h"
-#include "../../../../Lights/PointLight.h"
-#include "../../../../Lights/SpotLight.h"
-#include "../../../../Tools/ContextState.h"
+#include <snake3d/Lights/DirectionalLight.h>
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
+#include <snake3d/Tools/ContextState.h>
 
 namespace CollisionShape {
     class CollisionShape3D;

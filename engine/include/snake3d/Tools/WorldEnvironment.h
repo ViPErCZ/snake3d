@@ -2,7 +2,7 @@
 #define SNAKE3_WORLDENVIRONMENT_H
 
 #include <memory>
-#include "Environment.h"
+#include <snake3d/Tools/Environment.h>
 
 namespace Tools {
     class WorldEnvironment {

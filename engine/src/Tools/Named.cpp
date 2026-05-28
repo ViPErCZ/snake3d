@@ -1,4 +1,4 @@
-#include "../Tools/Named.h"
+#include <snake3d/Tools/Named.h>
 
 using namespace std;
 

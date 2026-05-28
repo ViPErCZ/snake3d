@@ -1,8 +1,8 @@
 #ifndef SNAKE3_POINTLIGHT_H
 #define SNAKE3_POINTLIGHT_H
 
-#include "Light.h"
-#include "../Tools/Visibility.h"
+#include <snake3d/Lights/Light.h>
+#include <snake3d/Tools/Visibility.h>
 
 namespace Lights {
     // D1.1d: bind(ShaderProgram*, int) removed -- point lights are now

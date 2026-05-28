@@ -1,7 +1,7 @@
 #ifndef SNAKE3_ENVIRONMENT_H
 #define SNAKE3_ENVIRONMENT_H
 
-#include "Clear.h"
+#include <snake3d/Tools/Clear.h>
 #include <glm/vec3.hpp>
 
 namespace Tools {

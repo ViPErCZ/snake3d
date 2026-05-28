@@ -11,7 +11,7 @@
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "Renderer/Opengl/Model/Standard/AnimationArrayMesh.h"
-#include "Tools/Layers.h"
+#include <snake3d/Tools/Layers.h>
 
 using namespace std;
 using namespace Handler;

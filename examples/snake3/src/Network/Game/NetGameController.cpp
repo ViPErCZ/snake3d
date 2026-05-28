@@ -7,7 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Network/NetDispatcher.h"
-#include "Tools/BuildSettings.h"
+#include <snake3d/Tools/BuildSettings.h>
 
 namespace Net {
     NetGameController::NetGameController()

@@ -1,8 +1,8 @@
 #ifndef SNAKE3_SPOTLIGHT_H
 #define SNAKE3_SPOTLIGHT_H
 
-#include "OrientableLight.h"
-#include "../Tools/Visibility.h"
+#include <snake3d/Lights/OrientableLight.h>
+#include <snake3d/Tools/Visibility.h>
 
 namespace Lights {
     // D1.1d: bind(ShaderProgram*, int) removed -- spot lights are now

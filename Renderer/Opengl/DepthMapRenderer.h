@@ -4,7 +4,7 @@
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/ShaderProgram.h"
 #include "../../Manager/Camera.h"
-#include "../../Lights/DirectionalLight.h"
+#include <snake3d/Lights/DirectionalLight.h>
 
 namespace Renderer {
     constexpr int SHADOW_WIDTH = 4096;

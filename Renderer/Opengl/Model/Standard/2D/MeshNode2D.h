@@ -5,11 +5,11 @@
 #include <memory>
 
 #include "BaseNode2D.h"
-#include "../../../../../Tools/Vector3i.h"
-#include "../../../../../Tools/Visibility.h"
+#include <snake3d/Tools/Vector3i.h>
+#include <snake3d/Tools/Visibility.h>
 #include "../../../../../Manager/Camera.h"
 #include "../../../../../Manager/ResourceManager.h"
-#include "../../../../../Tools/ContextState.h"
+#include <snake3d/Tools/ContextState.h>
 
 namespace Model {
     using std::shared_ptr;

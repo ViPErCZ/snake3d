@@ -12,13 +12,13 @@
 #include "PositionHandler.h"
 #include "RotationHandler.h"
 #include "ScaleHandler.h"
-#include "../../Lights/Light.h"
+#include <snake3d/Lights/Light.h>
 #include "../../Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 #include "../../Renderer/Opengl/Scene/Scene.h"
-#include "../../Lights/DirectionalLight.h"
-#include "../../Lights/OrientableLight.h"
-#include "../../Lights/PointLight.h"
-#include "../../Lights/SpotLight.h"
+#include <snake3d/Lights/DirectionalLight.h>
+#include <snake3d/Lights/OrientableLight.h>
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
 #include "../../Manager/Camera.h"
 #include "../../Manager/RenderManager.h"
 #include "../../Manager/ResourceManager.h"
@@ -26,7 +26,7 @@
 #include "../../Physic/CollisionSystem3D.h"
 #include "../../Physic/Dynamics/DynamicBody.h"
 #include "../../Renderer/Opengl/RenderStats.h"
-#include "../../Tools/Transform.h"
+#include <snake3d/Tools/Transform.h>
 
 #include <glm/geometric.hpp>
 #include <iomanip>

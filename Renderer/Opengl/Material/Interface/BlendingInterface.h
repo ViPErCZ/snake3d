@@ -1,7 +1,7 @@
 #ifndef SNAKE3_INTERFACE_BLENDING_H
 #define SNAKE3_INTERFACE_BLENDING_H
 
-#include "../../../../Tools/Blending.h"
+#include <snake3d/Tools/Blending.h>
 
 namespace Material {
     class BlendingInterface {

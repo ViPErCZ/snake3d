@@ -8,7 +8,7 @@
 #include "Renderer/Opengl/Material/Feature/NormalMapFeature.h"
 #include "Renderer/Opengl/Material/Feature/PbrFeature.h"
 #include "Renderer/Opengl/Model/Standard/ArrayMesh.h"
-#include "Tools/Layers.h"
+#include <snake3d/Tools/Layers.h>
 
 using namespace std;
 using namespace Animation;

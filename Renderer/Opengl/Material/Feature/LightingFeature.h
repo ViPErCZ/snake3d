@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "IMaterialFeature.h"
-#include "../../../../Lights/DirectionalLight.h"
-#include "../../../../Lights/PointLight.h"
-#include "../../../../Lights/SpotLight.h"
+#include <snake3d/Lights/DirectionalLight.h>
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
 
 namespace Feature {
     // Slunce + bodová + spotová světla v jedné feature. Bind iteruje

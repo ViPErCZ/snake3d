@@ -8,7 +8,7 @@
 #include "Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "Renderer/Opengl/Model/Standard/BoxMesh.h"
-#include "Tools/Layers.h"
+#include <snake3d/Tools/Layers.h>
 
 using namespace std;
 using namespace Manager;

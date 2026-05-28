@@ -3,7 +3,7 @@
 
 #include <glm/vec3.hpp>
 
-#include "../Tools/Transform.h"
+#include <snake3d/Tools/Transform.h>
 
 namespace Lights {
     class Light : public Node3D::Transform {

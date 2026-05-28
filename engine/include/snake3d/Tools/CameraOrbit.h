@@ -4,7 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "../Manager/Camera.h"
+#include "Manager/Camera.h"
 
 namespace Tools {
     class CameraOrbit {
