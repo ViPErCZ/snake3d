@@ -12,7 +12,7 @@
 #include "WinnerScene.h"
 #include "MainMenuScene.h"
 #include "../Manager/EatManager.h"
-#include "Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 #include "Renderer/Opengl/Material/MaterialInstance.h"
 #include "Renderer/Opengl/Material/Feature/HoleMapFeature.h"
 #include "Renderer/Opengl/Material/Feature/PlanarReflectionFeature.h"

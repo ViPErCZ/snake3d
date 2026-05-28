@@ -5,8 +5,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "BaseRenderer.h"
-#include "../../Manager/ResourceManager.h"
-#include "../../Manager/Camera.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/Camera.h>
 #include "Scene/SceneRenderer.h"
 
 namespace Manager {

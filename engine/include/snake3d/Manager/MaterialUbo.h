@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "UniformBuffer.h"
+#include <snake3d/Manager/UniformBuffer.h>
 
 namespace Manager {
 

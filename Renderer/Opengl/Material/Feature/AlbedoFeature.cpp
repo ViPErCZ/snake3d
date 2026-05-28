@@ -1,7 +1,7 @@
 #include "AlbedoFeature.h"
 
 #include "../TextureSlots.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     AlbedoFeature::AlbedoFeature(std::shared_ptr<Manager::TextureManager> albedo)

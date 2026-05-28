@@ -13,9 +13,9 @@
 #include <snake3d/Lights/DirectionalLight.h>
 #include <snake3d/Lights/PointLight.h>
 #include <snake3d/Lights/SpotLight.h>
-#include "../../../Manager/MaterialUbo.h"
-#include "../../../Manager/ShaderProgram.h"
-#include "../../../Manager/TextureManager.h"
+#include <snake3d/Manager/MaterialUbo.h>
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Material {
 

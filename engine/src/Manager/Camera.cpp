@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include <snake3d/Manager/Camera.h>
 
 #include <memory>
 

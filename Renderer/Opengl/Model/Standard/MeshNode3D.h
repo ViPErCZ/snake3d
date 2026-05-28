@@ -8,7 +8,7 @@
 #include <snake3d/Tools/Vector3i.h>
 #include <snake3d/Tools/Tagged.h>
 #include <snake3d/Tools/Visibility.h>
-#include "../../../../Manager/ResourceManager.h"
+#include <snake3d/Manager/ResourceManager.h>
 #include <snake3d/Lights/DirectionalLight.h>
 #include <snake3d/Lights/PointLight.h>
 #include <snake3d/Lights/SpotLight.h>

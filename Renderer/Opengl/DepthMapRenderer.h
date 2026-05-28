@@ -1,9 +1,9 @@
 #ifndef SNAKE3_DEPTHMAPRENDERER_H
 #define SNAKE3_DEPTHMAPRENDERER_H
 
-#include "../../Manager/ResourceManager.h"
-#include "../../Manager/ShaderProgram.h"
-#include "../../Manager/Camera.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/Camera.h>
 #include <snake3d/Lights/DirectionalLight.h>
 
 namespace Renderer {

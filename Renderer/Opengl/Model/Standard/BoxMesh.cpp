@@ -1,4 +1,4 @@
-#include "../../../../Manager/VboIndexer.h"
+#include <snake3d/Manager/VboIndexer.h>
 #include "BoxMesh.h"
 
 #include <utility>

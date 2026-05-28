@@ -9,7 +9,7 @@
 #include <snake3d/Handler/Debug/RotationHandler.h>
 #include <snake3d/Handler/Debug/ScaleHandler.h>
 #include <snake3d/Handler/BaseKeydownHandle.h>
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 
 namespace Handler::Debug {
         class ManipulatorHandler final : public BaseKeydownHandle {

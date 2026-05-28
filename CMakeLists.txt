@@ -85,34 +85,34 @@ target_link_libraries(imgui PUBLIC glfw GL)
 
 set(ENGINE_SOURCES
         # --- Manager (engine-side, excl. LevelManager/EatManager which are game)
-        Manager/ResourceManager.cpp
-        Manager/ResourceManager.h
-        Manager/RenderManager.cpp
-        Manager/RenderManager.h
-        Manager/KeyboardManager.cpp
-        Manager/KeyboardManager.h
-        Manager/ShaderProgram.cpp
-        Manager/ShaderProgram.h
-        Manager/ShaderRegistry.cpp
-        Manager/ShaderRegistry.h
-        Manager/ShaderFeature.h
-        Manager/MaterialPlaceholder.cpp
-        Manager/MaterialPlaceholder.h
-        Manager/VboIndexer.cpp
-        Manager/VboIndexer.h
-        Manager/Camera.cpp
-        Manager/Camera.h
-        Manager/TextureManager.cpp
-        Manager/TextureManager.h
-        Manager/SoundManager.cpp
-        Manager/SoundManager.h
-        Manager/UboBindings.h
-        Manager/UniformBuffer.cpp
-        Manager/UniformBuffer.h
-        Manager/FrameUbo.cpp
-        Manager/FrameUbo.h
-        Manager/MaterialUbo.cpp
-        Manager/MaterialUbo.h
+        engine/src/Manager/ResourceManager.cpp
+        engine/include/snake3d/Manager/ResourceManager.h
+        engine/src/Manager/RenderManager.cpp
+        engine/include/snake3d/Manager/RenderManager.h
+        engine/src/Manager/KeyboardManager.cpp
+        engine/include/snake3d/Manager/KeyboardManager.h
+        engine/src/Manager/ShaderProgram.cpp
+        engine/include/snake3d/Manager/ShaderProgram.h
+        engine/src/Manager/ShaderRegistry.cpp
+        engine/include/snake3d/Manager/ShaderRegistry.h
+        engine/include/snake3d/Manager/ShaderFeature.h
+        engine/src/Manager/MaterialPlaceholder.cpp
+        engine/include/snake3d/Manager/MaterialPlaceholder.h
+        engine/src/Manager/VboIndexer.cpp
+        engine/include/snake3d/Manager/VboIndexer.h
+        engine/src/Manager/Camera.cpp
+        engine/include/snake3d/Manager/Camera.h
+        engine/src/Manager/TextureManager.cpp
+        engine/include/snake3d/Manager/TextureManager.h
+        engine/src/Manager/SoundManager.cpp
+        engine/include/snake3d/Manager/SoundManager.h
+        engine/include/snake3d/Manager/UboBindings.h
+        engine/src/Manager/UniformBuffer.cpp
+        engine/include/snake3d/Manager/UniformBuffer.h
+        engine/src/Manager/FrameUbo.cpp
+        engine/include/snake3d/Manager/FrameUbo.h
+        engine/src/Manager/MaterialUbo.cpp
+        engine/include/snake3d/Manager/MaterialUbo.h
         # --- Renderer / OpenGL
         Renderer/Opengl/BaseRenderer.cpp
         Renderer/Opengl/BaseRenderer.h

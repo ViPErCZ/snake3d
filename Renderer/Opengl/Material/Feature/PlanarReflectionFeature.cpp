@@ -1,7 +1,7 @@
 #include "PlanarReflectionFeature.h"
 
 #include "../TextureSlots.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     PlanarReflectionFeature::PlanarReflectionFeature(std::shared_ptr<Manager::TextureManager> reflection,

@@ -19,10 +19,10 @@
 #include <snake3d/Lights/OrientableLight.h>
 #include <snake3d/Lights/PointLight.h>
 #include <snake3d/Lights/SpotLight.h>
-#include "Manager/Camera.h"
-#include "Manager/RenderManager.h"
-#include "Manager/ResourceManager.h"
-#include "Manager/ShaderRegistry.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/RenderManager.h>
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/ShaderRegistry.h>
 #include <snake3d/Physic/CollisionSystem3D.h>
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
 #include "Renderer/Opengl/RenderStats.h"

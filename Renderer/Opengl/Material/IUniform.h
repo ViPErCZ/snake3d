@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-#include "../../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/ShaderProgram.h>
 
 namespace Material {
     class IUniform {

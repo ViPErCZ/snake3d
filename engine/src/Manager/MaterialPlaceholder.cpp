@@ -1,4 +1,4 @@
-#include "MaterialPlaceholder.h"
+#include <snake3d/Manager/MaterialPlaceholder.h>
 
 namespace Manager {
     bool isKnownMaterialPlaceholder(const std::string_view marker) {

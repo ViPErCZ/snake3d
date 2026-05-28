@@ -7,8 +7,8 @@
 
 #include "Feature/IMaterialFeature.h"
 #include "MaterialInstance.h"
-#include "../../../Manager/ShaderFeature.h"
-#include "../../../Manager/ShaderRegistry.h"
+#include <snake3d/Manager/ShaderFeature.h>
+#include <snake3d/Manager/ShaderRegistry.h>
 
 namespace Material {
     // Fluent API pro sestavení MaterialInstance z features.

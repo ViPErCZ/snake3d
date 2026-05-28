@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ShaderFeature.h"
-#include "ShaderProgram.h"
+#include <snake3d/Manager/ShaderFeature.h>
+#include <snake3d/Manager/ShaderProgram.h>
 
 namespace fs = std::filesystem;
 

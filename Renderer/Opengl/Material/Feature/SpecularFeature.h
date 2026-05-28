@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Specular highlight map - binduje na slot 2 a aktivuje specularMapEnabled.

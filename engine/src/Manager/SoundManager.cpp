@@ -1,4 +1,4 @@
-#include "SoundManager.h"
+#include <snake3d/Manager/SoundManager.h>
 
 #include <AL/alc.h>
 #include <AL/alut.h>

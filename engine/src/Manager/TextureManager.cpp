@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include "TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 #include <snake3d/Resource/TextureLoader.h>
 

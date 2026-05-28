@@ -11,7 +11,7 @@
 #include "../Renderer/Opengl/Material/Feature/ShadowFeature.h"
 #include "../Renderer/Opengl/Material/Feature/SpecularFeature.h"
 #include "../Renderer/Opengl/Material/Feature/UvTransformFeature.h"
-#include "../Manager/ShaderFeature.h"
+#include <snake3d/Manager/ShaderFeature.h>
 
 using Manager::ShaderFeature;
 using Manager::ShaderFeatureMask;

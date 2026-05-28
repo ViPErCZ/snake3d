@@ -4,8 +4,8 @@
 #include <vector>
 #include <snake3d/Handler/BaseKeydownHandle.h>
 #include <snake3d/Lights/Light.h>
-#include "Manager/Camera.h"
-#include "Manager/ResourceManager.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/ResourceManager.h>
 #include "Renderer/Opengl/Material/2D/LabelSettings.h"
 #include "Renderer/Opengl/Model/Debug/DirectionalLightNode3D.h"
 #include "Renderer/Opengl/Model/Standard/2D/LabelNode2D.h"

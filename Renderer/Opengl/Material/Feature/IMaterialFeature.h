@@ -5,9 +5,9 @@
 #include <memory>
 #include <string>
 
-#include "../../../../Manager/MaterialPlaceholder.h"
-#include "../../../../Manager/ShaderFeature.h"
-#include "../../../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/MaterialPlaceholder.h>
+#include <snake3d/Manager/ShaderFeature.h>
+#include <snake3d/Manager/ShaderProgram.h>
 #include "../RenderContext.h"
 
 namespace Feature {

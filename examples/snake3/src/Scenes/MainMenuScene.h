@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "OrbitSceneBase.h"
-#include "Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 #include "Renderer/Opengl/Material/2D/LabelSettings.h"
 #include "Renderer/Opengl/Material/Particle/ParticleProcessMaterial.h"
 #include "Renderer/Opengl/Material/ShaderMaterial.h"

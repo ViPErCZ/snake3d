@@ -3,7 +3,7 @@
 
 #include <snake3d/Lights/OrientableLight.h>
 #include <snake3d/Tools/Transform.h>
-#include "Manager/ShaderProgram.h"
+#include <snake3d/Manager/ShaderProgram.h>
 
 namespace Lights {
     class DirectionalLight : public OrientableLight {

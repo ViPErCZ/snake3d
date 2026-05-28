@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Planar reflection (mirror surface) - binduje pre-rendered reflection

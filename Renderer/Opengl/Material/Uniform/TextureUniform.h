@@ -2,7 +2,7 @@
 #define SNAKE3_TEXTUREUNIFORM_H
 
 #include "../IUniform.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Uniform {
     class TextureUniform final : public Material::IUniform {

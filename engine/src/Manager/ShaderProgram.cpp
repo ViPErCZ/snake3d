@@ -1,9 +1,9 @@
-#include "ShaderProgram.h"
+#include <snake3d/Manager/ShaderProgram.h>
 
 #include <iostream>
 
-#include "UboBindings.h"
-#include "../Renderer/Opengl/RenderStats.h"
+#include <snake3d/Manager/UboBindings.h>
+#include "Renderer/Opengl/RenderStats.h"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "FrameUbo.h"
+#include <snake3d/Manager/FrameUbo.h>
 
 namespace Manager {
 

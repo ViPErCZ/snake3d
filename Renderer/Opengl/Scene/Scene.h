@@ -7,10 +7,10 @@
 #include <vector>
 #include "SceneRenderer.h"
 #include <snake3d/Handler/Debug/ManipulatorHandler.h>
-#include "../../../Manager/KeyboardManager.h"
-#include "../../../Manager/RenderManager.h"
-#include "../../../Manager/ResourceManager.h"
-#include "../../../Manager/SoundManager.h"
+#include <snake3d/Manager/KeyboardManager.h>
+#include <snake3d/Manager/RenderManager.h>
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/SoundManager.h>
 #include <snake3d/Physic/CollisionSystem3D.h>
 #include <snake3d/Tools/BuildSettings.h>
 #include <snake3d/Tools/Environment.h>

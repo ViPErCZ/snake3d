@@ -6,7 +6,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Manager/ResourceManager.h"
+#include <snake3d/Manager/ResourceManager.h>
 #include "Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "Renderer/Opengl/Material/Feature/BonesFeature.h"
 #include "Renderer/Opengl/Material/Feature/IblFeature.h"

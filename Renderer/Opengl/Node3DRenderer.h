@@ -4,8 +4,8 @@
 #include <memory>
 #include "BaseRenderer.h"
 #include "Model/Standard/StandardMesh.h"
-#include "../../Manager/ResourceManager.h"
-#include "../../Manager/Camera.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/Camera.h>
 #include "Model/Standard/MeshNode3D.h"
 
 namespace Renderer {

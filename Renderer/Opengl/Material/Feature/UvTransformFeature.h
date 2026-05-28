@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
         class UvTransformFeature final : public IMaterialFeature {

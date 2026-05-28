@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <snake3d/Tools/Transform.h>
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include <snake3d/Tools/BuildSettings.h>
 
 namespace Model {

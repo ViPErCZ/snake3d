@@ -5,7 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "../Model/Standard/StandardMesh.h"
-#include "../../../Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include "../BaseRenderer.h"
 #include "../Node2DRenderer.h"
 #include "../Node3DRenderer.h"

@@ -7,8 +7,8 @@
 #include "BaseMaterial.h"
 #include "Feature/IMaterialFeature.h"
 #include "RenderContext.h"
-#include "../../../Manager/MaterialUbo.h"
-#include "../../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/MaterialUbo.h>
+#include <snake3d/Manager/ShaderProgram.h>
 
 namespace Material {
     // Materiál sestavený z features přes MaterialBuilder. Drží konkrétní

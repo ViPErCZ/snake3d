@@ -2,7 +2,7 @@
 
 #include <utility>
 #include <iostream>
-#include "../../../../../Manager/VboIndexer.h"
+#include <snake3d/Manager/VboIndexer.h>
 #include "../../../Material/ShaderMaterial.h"
 #include "../../Utils/TextMesh.h"
 

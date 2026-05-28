@@ -1,7 +1,7 @@
 #include "HoleMapFeature.h"
 
 #include "../TextureSlots.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     HoleMapFeature::HoleMapFeature(std::shared_ptr<Manager::TextureManager> holeMap)

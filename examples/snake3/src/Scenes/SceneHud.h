@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "Manager/ResourceManager.h"
+#include <snake3d/Manager/ResourceManager.h>
 #include "Renderer/Opengl/Material/ShaderMaterial.h"
 #include "Renderer/Opengl/Material/Uniform/FadeInUniform.h"
 #include "Renderer/Opengl/Material/Uniform/FadeOutUniform.h"

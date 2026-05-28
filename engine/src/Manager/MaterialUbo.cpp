@@ -1,6 +1,6 @@
-#include "MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
-#include "UboBindings.h"
+#include <snake3d/Manager/UboBindings.h>
 
 namespace Manager {
 

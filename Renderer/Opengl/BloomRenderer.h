@@ -1,8 +1,8 @@
 #ifndef SNAKE3_BLOOMRENDERER_H
 #define SNAKE3_BLOOMRENDERER_H
 
-#include "../../Manager/ResourceManager.h"
-#include "../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/ShaderProgram.h>
 #include "BaseRenderer.h"
 
 namespace Renderer {

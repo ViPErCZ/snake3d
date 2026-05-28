@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <memory>
 #include <condition_variable>
-#include "Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 #include "Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h"
 
 namespace Resource {

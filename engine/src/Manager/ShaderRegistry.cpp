@@ -1,4 +1,4 @@
-#include "ShaderRegistry.h"
+#include <snake3d/Manager/ShaderRegistry.h>
 
 #include <filesystem>
 #include <iostream>

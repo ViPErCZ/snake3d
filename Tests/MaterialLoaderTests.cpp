@@ -4,8 +4,8 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../Manager/ResourceManager.h"
-#include "../Manager/TextureManager.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/TextureManager.h>
 #include "../Renderer/Opengl/Material/Feature/AlbedoFeature.h"
 #include "../Renderer/Opengl/Material/Feature/BonesFeature.h"
 #include "../Renderer/Opengl/Material/Feature/IblFeature.h"

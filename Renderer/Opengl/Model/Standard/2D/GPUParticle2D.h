@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "../../../../../Manager/ResourceManager.h"
+#include <snake3d/Manager/ResourceManager.h>
 #include "MeshNode2D.h"
 #include "../../../Material/Particle/ParticleProcessMaterial.h"
 

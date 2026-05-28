@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Tangent-space normal map. Binduje texture na slot 1 (alias material.diffuse

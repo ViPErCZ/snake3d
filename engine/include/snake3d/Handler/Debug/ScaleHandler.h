@@ -3,7 +3,7 @@
 
 #include <snake3d/Handler/Debug/BaseTransform.h>
 #include <snake3d/Handler/BaseKeydownHandle.h>
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include "Renderer/Opengl/Model/Standard/MeshNode3D.h"
 
 namespace Handler::Debug {

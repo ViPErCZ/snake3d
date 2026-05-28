@@ -1,6 +1,6 @@
 #include "ParticleProcessMaterial.h"
 
-#include "../../../../Manager/UboBindings.h"
+#include <snake3d/Manager/UboBindings.h>
 
 using namespace std;
 using namespace Manager;

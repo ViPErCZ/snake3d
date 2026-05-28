@@ -4,9 +4,9 @@
 #include <memory>
 #include "../Utils/Mesh.h"
 #include "../../Material/BaseMaterial.h"
-#include "../../../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/ShaderProgram.h>
 #include <snake3d/Tools/DrawElement.h>
-#include "../../../../Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include "Animation/AnimationPlayer.h"
 
 namespace Model {

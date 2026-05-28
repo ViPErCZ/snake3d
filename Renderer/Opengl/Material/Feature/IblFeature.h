@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Image-based lighting: environment cubemap (slot 6) drives diffuse

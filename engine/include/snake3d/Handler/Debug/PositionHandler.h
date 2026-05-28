@@ -2,7 +2,7 @@
 #define POSITIONHANDLER_H
 
 #include <snake3d/Handler/Debug/BaseTransform.h>
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include <snake3d/Handler/BaseKeydownHandle.h>
 
 namespace Handler::Debug {

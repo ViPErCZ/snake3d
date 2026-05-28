@@ -2,7 +2,7 @@
 
 #include <glm/gtc/constants.hpp>
 
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     LightingFeature::LightingFeature(std::shared_ptr<Lights::DirectionalLight> directional,

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "Manager/MaterialPlaceholder.h"
+#include <snake3d/Manager/MaterialPlaceholder.h>
 
 namespace Resource {
     namespace {

@@ -4,7 +4,7 @@
 #include "../Renderer/Opengl/Material/Feature/HoleMapFeature.h"
 #include "../Renderer/Opengl/Material/MaterialBuilder.h"
 #include "../Renderer/Opengl/Material/TextureSlots.h"
-#include "../Manager/ShaderFeature.h"
+#include <snake3d/Manager/ShaderFeature.h>
 
 using Feature::HoleMapFeature;
 using Feature::IMaterialFeature;

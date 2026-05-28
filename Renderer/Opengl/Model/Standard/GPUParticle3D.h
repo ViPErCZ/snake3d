@@ -5,8 +5,8 @@
 #include <glm/vec3.hpp>
 
 #include "MeshNode3D.h"
-#include "../../../../Manager/Camera.h"
-#include "../../../../Manager/ResourceManager.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/ResourceManager.h>
 #include "../../Material/Particle/ParticleProcessMaterial.h"
 
 namespace Model {

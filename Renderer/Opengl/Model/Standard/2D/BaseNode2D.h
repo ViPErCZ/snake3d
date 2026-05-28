@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "../../../../../Manager/Camera.h"
-#include "../../../../../Manager/ShaderProgram.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/ShaderProgram.h>
 #include "../../../Material/BaseMaterial.h"
 #include "../../Utils/Mesh2D.h"
 

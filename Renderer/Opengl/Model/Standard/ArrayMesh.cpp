@@ -1,5 +1,5 @@
 #include "ArrayMesh.h"
-#include "../../../../Manager/VboIndexer.h"
+#include <snake3d/Manager/VboIndexer.h>
 
 using namespace Manager;
 using namespace ModelUtils;

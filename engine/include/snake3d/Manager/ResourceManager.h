@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <memory>
 #include <queue>
-#include "TextureManager.h"
-#include "ShaderProgram.h"
-#include "ShaderRegistry.h"
-#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
+#include <snake3d/Manager/TextureManager.h>
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/ShaderRegistry.h>
+#include "Renderer/Opengl/Material/Feature/FogFeature.h"
 #include <snake3d/Resource/ResourceLoader.h>
 
 // Forward-declare so callsites can use ResourceManager::loadMaterial without

@@ -7,7 +7,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
-#include "../../../../Manager/ResourceManager.h"
+#include <snake3d/Manager/ResourceManager.h>
 
 namespace Material {
     using std::shared_ptr;

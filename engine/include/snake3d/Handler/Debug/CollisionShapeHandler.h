@@ -2,7 +2,7 @@
 #define SNAKE3_COLLISIONSHAPEHANDLER_H
 
 #include <snake3d/Handler/BaseKeydownHandle.h>
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 #include "Renderer/Opengl/Model/Collision/CollisionShape3D.h"
 
 // Collision shape size manipulation

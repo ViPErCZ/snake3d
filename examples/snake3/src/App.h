@@ -1,13 +1,13 @@
 #ifndef SNAKE3_APP_H
 #define SNAKE3_APP_H
 
-#include "Manager/ResourceManager.h"
-#include "Manager/RenderManager.h"
-#include "Manager/KeyboardManager.h"
+#include <snake3d/Manager/ResourceManager.h>
+#include <snake3d/Manager/RenderManager.h>
+#include <snake3d/Manager/KeyboardManager.h>
 #include "Manager/EatManager.h"
 #include "Manager/LevelManager.h"
-#include "Manager/Camera.h"
-#include "Manager/ShaderRegistry.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/ShaderRegistry.h>
 #include <snake3d/Tools/Environment.h>
 #include <snake3d/Tools/BuildSettings.h>
 #include "Scenes/MainScene.h"

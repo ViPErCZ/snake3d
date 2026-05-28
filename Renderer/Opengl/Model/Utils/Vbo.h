@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace ModelUtils {
 

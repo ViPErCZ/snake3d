@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "BaseNode2D.h"
-#include "../../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Model {
     using std::shared_ptr;

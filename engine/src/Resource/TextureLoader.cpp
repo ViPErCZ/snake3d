@@ -6,7 +6,7 @@
 #include <iostream>
 #include <GL/glew.h>
 
-#include "Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 #include "Thirdparty/stbimage/stb_image.h"
 
 using namespace std;

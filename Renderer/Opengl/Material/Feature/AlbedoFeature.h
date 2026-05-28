@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Baseline material color state: albedo texture (slot 0 = material.ambient),

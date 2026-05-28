@@ -2,7 +2,7 @@
 #define SNAKE3_FOGFEATURE_H
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     // Toggle fog blending. Shader (basic.fs s FEATURE_FOG) v

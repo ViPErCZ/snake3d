@@ -1,4 +1,4 @@
-#include "KeyboardManager.h"
+#include <snake3d/Manager/KeyboardManager.h>
 
 using namespace std;
 using namespace Handler;

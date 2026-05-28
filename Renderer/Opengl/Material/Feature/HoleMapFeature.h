@@ -2,7 +2,7 @@
 #define SNAKE3_HOLEMAPFEATURE_H
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // Hole map discard. Drží greyscale texturu (1 = díra → discard), binduje

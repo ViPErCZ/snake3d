@@ -1,7 +1,7 @@
 #include "SpecularFeature.h"
 
 #include "../TextureSlots.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     SpecularFeature::SpecularFeature(std::shared_ptr<Manager::TextureManager> specular,

@@ -3,8 +3,8 @@
 
 #include <glm/glm.hpp>
 
-#include "UboBindings.h"
-#include "UniformBuffer.h"
+#include <snake3d/Manager/UboBindings.h>
+#include <snake3d/Manager/UniformBuffer.h>
 
 namespace Manager {
 

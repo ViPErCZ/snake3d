@@ -1,7 +1,7 @@
 #include "NormalMapFeature.h"
 
 #include "../TextureSlots.h"
-#include "../../../../Manager/MaterialUbo.h"
+#include <snake3d/Manager/MaterialUbo.h>
 
 namespace Feature {
     NormalMapFeature::NormalMapFeature(std::shared_ptr<Manager::TextureManager> normal)

@@ -1,4 +1,4 @@
-#include "VboIndexer.h"
+#include <snake3d/Manager/VboIndexer.h>
 
 using namespace std;
 

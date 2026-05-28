@@ -4,7 +4,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "Manager/Camera.h"
+#include <snake3d/Manager/Camera.h>
 
 namespace Tools {
     class CameraOrbit {

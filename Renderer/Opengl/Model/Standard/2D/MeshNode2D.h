@@ -7,8 +7,8 @@
 #include "BaseNode2D.h"
 #include <snake3d/Tools/Vector3i.h>
 #include <snake3d/Tools/Visibility.h>
-#include "../../../../../Manager/Camera.h"
-#include "../../../../../Manager/ResourceManager.h"
+#include <snake3d/Manager/Camera.h>
+#include <snake3d/Manager/ResourceManager.h>
 #include <snake3d/Tools/ContextState.h>
 
 namespace Model {

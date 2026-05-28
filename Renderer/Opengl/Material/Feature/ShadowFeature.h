@@ -6,8 +6,8 @@
 #include <glm/glm.hpp>
 
 #include "IMaterialFeature.h"
-#include "../../../../Manager/ShaderProgram.h"
-#include "../../../../Manager/TextureManager.h"
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/TextureManager.h>
 
 namespace Feature {
     // CSM shadow array sampling. Drží sampler2DArray na slot 3 a shadowDepth

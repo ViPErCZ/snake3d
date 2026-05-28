@@ -1,5 +1,5 @@
 #include "PlanarReflectionRenderer.h"
-#include "../../Manager/RenderManager.h"
+#include <snake3d/Manager/RenderManager.h>
 #include <GL/glew.h>
 #include <iostream>
 #include "Model/Standard/PlaneMesh.h"

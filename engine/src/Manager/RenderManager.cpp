@@ -1,9 +1,9 @@
-#include "RenderManager.h"
+#include <snake3d/Manager/RenderManager.h>
 #include <algorithm>
 #include <chrono>
 
-#include "../Renderer/Opengl/Material/Feature/FogFeature.h"
-#include "../Renderer/Opengl/RenderStats.h"
+#include "Renderer/Opengl/Material/Feature/FogFeature.h"
+#include "Renderer/Opengl/RenderStats.h"
 
 using namespace std;
 using namespace Renderer;
