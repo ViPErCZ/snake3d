@@ -4,6 +4,7 @@
 #include <iostream>
 #include <ranges>
 #include <system_error>
+#include <unordered_map>
 
 #include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Resource/ShaderPreprocessor.h>

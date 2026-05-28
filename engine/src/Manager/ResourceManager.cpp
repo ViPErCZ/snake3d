@@ -1,6 +1,7 @@
 #include <snake3d/Manager/ResourceManager.h>
 
 #include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Resource/FeatureRegistry.h>
 #include <snake3d/Resource/MaterialLoader.h>
 #include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Resource/TextureLoader.h>
@@ -13,6 +14,11 @@ namespace Manager {
     ResourceManager::ResourceManager() {
         std::unique_lock lock(mutex);
         loader = make_unique<ResourceLoader>();
+        // H5: auto-bootstrap 7 built-in features (albedo, normalMap, specular,
+        // pbr, uvTransform, bones, ibl). Game/plugin přidá custom features
+        // přes getFeatureRegistry()->registerFeature(...) po construction.
+        featureRegistry = std::make_shared<Resource::FeatureRegistry>();
+        Resource::registerBuiltinFeatures(*featureRegistry);
     }
 
     ResourceManager::~ResourceManager() {

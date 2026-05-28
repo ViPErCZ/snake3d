@@ -12,6 +12,8 @@
 namespace Manager { class ResourceManager; }
 
 namespace Resource {
+    class FeatureRegistry;
+
     // Hodnotový kontrakt mezi MaterialLoader a callsitem.
     //
     // Static features (albedo, normalMap, specular, pbr, uvTransform, bones, ibl)
@@ -34,6 +36,14 @@ namespace Resource {
                                             const Manager::ResourceManager& rm);
     [[nodiscard]] MaterialSpec loadFromJson(const nlohmann::json& j,
                                             const Manager::ResourceManager& rm);
+
+    // H5: registry-driven overload. registry == nullptr -> fallback na
+    // built-in switch (zachovává backwards-compat pro test code, který
+    // nevolá přes ResourceManager). Volání bez registry ovšem znamená,
+    // že custom registered features se nezavolají.
+    [[nodiscard]] MaterialSpec loadFromJson(const nlohmann::json& j,
+                                            const Manager::ResourceManager& rm,
+                                            const FeatureRegistry* registry);
 } // Resource
 
 #endif //SNAKE3_MATERIALLOADER_H

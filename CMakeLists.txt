@@ -273,6 +273,8 @@ set(ENGINE_SOURCES
         engine/include/snake3d/Resource/AnimLoader.h
         engine/src/Resource/MaterialLoader.cpp
         engine/include/snake3d/Resource/MaterialLoader.h
+        engine/src/Resource/FeatureRegistry.cpp
+        engine/include/snake3d/Resource/FeatureRegistry.h
         # --- Lights
         engine/src/Lights/Light.cpp
         engine/include/snake3d/Lights/Light.h

@@ -2,6 +2,7 @@
 #include <assimp/postprocess.h>
 #include <functional>
 #include <iostream>
+#include <unordered_map>
 
 #include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
 

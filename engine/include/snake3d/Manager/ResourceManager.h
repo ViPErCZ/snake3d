@@ -15,7 +15,7 @@
 
 // Forward-declare so callsites can use ResourceManager::loadMaterial without
 // pulling in nlohmann/json via MaterialLoader.h. Plný include zůstává v .cpp.
-namespace Resource { struct MaterialSpec; }
+namespace Resource { struct MaterialSpec; class FeatureRegistry; }
 
 namespace Manager {
         using ModelUtils::Mesh;
@@ -55,6 +55,14 @@ namespace Manager {
         // App bootstraps it; RenderManager::toggleFog mutates setEnabled.
         void setFogFeature(std::shared_ptr<Feature::FogFeature> feature) { fogFeature = std::move(feature); }
         [[nodiscard]] std::shared_ptr<Feature::FogFeature> getFogFeature() const { return fogFeature; }
+
+        // H5: runtime registry stringového typu -> factory pro JSON-driven static
+        // material features. Auto-bootstrap v ResourceManager ctoru registruje
+        // 7 built-in faktorek (albedo, normalMap, specular, pbr, uvTransform,
+        // bones, ibl). Game/plugin si přidá vlastní features přes
+        // registry->registerFeature(...) po construction.
+        void setFeatureRegistry(std::shared_ptr<Resource::FeatureRegistry> reg) { featureRegistry = std::move(reg); }
+        [[nodiscard]] std::shared_ptr<Resource::FeatureRegistry> getFeatureRegistry() const { return featureRegistry; }
 
         std::shared_ptr<Mesh> getModel(const std::string &name) const;
 
@@ -133,6 +141,7 @@ namespace Manager {
         std::unordered_map<std::string, std::shared_ptr<Animation::AnimationPlayer> > animationModel;
         std::shared_ptr<ShaderRegistry> shaderRegistry;
         std::shared_ptr<Feature::FogFeature> fogFeature;
+        std::shared_ptr<Resource::FeatureRegistry> featureRegistry;
         std::unique_ptr<Resource::ResourceLoader> loader;
 
         mutable std::mutex pendingMutex;

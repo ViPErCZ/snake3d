@@ -3,6 +3,7 @@
 #include <chrono>
 #include <functional>
 #include <ranges>
+#include <unordered_map>
 
 using namespace ModelUtils;
 using namespace std;

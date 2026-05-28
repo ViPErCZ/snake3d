@@ -3,7 +3,9 @@
 
 #include <snake3d/Tools/AnimItem.h>
 #include <filesystem>
+#include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
