@@ -22,18 +22,18 @@ Physically move all engine headers and sources from root-level subdirs (`Manager
 
 ## Plan
 
-- [ ] **Step 0 — Safety checkpoint**
+- [x] **Step 0 — Safety checkpoint**
   - Create `git tag pre-H4c` on HEAD of `feature/physics`
   - Confirm build green: `cmake -B build && cmake --build build --target snake3d_engine snake3d_game Tests && cd build && ctest --output-on-failure`
 
-- [ ] **Step 1 — Decide and document include style**
+- [x] **Step 1 — Decide and document include style**
   - Decision (recommended): angle-bracket `<snake3d/X/Y.h>` for all engine public headers
   - Within engine `.cpp` files (now in `engine/src/`), engine header includes also switch to `<snake3d/...>` (no relative `../` paths)
   - `stdafx.h` at repo root moves to `engine/include/stdafx.h` (NOT under `snake3d/` subdirectory); 7 engine headers switch from `"../stdafx.h"` to `<stdafx.h>`. Game's `main.cpp` finds it via `engine/include` exposed transitively through `snake3d_engine`.
 
-- [ ] **Step 2 — Create empty target directory tree** (mkdir 27 subdirs in `engine/include/snake3d/` mirroring current layout; mirror in `engine/src/`)
+- [x] **Step 2 — Create empty target directory tree** (mkdir 27 subdirs in `engine/include/snake3d/` mirroring current layout; mirror in `engine/src/`)
 
-- [ ] **Step 3 — Batch 1: move `stdafx.h`**
+- [x] **Step 3 — Batch 1: move `stdafx.h`**
 
 - [x] **Step 4 — Batch 2: move `Lights/` (10 files)**
 
@@ -54,17 +54,21 @@ Physically move all engine headers and sources from root-level subdirs (`Manager
   - [x] 9b: Material subtree (Feature, Uniform, Interface, Particle, 2D) — 55 files
   - [x] 9c: Model/Standard subtree (incl. Animation + 2D) — 44 files
 
-- [ ] **Step 12 — CMakeLists.txt update**: prefix ENGINE_SOURCES paths, change `target_include_directories(snake3d_engine PUBLIC engine/include)`, add game-layer include path
+- [x] **Step 12 — CMakeLists.txt update**: prefix ENGINE_SOURCES paths, change `target_include_directories(snake3d_engine PUBLIC engine/include)`, add game-layer include path
+  - Dropped repo root from `snake3d_engine` PUBLIC includes.
+  - Added `examples/snake3/src` as `snake3d_game` PUBLIC include path (lets game-side headers like `App.h` resolve `"Manager/EatManager.h"`).
+  - Added repo root as PRIVATE include path on both `snake3d_engine` and `snake3d_game` so existing `#include "Thirdparty/stbimage/stb_image.h"` keeps working without changing those single-header bridges.
+  - Zero residual non-angle engine subdir includes found in `engine/` — no Step 12a fixups needed.
 
-- [ ] **Step 13 — Rewrite game-side includes (~232 sites)** in `examples/snake3/src/`
+- [x] **Step 13 — Rewrite game-side includes (~232 sites)** in `examples/snake3/src/` (done in earlier batches 01c0036…ad46ef4)
 
-- [ ] **Step 14 — Rewrite Tests includes (~42 sites)**
+- [x] **Step 14 — Rewrite Tests includes (~42 sites)** (done in earlier batches)
 
-- [ ] **Step 15 — Update CI workflow** (verify no path hardcoding)
+- [x] **Step 15 — Update CI workflow** (verify no path hardcoding) — `.github/workflows/*.yml` grep for `Manager/|Renderer/|Physic/|Tools/|Lights/|Resource/|Network/|Handler/` returned zero matches; no changes needed.
 
-- [ ] **Step 16 — Final validation**: clean Debug + Release build, ctest, confirm root engine dirs gone, update ENGINE_BOUNDARY.md status
+- [x] **Step 16 — Final validation**: clean Debug + Release build, ctest, confirm root engine dirs gone, update ENGINE_BOUNDARY.md status — clean Debug build green, 89/89 ctest, Release Snake3 link green, ENGINE_BOUNDARY.md status section updated.
 
-- [ ] **Step 17 — Cleanup**: `git rm -r` empty root engine dirs, prep PR
+- [x] **Step 17 — Cleanup**: empty root engine dirs (`Lights/`, `Tools/`, `Resource/`, `Network/`, `Renderer/Opengl/...`, `Manager/`) removed via `find -depth -type d -empty -delete`. `Physic/` and `Handler/` were already gone from prior batches. Git tracks files only, so directory removal needs no `git rm`.
 
 ## Decisions log
 

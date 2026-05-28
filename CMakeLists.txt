@@ -451,8 +451,13 @@ set(GAME_LIB_SOURCES
 add_library(snake3d_engine STATIC ${ENGINE_SOURCES})
 
 target_include_directories(snake3d_engine PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/engine/include
+)
+
+# Thirdparty single-header libraries (stb_image, etc.) live at repo root and
+# are an implementation detail of the engine — exposed only to engine sources.
+target_include_directories(snake3d_engine PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(snake3d_engine PUBLIC
@@ -468,6 +473,14 @@ target_compile_definitions(snake3d_engine PUBLIC $<$<CONFIG:Debug>:IS_DEBUG>)
 # logic, networking). Reusable by unit tests + the game executable shell.
 # ============================================================================
 add_library(snake3d_game STATIC ${GAME_LIB_SOURCES})
+target_include_directories(snake3d_game PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/snake3/src
+)
+# Thirdparty single-header libraries (stb_image, etc.) live at repo root and
+# are an implementation detail of the game — exposed only to game sources.
+target_include_directories(snake3d_game PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 target_link_libraries(snake3d_game PUBLIC snake3d_engine)
 target_compile_definitions(snake3d_game PUBLIC $<$<CONFIG:Debug>:IS_DEBUG>)
 
