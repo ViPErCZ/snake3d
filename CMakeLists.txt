@@ -45,42 +45,56 @@ add_custom_target(copy_assets ALL
         COMMENT "Cleaning and copying Assets folder"
 )
 
+# Example asset-copy targets are ALL-built, so they must be guarded on the
+# example's presence: an absent example (e.g. CI / partial push) must not fail
+# the default `all` build trying to copy a non-existent Assets/ directory.
+
 # Minimal example assets live in their own MinimalAssets/ root so they never
 # collide with copy_assets (which wipes ${CMAKE_BINARY_DIR}/Assets first).
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/minimal/Assets")
 add_custom_target(copy_minimal_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/MinimalAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/minimal/Assets ${CMAKE_BINARY_DIR}/MinimalAssets
         COMMENT "Cleaning and copying Minimal example assets"
 )
+endif()
 
 # Pacman3D example assets live in their own PacmanAssets/ root (same pattern as
 # MinimalAssets/) so they never collide with copy_assets.
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/pacman3d/Assets")
 add_custom_target(copy_pacman_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/PacmanAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/pacman3d/Assets ${CMAKE_BINARY_DIR}/PacmanAssets
         COMMENT "Cleaning and copying Pacman3D example assets"
 )
+endif()
 
 # Gumman3D example assets live in their own GummanAssets/ root.
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/gumman3d/Assets")
 add_custom_target(copy_gumman_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/GummanAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/gumman3d/Assets ${CMAKE_BINARY_DIR}/GummanAssets
         COMMENT "Cleaning and copying Gumman3D example assets"
 )
+endif()
 
 # RTS3D example assets live in their own RtsAssets/ root.
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/rts/Assets")
 add_custom_target(copy_rts_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/RtsAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/rts/Assets ${CMAKE_BINARY_DIR}/RtsAssets
         COMMENT "Cleaning and copying RTS3D example assets"
 )
+endif()
 
 # FPS example assets live in their own FpsAssets/ root.
+if(EXISTS "${CMAKE_SOURCE_DIR}/examples/fps/Assets")
 add_custom_target(copy_fps_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/FpsAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/fps/Assets ${CMAKE_BINARY_DIR}/FpsAssets
         COMMENT "Cleaning and copying FPS example assets"
 )
+endif()
 
 # Engine-owned shader prelude (frame_data.glsl, material_data.glsl, ...).
 # Copied into ${CMAKE_BINARY_DIR}/EngineShaders, which ShaderLoader uses as
