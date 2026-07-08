@@ -579,6 +579,10 @@ file(COPY examples/snake3/Assets DESTINATION ${CMAKE_BINARY_DIR})
 # snake3d_game) to prove the H6 Application base class is reusable without any
 # Snake3 game code.
 # ============================================================================
+# Guarded on source presence: examples are optional and may be absent from a
+# checkout (e.g. CI, or a partial push). The engine/game/Tests build must not
+# depend on them.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/minimal/src/main.cpp")
 add_executable(Minimal
         examples/minimal/src/main.cpp
         examples/minimal/src/MinimalApp.cpp
@@ -589,12 +593,14 @@ target_link_libraries(Minimal PRIVATE snake3d_engine)
 target_compile_definitions(Minimal PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
 add_dependencies(Minimal copy_minimal_assets copy_engine_shaders)
+endif()
 
 # ============================================================================
 # Pacman3d - second playable prototype (grid maze, player, pellets, score).
 # Links ONLY snake3d_engine (NOT snake3d_game) to prove the engine is reusable
 # for a genuinely different game than Snake3.
 # ============================================================================
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/pacman3d/src/main.cpp")
 add_executable(Pacman3d
         examples/pacman3d/src/main.cpp
         examples/pacman3d/src/Pacman3dApp.cpp
@@ -619,12 +625,14 @@ target_link_libraries(Pacman3d PRIVATE snake3d_engine)
 target_compile_definitions(Pacman3d PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
 add_dependencies(Pacman3d copy_pacman_assets copy_engine_shaders)
+endif()
 
 # ============================================================================
 # Gumman3d - third playable prototype: a Jazz-Jackrabbit-style 2.5D platformer.
 # Links ONLY snake3d_engine (NOT snake3d_game). First real user of the engine
 # dynamic-body / gravity physics path. Needs nlohmann_json for the level loader.
 # ============================================================================
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/gumman3d/src/main.cpp")
 add_executable(Gumman3d
         examples/gumman3d/src/main.cpp
         examples/gumman3d/src/Gumman3dApp.cpp
@@ -706,12 +714,14 @@ target_link_libraries(Gumman3d PRIVATE snake3d_engine nlohmann_json::nlohmann_js
 target_compile_definitions(Gumman3d PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 
 add_dependencies(Gumman3d copy_gumman_assets copy_engine_shaders)
+endif()
 
 # ============================================================================
 # Rts - fourth playable prototype: a 3D real-time strategy demo.
 # Links ONLY snake3d_engine (NOT snake3d_game): mouse unit selection, free
 # movement + steering, fog-of-war, animated combat, AOE2-style HUD.
 # ============================================================================
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/rts/src/main.cpp")
 add_executable(Rts
         examples/rts/src/main.cpp
         examples/rts/src/RtsApp.cpp
@@ -762,6 +772,7 @@ target_compile_definitions(Rts PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 target_include_directories(Rts PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_dependencies(Rts copy_rts_assets copy_engine_shaders)
+endif()
 
 # ============================================================================
 # Fps - fifth engine-only example: a WW2 / Return-to-Castle-Wolfenstein style
@@ -769,6 +780,7 @@ add_dependencies(Rts copy_rts_assets copy_engine_shaders)
 # Z-up world, capsule dynamic-body player, hitscan shooting, soldier AI, two
 # maps with a loading transition.
 # ============================================================================
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/fps/src/main.cpp")
 add_executable(Fps
         examples/fps/src/main.cpp
         examples/fps/src/FpsApp.cpp
@@ -808,6 +820,7 @@ add_executable(Fps
 target_link_libraries(Fps PRIVATE snake3d_engine nlohmann_json::nlohmann_json)
 target_compile_definitions(Fps PRIVATE $<$<CONFIG:Debug>:IS_DEBUG>)
 add_dependencies(Fps copy_fps_assets copy_engine_shaders)
+endif()
 
 # ============================================================================
 # Catch2 + Tests
