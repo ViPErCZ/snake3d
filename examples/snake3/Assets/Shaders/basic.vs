@@ -40,9 +40,9 @@ uniform bool useBones = false;
 
 // D1.1b: view / projection / viewPos migrated to FrameData UBO (slot 0).
 // Read via frame_view / frame_projection / frame_viewPos below.
-#include "functions/frame_data.glsl"
+#include "snake3d/frame_data.glsl"
 #include "functions/bonesTransform.glsl"
-#include "functions/material_data.glsl"
+#include "snake3d/material_data.glsl"
 
 void main()
 {

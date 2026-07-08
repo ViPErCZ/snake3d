@@ -13,6 +13,7 @@
 #include <snake3d/Handler/Debug/RotationHandler.h>
 #include <snake3d/Handler/Debug/ScaleHandler.h>
 #include <snake3d/Lights/Light.h>
+#include <snake3d/Tools/Visibility.h>
 #include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
 #include <snake3d/Renderer/Opengl/Scene/Scene.h>
 #include <snake3d/Lights/DirectionalLight.h>
@@ -132,6 +133,7 @@ namespace Handler::Debug {
         ImGui::Text("Draw calls: %d (programs: %d)",
                     Renderer::RenderStats::drawCallsLastFrame,
                     Renderer::RenderStats::uniqueProgramsLastFrame);
+        ImGui::Text("Frustum-culled: %d", Renderer::RenderStats::culledLastFrame);
         const auto& perPass = Renderer::RenderStats::drawsPerPassLastFrame;
         ImGui::Text("  Main: %d  Shadow: %d  Reflection: %d",
                     perPass[static_cast<int>(Renderer::RenderPass::Main)],
@@ -318,6 +320,31 @@ namespace Handler::Debug {
         }
 
         void drawTransformFieldset(Node3D::Transform& t) {
+            // Visibility toggle (Light/MeshNode3D both inherit Node3D::Visibility).
+            // Render path respects this flag: MeshNode3D::render gates on `visible`;
+            // LightingFeature / ShaderMaterial skip directional + point/spot lights
+            // whose isVisible() returns false.
+            if (auto* vis = dynamic_cast<Node3D::Visibility*>(&t)) {
+                bool visible = vis->isVisible();
+                if (ImGui::Checkbox("Visible", &visible)) {
+                    // setVisibleForced uzamkne flag (sticky lock). Gameplay
+                    // path setVisible() je pak no-op -- nutné pro objekty co
+                    // gameplay aktivně přepisuje (coin přes NetGameController::
+                    // applyCoin, spot light přes CoinMeshNode3D::update).
+                    // Lock persistuje přes deselect; user ho uvolní "Unlock"
+                    // tlačítkem až bude chtít vrátit gameplay control.
+                    vis->setVisibleForced(visible);
+                }
+                if (vis->isVisibilityLocked()) {
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("Unlock##visibility")) {
+                        vis->unlockVisible();
+                    }
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("(locked)");
+                }
+                ImGui::Separator();
+            }
             ImGui::TextDisabled("Transform");
             glm::vec3 pos = t.getPosition();
             if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) {
@@ -445,11 +472,22 @@ namespace Handler::Debug {
         auto active = inspectorSelected.lock();
 
         // Pokud nic není vybráno, default na 1. item (a propaguj do handlerů).
-        if (!active && !items.empty()) {
+        // ALE jen pokud user explicitně neklikl "(none)" -- v opačném případě
+        // auto-select by každý frame přepsal jeho deselect zpět na items[0].
+        if (!active && !items.empty() && !inspectorUserDeselected) {
             inspectorSelected = items[0].transform;
             active = items[0].transform;
             propagateSelection(*manipulatorHandler, items[0]);
         }
+
+        // Visibility lock je STICKY -- persistuje přes deselect. Uvolnění
+        // pouze přes explicit "Unlock" tlačítko v drawTransformFieldset.
+        // Důvod: inkonzistence chování mezi typy objektů. Point light
+        // gameplay path nepřepisuje, ale spot light skrz CoinMeshNode3D::
+        // update a coin skrz NetGameController::applyCoin se přepisují každý
+        // frame. Auto-unlock by způsobil že user nastaví spot light=off,
+        // deselect, a další frame se zapne -- nekonzistentní s lights co
+        // gameplay netouchne.
 
         // Auto-pause DynamicBody owning the selected CollisionShape3D.
         // Důvod: resolveTopContact reading shape's AABB během step() by jinak
@@ -502,8 +540,10 @@ namespace Handler::Debug {
             ImGui::PushID(-1);
             if (ImGui::Selectable("(none)", noneSelected)) {
                 inspectorSelected.reset();
+                inspectorUserDeselected = true;  // zabrání auto-select příští frame
                 // Restore se odehraje příští frame v selection-change logice
-                // nahoře (targetPause = nullptr, prev != targetPause => restore).
+                // nahoře (targetPause = nullptr, prev != targetPause => restore;
+                // visibility lock owner taky uvolněn).
             }
             ImGui::PopID();
 
@@ -518,6 +558,7 @@ namespace Handler::Debug {
                 ImGui::PopID();
                 if (clicked) {
                     inspectorSelected = it.transform;
+                    inspectorUserDeselected = false;  // explicit pick: re-enable auto-select default
                     propagateSelection(*manipulatorHandler, it);
                     // Camera one-shot teleport + free movement (žádný sticky).
                     // Šipky / Ctrl+myš / WASD fungují normálně po focusOn.

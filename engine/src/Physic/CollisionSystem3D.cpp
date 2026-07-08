@@ -306,4 +306,125 @@ namespace Physic {
             std::chrono::duration<float, std::milli>(tEnd - tAabbEnd).count();
         Renderer::RenderStats::pairsTested = pairsCount;
     }
+
+    namespace {
+        // World AABB of a registered entry: reuse the cached box for static
+        // colliders, otherwise recompute from the live world matrix (mirrors the
+        // AABB phase of update(), but standalone so queries don't depend on it).
+        AABB entryWorldAABB(const CollisionEntry &entry) {
+            if (entry.isStatic && entry.aabbCached) return entry.cachedAABB;
+            const glm::mat4 wm = entry.parentObject->getWorldMatrix() * entry.shapeNode->getModelMatrix();
+            return entry.shapeNode->getShape()->calculateAABB(wm);
+        }
+    }
+
+    std::vector<OverlapHit> CollisionSystem3D::overlapSphere(
+            const glm::vec3 &center, const float radius, const std::uint32_t layerMask) const {
+        std::vector<OverlapHit> hits;
+        for (const auto &entry : flatEntries) {
+            const auto &shape = entry.shapeNode->getShape();
+            if (!shape || !shape->isCollisionEnabled()) continue;
+            if ((layerMask & entry.shapeNode->getCollisionLayer()) == 0) continue;
+            const AABB world = entryWorldAABB(entry);
+            const glm::vec3 closest = glm::clamp(center, world.min, world.max);
+            const glm::vec3 delta = center - closest;
+            const float dist = glm::length(delta);
+            if (dist > radius) continue; // closest point on the box is outside the sphere
+            OverlapHit hit;
+            hit.node = entry.parentObject;
+            hit.shape = entry.shapeNode;
+            hit.worldAABB = world;
+            hit.contact = closest;
+            hit.depth = radius - dist;
+            // Push direction points from the surface toward the sphere center. When
+            // the center sits inside the box (dist 0) there is no well-defined axis,
+            // so fall back to +Z (callers like the platformer resolve along X via
+            // worldAABB anyway).
+            hit.normal = dist > 1e-6f ? delta / dist : glm::vec3(0.0f, 0.0f, 1.0f);
+            hits.push_back(hit);
+        }
+        return hits;
+    }
+
+    std::vector<OverlapHit> CollisionSystem3D::overlapAABB(
+            const AABB &box, const std::uint32_t layerMask) const {
+        std::vector<OverlapHit> hits;
+        for (const auto &entry : flatEntries) {
+            const auto &shape = entry.shapeNode->getShape();
+            if (!shape || !shape->isCollisionEnabled()) continue;
+            if ((layerMask & entry.shapeNode->getCollisionLayer()) == 0) continue;
+            const AABB world = entryWorldAABB(entry);
+            if (!CollisionCheck::IntersectAABB(box, world)) continue;
+            // Minimum-translation axis = the axis of smallest overlap.
+            const glm::vec3 overlap(
+                std::min(box.max.x, world.max.x) - std::max(box.min.x, world.min.x),
+                std::min(box.max.y, world.max.y) - std::max(box.min.y, world.min.y),
+                std::min(box.max.z, world.max.z) - std::max(box.min.z, world.min.z));
+            int axis = 0;
+            if (overlap.y < overlap[axis]) axis = 1;
+            if (overlap.z < overlap[axis]) axis = 2;
+            const glm::vec3 boxCenter = (box.min + box.max) * 0.5f;
+            const glm::vec3 worldCenter = (world.min + world.max) * 0.5f;
+            OverlapHit hit;
+            hit.node = entry.parentObject;
+            hit.shape = entry.shapeNode;
+            hit.worldAABB = world;
+            hit.depth = overlap[axis];
+            glm::vec3 n(0.0f);
+            n[axis] = boxCenter[axis] >= worldCenter[axis] ? 1.0f : -1.0f;
+            hit.normal = n;
+            hit.contact = glm::clamp(boxCenter, world.min, world.max);
+            hits.push_back(hit);
+        }
+        return hits;
+    }
+
+    std::optional<RaycastHit> CollisionSystem3D::raycast(
+            const glm::vec3 &origin, const glm::vec3 &dir,
+            const float maxDist, const std::uint32_t layerMask) const {
+        const float len = glm::length(dir);
+        if (len < 1e-6f) return std::nullopt;
+        const glm::vec3 d = dir / len;
+
+        bool found = false;
+        RaycastHit best;
+        float bestT = maxDist;
+
+        for (const auto &entry : flatEntries) {
+            const auto &shape = entry.shapeNode->getShape();
+            if (!shape || !shape->isCollisionEnabled()) continue;
+            if ((layerMask & entry.shapeNode->getCollisionLayer()) == 0) continue;
+            const AABB world = entryWorldAABB(entry);
+
+            // Ray-vs-AABB slab test; track the entry distance + entered face normal.
+            float tmin = 0.0f;
+            float tmax = bestT;
+            glm::vec3 n(0.0f);
+            bool miss = false;
+            for (int a = 0; a < 3; ++a) {
+                if (std::abs(d[a]) < 1e-8f) {
+                    if (origin[a] < world.min[a] || origin[a] > world.max[a]) { miss = true; break; }
+                    continue;
+                }
+                const float inv = 1.0f / d[a];
+                float t1 = (world.min[a] - origin[a]) * inv;
+                float t2 = (world.max[a] - origin[a]) * inv;
+                float sign = -1.0f;
+                if (t1 > t2) { std::swap(t1, t2); sign = 1.0f; }
+                if (t1 > tmin) { tmin = t1; n = glm::vec3(0.0f); n[a] = sign; }
+                if (t2 < tmax) tmax = t2;
+                if (tmin > tmax) { miss = true; break; }
+            }
+            if (miss || tmin < 0.0f || tmin > bestT) continue;
+
+            bestT = tmin;
+            best.node = entry.parentObject;
+            best.shape = entry.shapeNode;
+            best.point = origin + d * tmin;
+            best.normal = n;
+            best.dist = tmin;
+            found = true;
+        }
+        return found ? std::optional<RaycastHit>(best) : std::nullopt;
+    }
 } // Physic

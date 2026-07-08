@@ -1,6 +1,7 @@
 #ifndef SNAKE3_COINMESHNODE3D_H
 #define SNAKE3_COINMESHNODE3D_H
 
+#include <snake3d/Lights/SpotLight.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 namespace Model {

@@ -26,6 +26,13 @@ namespace Animation {
         std::chrono::duration<double> animation_duration;
         vector<glm::mat4> bone_transform;
         bool pause;
+        // Per-clip loop flag. The player used to keep a single global `repeat`
+        // bool, but a shared AnimationPlayer (many nodes, one player - e.g. an
+        // FPS soldier squad) had it clobbered the moment ANY node started a
+        // one-shot clip (loop=false: hit/death): every other node's looping
+        // clip then stopped looping and froze on its last frame. Loop intent is
+        // per-clip, so store it on the clip's metadata (set in start()).
+        bool repeat = false;
         float alpha;
         glm::mat4 world_transform;
         shared_ptr<Animation::AnimationClip> current_animation{};
@@ -70,6 +77,12 @@ namespace Animation {
         void setCompletedCallback(const std::function<void(AnimationPlayer*)> &callback);
 
         shared_ptr<AnimationMeta> getMetadata(const string &name) const;
+
+        // Names of all loaded clips. Useful for models whose clip names the asset
+        // pipeline invents (e.g. assimp derives Collada animation names from the
+        // exporter's action containers) - the caller can start the first/any clip
+        // without knowing the exact string up front.
+        [[nodiscard]] vector<string> getAnimationNames() const;
 
         shared_ptr<AnimationPlayer> clone() const;
 

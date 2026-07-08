@@ -9,6 +9,7 @@
 #include <snake3d/Manager/ResourceManager.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/BonesFeature.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/EmissiveFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/IblFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/IMaterialFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
@@ -129,6 +130,22 @@ namespace Resource {
             [](const nlohmann::json& entry, const Manager::ResourceManager& rm)
                 -> std::shared_ptr<Feature::IMaterialFeature> {
             return std::make_shared<Feature::IblFeature>(textureFromJson(entry, rm));
+        });
+
+        registry.registerFeature("emissive",
+            [](const nlohmann::json& entry, const Manager::ResourceManager&)
+                -> std::shared_ptr<Feature::IMaterialFeature> {
+            glm::vec3 color{1.0f};
+            if (entry.contains("color")) {
+                const auto& c = entry.at("color");
+                if (c.is_array() && c.size() >= 3) {
+                    color = glm::vec3(c[0].get<float>(), c[1].get<float>(), c[2].get<float>());
+                }
+            }
+            const float intensity = entry.contains("intensity")
+                ? entry.at("intensity").get<float>()
+                : 1.0f;
+            return std::make_shared<Feature::EmissiveFeature>(color, intensity);
         });
     }
 } // Resource

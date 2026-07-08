@@ -13,7 +13,7 @@ using namespace Material;
 
 namespace Model {
     StreetLampNode3D::StreetLampNode3D(const shared_ptr<ContextState> &contextState,
-        const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(contextState, nullptr, resourceManager) {
+        const shared_ptr<ResourceManager> &resourceManager) : LitMeshNode3D(contextState, nullptr, resourceManager) {
     }
 
     void StreetLampNode3D::init() {

@@ -1,10 +1,19 @@
+// ENGINE-OWNED shader prelude. The light-loop helpers below
+// (CalcDirLight* / CalcPointLight* / CalcSpotLight* / CalcIBL*) operate on the
+// PointLight/SpotLight/DirLight structs declared in the MaterialData UBO and
+// match what Manager::Feature::LightingFeature writes into that UBO. Resolved
+// by any shader via `#include "snake3d/lights.glsl"` through the ShaderLoader
+// engine include root (EngineShaders/, populated by copy_engine_shaders). This
+// is the single source of truth -- any engine consumer (e.g. examples/) can use
+// LightingFeature without copying game-side GLSL. See ENGINE_BOUNDARY.md.
+//
 // D1.1c-fix: DirLight struct + per-material dirLight fields live in
 // material_data.glsl. frame_data.glsl is camera-only again. We still
 // pull frame_data.glsl here so frame_uTime / frame_viewPos resolve in
 // the few helpers below that reference them (and for compatibility with
 // shaders that include lights.glsl alone -- e.g. respawn.fs).
-#include "material_data.glsl"
-#include "frame_data.glsl"
+#include "snake3d/material_data.glsl"
+#include "snake3d/frame_data.glsl"
 
 struct Material {
     sampler2D ambient;
@@ -43,6 +52,11 @@ uniform float uShadowDesaturateStrength = 1.0; // how strong the gray shift is i
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, float shadow);
+// Albedo-modulated directional light (proper Lambert): BOTH the ambient and the
+// diffuse term multiply the surface `albedo`, unlike CalcDirLight which adds the
+// diffuse as white light (only its AMBIENT term is texture-modulated). Use this
+// for textured world geometry so albedo textures don't blow out to white.
+vec3 CalcDirLightAlbedo(DirLight light, vec3 normal, vec3 albedo, float shadow);
 vec3 CalcDirLightMaterial(MaterialDirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, vec3 ambient);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 materialColor, float timer, vec3 albedoColor, vec3 specularColor);
@@ -101,6 +115,20 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 ambientColor, 
     vec3 ambientAdjusted = mix(ambientDark, ambientGray, shadowAmount * clamp(uShadowDesaturateStrength, 0.0, 1.0));
 
     return ambientAdjusted + (diffuse + specular) * (1.0 - shadow);
+}
+
+// Albedo-modulated directional light (see forward decl). Plain Lambert: the
+// surface albedo multiplies the ambient AND diffuse contributions, so textured
+// and solid surfaces are lit (not whitened). Additive — no existing caller of
+// CalcDirLight is affected.
+vec3 CalcDirLightAlbedo(DirLight light, vec3 normal, vec3 albedo, float shadow)
+{
+    normal = normalize(normal);
+    vec3 lightDir = normalize(-light.direction);
+    float diff = max(dot(normal, lightDir), 0.0);
+    float s = 1.0 - clamp(shadow, 0.0, 1.0);
+    vec3 lit = light.ambient + light.diffuse * diff * s;
+    return albedo * lit;
 }
 
 #ifdef FEATURE_PBR

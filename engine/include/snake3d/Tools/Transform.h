@@ -4,6 +4,7 @@
 #include <memory>
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 namespace Node3D {
@@ -38,6 +39,16 @@ namespace Node3D {
 
         void setRotationZ(float rotation_z);
 
+        // E1: orient by a quaternion instead of Euler X/Y/Z. Once set, getModelMatrix uses
+        // the quaternion; any later setRotationX/Y/Z reverts to the Euler path. Lets callers
+        // align a node to an arbitrary direction (decals/billboards/aim) without Euler math.
+        void setRotationQuat(const glm::quat &q);
+
+        // Convenience: rotate so the node's local +Y axis points along `normal` (shortest arc).
+        // This is the face-normal of QuadMesh3D-style surfaces -> used to lay decals flat on
+        // any surface. Falls back to identity for a zero vector.
+        void setRotationToNormal(const glm::vec3 &normal);
+
         [[nodiscard]] float getRotationX() const;
 
         [[nodiscard]] float getRotationY() const;
@@ -59,6 +70,8 @@ namespace Node3D {
         float rotationX = 0;
         float rotationY = 0;
         float rotationZ = 0;
+        glm::quat orientation{1.0f, 0.0f, 0.0f, 0.0f}; // used only when useQuat (E1)
+        bool useQuat = false;                           // false => legacy Euler path (default)
         bool transformDirty = true;
     };
 } // Node3D

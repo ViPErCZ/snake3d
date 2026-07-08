@@ -1,14 +1,30 @@
 #include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 
 #include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
+#include <snake3d/Renderer/Opengl/RenderStats.h>
+#include <snake3d/Tools/Frustum.h>
 
 using namespace Build;
 using namespace Tools;
-using namespace Lights;
 using namespace Manager;
 using namespace std;
 
 namespace Model {
+    namespace {
+        // Conservative frustum cull of this node's own mesh draw. Returns true when the
+        // mesh's world AABB (grown by a margin so skinned bind-pose boxes / animation
+        // overshoot don't pop at the screen edge) is fully outside the active cull
+        // frustum. nullptr frustum (2D passes, examples that never set it) -> never cull.
+        bool cullMesh(const std::shared_ptr<StandardMesh> &mesh, const glm::mat4 &world) {
+            const Tools::Frustum *f = Renderer::CullState::frustum;
+            if (!f || !mesh) return false;
+            constexpr float kMargin = 2.0f; // world units of slack
+            const glm::vec3 mn = mesh->getMin(world) - glm::vec3(kMargin);
+            const glm::vec3 mx = mesh->getMax(world) + glm::vec3(kMargin);
+            return !f->intersectsAABB(mn, mx);
+        }
+    }
+
     MeshNode3D::MeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                            const shared_ptr<ResourceManager> &resourceManager)
         : contextState(contextState), mesh(mesh), resourceManager(resourceManager), transformDetached(false),
@@ -18,8 +34,6 @@ namespace Model {
     MeshNode3D::~MeshNode3D() {
         children.clear();
         collisionShapes.clear();
-        spotLights.clear();
-        pointLights.clear();
     }
 
     shared_ptr<StandardMesh> MeshNode3D::getMesh() const {
@@ -48,10 +62,19 @@ namespace Model {
             if constexpr (isDebug) {
                 finalTransform = parentTransform * this->getModelMatrix();
             }
-            contextState->setBlendingMode(mesh->getBlending());
-            contextState->setDepthTest(mesh->getDepthTest());
-            contextState->setDepthWrite(mesh->getDepthWrite());
-            if (mesh != nullptr) {
+            // Frustum cull this node's own mesh (children still get their own test
+            // below - they may be in view even when the parent's mesh is not).
+            if (mesh != nullptr && cullMesh(mesh, finalTransform)) {
+                Renderer::RenderStats::countCulled();
+            } else if (mesh != nullptr) {
+                contextState->setBlendingMode(mesh->getBlending());
+                contextState->setDepthTest(mesh->getDepthTest());
+                contextState->setDepthWrite(mesh->getDepthWrite());
+                if (mesh->getCullBackFace()) {
+                    contextState->enable(Tools::Capabilities::CullFace);
+                } else {
+                    contextState->disable(Tools::Capabilities::CullFace);
+                }
                 mesh->render(camera, projection, 1, finalTransform, shadows);
             }
 
@@ -94,7 +117,10 @@ namespace Model {
                                    const glm::mat4 &parentTransform) const {
         if (visible) {
             const glm::mat4 finalTransform = worldMatrixCache;
-            if (mesh != nullptr) {
+            // Cull casters outside the cascade's light frustum (set by RenderManager).
+            if (mesh != nullptr && cullMesh(mesh, finalTransform)) {
+                Renderer::RenderStats::countCulled();
+            } else if (mesh != nullptr) {
                 mesh->renderShadowMap(camera, projection, dt, finalTransform);
             }
             for (const auto &node: children) {
@@ -117,18 +143,6 @@ namespace Model {
 
     const vector<shared_ptr<CollisionShape::CollisionShape3D>> & MeshNode3D::getCollisionShapes() const {
         return collisionShapes;
-    }
-
-    void MeshNode3D::setDirectionalLight(const shared_ptr<DirectionalLight> &directional_light) {
-        directionalLight = directional_light;
-    }
-
-    void MeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
-        spotLights = spot_light;
-    }
-
-    void MeshNode3D::setPointLights(const vector<shared_ptr<PointLight>> &point_light) {
-        pointLights = point_light;
     }
 
     void MeshNode3D::setTransformDetached(const bool transform_detached, const bool recursive) {
@@ -180,6 +194,14 @@ namespace Model {
 
     bool MeshNode3D::isIncludeInPlanarReflection() const {
         return includePlanarReflection;
+    }
+
+    void MeshNode3D::disableRefraction() {
+        includeRefraction = false;
+    }
+
+    bool MeshNode3D::isIncludeInRefraction() const {
+        return includeRefraction;
     }
 
     void MeshNode3D::computeWorldMatrix(const glm::mat4 &parentTransform) {

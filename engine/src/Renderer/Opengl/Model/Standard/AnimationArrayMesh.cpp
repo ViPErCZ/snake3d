@@ -22,6 +22,15 @@ namespace Model {
         animation = animationName;
     }
 
+    AnimationArrayMesh::AnimationArrayMesh(const shared_ptr<AnimationPlayer> &model,
+                                           const shared_ptr<ShaderProgram> &baseShader, const string &animationName,
+                                           const SkinScope scope)
+        : StandardMesh(baseShader), baseShader(baseShader),
+          drawAllSkinned(scope == SkinScope::WholeModel) {
+        setAnimationPlayer(model);
+        animation = animationName;
+    }
+
     void AnimationArrayMesh::render(const shared_ptr<Camera> &camera, const glm::mat4 &projection, float dt,
         const glm::mat4 &parentTransform, const bool shadows) const {
         if (const auto materialInstance = dynamic_pointer_cast<const MaterialInstance>(material)) {
@@ -105,24 +114,29 @@ namespace Model {
                 baseShader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]", metadata->bone_transform[i]);
             }
         }
+        // ClipMesh (default): draw only the sub-mesh bound to the active clip's
+        // first bone. WholeModel: draw every skinned sub-mesh of the single
+        // armature - they all share the finalBonesMatrices uploaded above
+        // (multi-part rigs like KayKit Human.glb).
         for (const auto &animMesh: animationPlayer->getMeshes()) {
-            if (animMesh->getName() ==
-                metadata->current_animation->nodes[0]->bone->meshName) {
-                glm::mat4 finalTransform = animMesh->isHasBones() ? parentTransform : parentTransform * animMesh->getGlobalTransformation();
-                if (activeProgram) {
-                    activeProgram->setBool("useBones", animMesh->isHasBones());
-                    activeProgram->setMat4("model", finalTransform);
-                } else {
-                    baseShader->setBool("useBones", animMesh->isHasBones());
-                    baseShader->setMat4("model", finalTransform);
-                }
-
-                animMesh->bind();
-                Renderer::RenderStats::countDraw();
-                glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
-                               GL_UNSIGNED_INT,
-                               nullptr);
+            if (!drawAllSkinned &&
+                animMesh->getName() != metadata->current_animation->nodes[0]->bone->meshName) {
+                continue;
             }
+            glm::mat4 finalTransform = animMesh->isHasBones() ? parentTransform : parentTransform * animMesh->getGlobalTransformation();
+            if (activeProgram) {
+                activeProgram->setBool("useBones", animMesh->isHasBones());
+                activeProgram->setMat4("model", finalTransform);
+            } else {
+                baseShader->setBool("useBones", animMesh->isHasBones());
+                baseShader->setMat4("model", finalTransform);
+            }
+
+            animMesh->bind();
+            Renderer::RenderStats::countDraw();
+            glDrawElements(GL_TRIANGLES, static_cast<int>(animMesh->getIndices().size()),
+                           GL_UNSIGNED_INT,
+                           nullptr);
         }
 
         for (const auto& animMesh: animationPlayer->getNoBonesMeshes()) {

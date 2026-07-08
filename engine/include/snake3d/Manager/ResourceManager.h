@@ -70,7 +70,11 @@ namespace Manager {
 
         std::shared_ptr<Animation::AnimationPlayer> getAnimationModel(const std::string &name) const;
 
-        void loadAsyncTexture(const std::string &path, const std::string &name, bool albedo, const std::function<void()> &onReady = nullptr);
+        // pointSampled: load with NEAREST filtering and no mipmaps (palette atlases /
+        // pixel-art where linear+mipmaps would blend neighbouring texels). Default keeps
+        // the trilinear behaviour used for normal albedo/PBR maps.
+        void loadAsyncTexture(const std::string &path, const std::string &name, bool albedo,
+                              const std::function<void()> &onReady = nullptr, bool pointSampled = false);
 
         // D3.4: JSON-driven material spec loader.
         // Tenký wrapper kolem Resource::loadFromFile - drží callsity bez include
@@ -165,6 +169,7 @@ namespace Manager {
             std::vector<unsigned char> buffer;
             bool albedo;
             std::function<void()> onReady;
+            bool pointSampled = false; // NEAREST, no mipmaps (palette atlases / pixel art)
         };
 
         struct PendingShader {

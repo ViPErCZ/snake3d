@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <set>
 #include <unordered_map>
 
 #include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
@@ -40,6 +41,20 @@ namespace Resource {
 
         auto animations = loadAnimations(scene, bones, bone_map);
         auto animation_tree = loadAnimationTree(scene, bones, bone_map, animations);
+
+        // 0 A.D.-style consistent bind pose. Some rigs ship inverse-bind matrices (assimp's
+        // mOffsetMatrix, read from the Collada skin) that DISAGREE with their own node-hierarchy
+        // bind pose - they were authored in mismatched coordinate spaces (0 A.D.'s deer: mesh in
+        // inches, skeleton in a different unit, a 0.0178 bind_shape between them). Then
+        // nodeGlobal_bind * offset is NOT a single rigid matrix across bones, so the skin
+        // collapses/curls. We detect that (the per-bone bind product isn't uniform) and re-derive
+        // every offset straight from the node hierarchy: offset = inverse(bind_global), which
+        // forces nodeGlobal_bind * offset == I for all bones (clean rest pose, animation then
+        // deforms relative to that same bind - exactly how the asset's DCC/0 A.D. interpret it).
+        // Rigs whose offsets are already consistent (all current birds / marker / characters, with
+        // bind_shape = identity) fail the detection and keep assimp's offsets verbatim.
+        reconcileBindPose(animation_tree, bones);
+
         const auto global_matrix = convert(scene->mRootNode->mTransformation);
 
         importer.FreeScene();
@@ -47,6 +62,40 @@ namespace Resource {
         return std::make_shared<AnimationPlayer>(std::move(meshes), std::move(animations), bones,
                                                 std::move(animation_tree), std::move(bone_map),
                                                 glm::inverse(global_matrix));
+    }
+
+    void AnimLoader::reconcileBindPose(const Tree<uint32_t>& skeleton, vector<shared_ptr<Bone>>& bones) {
+        // bind_global[bone] = product of node_transform down the hierarchy (the rest pose).
+        vector<glm::mat4> bindGlobal(bones.size(), glm::mat4(1.0f));
+        function<void(const Tree<uint32_t>&, const glm::mat4&)> trav;
+        trav = [&](const Tree<uint32_t>& node, const glm::mat4& parent) {
+            const glm::mat4 local = !bones[*node]->isFake() ? bones[*node]->node_transform : glm::mat4(1.0f);
+            const glm::mat4 g = parent * local;
+            if (*node < bindGlobal.size()) bindGlobal[*node] = g;
+            for (const auto& c : node) trav(c, g);
+        };
+        trav(skeleton, glm::mat4(1.0f));
+
+        // Consistency probe: for a well-formed rig bind_global * offset is the SAME matrix for
+        // every skinned bone (the shared bind-shape, usually identity). If it varies, the Collada
+        // inverse-bind matrices live in a different space than the node hierarchy -> the skin
+        // collapses. Only skinned bones (meshName set by processMesh) carry a real offset.
+        glm::mat4 ref(1.0f); bool haveRef = false, inconsistent = false;
+        for (size_t i = 0; i < bones.size() && !inconsistent; ++i) {
+            if (bones[i]->meshName.empty()) continue;
+            const glm::mat4 m = bindGlobal[i] * bones[i]->offset_matrix;
+            if (!haveRef) { ref = m; haveRef = true; continue; }
+            float dev = 0.0f;
+            for (int c = 0; c < 4; ++c)
+                for (int r = 0; r < 4; ++r)
+                    dev = std::max(dev, std::abs(m[c][r] - ref[c][r]));
+            if (dev > 1e-3f) inconsistent = true;
+        }
+        if (!haveRef || !inconsistent) return; // already consistent (birds/marker/characters)
+
+        // Re-derive every offset from the hierarchy: nodeGlobal_bind * offset == I afterwards.
+        for (size_t i = 0; i < bones.size(); ++i)
+            bones[i]->offset_matrix = glm::inverse(bindGlobal[i]);
     }
 
     map<string, shared_ptr<Animation::AnimationClip> > AnimLoader::loadAnimations(
@@ -62,14 +111,15 @@ namespace Resource {
             for (uint32_t j = 0; j < anim->mNumChannels; ++j) {
                 const auto* channel = anim->mChannels[j];
 
-                // auto bi = bone_map.find(channel->mNodeName.C_Str());
-//                transformace na objektu bez kosti (pohnu-li v animaci objektem a ne kosti) - zatim nepodporovano
-//                if (bi == bone_map.end()) {
-//                    bones.emplace_back("", channel->mNodeName.C_Str(), glm::mat4(1.f));
-//                    bone_map.emplace(channel->mNodeName.C_Str(), bones.size() - 1);
-//                }
-
-                auto& bone = bones.at(bone_map.at(channel->mNodeName.C_Str()));
+                // Channels can target plain OBJECT nodes without a bone (Blender's
+                // Collada export animates the armature/object containers too - 0 A.D.
+                // flight animations do this). Skinning only consumes BONE channels:
+                // SKIP the rest instead of throwing (bone_map.at used to abort the
+                // whole model load with _Map_base::at). Animating loose objects
+                // remains unsupported (the bone channels carry the actual motion).
+                const auto bi = bone_map.find(channel->mNodeName.C_Str());
+                if (bi == bone_map.end()) continue;
+                auto& bone = bones.at(bi->second);
                 std::vector<KeyFrame<glm::vec3>> pos_frames;
                 std::vector<KeyFrame<glm::fquat>> rot_frames;
                 std::vector<KeyFrame<glm::vec3>> scale_frames;

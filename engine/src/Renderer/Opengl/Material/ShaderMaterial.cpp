@@ -50,11 +50,12 @@ namespace Material {
         // setBool("directionLightEnable") call disappears. respawn.fs doesn't
         // gate its CalcDirLight call -- it always runs -- so the flag is more
         // for explosion.fs, but populating it costs nothing.
-        cpu.material_directionLightEnable = directionalLight ? 1 : 0;
+        const bool dirVisible = directionalLight && directionalLight->isVisible();
+        cpu.material_directionLightEnable = dirVisible ? 1 : 0;
         // D1.1c-fix: per-material dirLight fields, mirrored from
         // LightingFeature's contract. Default-zero when no light is wired in
         // (matches MaterialDataStd140's struct defaults).
-        if (directionalLight) {
+        if (dirVisible) {
             cpu.material_dirLight_direction = directionalLight->getDirection();
             cpu.material_dirLight_ambient   = directionalLight->getAmbient();
             cpu.material_dirLight_diffuse   = directionalLight->getDiffuse();
@@ -124,7 +125,7 @@ namespace Material {
             shader->setBool("shadows", shadows);
         }
 
-        if (directionalLight) {
+        if (dirVisible) {
             // D1.1c: DirectionalLight::bind now only sets material.shininess
             // + sampler ints; pozice/směr/ambient/diffuse/specular jsou v
             // FrameData UBO. Gate `directionLightEnable` je v MaterialData

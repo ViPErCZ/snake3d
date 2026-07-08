@@ -51,11 +51,18 @@ namespace Model {
 
         void setDepthWrite(bool depthWrite);
 
+        // Cull back faces for this mesh (default off). Lets a depth-write-off decal
+        // mesh (e.g. a pickup sphere drawn so dynamic actors always paint over it)
+        // stay correct/glossy without its back faces overdrawing the front.
+        void setCullBackFace(bool cull);
+
         [[nodiscard]] Tools::Blending getBlending() const;
 
         [[nodiscard]] bool getDepthTest() const;
 
         [[nodiscard]] bool getDepthWrite() const;
+
+        [[nodiscard]] bool getCullBackFace() const;
 
         void animationPlay(const std::string &name, bool loop = true);
 
@@ -79,6 +86,7 @@ namespace Model {
         Tools::Blending blending = Tools::Blending::Opaque;
         bool depthTest = true;
         bool depthWrite = true;
+        bool cullBackFace = false;
         std::string animation;
         Tools::DrawElement drawElement = Tools::DrawElement::Triangles;
     };

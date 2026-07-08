@@ -28,14 +28,14 @@ namespace Renderer {
 
         glGenTextures(1, &reflectionTexture);
         glBindTexture(GL_TEXTURE_2D, reflectionTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fboW(), fboH(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, reflectionTexture, 0);
 
         glGenRenderbuffers(1, &depthBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, fboW(), fboH());
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -82,18 +82,21 @@ namespace Renderer {
         const glm::vec3 originalFront = camera->getFront();
         const glm::vec3 originalUp = camera->getUp();
 
-        const float dist = 2.0f * (originalPos.z - planeZ);
-        camera->setPosition({originalPos.x, originalPos.y, originalPos.z - dist});
-
-        glm::vec3 reflectedFront = originalFront;
-        reflectedFront.z = -reflectedFront.z;
-        camera->setFront(reflectedFront);
-
-        glm::vec3 reflectedUp = originalUp;
-        reflectedUp.z = -reflectedUp.z;
-        camera->setUp(reflectedUp);
+        // Mirror the camera across the plane dot(n, p) = d. For a point:
+        //   p' = p - 2*(dot(n,p) - d)*n
+        // for a direction (front/up):  v' = v - 2*dot(n,v)*n.
+        // With n=+Z, d=planeZ this is exactly the legacy Z-flip (snake3 unchanged).
+        const glm::vec3 n = reflectNormal;
+        const float d = reflectOffset;
+        camera->setPosition(originalPos - 2.0f * (glm::dot(n, originalPos) - d) * n);
+        camera->setFront(originalFront - 2.0f * glm::dot(n, originalFront) * n);
+        camera->setUp(originalUp - 2.0f * glm::dot(n, originalUp) * n);
 
         camera->setReflectionPass(true);
+
+        // Capture the mirrored camera's view-projection for world-anchored reflection
+        // sampling (0 A.D.'s reflectionMatrix).
+        mirrorViewProj = projection * camera->getViewMatrix();
 
         if (renderManager) {
             // Copy current main-pass frame data (dirLight, lights, time) and
@@ -106,7 +109,7 @@ namespace Renderer {
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, reflectionFBO);
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, fboW(), fboH());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -143,6 +146,14 @@ namespace Renderer {
 
     void PlanarReflectionRenderer::setPlaneZ(const float z) {
         planeZ = z;
+        reflectNormal = glm::vec3(0.0f, 0.0f, 1.0f);
+        reflectOffset = z;
+    }
+
+    void PlanarReflectionRenderer::setReflectionPlane(const glm::vec3 &normal, const float offset) {
+        const float len = glm::length(normal);
+        reflectNormal = (len > 1e-6f) ? normal / len : glm::vec3(0.0f, 0.0f, 1.0f);
+        reflectOffset = offset;
     }
 
     void PlanarReflectionRenderer::resize(const int width, const int height, const glm::mat4 &projection) {
@@ -152,6 +163,11 @@ namespace Renderer {
         this->width = width;
         this->height = height;
         this->projection = projection;
+        initializeFramebuffer();
+    }
+
+    void PlanarReflectionRenderer::setResolutionScale(const float scale) {
+        fboScale = std::clamp(scale, 0.1f, 1.0f);
         initializeFramebuffer();
     }
 }

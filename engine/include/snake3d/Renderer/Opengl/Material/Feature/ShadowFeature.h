@@ -38,9 +38,26 @@ namespace Feature {
         [[nodiscard]] std::shared_ptr<Manager::TextureManager> getShadowArray() const { return shadowArray; }
         [[nodiscard]] std::shared_ptr<Manager::ShaderProgram> getShadowDepthShader() const { return shadowDepthShader; }
 
+        // Cast-but-don't-receive: when false, this surface still writes the depth pass
+        // (casts onto others) but its own fragments never sample the shadow map (no
+        // self-shadow). Useful for skinned characters whose depth pass uses 1-frame-stale
+        // bones -> the misaligned self-shadow shows up as nonsensical acne banding.
+        void setReceive(bool r) { receive = r; }
+        [[nodiscard]] bool getReceive() const { return receive; }
+
+        // Receive-but-don't-cast: when false, this surface is NOT written into the depth
+        // map (bindShadow returns false), so it casts no shadow and - crucially - cannot
+        // self-shadow. A tessellated ground that casts into a tight focus-box depth map
+        // self-shadows into striped acne on some GPUs; making it receive-only kills that
+        // while it still shows the shadows cast by rocks/units.
+        void setCast(bool c) { cast = c; }
+        [[nodiscard]] bool getCast() const { return cast; }
+
     private:
         std::shared_ptr<Manager::TextureManager> shadowArray;
         std::shared_ptr<Manager::ShaderProgram> shadowDepthShader;
+        bool receive = true;
+        bool cast = true;
     };
 } // Feature
 

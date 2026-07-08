@@ -6,10 +6,11 @@
 #include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/PbrFeature.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
-#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
+
+#include "Renderer/Opengl/Model/Game/LitMeshNode3D.h"
 
 namespace Model {
-    class StreetLampNode3D final : public MeshNode3D {
+    class StreetLampNode3D final : public LitMeshNode3D {
     public:
         explicit StreetLampNode3D(const std::shared_ptr<Tools::ContextState> &contextState,
                                   const std::shared_ptr<Manager::ResourceManager> &resourceManager);

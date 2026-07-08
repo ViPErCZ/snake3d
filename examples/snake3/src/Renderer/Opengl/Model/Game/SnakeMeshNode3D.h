@@ -9,11 +9,12 @@
 #include <snake3d/Renderer/Opengl/Material/ShaderMaterial.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Uniform/TimerUniform.h>
-#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/SphereMesh.h>
 
+#include "Renderer/Opengl/Model/Game/LitMeshNode3D.h"
+
 namespace Model {
-    class SnakeMeshNode3D final : public MeshNode3D {
+    class SnakeMeshNode3D final : public LitMeshNode3D {
     public:
         enum eDIRECTION {
             NONE = -1,
@@ -26,7 +27,7 @@ namespace Model {
             PAUSE = 200,
         };
 
-        using MeshNode3D::MeshNode3D;
+        using LitMeshNode3D::LitMeshNode3D;
 
         explicit SnakeMeshNode3D(const std::shared_ptr<Tools::ContextState> &contextState,
                                  const std::shared_ptr<StandardMesh> &mesh,

@@ -19,6 +19,10 @@ namespace Model {
             contextState->setBlendingMode(mesh->getBlending());
             contextState->setDepthTest(mesh->getDepthTest());
             contextState->setDepthWrite(mesh->getDepthWrite());
+            // 2D screen quads are never back-face culled. Force cull-face OFF so the
+            // HUD can't be blanked by leftover cull state from the preceding 3D pass
+            // (e.g. a model drawn with setCullBackFace(true) right before).
+            contextState->disable(Capabilities::CullFace);
             mesh->render(camera, ortho, 1, finalTransform);
 
             for (const auto &snd: children | views::values) {

@@ -130,9 +130,20 @@ namespace Manager {
         int   material_numSpotLights{0};
         float _padN0{0.0F};
         float _padN1{0.0F};
-        // 1744 : end.
+
+        // 1744 : emissive feature (self-illumination). vec3+float pair packs
+        // into one vec4 slot. material_emissiveEnabled=0 means feature absent
+        // -- shader emissive branch is skipped entirely (gated by FEATURE_
+        // EMISSIVE_BLOOM ifdef + this flag).
+        glm::vec3 material_emissive_color{0.0F, 0.0F, 0.0F};
+        float     material_emissive_intensity{0.0F};
+        int       material_emissiveEnabled{0};
+        float _padE0{0.0F};
+        float _padE1{0.0F};
+        float _padE2{0.0F};
+        // 1776 : end.
     };
-    static_assert(sizeof(MaterialDataStd140) == 1744,
+    static_assert(sizeof(MaterialDataStd140) == 1776,
                   "MaterialDataStd140 must match GLSL std140 layout in material_data.glsl");
 
     class MaterialUbo {

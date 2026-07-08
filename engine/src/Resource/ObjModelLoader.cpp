@@ -49,9 +49,21 @@ namespace Resource {
                 texture.texture = TextureLoader::decodeImage(embeddedTexture->pcData, dataSize);
                 std::cout << "Find embedded texture: " << str.C_Str() << std::endl;
             } else {
-                // Texture is external (local disk storage)
-                texture.texture = std::make_shared<TextureManager>(TextureLoader::loadTexture(str.C_Str()));
-                std::cout << "Find file texture: " << str.C_Str() << std::endl;
+                // Texture is external (local disk storage). A missing file is
+                // NON-FATAL: many GLBs reference a shared atlas by a relative URI
+                // (e.g. Kenney's "Textures/colormap.png") that isn't resolvable from
+                // the CWD. Rather than abort the whole model load (which would also
+                // stall the async loading gate), warn and skip the texture — the
+                // geometry + baked vertex colors still load, and a callsite can bind
+                // the atlas itself. Self-contained models are unaffected.
+                try {
+                    texture.texture = std::make_shared<TextureManager>(TextureLoader::loadTexture(str.C_Str()));
+                    std::cout << "Find file texture: " << str.C_Str() << std::endl;
+                } catch (const std::exception &e) {
+                    std::cerr << "[ObjModelLoader] external texture skipped (" << str.C_Str()
+                              << "): " << e.what() << std::endl;
+                    continue;
+                }
             }
 
             loadedTexturesCache[texturePath] = texture;
@@ -73,10 +85,20 @@ namespace Resource {
             std::vector<unsigned int> indices;
             std::vector<TextureInfo> textures;
 
+            // Bake the material diffuse color into the vertex color (mirrors AnimLoader:
+            // glTF baseColorFactor-only materials, e.g. low-poly foliage with no texture,
+            // would otherwise render black because Vertex{} zero-inits color and the
+            // shaders read meshColor).
+            aiColor3D matColor{1.0f};
+            if (mesh->mMaterialIndex >= 0) {
+                scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, matColor);
+            }
+
             // 1. VRCHOLY (Zůstává stejné jako tvoje, jen bez offsetu, protože každý mesh je teď zvlášť)
             for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
                 Vertex vertex{};
                 vertex.position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+                vertex.color = { matColor.r, matColor.g, matColor.b };
 
                 if (mesh->HasNormals()) {
                     vertex.normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };

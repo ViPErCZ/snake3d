@@ -4,7 +4,20 @@
 #include <atomic>
 #include <unordered_set>
 
+namespace Tools { class Frustum; }
+
 namespace Renderer {
+    // Active culling frustum for the current pass. The pass driver sets it just before
+    // traversing the scene (camera frustum for the main/reflection/refraction passes -
+    // built inside Node3DRenderer::renderScene from the live, possibly-mirrored camera;
+    // the light-space frustum per shadow cascade - set by RenderManager) and clears it
+    // (nullptr) afterwards. MeshNode3D::render consults it to skip off-frustum draws.
+    // nullptr = no culling (the default for 2D passes and for examples that never set it).
+    // Single-threaded GL render, so a plain static pointer is safe.
+    struct CullState {
+        static const Tools::Frustum *frustum; // nullptr = cull disabled
+    };
+
     enum class RenderPass {
         Main = 0,    // standardní forward pass (default)
         Shadow = 1,  // CSM cascade pass
@@ -20,6 +33,10 @@ namespace Renderer {
     struct RenderStats {
         static std::atomic<int> drawCallsThisFrame;
         static int drawCallsLastFrame;
+
+        // Nodes whose draw was skipped by frustum culling this frame (diagnostic).
+        static std::atomic<int> culledThisFrame;
+        static int culledLastFrame;
 
         // Main pass timing v ms. Měřeno chrono okolo main pass loop + glFinish
         // na konci pro GPU sync. Pomáhá rozdělit CPU vs GPU bound diagnostiku:
@@ -62,6 +79,9 @@ namespace Renderer {
 
         // Increment draw call (do current pass slot).
         static void countDraw();
+
+        // Increment the frustum-culled-this-frame counter.
+        static void countCulled();
 
         // Volat z MaterialInstance::bind / ShaderProgram::use - track unique IDs.
         static void countProgramUse(unsigned int programId);

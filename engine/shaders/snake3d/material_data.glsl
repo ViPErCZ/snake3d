@@ -6,6 +6,13 @@
 // permutation. Layout MUST match Manager::MaterialDataStd140 byte-for-byte
 // (std140 packing).
 //
+// ENGINE-OWNED shader prelude. Resolved by any shader via
+//   #include "snake3d/material_data.glsl"
+// through the ShaderLoader engine include root (default "EngineShaders/",
+// populated by the copy_engine_shaders CMake target). Examples no longer
+// carry a private copy -- this is the single source of truth for the
+// MaterialData UBO layout.
+//
 // D1.2x state (rolling migration): most ambient / fog / reflection /
 // rain / uv / hole flags now read from this UBO instead of legacy
 // `uniform vec3 ambientLightColor; ...` etc. D1.1c also moves the
@@ -97,6 +104,14 @@ layout(std140) uniform MaterialData {
     SpotLight  material_spotLights[8];
     int        material_numPointLights;
     int        material_numSpotLights;
+
+    // Emissive feature (H7+). When material_emissiveEnabled != 0, basic.fs
+    // adds (material_emissive_color * material_emissive_intensity) to final
+    // fragment color AFTER all light contributions. Pre-multiplied; gated by
+    // FEATURE_EMISSIVE_BLOOM ifdef (bit 10 in ShaderFeatureMask).
+    vec3  material_emissive_color;
+    float material_emissive_intensity;
+    int   material_emissiveEnabled;
 };
 
 #endif

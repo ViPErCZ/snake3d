@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <snake3d/Tools/Picking.h>
+
 using namespace std;
 using namespace Node3D;
 
@@ -39,6 +41,11 @@ namespace Manager {
 
         // --- SPECTATOR MÓD / REFLECTION PASS ---
         return glm::lookAt(position, position + front, up);
+    }
+
+    bool Camera::worldToScreen(const glm::vec3 &worldPos, const glm::mat4 &projection,
+                               const int width, const int height, glm::vec2 &out) {
+        return Tools::worldToScreen(worldPos, width, height, getViewMatrix(), projection, out);
     }
 
     void Camera::setReflectionPass(const bool value) {

@@ -13,7 +13,7 @@ using namespace Material;
 
 namespace Model {
     BarrelNode3D::BarrelNode3D(const shared_ptr<ContextState> &contextState,
-                               const shared_ptr<ResourceManager> &resourceManager) : MeshNode3D(
+                               const shared_ptr<ResourceManager> &resourceManager) : LitMeshNode3D(
         contextState, nullptr, resourceManager) {
     }
 

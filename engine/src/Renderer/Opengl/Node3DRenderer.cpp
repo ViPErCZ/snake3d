@@ -1,5 +1,8 @@
 #include <snake3d/Renderer/Opengl/Node3DRenderer.h>
 
+#include <snake3d/Renderer/Opengl/RenderStats.h>
+#include <snake3d/Tools/Frustum.h>
+
 using namespace Model;
 using namespace Manager;
 using namespace std;
@@ -54,7 +57,17 @@ namespace Renderer {
         if (mode == reflection && !rootNode->isIncludeInPlanarReflection()) {
             return;
         }
+        if (mode == refraction && !rootNode->isIncludeInRefraction()) {
+            return; // skip only the water surface; the terrain/bed IS refracted
+        }
 
+        // Frustum-cull this pass against the camera the pass actually renders with. The
+        // PlanarReflectionRenderer physically mirrors the camera for the reflection pass
+        // (and restores it after), so getViewMatrix() is already the mirror view here -
+        // one expression covers the main, reflection and refraction passes correctly.
+        const Tools::Frustum frustum(projection * camera->getViewMatrix());
+        Renderer::CullState::frustum = &frustum;
         rootNode->render(camera, projection, 1, glm::mat4(1), shadows);
+        Renderer::CullState::frustum = nullptr;
     }
 } // Renderer

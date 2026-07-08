@@ -2,8 +2,11 @@
 #include <algorithm>
 #include <chrono>
 
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
 #include <snake3d/Renderer/Opengl/RenderStats.h>
+#include <snake3d/Tools/Frustum.h>
 
 using namespace std;
 using namespace Renderer;
@@ -40,17 +43,44 @@ namespace Manager {
     }
 
     void RenderManager::initBloom() {
+        // Self-register the engine bloom shaders from EngineShaders/bloom (dropped
+        // next to the executable by the copy_engine_shaders target) so ANY example
+        // gets bloom by just calling initBloom() + toggleBloom() — no per-example
+        // shader copying or registration. The BloomRenderer ctor fetches them, so
+        // they must exist BEFORE it is built.
+        resourceManager->addShader("blur", std::make_shared<ShaderProgram>(
+            Resource::ShaderLoader::loadShader(
+                "EngineShaders/bloom/blur.vs", "EngineShaders/bloom/blur.fs")));
+        resourceManager->addShader("bloomFinal", std::make_shared<ShaderProgram>(
+            Resource::ShaderLoader::loadShader(
+                "EngineShaders/bloom/bloom_final.vs", "EngineShaders/bloom/bloom_final.fs")));
         bloomRenderer = make_unique<BloomRenderer>(resourceManager, width, height);
     }
 
-    void RenderManager::initShadowMapping() {
-        depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get());
+    void RenderManager::initShadowMapping(const int shadowResolution) {
+        depthMapRenderer = make_unique<DepthMapRenderer>(camera.get(), projection, resourceManager.get(),
+                                                         shadowResolution);
     }
 
     void RenderManager::initReflection() {
         planarReflectionRenderer = make_unique<PlanarReflectionRenderer>(contextState, resourceManager, camera, projection, width, height);
         planarReflectionRenderer->setRenderManager(this);
         planarReflectionRenderer->updateRenderers(renderers);
+    }
+
+    void RenderManager::initRefraction() {
+        refractionRenderer = make_unique<Renderer::RefractionRenderer>(contextState, resourceManager, camera, projection, width, height);
+        refractionRenderer->setRenderManager(this);
+        refractionRenderer->updateRenderers(renderers);
+    }
+
+    void RenderManager::setReflectionPlane(const glm::vec3 &normal, const float offset) {
+        if (planarReflectionRenderer) planarReflectionRenderer->setReflectionPlane(normal, offset);
+    }
+
+    void RenderManager::setReflectionResolutionScale(const float scale) {
+        if (planarReflectionRenderer) planarReflectionRenderer->setResolutionScale(scale);
+        if (refractionRenderer) refractionRenderer->setResolutionScale(scale);
     }
 
     void RenderManager::addRenderer(shared_ptr<BaseRenderer> renderer, const int priority) {
@@ -61,6 +91,9 @@ namespace Manager {
         if (planarReflectionRenderer) {
             planarReflectionRenderer->updateRenderers(renderers);
         }
+        if (refractionRenderer) {
+            refractionRenderer->updateRenderers(renderers);
+        }
     }
 
     bool RenderManager::removeRenderer(const shared_ptr<BaseRenderer> &renderer) {
@@ -69,6 +102,9 @@ namespace Manager {
                  [&renderer](const RendererEntry &entry) { return entry.renderer == renderer; });
         if (planarReflectionRenderer) {
             planarReflectionRenderer->updateRenderers(renderers);
+        }
+        if (refractionRenderer) {
+            refractionRenderer->updateRenderers(renderers);
         }
         return renderers.size() != before;
     }
@@ -86,6 +122,11 @@ namespace Manager {
             camera->syncFollowPosition();
             RenderStats::setPass(RenderPass::Reflection);
             planarReflectionRenderer->render3D(dt, gFrameId);
+        }
+        if (reflections && refractionRenderer) {
+            camera->syncFollowPosition();
+            RenderStats::setPass(RenderPass::Reflection);
+            refractionRenderer->render3D(dt, gFrameId);
         }
         RenderStats::setPass(RenderPass::Main);
 
@@ -110,7 +151,7 @@ namespace Manager {
         if (shadows && depthMapRenderer) {
             glDepthFunc(GL_LESS);
             glEnable(GL_POLYGON_OFFSET_FILL);
-            glPolygonOffset(3.0f, 3.0f);
+            glPolygonOffset(shadowDepthBias, shadowDepthBias);
 
             glm::vec3 sceneMin(FLT_MAX);
             glm::vec3 sceneMax(-FLT_MAX);
@@ -134,14 +175,33 @@ namespace Manager {
                 depthMapRenderer->beforeRender(index);
                 depthMapRenderer->bind(index, matrix);
 
-                glCullFace(GL_FRONT);
+                // Cull shadow casters to this cascade's light-space box: the matrix is
+                // lightProjection*lightView, so its frustum bounds exactly the casters
+                // that can project into this cascade. Off-box casters contribute no
+                // shadow to the lit area, so skipping them is loss-free.
+                const Tools::Frustum lightFrustum(matrix);
+                Renderer::CullState::frustum = &lightFrustum;
+
+                // Opt-in front-face culling for the depth pass eliminates self-shadow
+                // acne on closed casters. RAW GL (not ContextState): the overlay / 2D
+                // passes toggle GL_CULL_FACE outside ContextState, so its cache is stale
+                // at shadow-pass entry and a cached enable() would no-op, leaving culling
+                // off. Restored to the engine default (disabled) right after the casters.
+                if (shadowFrontCull) {
+                    glEnable(GL_CULL_FACE);
+                    glCullFace(GL_FRONT);
+                }
 
                 for (auto Iter = renderers.begin(); Iter < renderers.end(); ++Iter) {
                     if (Iter->renderer->isShadow()) {
                         Iter->renderer->renderShadowMap();
                     }
                 }
-                glCullFace(GL_BACK);
+                Renderer::CullState::frustum = nullptr;
+                if (shadowFrontCull) {
+                    glCullFace(GL_BACK);
+                    glDisable(GL_CULL_FACE);
+                }
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -159,7 +219,7 @@ namespace Manager {
         constexpr GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, attachments);
 
-        if (bloom) {
+        if (bloom && bloomRenderer) {
             bloomRenderer->beforeRender(MODE::bloom);
         }
 
@@ -188,7 +248,7 @@ namespace Manager {
         RenderStats::mainPassMsCpu =
             std::chrono::duration<float, std::milli>(gpuEnd - mainStart).count();
 
-        if (bloom) {
+        if (bloom && bloomRenderer) {
             this->bloomRenderer->afterRender();
         }
         gFrameId++;
@@ -216,6 +276,9 @@ namespace Manager {
         }
         if (planarReflectionRenderer) {
             planarReflectionRenderer->resize(width, height, projection);
+        }
+        if (refractionRenderer) {
+            refractionRenderer->resize(width, height, projection);
         }
 
         for (auto &entry : renderers) {

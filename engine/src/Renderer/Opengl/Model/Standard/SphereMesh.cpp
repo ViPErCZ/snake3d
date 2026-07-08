@@ -56,13 +56,19 @@ namespace Model {
                 GLuint i2 = i0 + (segments + 1);
                 GLuint i3 = i2 + 1;
 
+                // CCW-outward winding so back-face culling (GL_BACK) keeps the
+                // visible outer surface. (Was reverse-wound with front faces pointing
+                // inward; that only matters once a caller enables culling - e.g.
+                // pacman3d's depth-write-off pellet decal. Unculled users like
+                // SphereShape / snake tiles are unaffected: they draw both faces and
+                // light via the vertex normal, which is independent of winding.)
                 indices.push_back(i0);
-                indices.push_back(i2);
                 indices.push_back(i1);
+                indices.push_back(i2);
 
                 indices.push_back(i1);
-                indices.push_back(i2);
                 indices.push_back(i3);
+                indices.push_back(i2);
             }
         }
 

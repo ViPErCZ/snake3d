@@ -24,7 +24,7 @@ vec2 TexCoords = fs_in.TexCoords;
 #include "pipeline/parallax/parallax.glsl"
 #include "functions/fog.glsl"
 #include "functions/alpha.glsl"
-#include "functions/lights.glsl"
+#include "snake3d/lights.glsl"
 
 void main()
 {

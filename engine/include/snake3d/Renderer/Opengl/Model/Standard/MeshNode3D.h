@@ -9,9 +9,6 @@
 #include <snake3d/Tools/Tagged.h>
 #include <snake3d/Tools/Visibility.h>
 #include <snake3d/Manager/ResourceManager.h>
-#include <snake3d/Lights/DirectionalLight.h>
-#include <snake3d/Lights/PointLight.h>
-#include <snake3d/Lights/SpotLight.h>
 #include <snake3d/Tools/ContextState.h>
 
 namespace CollisionShape {
@@ -51,12 +48,6 @@ namespace Model {
 
         [[nodiscard]] const std::vector<std::shared_ptr<CollisionShape::CollisionShape3D> > &getCollisionShapes() const;
 
-        virtual void setDirectionalLight(const std::shared_ptr<Lights::DirectionalLight> &directional_light);
-
-        virtual void setSpotLights(const std::vector<std::shared_ptr<Lights::SpotLight> > &spot_light);
-
-        virtual void setPointLights(const std::vector<std::shared_ptr<Lights::PointLight> > &point_light);
-
         void setTransformDetached(bool transform_detached, bool recursive = true);
 
         void make_unique();
@@ -75,6 +66,13 @@ namespace Model {
 
         [[nodiscard]] bool isIncludeInPlanarReflection() const;
 
+        // Refraction pass: water surfaces exclude THEMSELVES (so they don't refract into
+        // themselves), but the terrain/scene below the water must be INCLUDED - hence a
+        // separate flag from planar reflection (where the terrain is excluded instead).
+        void disableRefraction();
+
+        [[nodiscard]] bool isIncludeInRefraction() const;
+
         std::string getAnimation() { return animation; }
 
         [[nodiscard]] virtual bool isCollisionShapeNode() const { return false; }
@@ -92,13 +90,11 @@ namespace Model {
         std::vector<std::shared_ptr<MeshNode3D> > children;
         std::vector<std::shared_ptr<CollisionShape::CollisionShape3D> > collisionShapes;
         std::shared_ptr<Manager::ResourceManager> resourceManager;
-        std::shared_ptr<Lights::DirectionalLight> directionalLight;
-        std::vector<std::shared_ptr<Lights::SpotLight> > spotLights;
-        std::vector<std::shared_ptr<Lights::PointLight> > pointLights;
         int depth = 0;
         bool transformDetached;
         bool childrenChangedSignal;
         bool includePlanarReflection = true;
+        bool includeRefraction = true;
         int childrenChangedSignalCycles = 0;
         std::string animation;
         uint64_t lastUpdatedFrame;

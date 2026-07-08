@@ -78,11 +78,12 @@ namespace Animation {
     }
 
     void AnimationPlayer::start(const string &name, const bool loop) {
-        this->setRepeat(loop);
+        this->setRepeat(loop); // kept for back-compat (isCompleted consumers)
         const auto meta = metadata.at(name);
         if (!meta) {
             throw std::invalid_argument("Animation metadata not found");
         }
+        meta->repeat = loop; // per-clip loop; play() reads this, not the global
         meta->pause = false;
         meta->alpha = 1.0f;
     }
@@ -136,7 +137,7 @@ namespace Animation {
 
             auto raw_time = meta->animation_duration.count() * anim->second->tps;
             if (raw_time >= anim->second->duration) {
-                if (repeat) {
+                if (meta->repeat) {
                     raw_time = 0.0f;
                     meta->animation_duration = std::chrono::seconds(0);
                 } else {
@@ -208,6 +209,13 @@ namespace Animation {
         return meta;
     }
 
+    vector<string> AnimationPlayer::getAnimationNames() const {
+        vector<string> names;
+        names.reserve(animations.size());
+        for (const auto &[name, clip] : animations) names.push_back(name);
+        return names;
+    }
+
     shared_ptr<AnimationPlayer> AnimationPlayer::clone() const {
         auto copy = make_shared<AnimationPlayer>();
         copy->animations = animations;
@@ -272,11 +280,17 @@ namespace Animation {
 
             const auto transform = parent_mat * local_transform;
 
-            if (anim_node) {
-                meta->bone_transform[*node] = parent_mat * local_transform * (bones[*node])->offset_matrix;
-            } else {
-                meta->bone_transform[*node] = local_transform;
-            }
+            // finalBonesMatrix = globalTransform * inverseBind, for EVERY skin joint - whether or
+            // not it carries animation keys. The old else-branch stored the bare local_transform
+            // for non-animated joints, dropping both the parent accumulation and the offset, which
+            // collapsed partially-animated rigs (0 A.D.'s target_marker: only the 4 "rear" bones
+            // move, the rest of each arrow chain is static). Computing `transform * offset` here
+            // matches the animated branch and is correct for both (at bind, global_rest*offset==I).
+            // NOTE: global_inverse is deliberately NOT applied (the engine's convention bakes the
+            // root transform into the mesh/offsets; applying it flips correctly-exported rigs like
+            // the birds upside-down). Rigs that carry a non-identity root (e.g. a Collada <unit>
+            // scale) must bake it out at the asset level instead - target_marker.dae uses meter=1.
+            meta->bone_transform[*node] = transform * (bones[*node])->offset_matrix;
 
             for (const auto &n: node) {
                 node_traversal(n, transform);

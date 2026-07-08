@@ -7,6 +7,9 @@
 #include <vector>
 #include <snake3d/Renderer/Opengl/Scene/SceneRenderer.h>
 #include <snake3d/Handler/Debug/ManipulatorHandler.h>
+#include <snake3d/Lights/DirectionalLight.h>
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
 #include <snake3d/Manager/KeyboardManager.h>
 #include <snake3d/Manager/RenderManager.h>
 #include <snake3d/Manager/ResourceManager.h>

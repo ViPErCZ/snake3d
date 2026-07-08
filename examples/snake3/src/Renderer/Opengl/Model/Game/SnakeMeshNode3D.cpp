@@ -57,7 +57,7 @@ namespace Model {
 
     SnakeMeshNode3D::SnakeMeshNode3D(const shared_ptr<ContextState> &contextState, const shared_ptr<StandardMesh> &mesh,
                                      const shared_ptr<ResourceManager> &resourceManager, const shared_ptr<CollisionSystem3D> &collisionSystem)
-        : MeshNode3D(contextState, mesh, resourceManager), collisionSystem(collisionSystem) {
+        : LitMeshNode3D(contextState, mesh, resourceManager), collisionSystem(collisionSystem) {
         timerUniform = make_shared<TimerUniform>(true);
         timerUniform2 = make_shared<TimerUniform>(false);
         if (resourceManager) {
@@ -327,7 +327,7 @@ namespace Model {
     }
 
     void SnakeMeshNode3D::setSpotLights(const vector<shared_ptr<SpotLight>> &spot_light) {
-        MeshNode3D::setSpotLights(spot_light);
+        LitMeshNode3D::setSpotLights(spot_light);
         if (resourceManager) {
             if (tileLightingFeature) tileLightingFeature->setSpots(spotLights);
             respawnMaterial->setSpotLights(spotLights);
@@ -340,7 +340,7 @@ namespace Model {
     }
 
     void SnakeMeshNode3D::setPointLights(const vector<shared_ptr<PointLight>> &point_light) {
-        MeshNode3D::setPointLights(point_light);
+        LitMeshNode3D::setPointLights(point_light);
         if (resourceManager) {
             if (tileLightingFeature) tileLightingFeature->setPoints(pointLights);
             respawnMaterial->setPointLights(point_light);

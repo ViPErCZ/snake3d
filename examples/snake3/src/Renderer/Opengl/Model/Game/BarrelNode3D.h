@@ -4,10 +4,10 @@
 #include <snake3d/Renderer/Opengl/Material/MaterialInstance.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
-#include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
+#include "Renderer/Opengl/Model/Game/LitMeshNode3D.h"
 
 namespace Model {
-    class BarrelNode3D final : public MeshNode3D {
+    class BarrelNode3D final : public LitMeshNode3D {
     public:
         explicit BarrelNode3D(const std::shared_ptr<Tools::ContextState> &contextState,
                               const std::shared_ptr<Manager::ResourceManager> &resourceManager);

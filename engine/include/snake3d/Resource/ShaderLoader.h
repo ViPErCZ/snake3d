@@ -57,6 +57,19 @@ namespace Resource {
 
         static unsigned int bindFromBuffer(const std::string& vertexStr, const std::string& fragmentStr);
         static unsigned int bindFromBuffer(const std::string& vertexStr, const std::string& geometryStr, const std::string& fragmentStr);
+
+        // Engine shader include root. When an `#include "..."` cannot be
+        // resolved relative to the including file's own directory, the loader
+        // falls back to <engineIncludeRoot>/<name>. This is the GLSL analogue
+        // of a C `-I` path: the engine ships its UBO prelude (frame_data.glsl,
+        // material_data.glsl, ...) under engine/shaders/, copied to the build
+        // dir as "EngineShaders/" by the copy_engine_shaders CMake target, so
+        // any consumer can `#include "snake3d/frame_data.glsl"` without
+        // duplicating the file. Default is CWD-relative "EngineShaders",
+        // matching how every other asset path is resolved against the CWD.
+        static void setEngineIncludeRoot(const fs::path& root);
+        static const fs::path& getEngineIncludeRoot();
+
     protected:
         // Backward-compatible wrapper kolem stateful resolveru. Inicializuje
         // file table prázdně, neguarduje proti dvojímu includu globálně mezi

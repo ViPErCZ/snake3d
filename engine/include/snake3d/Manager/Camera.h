@@ -21,6 +21,14 @@ namespace Manager {
         explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
         [[nodiscard]] float getZoom() const;
         [[nodiscard]] glm::mat4 getViewMatrix();
+
+        // Project a world point to a screen pixel (top-left origin) using this
+        // camera's view + the given projection and viewport. Returns false when the
+        // point is behind the camera (out then untouched). Convenience for anchoring
+        // HUD elements (health bars, labels) over 3D objects; wraps Tools::worldToScreen.
+        bool worldToScreen(const glm::vec3 &worldPos, const glm::mat4 &projection,
+                           int width, int height, glm::vec2 &out);
+
         [[nodiscard]] const glm::vec3 &getPosition() const;
         [[nodiscard]] const glm::vec3 &getFront() const;
         [[nodiscard]] glm::vec3 getUp() const;

@@ -102,6 +102,11 @@ namespace Handler::Debug {
         // přes click v Selectable.
         mutable std::weak_ptr<Node3D::Transform> inspectorSelected;
 
+        // True jakmile user jednou explicitně klikne "(none)". Zabrání auto-
+        // select default-na-prvni-item logice v drawObjectInspector aby přepsala
+        // user explicit deselect na příští frame.
+        mutable bool inspectorUserDeselected = false;
+
         // Auto-stack left column: každý draw* zachytí bottom Y (GetWindowPos.y
         // + GetWindowSize.y) a další panel na něj naváže přes SetNextWindowPos
         // ImGuiCond_Always. Trade-off: panely jsou NoMove (jinak by drag mohl

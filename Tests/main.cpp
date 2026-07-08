@@ -7,6 +7,7 @@
 #include <snake3d/Physic/CapsuleShape.h>
 #include <snake3d/Physic/CylinderShape.h>
 #include <snake3d/Physic/Dynamics/DynamicBody.h>
+#include <snake3d/Physic/CollisionSystem3D.h>
 #include "../examples/snake3/src/Manager/LevelManager.h"
 #include "../examples/snake3/src/Handler/EatLocationHandler.h"
 #include "../examples/snake3/src/Renderer/Opengl/Model/Game/SnakeMeshNode3D.h"
@@ -443,4 +444,94 @@ TEST_CASE("DynamicBody integrate is a no-op for non-positive dt") {
     body.integrate(-0.1f, {0.0f, 0.0f, -9.81f});
     CHECK(body.getPosition().x == Catch::Approx(0.0f));
     CHECK(body.getVelocity().z == Catch::Approx(0.0f));
+}
+
+// ---- Scene-query API: overlapSphere / overlapAABB ------------------------
+// Build a static box collider node at `pos` with full extents `size` on the
+// given collision layer, registered in `sys`. Mirrors the engine's collider
+// setup (node + CollisionShape3D child + computeWorldMatrix) without rendering.
+static shared_ptr<MeshNode3D> addBoxCollider(CollisionSystem3D &sys, const glm::vec3 &pos,
+                                             const glm::vec3 &size, const uint32_t layer) {
+    auto node = make_shared<MeshNode3D>(nullptr, nullptr, nullptr);
+    auto box = make_shared<BoxShape>(nullptr, nullptr, size);
+    auto shape = make_shared<CollisionShape3D>(nullptr, nullptr, box);
+    shape->setCollisionLayer(layer);
+    shape->setCollisionMask(~0u);
+    node->addNode(shape);
+    node->setPosition(pos);
+    node->computeWorldMatrix(glm::mat4(1.0f));
+    sys.addCollider(node, true);
+    return node;
+}
+
+TEST_CASE("overlapSphere reports penetration against a box collider") {
+    CollisionSystem3D sys;
+    // 2x2x2 box at origin -> world AABB [-1,-1,-1]..[1,1,1].
+    auto node = addBoxCollider(sys, {0.0f, 0.0f, 0.0f}, glm::vec3(2.0f), 1u);
+
+    SECTION("sphere just clear of the box -> no hit") {
+        // center x=1.6, r=0.5 -> closest (1,0,0), dist 0.6 > 0.5.
+        const auto hits = sys.overlapSphere({1.6f, 0.0f, 0.0f}, 0.5f);
+        CHECK(hits.empty());
+    }
+    SECTION("sphere overlapping the +X face -> one hit with correct manifold") {
+        // center x=1.3, r=0.5 -> closest (1,0,0), dist 0.3, depth 0.2, normal +X.
+        const auto hits = sys.overlapSphere({1.3f, 0.0f, 0.0f}, 0.5f);
+        REQUIRE(hits.size() == 1);
+        CHECK(hits[0].node == node);
+        CHECK(hits[0].depth == Catch::Approx(0.2f));
+        CHECK(hits[0].normal.x == Catch::Approx(1.0f));
+        CHECK(hits[0].normal.y == Catch::Approx(0.0f));
+        CHECK(hits[0].contact.x == Catch::Approx(1.0f));
+        CHECK(hits[0].worldAABB.max.x == Catch::Approx(1.0f));
+    }
+    SECTION("sphere far away -> no hit") {
+        CHECK(sys.overlapSphere({5.0f, 0.0f, 0.0f}, 0.5f).empty());
+    }
+}
+
+TEST_CASE("overlapAABB reports the minimum-translation axis") {
+    CollisionSystem3D sys;
+    addBoxCollider(sys, {0.0f, 0.0f, 0.0f}, glm::vec3(2.0f), 1u); // [-1..1]^3
+
+    SECTION("box overlapping mostly along X -> shallow X push") {
+        // probe centered (1.4,0,0) size 1 -> [0.9..1.9]x[-0.5..0.5]x[-0.5..0.5].
+        // overlaps: x = 1-0.9 = 0.1 (smallest), y = z = 1.0.
+        const AABB probe{{0.9f, -0.5f, -0.5f}, {1.9f, 0.5f, 0.5f}};
+        const auto hits = sys.overlapAABB(probe);
+        REQUIRE(hits.size() == 1);
+        CHECK(hits[0].depth == Catch::Approx(0.1f));
+        CHECK(hits[0].normal.x == Catch::Approx(1.0f));
+        CHECK(hits[0].normal.y == Catch::Approx(0.0f));
+        CHECK(hits[0].normal.z == Catch::Approx(0.0f));
+    }
+    SECTION("box clear of the collider -> no hit") {
+        const AABB probe{{2.0f, 2.0f, 2.0f}, {3.0f, 3.0f, 3.0f}};
+        CHECK(sys.overlapAABB(probe).empty());
+    }
+}
+
+TEST_CASE("scene queries respect the layer mask") {
+    CollisionSystem3D sys;
+    constexpr uint32_t WORLD = 1u;
+    constexpr uint32_t BLOCKER = 1u << 8; // 256
+    auto worldNode = addBoxCollider(sys, {0.0f, 0.0f, 0.0f}, glm::vec3(2.0f), WORLD);
+    auto blockerNode = addBoxCollider(sys, {0.0f, 0.0f, 0.0f}, glm::vec3(2.0f), BLOCKER);
+
+    // Probe overlaps BOTH boxes (same spot), but the mask selects which layers
+    // are returned.
+    SECTION("mask = BLOCKER returns only the blocker collider") {
+        const auto hits = sys.overlapSphere({0.0f, 0.0f, 0.0f}, 0.5f, BLOCKER);
+        REQUIRE(hits.size() == 1);
+        CHECK(hits[0].node == blockerNode);
+    }
+    SECTION("mask = WORLD returns only the world collider") {
+        const auto hits = sys.overlapSphere({0.0f, 0.0f, 0.0f}, 0.5f, WORLD);
+        REQUIRE(hits.size() == 1);
+        CHECK(hits[0].node == worldNode);
+    }
+    SECTION("mask = WORLD|BLOCKER (and default ~0) returns both") {
+        CHECK(sys.overlapSphere({0.0f, 0.0f, 0.0f}, 0.5f, WORLD | BLOCKER).size() == 2);
+        CHECK(sys.overlapSphere({0.0f, 0.0f, 0.0f}, 0.5f).size() == 2);
+    }
 }

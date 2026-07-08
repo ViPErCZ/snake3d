@@ -1154,7 +1154,11 @@ namespace Scenes {
                     directionTextNode->setPosition(glm::vec3(10, height - 80, 0.0f));
                     positionTextNode->setPosition(glm::vec3(10, height - 60, 0.0f));
                     const auto dirLightNode = manipulatorHandler->getLightsHandler()->getDirLightNode();
-                    dirLightNode->setDirectionalLight(directionalLight);
+                    // DirectionalLightNode3D renders its arrow gizmo from its own
+                    // OrientableLight (setOrientableLight), not from a stored
+                    // DirectionalLight -- the old setDirectionalLight call here
+                    // wrote a member nobody read. Dropped with the MeshNode3D
+                    // light-storage cleanup (lights are now game/LitMeshNode3D).
                     addMeshNode3D(dirLightNode);
                     addMeshNode2D(focusTextNode);
                     addMeshNode2D(colorTextNode);

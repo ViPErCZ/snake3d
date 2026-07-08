@@ -3,8 +3,12 @@
 #include <atomic>
 
 namespace Renderer {
+    const Tools::Frustum *CullState::frustum = nullptr;
+
     std::atomic<int> RenderStats::drawCallsThisFrame{0};
     int RenderStats::drawCallsLastFrame = 0;
+    std::atomic<int> RenderStats::culledThisFrame{0};
+    int RenderStats::culledLastFrame = 0;
 
     float RenderStats::mainPassMsCpu = 0.0f;
     float RenderStats::mainPassMsCpuOnly = 0.0f;
@@ -31,6 +35,7 @@ namespace Renderer {
 
     void RenderStats::newFrame() {
         drawCallsLastFrame = drawCallsThisFrame.exchange(0);
+        culledLastFrame = culledThisFrame.exchange(0);
         for (int i = 0; i < static_cast<int>(RenderPass::Count); ++i) {
             drawsPerPassLastFrame[i] = drawsPerPassThisFrame[i];
             drawsPerPassThisFrame[i] = 0;
@@ -43,6 +48,10 @@ namespace Renderer {
     void RenderStats::countDraw() {
         drawCallsThisFrame.fetch_add(1, std::memory_order_relaxed);
         ++drawsPerPassThisFrame[static_cast<int>(currentPass)];
+    }
+
+    void RenderStats::countCulled() {
+        culledThisFrame.fetch_add(1, std::memory_order_relaxed);
     }
 
     void RenderStats::countProgramUse(const unsigned int programId) {

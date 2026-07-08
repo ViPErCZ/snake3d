@@ -9,6 +9,21 @@
 using namespace std;
 
 namespace Resource {
+    namespace {
+        // Engine shader include root (see ShaderLoader::setEngineIncludeRoot).
+        // CWD-relative default; the copy_engine_shaders CMake target drops
+        // engine/shaders/* here next to the executable.
+        fs::path g_engineIncludeRoot{"EngineShaders"};
+    }
+
+    void ShaderLoader::setEngineIncludeRoot(const fs::path &root) {
+        g_engineIncludeRoot = root;
+    }
+
+    const fs::path &ShaderLoader::getEngineIncludeRoot() {
+        return g_engineIncludeRoot;
+    }
+
     unsigned int ShaderLoader::loadShader(const fs::path &vertexPath) {
         const auto vertex = loadShaderToBuffer(vertexPath);
         const string vertexStr(vertex.vertex.begin(), vertex.vertex.end());
@@ -297,7 +312,20 @@ namespace Resource {
             }
             const size_t name_length = end - beg;
             const fs::path file_name = src.substr(beg, name_length);
-            const fs::path full_path = base_dir / file_name;
+            // Resolve relative to the including file's directory first. If that
+            // file doesn't exist, fall back to the engine include root so
+            // shaders can pull engine-owned preludes via
+            // `#include "snake3d/frame_data.glsl"` without a local copy. The
+            // resolved path is used as the canonical key everywhere below
+            // (duplicate-include guard + fileTable + mtime hot-reload), so the
+            // fallback path is tracked consistently.
+            fs::path full_path = base_dir / file_name;
+            if (!fs::exists(full_path)) {
+                fs::path engine_path = g_engineIncludeRoot / file_name;
+                if (fs::exists(engine_path)) {
+                    full_path = std::move(engine_path);
+                }
+            }
 
             // Délka řádky s `#include` (po včetně '\n' pokud existuje), abychom
             // ho mohli vyhodit ze zdroje a nahradit injektovanou expanzí.

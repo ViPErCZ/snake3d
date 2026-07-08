@@ -18,7 +18,8 @@ namespace Renderer {
         standard = 0,
         shadowMap = 1,
         reflection = 2,
-        bloom = 3
+        bloom = 3,
+        refraction = 4
     };
 
     class BaseRenderer {

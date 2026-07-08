@@ -45,10 +45,10 @@ uniform sampler2D roughnessMap;
 // The holeMap sampler stays legacy.
 uniform sampler2D holeMap;
 
-#include "functions/frame_data.glsl"
-#include "functions/material_data.glsl"
+#include "snake3d/frame_data.glsl"
+#include "snake3d/material_data.glsl"
 #include "functions/fog_material.glsl"
-#include "functions/lights.glsl"
+#include "snake3d/lights.glsl"
 #include "functions/reflection.glsl"
 #include "functions/shadows.glsl"
 #include "functions/alpha_material.glsl"
@@ -224,6 +224,16 @@ void main()
             final += CalcSpotLight(material_spotLights[i], normalize(Normal), fragPos, viewDir, ambient, frame_uTime, lightAlbedo, lightSpecular);
         }
     }
+
+#ifdef FEATURE_EMISSIVE_BLOOM
+    // Self-illumination after all light contributions. Added BEFORE fog/gamma
+    // so it gets fogged + tonemapped together with lit color. BrightColor
+    // output below also sees the boosted brightness -> automatic bloom for
+    // emissive >= 1.0 surfaces.
+    if (material_emissiveEnabled != 0) {
+        final += material_emissive_color * material_emissive_intensity;
+    }
+#endif
 
 #ifdef FEATURE_FOG
     if (material_fogEnable != 0) {

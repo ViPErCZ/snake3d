@@ -8,7 +8,7 @@ in vec3 fragNormal;
 in vec3 fragPos;
 in vec2 TexCoords;
 
-#include "../functions/lights.glsl"
+#include "snake3d/lights.glsl"
 
 uniform bool hasFallbackColor = false;
 uniform vec3 fallbackColor = vec3(1.0, 1.0, 1.0);

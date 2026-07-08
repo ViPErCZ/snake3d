@@ -9,6 +9,9 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include <snake3d/Lights/DirectionalLight.h>
+#include <snake3d/Lights/PointLight.h>
+#include <snake3d/Lights/SpotLight.h>
 #include <snake3d/Physic/CollisionSystem3D.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 

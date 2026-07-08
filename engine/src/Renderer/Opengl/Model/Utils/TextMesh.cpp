@@ -39,7 +39,11 @@ namespace ModelUtils {
 
             const auto bearingY = static_cast<float>(ch->bearing.y);
             const float sizeY = h;
-            const bool exclude = c == '-' || c == '`' || c == '~' || c == '\'' || c == '=';
+            // These glyphs are NOT bottom-aligned by the air_below tweak: they sit above the
+            // baseline by design (dashes/quotes float; +, *, = are centred on the math axis).
+            // Without '+'/'*' here the "+30 health" plus sign got dragged down to the baseline.
+            const bool exclude = c == '-' || c == '`' || c == '~' || c == '\'' || c == '=' ||
+                                 c == '+' || c == '*';
             const float air_below = (bearingY > sizeY && !exclude) ? (bearingY - sizeY) : 0.0f;
             float ypos = y - bearingY + air_below;
 

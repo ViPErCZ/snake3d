@@ -10,6 +10,8 @@
 #include <snake3d/Renderer/Opengl/Model/Standard/ArrayMesh.h>
 #include <snake3d/Tools/Layers.h>
 
+#include "snake3d/Renderer/Opengl/Material/Feature/EmissiveFeature.h"
+
 using namespace std;
 using namespace Animation;
 using namespace Physic;
@@ -78,6 +80,7 @@ namespace Scenes {
             .with(make_shared<Feature::NormalMapFeature>(coinNormal))
             .with(make_shared<Feature::PbrFeature>(coinMetalness, coinRoughness))
             .with(make_shared<Feature::IblFeature>(resourceManager->getTexture("skybox")))
+            //.with(make_shared<Feature::EmissiveFeature>(glm::vec3(1.0, 0.85, 0.3), 0.5f))
             .with(coinAlbedoFeature)
             .with(resourceManager->getFogFeature())
             .build(*resourceManager->getShaderRegistry());

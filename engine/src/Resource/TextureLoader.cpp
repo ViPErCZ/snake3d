@@ -58,8 +58,8 @@ namespace Resource {
         return textureID;
     }
 
-    unsigned int TextureLoader::bindFromBuffer(const vector<unsigned char> &buffer, const bool isAlbedo) {
-        return bindFromBuffer(buffer.data(), buffer.size(), isAlbedo);
+    unsigned int TextureLoader::bindFromBuffer(const vector<unsigned char> &buffer, const bool isAlbedo, const bool pointSampled) {
+        return bindFromBuffer(buffer.data(), buffer.size(), isAlbedo, pointSampled);
     }
 
     shared_ptr<TextureManager> TextureLoader::decodeImage(const void * buffer, const unsigned int length) {
@@ -120,7 +120,7 @@ namespace Resource {
         throw std::runtime_error("Texture failed to load from memory.");
     }
 
-    unsigned int TextureLoader::bindFromBuffer(const void *buffer, const unsigned int length, const bool isAlbedo) {
+    unsigned int TextureLoader::bindFromBuffer(const void *buffer, const unsigned int length, const bool isAlbedo, const bool pointSampled) {
         unsigned int textureID;
         int widthImg, heightImg, numColCh;
         glGenTextures(1, &textureID);
@@ -156,11 +156,17 @@ namespace Resource {
                 }
             }
 
-            glGenerateMipmap(GL_TEXTURE_2D);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            if (pointSampled) {
+                // Palette atlas / pixel art: keep texels crisp, no mip blending.
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            } else {
+                glGenerateMipmap(GL_TEXTURE_2D);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
         } else {
             throw std::runtime_error("Texture failed to load from memory.");
         }

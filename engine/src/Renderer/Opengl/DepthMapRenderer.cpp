@@ -7,10 +7,12 @@ using namespace Lights;
 using std::shared_ptr;
 
 namespace Renderer {
-    DepthMapRenderer::DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager) {
+    DepthMapRenderer::DepthMapRenderer(Camera *camera, const glm::mat4 &proj, ResourceManager *resManager,
+                                       const int shadowResolution) {
         resourceManager = resManager;
         this->camera = camera;
         this->projection = proj;
+        shadowRes = shadowResolution > 0 ? shadowResolution : SHADOW_WIDTH;
         shader = resourceManager->getShader("shadowShader").get();
         shader->use();
         shader->setMat4("projection", projection);
@@ -24,7 +26,7 @@ namespace Renderer {
         glGenTextures(1, &depthMap); {
             glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
             glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT,
-                         SHADOW_WIDTH, SHADOW_HEIGHT, 3, 0,
+                         shadowRes, shadowRes, 3, 0,
                          GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
             glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -46,7 +48,7 @@ namespace Renderer {
 
     void DepthMapRenderer::beforeRender(const int index) const {
         glDisable(GL_BLEND);
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glViewport(0, 0, shadowRes, shadowRes);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
@@ -110,6 +112,58 @@ namespace Renderer {
 
         const glm::vec3 lightDir = glm::normalize(light->getDirection());
 
+        // --- RTS-style stable focus-box shadow (opt-in) -------------------------
+        if (focusBoxMode) {
+            // Ground focus point: where the camera's view ray meets y = 0.
+            const glm::vec3 camPos = camera->getPosition();
+            const glm::vec3 camFront = camera->getFront();
+            const float t = (std::fabs(camFront.y) > 1e-4f) ? (-camPos.y / camFront.y) : 0.0f;
+            glm::vec3 focus = (t > 0.0f) ? camPos + camFront * t : camPos;
+            focus.y = 0.0f;
+
+            // Box scales with camera height so it always covers the visible area, but
+            // stays tight enough for crisp, stable shadows. baseRadius is the half-extent
+            // at the default camera height (~30); grow it with how high we are.
+            const float R = std::max(focusBoxRadius, focusBoxRadius * (camPos.y / 30.0f));
+
+            const glm::mat4 lightView = glm::lookAt(focus + lightDir, focus, glm::vec3(0, 1, 0));
+
+            // Tight AABB on the ground (±R in XZ) extended in Y to hold the casters.
+            float minX = std::numeric_limits<float>::max(), maxX = std::numeric_limits<float>::lowest();
+            float minY = std::numeric_limits<float>::max(), maxY = std::numeric_limits<float>::lowest();
+            float minZ = std::numeric_limits<float>::max(), maxZ = std::numeric_limits<float>::lowest();
+            for (float dx = -R; dx <= R; dx += 2.0f * R)
+                for (float dz = -R; dz <= R; dz += 2.0f * R)
+                    for (float wy = -2.0f; wy <= 18.0f; wy += 20.0f) {
+                        const glm::vec4 trf = lightView * glm::vec4(focus.x + dx, wy, focus.z + dz, 1.0f);
+                        minX = std::min(minX, trf.x); maxX = std::max(maxX, trf.x);
+                        minY = std::min(minY, trf.y); maxY = std::max(maxY, trf.y);
+                        minZ = std::min(minZ, trf.z); maxZ = std::max(maxZ, trf.z);
+                    }
+            constexpr float zPad = 5.0f;
+            glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -maxZ - zPad, -minZ + zPad);
+
+            // Texel-snap to kill shimmer while panning.
+            glm::mat4 shadowMatrix = lightProjection * lightView;
+            glm::vec4 shadowOrigin = shadowMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            shadowOrigin *= static_cast<float>(shadowRes) / 2.0f;
+            glm::vec4 roundOffset = (glm::round(shadowOrigin) - shadowOrigin) * (2.0f / static_cast<float>(shadowRes));
+            roundOffset.z = 0.0f; roundOffset.w = 0.0f;
+            lightProjection[3] += roundOffset;
+
+            // The focus box is a SINGLE tight ortho box, so all cascades would be
+            // identical and every fragment samples cascade 0 (cascadeEnds0 = 1e9).
+            // Rendering the other cascades was pure waste - 3x the shadow draws+fill
+            // for layers never read. Emit ONE cascade: the depth pass renders the
+            // scene into layer 0 once, the sampling shader routes everything to it.
+            const glm::mat4 m = lightProjection * lightView;
+            lightSpaceMatrices.assign(1, m);
+            cascadeEndsWorld[0] = 1e9f;          // every fragment lands in cascade 0
+            cascadeEndsWorld[1] = 1e9f;
+            cascadeEndsWorld[2] = 1e9f;
+            return lightSpaceMatrices;
+        }
+
         constexpr float cameraFar = 80.0f;
         constexpr float cameraNear = 0.1f;
 
@@ -156,8 +210,8 @@ namespace Renderer {
             // Snap world origin to texel grid to eliminate shadow shimmer on camera movement
             glm::mat4 shadowMatrix = lightProjection * lightView;
             glm::vec4 shadowOrigin = shadowMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            shadowOrigin *= static_cast<float>(SHADOW_WIDTH) / 2.0f;
-            glm::vec4 roundOffset = (glm::round(shadowOrigin) - shadowOrigin) * (2.0f / static_cast<float>(SHADOW_WIDTH));
+            shadowOrigin *= static_cast<float>(shadowRes) / 2.0f;
+            glm::vec4 roundOffset = (glm::round(shadowOrigin) - shadowOrigin) * (2.0f / static_cast<float>(shadowRes));
             roundOffset.z = 0.0f;
             roundOffset.w = 0.0f;
             lightProjection[3] += roundOffset;
@@ -183,10 +237,18 @@ namespace Renderer {
         const float fh = farPlane * tanHalfFov;
         const float fw = fh * aspect;
 
-        const glm::vec3 nc = camera->getPosition() + camera->getFront() * nearPlane;
-        const glm::vec3 fc = camera->getPosition() + camera->getFront() * farPlane;
-        const glm::vec3 camUp = camera->getUp();
-        const glm::vec3 camRight = camera->getRight();
+        const glm::vec3 camFront = camera->getFront();
+        const glm::vec3 nc = camera->getPosition() + camFront * nearPlane;
+        const glm::vec3 fc = camera->getPosition() + camFront * farPlane;
+        // Derive an ORTHONORMAL right/up from front + up instead of trusting the
+        // camera's cached right/up members. Cameras driven by setFront/setUp (e.g.
+        // the RTS top-down cam) never run updateCameraVectors, so getRight() is stale
+        // and getUp() isn't perpendicular to front -> the frustum corners come out
+        // skewed and the cascade ortho fits a garbage volume (shadows stretch across
+        // the map, especially while panning). For a camera whose right is already
+        // consistent (cross(front, up)) this is a no-op.
+        const glm::vec3 camRight = glm::normalize(glm::cross(camFront, camera->getUp()));
+        const glm::vec3 camUp = glm::normalize(glm::cross(camRight, camFront));
 
         // near plane
         corners[0] = nc + camUp * nh - camRight * nw;

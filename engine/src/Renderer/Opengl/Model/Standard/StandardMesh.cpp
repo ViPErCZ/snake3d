@@ -91,8 +91,27 @@ namespace Model {
 
         mesh->bind();
         Renderer::RenderStats::countDraw();
+        // E2: per-material depth bias (polygon offset) -- enabled only for this draw, then
+        // restored, so it never leaks onto other geometry. Lets decals/overlays beat z-fighting
+        // against the surface without a world-space offset. Also disable depth WRITES for the
+        // biased draw: coplanar overlapping decals would otherwise write the same biased depth
+        // and flicker against EACH OTHER as the camera moves -- with writes off they just blend
+        // in draw order (still depth-TESTED against the opaque scene, so cover stays correct).
+        const float bias = material ? material->getDepthBias() : 0.0f;
+        GLboolean prevDepthMask = GL_TRUE;
+        if (bias != 0.0f) {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(bias, bias);
+            glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
+            glDepthMask(GL_FALSE);
+        }
         glDrawElements(static_cast<GLenum>(drawElement), static_cast<int>(mesh->getIndices().size()), GL_UNSIGNED_INT,
                        nullptr);
+        if (bias != 0.0f) {
+            glDepthMask(prevDepthMask);
+            glPolygonOffset(0.0f, 0.0f);
+            glDisable(GL_POLYGON_OFFSET_FILL);
+        }
         if (const auto materialInstance = std::dynamic_pointer_cast<const MaterialInstance>(material)) {
             materialInstance->unbind();
         } else if (const auto shaderMaterial = std::dynamic_pointer_cast<const ShaderMaterial>(material)) {
@@ -199,6 +218,14 @@ namespace Model {
 
     bool StandardMesh::getDepthWrite() const {
         return depthWrite;
+    }
+
+    void StandardMesh::setCullBackFace(const bool cull) {
+        this->cullBackFace = cull;
+    }
+
+    bool StandardMesh::getCullBackFace() const {
+        return cullBackFace;
     }
 
     Blending StandardMesh::getBlending() const {

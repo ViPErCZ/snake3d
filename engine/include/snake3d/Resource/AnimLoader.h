@@ -47,6 +47,10 @@ namespace Resource {
                 const std::unordered_map<std::string, uint32_t>& bone_map);
             static ModelUtils::Tree<uint32_t> loadAnimationTree(const aiScene* scene, std::vector<std::shared_ptr<Animation::Bone>> &bones, std::unordered_map<std::string, uint32_t> &bone_map,
                 std::map<std::string, std::shared_ptr<Animation::AnimationClip> > &anim);
+            // Force a self-consistent bind pose for rigs whose Collada inverse-bind matrices
+            // disagree with their node hierarchy (re-derives offset = inverse(bind_global)).
+            // No-op for rigs that are already consistent. See loadObj for the rationale.
+            static void reconcileBindPose(const ModelUtils::Tree<uint32_t>& skeleton, std::vector<std::shared_ptr<Animation::Bone>>& bones);
     };
 
 } // Resource

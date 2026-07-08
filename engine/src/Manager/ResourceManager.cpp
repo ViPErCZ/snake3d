@@ -162,17 +162,18 @@ namespace Manager {
         const std::string &path,
         const std::string &name,
         const bool albedo,
-        const std::function<void()> &onReady) {
+        const std::function<void()> &onReady,
+        const bool pointSampled) {
         std::unique_lock lock(mutex);
         waitingModels.push_back(name);
         ++loadingCount;
 
-        threads.emplace_back([this, path, name, albedo, onReady]() {
+        threads.emplace_back([this, path, name, albedo, onReady, pointSampled]() {
             loader->enqueueTexture(path, albedo,
-                                   [this, name, onReady](const vector<unsigned char> &buffer, const bool isAlbedo) {
+                                   [this, name, onReady, pointSampled](const vector<unsigned char> &buffer, const bool isAlbedo) {
                                        {
                                            std::lock_guard guard(pendingMutex);
-                                           pendingTextures.push({name, buffer, isAlbedo, onReady});
+                                           pendingTextures.push({name, buffer, isAlbedo, onReady, pointSampled});
                                            const auto it = std::find(waitingModels.begin(), waitingModels.end(), name);
                                            if (it != waitingModels.end()) waitingModels.erase(it);
                                        }
@@ -246,7 +247,7 @@ namespace Manager {
 
             // tady mozna misto v p.Textures mit jen buffer a ten rovnou nahrat do GPU uz tady ????
             auto texture = make_shared<TextureManager>();
-            texture->addTexture(TextureLoader::bindFromBuffer(p.buffer, p.albedo));
+            texture->addTexture(TextureLoader::bindFromBuffer(p.buffer, p.albedo, p.pointSampled));
             addTexture(p.name, texture);
             p.buffer.clear();
             if (p.onReady) p.onReady();

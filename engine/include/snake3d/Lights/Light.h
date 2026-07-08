@@ -4,9 +4,10 @@
 #include <glm/vec3.hpp>
 
 #include <snake3d/Tools/Transform.h>
+#include <snake3d/Tools/Visibility.h>
 
 namespace Lights {
-    class Light : public Node3D::Transform {
+    class Light : public Node3D::Transform, public Node3D::Visibility {
     public:
 
         [[nodiscard]] glm::vec3 getAmbient() const;

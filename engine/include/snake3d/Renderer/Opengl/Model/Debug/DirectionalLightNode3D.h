@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <snake3d/Lights/OrientableLight.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/MeshNode3D.h>
 #include <snake3d/Renderer/Opengl/Model/Debug/LightNode3D.h>
 

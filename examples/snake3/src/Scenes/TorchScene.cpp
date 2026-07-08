@@ -6,9 +6,7 @@
 #include <snake3d/Physic/BoxShape.h>
 #include <snake3d/Physic/CylinderShape.h>
 #include <snake3d/Renderer/Opengl/Material/MaterialBuilder.h>
-#include <snake3d/Renderer/Opengl/Material/Feature/AlbedoFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/LightingFeature.h>
-#include <snake3d/Renderer/Opengl/Material/Feature/NormalMapFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/ShadowFeature.h>
 #include <snake3d/Resource/MaterialLoader.h>
 #include <snake3d/Renderer/Opengl/Model/Collision/CollisionShape3D.h>
@@ -83,14 +81,11 @@ namespace Scenes {
         torch->fromMesh(resourceManager->getModel("torch"));
         const auto shadowsShader = resourceManager->getShader("shadowDepthShader");
 
-        // D3.7: JSON-driven spec. torch.png + torch_normal.png jsou v JSONu jako
-        // static features (MaterialLoader si je sám resolvne přes ResourceManager);
-        // runtime-wired lighting/shadow/fog doplňujeme z živých objektů.
         auto spec = resourceManager->loadMaterial("Assets/Materials/torch.json");
         if (spec.hasLighting) {
             spec.builder.with(make_shared<Feature::LightingFeature>(
                 directionalLight,
-                std::vector<std::shared_ptr<Lights::PointLight>>{},
+                std::vector<std::shared_ptr<PointLight>>{},
                 spotLights));
         }
         if (spec.hasShadow) {

@@ -38,9 +38,10 @@ namespace Feature {
         // The opt-out gate (material_directionLightEnable) also lives here.
         // directional->bind() still runs (when present) so material.shininess
         // + sampler ints land on the program.
+        const bool dirVisible = directional && directional->isVisible();
         if (ctx.materialData) {
-            ctx.materialData->material_directionLightEnable = directional ? 1 : 0;
-            if (directional) {
+            ctx.materialData->material_directionLightEnable = dirVisible ? 1 : 0;
+            if (dirVisible) {
                 ctx.materialData->material_dirLight_direction = directional->getDirection();
                 ctx.materialData->material_dirLight_ambient   = directional->getAmbient();
                 ctx.materialData->material_dirLight_diffuse   = directional->getDiffuse();
@@ -48,7 +49,7 @@ namespace Feature {
             }
             if (ctx.materialDirty) *ctx.materialDirty = true;
         }
-        if (directional) {
+        if (dirVisible) {
             directional->bind(&shader);
         }
 

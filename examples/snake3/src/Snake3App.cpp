@@ -1,58 +1,154 @@
+#include "Snake3App.h"
+
 #include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
 #include <nlohmann/json.hpp>
-#include "App.h"
+
+#include <stdafx.h>
+
+#include <snake3d/Manager/ShaderRegistry.h>
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/TextureManager.h>
 #include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
 #include <snake3d/Renderer/Opengl/Material/Uniform/TextureArrayUniform.h>
 #include <snake3d/Renderer/Opengl/Model/Standard/AnimationArrayMesh.h>
+#include <snake3d/Renderer/Opengl/Model/Standard/Animation/AnimationPlayer.h>
+#include <snake3d/Renderer/Opengl/Model/Utils/Mesh.h>
 #include <snake3d/Renderer/Opengl/RenderStats.h>
 #include <snake3d/Resource/AnimLoader.h>
 #include <snake3d/Resource/ShaderLoader.h>
 #include <snake3d/Resource/TextureLoader.h>
+#include <snake3d/Tools/BuildSettings.h>
 
+#include "Scenes/MainScene.h"
+#include "Scenes/PreloaderScene.h"
+
+namespace fs = std::filesystem;
+
+using namespace std;
+using namespace snake3d;
 using namespace Animation;
 using namespace Build;
 using namespace Handler::Debug;
+using namespace Manager;
+using namespace Model;
+using namespace Renderer;
+using namespace Resource;
+using namespace Scenes;
 
-App::App(const shared_ptr<Camera> &camera, const int width, const int height) : camera(camera), width(width), height(height) {
-    resourceManager = make_shared<ResourceManager>();
-    shaderRegistry = make_shared<ShaderRegistry>();
-    resourceManager->setShaderRegistry(shaderRegistry);
-    resourceManager->setFogFeature(make_shared<Feature::FogFeature>(false));
-    keyboardManager = make_unique<KeyboardManager>();
+namespace {
+    struct TextureEntry {
+        std::string name;
+        std::string path;
+        std::string category;
+    };
+}
 
-    projection = glm::perspective(
-        glm::radians(camera->getZoom()),
-        static_cast<float>(width) / static_cast<float>(height),
-        0.1f,
-        1000.0f
-    );
-    contextState = make_shared<ContextState>();
+Snake3App::Snake3App() = default;
+Snake3App::~Snake3App() = default;
 
-    rendererManager = make_shared<RenderManager>(contextState, camera, resourceManager, projection, width, height);
-    rendererManager->setWidth(width);
-    rendererManager->setHeight(height);
-    environment = make_shared<Environment>();
-    mainScene = make_unique<MainScene>(
+WindowConfig Snake3App::getWindowConfig() const {
+    WindowConfig cfg;
+    cfg.title = "Snake 3";
+    cfg.width = 1920;
+    cfg.height = 1080;
+    cfg.glMajor = 3;
+    cfg.glMinor = 3;
+    cfg.compatProfile = true;
+    return cfg;
+}
+
+void Snake3App::onInit() {
+    // Build mainScene now that all managers are alive. Construction is cheap;
+    // init() runs later (after assets are ready) in onSceneReady().
+    mainScene = make_shared<MainScene>(
         nullptr,
-        vector<shared_ptr<SpotLight> >{},
-        vector<shared_ptr<PointLight> >{},
+        vector<shared_ptr<Lights::SpotLight>>{},
+        vector<shared_ptr<Lights::PointLight>>{},
         rendererManager, camera, projection, resourceManager, width, height
     );
-    //mainScene->setEnvironment(environment);
+
+    registerShaders();
+    preflightShaders();
+
+    rendererManager->initBloom();
+    rendererManager->initShadowMapping();
+    rendererManager->initReflection();
+
+    buildPreloaderScene();
+    initResourceManifest();
 }
 
-void App::initScene() const {
+void Snake3App::onSceneReady() {
     mainScene->init(100);
     mainScene->attachRenderer();
+    wireDebugOverlay();
 }
 
-void App::Init() {
-    InitResourceManager();
+void Snake3App::onFrame(float /*dt*/) {
+    using clock = std::chrono::steady_clock;
+    auto t0 = clock::now();
+    mainScene->update();
+    auto t1 = clock::now();
+    mainScene->physics();
+    auto t2 = clock::now();
+    mainScene->render();
+    auto t3 = clock::now();
+    RenderStats::updateMs  = std::chrono::duration<float, std::milli>(t1 - t0).count();
+    RenderStats::physicsMs = std::chrono::duration<float, std::milli>(t2 - t1).count();
+    RenderStats::renderMs  = std::chrono::duration<float, std::milli>(t3 - t2).count();
+}
 
-    shaderRegistry->registerMaster("blur",
-        "Assets/Shaders/bloom/blur.vs", "Assets/Shaders/bloom/blur.fs");
-    shaderRegistry->registerMaster("bloomFinal",
-        "Assets/Shaders/bloom/bloom_final.vs", "Assets/Shaders/bloom/bloom_final.fs");
+void Snake3App::onLoadingFrame() {
+    if (preloaderScene) {
+        preloaderScene->update();
+        preloaderScene->render();
+    }
+}
+
+void Snake3App::onKeyboardInput(GLFWwindow* window, const int key, const int scancode, const int action, const int mods) {
+    if (mainScene) {
+        mainScene->keyboardInput(window, key, scancode, action, mods);
+    }
+}
+
+void Snake3App::onMouseButton(GLFWwindow* window, const int button, const int action, const int mods) {
+    if (mainScene) {
+        mainScene->mouseButtonCallback(window, button, action, mods);
+    }
+}
+
+void Snake3App::onCursorPos(GLFWwindow* /*window*/, const double x, const double y) {
+    const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
+    if (mainScene) {
+        mainScene->setCursorPosition(cursor);
+    }
+}
+
+void Snake3App::onResize(const int w, const int h, const glm::mat4& proj) {
+    if (mainScene) {
+        mainScene->resize(w, h, proj);
+    }
+    if (preloaderScene) {
+        preloaderScene->resize(w, h, proj);
+    }
+}
+
+bool Snake3App::shouldProcessCameraKeyboard() const {
+    return !(mainScene && mainScene->isMenuVisible());
+}
+
+bool Snake3App::shouldProcessCameraMouse() const {
+    return !(mainScene && mainScene->isMenuVisible());
+}
+
+void Snake3App::registerShaders() {
+    // Bloom shaders are engine-owned now: RenderManager::initBloom() self-registers
+    // "blur" + "bloomFinal" from EngineShaders/bloom (no per-example copy/register).
     shaderRegistry->registerMaster("shadowShader",
         "Assets/Shaders/shadow_map.vs", "Assets/Shaders/shadow_map.fs");
     shaderRegistry->registerMaster("shadowDepthShader",
@@ -77,23 +173,6 @@ void App::Init() {
         "Assets/Shaders/particle/particle_3d_render_tex.vs", "Assets/Shaders/particle/particle_3d_render_tex.fs");
     shaderRegistry->registerMaster("particle_render_2d_tex",
         "Assets/Shaders/particle/particle_render_2d_tex.vs", "Assets/Shaders/particle/particle_render_2d_tex.fs");
-
-    resourceManager->addShader("blur",
-        std::make_shared<ShaderProgram>(
-            ShaderLoader::loadShader(
-                "Assets/Shaders/bloom/blur.vs",
-                "Assets/Shaders/bloom/blur.fs"
-                ))
-    );
-
-    resourceManager->addShader(
-        "bloomFinal",
-        std::make_shared<ShaderProgram>(
-            ShaderLoader::loadShader(
-                "Assets/Shaders/bloom/bloom_final.vs",
-                "Assets/Shaders/bloom/bloom_final.fs"
-                ))
-    );
 
     resourceManager->addShader(
         "shadowShader",
@@ -189,194 +268,40 @@ void App::Init() {
                 "Assets/Shaders/particle/particle_render_2d_tex.fs"
             ))
     );
+}
 
+void Snake3App::preflightShaders() {
     const auto warmup = shaderRegistry->warmupAll();
-    std::cout << "[App] Shader pre-flight: " << warmup.compiled
+    std::cout << "[Snake3App] Shader pre-flight: " << warmup.compiled
               << " compiled, " << warmup.failed.size() << " failed\n";
     if (!warmup.failed.empty()) {
-        std::cerr << "[App] FATAL: pre-flight failed for masters:";
+        std::cerr << "[Snake3App] FATAL: pre-flight failed for masters:";
         for (const auto& name : warmup.failed) std::cerr << " " << name;
         std::cerr << "\n";
         std::abort();
     }
+}
 
-    rendererManager->initBloom();
-    rendererManager->initShadowMapping();
-    rendererManager->initReflection();
-
+void Snake3App::buildPreloaderScene() {
     preloaderScene = make_shared<PreloaderScene>(nullptr,
-        vector<shared_ptr<SpotLight> >{},
-        vector<shared_ptr<PointLight> >{},
+        vector<shared_ptr<Lights::SpotLight>>{},
+        vector<shared_ptr<Lights::PointLight>>{},
         rendererManager, camera, projection, resourceManager, width, height);
     preloaderScene->init(0);
     preloaderScene->attachRenderer();
-
-    const fs::path assets_dir{"Assets/Objects"};
-    resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
-        std::cout << "Model pacman ready!" << std::endl;
-    });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "Coin.obj", "coin", []() {
-        std::cout << "Model coin ready!" << std::endl;
-    });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.glb", "torch", []() {
-        std::cout << "Model torch ready!" << std::endl;
-    });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "streetlamp.glb", "streetlamp", []() {
-        std::cout << "Model street lamp ready!" << std::endl;
-    });
-    resourceManager->loadAsyncModel<Mesh>(assets_dir / "barrel.glb", "barrel", []() {
-        std::cout << "Model barrel ready!" << std::endl;
-    });
 }
 
-void App::initDebugOverlay(GLFWwindow* window) {
+void Snake3App::wireDebugOverlay() {
     if constexpr (isDebug) {
-        imguiOverlay = std::make_unique<ImGuiOverlay>(window, rendererManager);
-    }
-}
-
-void App::run() {
-    if (state == SceneState::LOADING) {
-        resourceManager->processPending();
-
-        if (!scanning && resourceManager->isAllLoaded()) {
-            std::cout << "\rLoading DONE!      " << std::endl;
-            state = SceneState::RUNNING;
-
-            rendererManager->reset();
-            initScene();
-            if constexpr (isDebug) {
-                if (imguiOverlay && mainScene) {
-                    imguiOverlay->setManipulatorHandler(mainScene->getManipulatorHandler());
-                    imguiOverlay->setScene(mainScene);
-                    imguiOverlay->setCollisionSystem(mainScene->getCollisionSystem());
-                }
-            }
-        }
-    }
-
-    if constexpr (isDebug) {
-        if (imguiOverlay) imguiOverlay->beginFrame();
-    }
-
-    if (state == SceneState::RUNNING) {
-        using clock = std::chrono::steady_clock;
-        auto t0 = clock::now();
-        mainScene->update();
-        auto t1 = clock::now();
-        mainScene->physics();
-        auto t2 = clock::now();
-        mainScene->render();
-        auto t3 = clock::now();
-        Renderer::RenderStats::updateMs  = std::chrono::duration<float, std::milli>(t1 - t0).count();
-        Renderer::RenderStats::physicsMs = std::chrono::duration<float, std::milli>(t2 - t1).count();
-        Renderer::RenderStats::renderMs  = std::chrono::duration<float, std::milli>(t3 - t2).count();
-    } else {
-        preloaderScene->update();
-        preloaderScene->render();
-    }
-
-    if constexpr (isDebug) {
-        if (imguiOverlay) {
-            imguiOverlay->renderPanels();
-            imguiOverlay->endFrame();
+        if (imguiOverlay && mainScene) {
+            imguiOverlay->setManipulatorHandler(mainScene->getManipulatorHandler());
+            imguiOverlay->setScene(mainScene);
+            imguiOverlay->setCollisionSystem(mainScene->getCollisionSystem());
         }
     }
 }
 
-void App::processInput(GLFWwindow *window, const int keyCode, const int scancode, const int action, const int mods) const {
-    mainScene->keyboardInput(window, keyCode, scancode, action, mods);
-    //keyboardManager->onKeyPress(keyCode, scancode, action, mods);
-}
-
-void App::mouseButtonCallback(GLFWwindow *window, const int button, const int action, const int mods) const {
-    if (mainScene) {
-        mainScene->mouseButtonCallback(window, button, action, mods);
-    }
-
-    if (camera) {
-        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-            // Disable the cursor while holding RMB so the spectator camera gets
-            // unbounded mouse deltas - otherwise the cursor hits the screen edge
-            // and yaw stops accumulating after ~half a turn.
-            if (action == GLFW_PRESS) {
-                cursorModeBeforeSpectator = glfwGetInputMode(window, GLFW_CURSOR);
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            } else if (action == GLFW_RELEASE) {
-                glfwSetInputMode(window, GLFW_CURSOR, cursorModeBeforeSpectator);
-            }
-            camera->onMouseDown(button, action, mods);
-        }
-    }
-}
-
-void App::mousePositionCallback(GLFWwindow *window, const double x, const double y) const {
-    const glm::vec2 cursor(static_cast<float>(x), static_cast<float>(y));
-
-    if (mainScene) {
-        mainScene->setCursorPosition(cursor);
-    }
-    if (state != SceneState::RUNNING || camera == nullptr || (mainScene && mainScene->isMenuVisible())) {
-        return;
-    }
-
-    if constexpr (isDebug) {
-        const bool ctrlHeld = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
-                           || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
-        const bool rmbHeld = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-        if (!ctrlHeld && !rmbHeld) {
-            lastMouseRotationSkipped = true;
-            return;
-        }
-
-        if (lastMouseRotationSkipped) {
-            camera->resetMouseDelta();
-            lastMouseRotationSkipped = false;
-        }
-    }
-
-    camera->processMouseMovement(x, y);
-}
-
-void App::setKeyState(const int key, const bool pressed) const {
-    camera->setKeyState(key, pressed);
-}
-
-void App::cameraProcessKeyboard(GLFWwindow *window) const {
-    if (mainScene && mainScene->isMenuVisible()) {
-        return;
-    }
-    camera->processKeyboard(window, 1);
-}
-
-void App::resize(const int width, const int height) {
-    if (width <= 0 || height <= 0) {
-        return;
-    }
-
-    this->width = width;
-    this->height = height;
-    projection = glm::perspective(
-        glm::radians(camera->getZoom()),
-        static_cast<float>(width) / static_cast<float>(height),
-        0.1f,
-        1000.0f
-    );
-
-    if (rendererManager) {
-        rendererManager->resize(width, height, projection);
-    }
-
-    if (mainScene) {
-        mainScene->resize(width, height, projection);
-    }
-
-    if (preloaderScene) {
-        preloaderScene->resize(width, height, projection);
-    }
-}
-
-void App::InitResourceManager() const {
+void Snake3App::initResourceManifest() {
     vector<string> faces;
     faces.emplace_back("Assets/Skybox/cloud/right.jpg");
     faces.emplace_back("Assets/Skybox/cloud/left.jpg");
@@ -488,5 +413,22 @@ void App::InitResourceManager() const {
                                        "Assets/Shaders/explosion/explosion.geom",
                                        "Assets/Shaders/explosion/explosion.fs", []() {
         std::cout << "Shader explosion ready!" << std::endl;
+    });
+
+    const fs::path assets_dir{"Assets/Objects"};
+    resourceManager->loadAsyncModel<AnimationPlayer>(assets_dir / "pacman.glb", "pacman", []() {
+        std::cout << "Model pacman ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "Coin.obj", "coin", []() {
+        std::cout << "Model coin ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "torch.glb", "torch", []() {
+        std::cout << "Model torch ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "streetlamp.glb", "streetlamp", []() {
+        std::cout << "Model street lamp ready!" << std::endl;
+    });
+    resourceManager->loadAsyncModel<Mesh>(assets_dir / "barrel.glb", "barrel", []() {
+        std::cout << "Model barrel ready!" << std::endl;
     });
 }

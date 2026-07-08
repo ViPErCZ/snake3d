@@ -18,6 +18,7 @@ namespace Material::TextureSlots {
     constexpr int AoMap            = 7;  // ambient occlusion
     constexpr int HoleMap          = 8;
     constexpr int PlanarReflection = 20; // reflection texture (far slot)
+    constexpr int Refraction       = 21; // refraction texture (scene-minus-water, for water)
 } // Material::TextureSlots
 
 #endif //SNAKE3_TEXTURESLOTS_H

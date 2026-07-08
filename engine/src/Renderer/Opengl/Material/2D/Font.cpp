@@ -38,6 +38,10 @@ namespace Material {
 
         std::vector<unsigned char> atlasData(atlasWidth * atlasHeight, 0);
 
+        // 1px gap between glyphs so GL_LINEAR sampling at a glyph's edge can't
+        // pull in texels from the neighbour packed against it in the atlas
+        // (was the "thin line under tall caps like N/K" bleed).
+        constexpr int PAD = 1;
         int x = 0, y = 0, rowH = 0;
 
         for (unsigned char c = 32; c < 128; c++) {
@@ -60,8 +64,8 @@ namespace Material {
             ch.uvSize = glm::vec2(static_cast<float>(bmp.width) / atlasWidth, static_cast<float>(bmp.rows) / atlasHeight);
             characters.insert({static_cast<char>(c), ch});
 
-            x += static_cast<int>(bmp.width);
-            if (bmp.rows > rowH) rowH = static_cast<int>(bmp.rows);
+            x += static_cast<int>(bmp.width) + PAD;
+            if (static_cast<int>(bmp.rows) + PAD > rowH) rowH = static_cast<int>(bmp.rows) + PAD;
         }
 
         ascender_pixels = static_cast<float>(face->size->metrics.ascender >> 6);
@@ -80,6 +84,9 @@ namespace Material {
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RED, atlasWidth, atlasHeight, 0,GL_RED,GL_UNSIGNED_BYTE, atlasData.data());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // clamp so edge sampling never wraps to the opposite side of the atlas
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     const Character *Font::getCharacter(const char c) const {
