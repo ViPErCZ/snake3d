@@ -45,13 +45,21 @@ add_custom_target(copy_assets ALL
         COMMENT "Cleaning and copying Assets folder"
 )
 
-# Example asset-copy targets are ALL-built, so they must be guarded on the
-# example's presence: an absent example (e.g. CI / partial push) must not fail
-# the default `all` build trying to copy a non-existent Assets/ directory.
+# Optional examples: detect presence once here so both the asset-copy targets
+# below and the executable targets further down can be guarded uniformly via
+# EXAMPLE_<name>_PRESENT. An absent example (CI / partial checkout) is skipped
+# instead of failing the build. examples/snake3 is mandatory and not gated.
+foreach(ex minimal pacman3d gumman3d rts fps)
+    if(EXISTS "${CMAKE_SOURCE_DIR}/examples/${ex}/src/main.cpp")
+        set(EXAMPLE_${ex}_PRESENT ON)
+    else()
+        set(EXAMPLE_${ex}_PRESENT OFF)
+    endif()
+endforeach()
 
 # Minimal example assets live in their own MinimalAssets/ root so they never
 # collide with copy_assets (which wipes ${CMAKE_BINARY_DIR}/Assets first).
-if(EXISTS "${CMAKE_SOURCE_DIR}/examples/minimal/Assets")
+if(EXAMPLE_minimal_PRESENT)
 add_custom_target(copy_minimal_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/MinimalAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/minimal/Assets ${CMAKE_BINARY_DIR}/MinimalAssets
@@ -61,7 +69,7 @@ endif()
 
 # Pacman3D example assets live in their own PacmanAssets/ root (same pattern as
 # MinimalAssets/) so they never collide with copy_assets.
-if(EXISTS "${CMAKE_SOURCE_DIR}/examples/pacman3d/Assets")
+if(EXAMPLE_pacman3d_PRESENT)
 add_custom_target(copy_pacman_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/PacmanAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/pacman3d/Assets ${CMAKE_BINARY_DIR}/PacmanAssets
@@ -70,7 +78,7 @@ add_custom_target(copy_pacman_assets ALL
 endif()
 
 # Gumman3D example assets live in their own GummanAssets/ root.
-if(EXISTS "${CMAKE_SOURCE_DIR}/examples/gumman3d/Assets")
+if(EXAMPLE_gumman3d_PRESENT)
 add_custom_target(copy_gumman_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/GummanAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/gumman3d/Assets ${CMAKE_BINARY_DIR}/GummanAssets
@@ -79,7 +87,7 @@ add_custom_target(copy_gumman_assets ALL
 endif()
 
 # RTS3D example assets live in their own RtsAssets/ root.
-if(EXISTS "${CMAKE_SOURCE_DIR}/examples/rts/Assets")
+if(EXAMPLE_rts_PRESENT)
 add_custom_target(copy_rts_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/RtsAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/rts/Assets ${CMAKE_BINARY_DIR}/RtsAssets
@@ -88,7 +96,7 @@ add_custom_target(copy_rts_assets ALL
 endif()
 
 # FPS example assets live in their own FpsAssets/ root.
-if(EXISTS "${CMAKE_SOURCE_DIR}/examples/fps/Assets")
+if(EXAMPLE_fps_PRESENT)
 add_custom_target(copy_fps_assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/FpsAssets
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/examples/fps/Assets ${CMAKE_BINARY_DIR}/FpsAssets
@@ -593,10 +601,10 @@ file(COPY examples/snake3/Assets DESTINATION ${CMAKE_BINARY_DIR})
 # snake3d_game) to prove the H6 Application base class is reusable without any
 # Snake3 game code.
 # ============================================================================
-# Guarded on source presence: examples are optional and may be absent from a
-# checkout (e.g. CI, or a partial push). The engine/game/Tests build must not
-# depend on them.
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/minimal/src/main.cpp")
+# Guarded on EXAMPLE_minimal_PRESENT (detected above): examples are optional and
+# may be absent from a checkout (e.g. CI, or a partial push). The
+# engine/game/Tests build must not depend on them.
+if(EXAMPLE_minimal_PRESENT)
 add_executable(Minimal
         examples/minimal/src/main.cpp
         examples/minimal/src/MinimalApp.cpp
@@ -614,7 +622,7 @@ endif()
 # Links ONLY snake3d_engine (NOT snake3d_game) to prove the engine is reusable
 # for a genuinely different game than Snake3.
 # ============================================================================
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/pacman3d/src/main.cpp")
+if(EXAMPLE_pacman3d_PRESENT)
 add_executable(Pacman3d
         examples/pacman3d/src/main.cpp
         examples/pacman3d/src/Pacman3dApp.cpp
@@ -646,7 +654,7 @@ endif()
 # Links ONLY snake3d_engine (NOT snake3d_game). First real user of the engine
 # dynamic-body / gravity physics path. Needs nlohmann_json for the level loader.
 # ============================================================================
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/gumman3d/src/main.cpp")
+if(EXAMPLE_gumman3d_PRESENT)
 add_executable(Gumman3d
         examples/gumman3d/src/main.cpp
         examples/gumman3d/src/Gumman3dApp.cpp
@@ -735,7 +743,7 @@ endif()
 # Links ONLY snake3d_engine (NOT snake3d_game): mouse unit selection, free
 # movement + steering, fog-of-war, animated combat, AOE2-style HUD.
 # ============================================================================
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/rts/src/main.cpp")
+if(EXAMPLE_rts_PRESENT)
 add_executable(Rts
         examples/rts/src/main.cpp
         examples/rts/src/RtsApp.cpp
@@ -794,7 +802,7 @@ endif()
 # Z-up world, capsule dynamic-body player, hitscan shooting, soldier AI, two
 # maps with a loading transition.
 # ============================================================================
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/fps/src/main.cpp")
+if(EXAMPLE_fps_PRESENT)
 add_executable(Fps
         examples/fps/src/main.cpp
         examples/fps/src/FpsApp.cpp
