@@ -1,0 +1,11 @@
+{
+  "_comment": "Feature order is NOT load-bearing - ShaderRegistry::makeKey OR-combines feature flags into a bitmask, so the cache key is permutation-invariant. Reorder freely.",
+  "master": "basicShader",
+  "blending": "opaque",
+  "features": [
+    { "type": "lighting" },
+    { "type": "shadow" },
+    { "type": "albedo", "color": [0.88, 0.05, 0.05] },
+    { "type": "fog" }
+  ]
+}

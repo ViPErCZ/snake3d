@@ -1,0 +1,194 @@
+#ifndef SNAKE3_RESOURCEMANAGER_H
+#define SNAKE3_RESOURCEMANAGER_H
+
+#include <atomic>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <unordered_map>
+#include <snake3d/Manager/TextureManager.h>
+#include <snake3d/Manager/ShaderProgram.h>
+#include <snake3d/Manager/ShaderRegistry.h>
+#include <snake3d/Renderer/Opengl/Material/Feature/FogFeature.h>
+#include <snake3d/Resource/ResourceLoader.h>
+
+// Forward-declare so callsites can use ResourceManager::loadMaterial without
+// pulling in nlohmann/json via MaterialLoader.h. Plný include zůstává v .cpp.
+namespace Resource { struct MaterialSpec; class FeatureRegistry; }
+
+namespace Manager {
+        using ModelUtils::Mesh;
+
+        template<class>
+        inline constexpr bool always_false = false;
+
+    class ResourceManager final {
+    public:
+        ResourceManager();
+
+        ~ResourceManager();
+
+        void addTexture(const std::string &name, const std::shared_ptr<TextureManager> &res);
+
+        void replaceTexture(const std::string &name, const std::shared_ptr<TextureManager> &res);
+
+        void addShader(const std::string &name, const std::shared_ptr<ShaderProgram> &res);
+
+        void addModel(const std::string &name, std::shared_ptr<Mesh> &res);
+
+        void addModel(const std::string &name, std::shared_ptr<Animation::AnimationPlayer> res);
+
+        std::shared_ptr<TextureManager> getTexture(const std::string &name) const;
+        bool hasTexture(const std::string &name) const;
+
+        std::shared_ptr<ShaderProgram> getShader(const std::string &name) const;
+
+        // B5c: optional handle to the shader registry. App sets it during
+        // bootstrap; scenes use it through MaterialBuilder. Will become the
+        // primary shader API in B6 once ResourceManager::getShader is retired.
+        void setShaderRegistry(std::shared_ptr<ShaderRegistry> registry) { shaderRegistry = std::move(registry); }
+        [[nodiscard]] std::shared_ptr<ShaderRegistry> getShaderRegistry() const { return shaderRegistry; }
+
+        // Global fog feature - shared across every basicShader material composition
+        // so the F-key toggle propagates to all 3D materials in one mutation.
+        // App bootstraps it; RenderManager::toggleFog mutates setEnabled.
+        void setFogFeature(std::shared_ptr<Feature::FogFeature> feature) { fogFeature = std::move(feature); }
+        [[nodiscard]] std::shared_ptr<Feature::FogFeature> getFogFeature() const { return fogFeature; }
+
+        // H5: runtime registry stringového typu -> factory pro JSON-driven static
+        // material features. Auto-bootstrap v ResourceManager ctoru registruje
+        // 7 built-in faktorek (albedo, normalMap, specular, pbr, uvTransform,
+        // bones, ibl). Game/plugin si přidá vlastní features přes
+        // registry->registerFeature(...) po construction.
+        void setFeatureRegistry(std::shared_ptr<Resource::FeatureRegistry> reg) { featureRegistry = std::move(reg); }
+        [[nodiscard]] std::shared_ptr<Resource::FeatureRegistry> getFeatureRegistry() const { return featureRegistry; }
+
+        std::shared_ptr<Mesh> getModel(const std::string &name) const;
+
+        std::shared_ptr<Animation::AnimationPlayer> getAnimationModel(const std::string &name) const;
+
+        // pointSampled: load with NEAREST filtering and no mipmaps (palette atlases /
+        // pixel-art where linear+mipmaps would blend neighbouring texels). Default keeps
+        // the trilinear behaviour used for normal albedo/PBR maps.
+        void loadAsyncTexture(const std::string &path, const std::string &name, bool albedo,
+                              const std::function<void()> &onReady = nullptr, bool pointSampled = false);
+
+        // D3.4: JSON-driven material spec loader.
+        // Tenký wrapper kolem Resource::loadFromFile - drží callsity bez include
+        // nlohmann/json. Vrací MaterialSpec s pre-naplněným builderem (static
+        // features) a flagy pro runtime-wired features (lighting/shadow/fog),
+        // které musí callsite doplnit z živých objektů.
+        [[nodiscard]] Resource::MaterialSpec loadMaterial(const std::string &path) const;
+
+        void loadAsyncShader(
+            const std::string &name,
+            const std::string &vertexPath,
+            const std::string &geometryPath,
+            const std::string &fragmentPath,
+            const std::function<void()> &onReady
+            );
+
+        template<typename T>
+        void loadAsyncModel(const std::string &path, const std::string &name, const std::function<void()> &onReady = nullptr) {
+            std::lock_guard lock(pendingMutex);
+            waitingModels.push_back(name);
+            ++loadingCount;
+
+            threads.emplace_back([this, path, name, onReady]() {
+                try {
+                    if constexpr (std::is_same_v<T, Mesh>) {
+                        loader->enqueue(path, [this, name, onReady](const std::vector<std::shared_ptr<Mesh>> &model) {
+                            {
+                                std::lock_guard guard(pendingMutex);
+                                pending.push({name, model, onReady});
+                                const auto it = std::find(waitingModels.begin(), waitingModels.end(), name);
+                                if (it != waitingModels.end()) waitingModels.erase(it);
+                            }
+                            --loadingCount;
+                        });
+                    } else if constexpr (std::is_same_v<T, Animation::AnimationPlayer>) {
+                        loader->enqueueAnimation(path, [this, name, onReady](const std::shared_ptr<Animation::AnimationPlayer> &model) {
+                            {
+                                std::lock_guard guard(pendingMutex);
+                                pendingAnim.push({name, model, onReady});
+                                const auto it = std::find(waitingModels.begin(), waitingModels.end(), name);
+                                if (it != waitingModels.end()) waitingModels.erase(it);
+                            }
+                            --loadingCount;
+                        });
+                    } else {
+                        static_assert(always_false<T>, "Unsupported type for loadAsyncModel");
+                    }
+                } catch (const std::exception &e) {
+                    std::cerr << "[ResourceManager] Failed to load model " << name << ": " << e.what() << std::endl;
+                    --loadingCount;
+                }
+            });
+        }
+
+        void processPending();
+
+        bool isAllLoaded() const;
+
+        void waitForAll();
+
+        bool release();
+
+        void clearTextures();
+
+    protected:
+        mutable std::mutex mutex{};
+        std::unordered_map<std::string, std::shared_ptr<TextureManager> > texture;
+        std::unordered_map<std::string, std::shared_ptr<ShaderProgram> > shader;
+        std::unordered_map<std::string, std::shared_ptr<Mesh> > model;
+        std::unordered_map<std::string, std::shared_ptr<Animation::AnimationPlayer> > animationModel;
+        std::shared_ptr<ShaderRegistry> shaderRegistry;
+        std::shared_ptr<Feature::FogFeature> fogFeature;
+        std::shared_ptr<Resource::FeatureRegistry> featureRegistry;
+        std::unique_ptr<Resource::ResourceLoader> loader;
+
+        mutable std::mutex pendingMutex;
+
+        struct PendingItem {
+            std::string name;
+            std::vector<std::shared_ptr<Mesh>> model;
+            std::function<void()> onReady;
+        };
+
+        struct PendingAnimation {
+            std::string name;
+            std::shared_ptr<Animation::AnimationPlayer> model;
+            std::function<void()> onReady;
+        };
+
+        struct PendingTexture {
+            std::string name;
+            std::vector<unsigned char> buffer;
+            bool albedo;
+            std::function<void()> onReady;
+            bool pointSampled = false; // NEAREST, no mipmaps (palette atlases / pixel art)
+        };
+
+        struct PendingShader {
+            std::string name;
+            std::vector<unsigned char> vertexBuffer;
+            std::vector<unsigned char> geometryBuffer;
+            std::vector<unsigned char> fragmentBuffer;
+            std::function<void()> onReady;
+        };
+
+        std::queue<PendingAnimation> pendingAnim;
+        std::queue<PendingItem> pending;
+        std::queue<PendingTexture> pendingTextures;
+        std::queue<PendingShader> pendingShaders;
+        std::vector<std::string> waitingModels;
+        std::vector<std::thread> threads;
+
+        std::atomic<int> loadingCount{0};
+    };
+} // Manager
+
+#endif //SNAKE3_RESOURCEMANAGER_H

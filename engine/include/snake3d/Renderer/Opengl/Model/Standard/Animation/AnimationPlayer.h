@@ -1,0 +1,110 @@
+#ifndef SNAKE3_ANIMATIONPLAYER_H
+#define SNAKE3_ANIMATIONPLAYER_H
+
+#include <chrono>
+#include <functional>
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+
+#include <snake3d/Tools/AnimItem.h>
+#include <snake3d/Renderer/Opengl/Model/Utils/Mesh.h>
+#include <snake3d/Renderer/Opengl/Model/Utils/Tree.h>
+
+namespace Animation {
+    using std::shared_ptr;
+    using std::vector;
+    using std::string;
+    using std::map;
+    using std::unordered_map;
+
+    struct AnimationMeta {
+        std::string name;
+        std::chrono::time_point<std::chrono::steady_clock> last_time;
+        std::chrono::duration<double> animation_duration;
+        vector<glm::mat4> bone_transform;
+        bool pause;
+        // Per-clip loop flag. The player used to keep a single global `repeat`
+        // bool, but a shared AnimationPlayer (many nodes, one player - e.g. an
+        // FPS soldier squad) had it clobbered the moment ANY node started a
+        // one-shot clip (loop=false: hit/death): every other node's looping
+        // clip then stopped looping and froze on its last frame. Loop intent is
+        // per-clip, so store it on the clip's metadata (set in start()).
+        bool repeat = false;
+        float alpha;
+        glm::mat4 world_transform;
+        shared_ptr<Animation::AnimationClip> current_animation{};
+    };
+    class AnimationPlayer {
+    public:
+        AnimationPlayer() = default;
+        explicit AnimationPlayer(const string &name);
+        AnimationPlayer(const vector<shared_ptr<ModelUtils::Mesh> > &meshes,
+                        const map<string, shared_ptr<Animation::AnimationClip>> &animations,
+                        const vector<shared_ptr<Animation::Bone> > &bones, const ModelUtils::Tree<uint32_t> &skeleton,
+                        const unordered_map<std::string, uint32_t> &bones_map,
+                        const glm::mat4 &global_matrix
+        );
+
+        void createAnimation(const string &name);
+
+        void addAnimationNode(const string &name, const shared_ptr<Animation::AnimationNode> &animationNode, int duration);
+
+        void setAcceleration(float acceleration);
+
+        void start(const string &name, bool loop = true);
+
+        void stop(const string &name) const;
+
+        void pause(const string &name) const;
+
+        void resume(const string &name) const;
+
+        void reset(const string &name);
+
+        shared_ptr<AnimationMeta> play(const string &name);
+
+        vector<shared_ptr<ModelUtils::Mesh> > getNoBonesMeshes() const;
+
+        vector<shared_ptr<ModelUtils::Mesh> > getMeshes() const;
+
+        bool isCompleted() const;
+
+        void setRepeat(bool repeat);
+
+        void setCompletedCallback(const std::function<void(AnimationPlayer*)> &callback);
+
+        shared_ptr<AnimationMeta> getMetadata(const string &name) const;
+
+        // Names of all loaded clips. Useful for models whose clip names the asset
+        // pipeline invents (e.g. assimp derives Collada animation names from the
+        // exporter's action containers) - the caller can start the first/any clip
+        // without knowing the exact string up front.
+        [[nodiscard]] vector<string> getAnimationNames() const;
+
+        shared_ptr<AnimationPlayer> clone() const;
+
+    protected:
+        void updateBonesAnimation(const shared_ptr<Animation::AnimationClip> &anim, const shared_ptr<AnimationMeta> &meta, double animation_time) const;
+        static shared_ptr<Animation::AnimationNode> findAnimationNode(const shared_ptr<Animation::AnimationClip> &animation, const shared_ptr<Animation::Bone> &bone);
+
+    private:
+        map<string, shared_ptr<Animation::AnimationClip> > animations;
+        unordered_map<string, shared_ptr<AnimationMeta> > metadata;
+        float acceleration = 1.0f;
+        bool repeat = false;
+        bool completed = false;
+
+        std::function<void(AnimationPlayer*)> completedCallback;
+        vector<shared_ptr<ModelUtils::Mesh> > meshes;
+        vector<shared_ptr<Animation::Bone> > bones;
+        vector<shared_ptr<ModelUtils::Mesh> > noBonesMeshes;
+        unordered_map<std::string, uint32_t> bones_map;
+        std::optional<ModelUtils::Tree<uint32_t> > skeleton;
+        glm::mat4 global_inverse{};
+    };
+} // Animation
+
+#endif //SNAKE3_ANIMATIONPLAYER_H

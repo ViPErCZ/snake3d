@@ -1,0 +1,65 @@
+#ifndef SNAKE3_VBO_H
+#define SNAKE3_VBO_H
+
+#include <memory>
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <vector>
+#include <string>
+
+#include <snake3d/Manager/TextureManager.h>
+
+namespace ModelUtils {
+
+    enum class TextureType {
+        Diffuse,  // Barva (Albedo)
+        Specular, // Lesk (nebo Metallic/Roughness v PBR)
+        Normal,   // Bump mapa
+        Emissive,  // Záře
+        MetalRough
+    };
+
+    struct TextureInfo {
+        std::string path;  // Cesta k souboru nebo klíč pro embedded texturu
+        TextureType type;
+        std::shared_ptr<Manager::TextureManager> texture;
+    };
+
+    // Structure to standardize the vertices used in the meshes
+    struct Vertex
+    {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec3 color;
+        glm::vec2 texUV;
+        glm::vec3 tangents;
+        glm::vec2 biTangents;
+        int BoneIDs[4];
+        float Weights[4];
+    };
+
+    struct Vertex2D {
+        glm::vec3 position{};
+        glm::vec2 texUV{};
+        glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    };
+
+    class Vbo {
+    public:
+        // Constructor that generates a Vertex Buffer Object and links it to vertices
+        explicit Vbo(const std::vector<Vertex>& vertices);
+        explicit Vbo(const std::vector<Vertex2D>& vertices);
+        explicit Vbo();
+        // Reference ID of the Vertex Buffer Object
+        GLuint ID{};
+        // Binds the VBO
+        void bind() const;
+        // Unbinds the VBO
+        static void unBind();
+        // Deletes the VBO
+        void clear() const;
+    };
+
+} // ModelUtils
+
+#endif //SNAKE3_VBO_H

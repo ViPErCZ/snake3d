@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main, feature/**]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build-and-test:
+    name: Build + ctest (Linux, ${{ matrix.build_type }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build pkg-config \
+            libglfw3-dev libglew-dev libglm-dev libgl1-mesa-dev libglu1-mesa-dev \
+            freeglut3-dev libfreetype-dev libopenal-dev libalut-dev \
+            libassimp-dev nlohmann-json3-dev libenet-dev
+
+      - name: Configure
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build engine library
+        run: cmake --build build --target snake3d_engine
+
+      - name: Build game library
+        run: cmake --build build --target snake3d_game
+
+      - name: Build game executable
+        run: cmake --build build --target Snake3
+
+      - name: Build tests
+        run: cmake --build build --target Tests
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure

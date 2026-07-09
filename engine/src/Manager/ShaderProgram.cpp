@@ -1,0 +1,273 @@
+#include <snake3d/Manager/ShaderProgram.h>
+
+#include <iostream>
+#include <variant>
+
+#include <snake3d/Manager/UboBindings.h>
+#include <snake3d/Renderer/Opengl/RenderStats.h>
+
+using namespace std;
+
+namespace Manager {
+
+    // Per-program one-time setup: UBO block bindings + shininess=0 default.
+    // pow(spec, 0) = 1 per IEEE 754 = flat constant specular contribution
+    // (no camera-tracking streak), matching pre-D1.1a Mesa-default behaviour
+    // where uninitialised uniform was 0. SpecularFeature overrides per-draw
+    // to 32 for materials wanting Phong highlights.
+    static void setupProgramDefaults(const ShaderProgram& program) {
+        program.setUniformBlock("FrameData", UBO_BINDING_FRAME);
+        program.setUniformBlock("MaterialData", UBO_BINDING_MATERIAL);
+
+        program.use();
+        program.setFloat("material.shininess", 0.0f);
+    }
+
+    ShaderProgram::ShaderProgram(const GLuint id) : id(id) {
+        setupProgramDefaults(*this);
+    }
+
+    void ShaderProgram::reload(const GLuint newId) {
+        if (newId == id) return;
+        if (id != 0) {
+            glDeleteProgram(id);
+        }
+        id = newId;
+        // Hot reload: uniform locations jsou per program ID, recompiled
+        // shader má jiné location indices. Invalidate cache, ať se znovu
+        // naplní z nového programu.
+        locationCache.clear();
+        setupProgramDefaults(*this);
+    }
+
+    GLint ShaderProgram::getUniformLocation(const std::string& name) const {
+        if (const auto it = locationCache.find(name); it != locationCache.end()) {
+            return it->second;
+        }
+        const GLint loc = glGetUniformLocation(id, name.c_str());
+        locationCache[name] = loc;
+        return loc;
+    }
+
+    GLuint ShaderProgram::getId() const {
+        return id;
+    }
+
+    void ShaderProgram::use() const {
+        glUseProgram(id);
+        Renderer::RenderStats::countProgramUse(id);
+    }
+
+    void ShaderProgram::printActiveUniforms() const {
+        use();
+        GLint uniformCount;
+        glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+        std::cout << "Active uniforms in program " << id << ": " << uniformCount << std::endl;
+
+        GLchar name[256];
+        for (GLint i = 0; i < uniformCount; ++i) {
+            GLint size;
+            GLenum type;
+            glGetActiveUniform(id, i, sizeof(name), nullptr, &size, &type, name);
+            const GLint location = glGetUniformLocation(id, name);
+            std::cout << "Uniform #" << i << ": " << name
+                      << " | Type: " << type
+                      << " | Size: " << size
+                      << " | Location: " << location << std::endl;
+        }
+    }
+
+    void ShaderProgram::setBool(const string &name, const bool value) const {
+        glUniform1i(getUniformLocation(name), value);
+    }
+
+    void ShaderProgram::setInt(const string &name, const int value) const {
+        // GLint location = getUniformLocation(name);
+        // if (location == -1) {
+        //     std::cerr << "Uniform " << name << " not found in shader\n";
+        //     return;
+        // }
+        glUniform1i(getUniformLocation(name), value);
+    }
+
+    void ShaderProgram::setFloat(const string &name, const float value) const {
+        glUniform1f(getUniformLocation(name), value);
+    }
+
+    void ShaderProgram::setDouble(const string &name, const double value) const {
+        glUniform1d(getUniformLocation(name), value);
+    }
+
+    void ShaderProgram::setFloatArr(const string &name, const vector<GLfloat> &floats) const {
+        glUniform1fv(getUniformLocation(name), static_cast<GLsizei>(floats.size()), floats.data());
+    }
+
+    void ShaderProgram::setVec2(const string &name, const glm::vec2 &value) const {
+        glUniform2fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void ShaderProgram::setVec2(const string &name, const float x, const float y) const {
+        glUniform2f(getUniformLocation(name), x, y);
+    }
+
+    void ShaderProgram::setVec3(const string &name, const glm::vec3 &value) const {
+        glUniform3fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void ShaderProgram::setVec3(const string &name, const float x, const float y, const float z) const {
+        glUniform3f(getUniformLocation(name), x, y, z);
+    }
+
+    void ShaderProgram::setVec4(const string &name, const glm::vec4 &value) const {
+        glUniform4fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void ShaderProgram::setVec4(const string &name, float x, float y, float z, float w) const {
+        glUniform4f(getUniformLocation(name), x, y, z, w);
+    }
+
+    void ShaderProgram::setMat2(const string &name, const glm::mat2 &mat) const {
+        glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void ShaderProgram::setMat3(const string &name, const glm::mat3 &mat) const {
+        glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void ShaderProgram::setMat4(const string &name, const glm::mat4 &mat) const {
+        glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void ShaderProgram::setMat4Array(const string &name, const vector<glm::mat4> &matrices) const {
+        glUniformMatrix4fv(
+            getUniformLocation(name),
+            static_cast<GLsizei>(matrices.size()),
+            GL_FALSE,
+            matrices.empty() ? nullptr : reinterpret_cast<const GLfloat *>(matrices.data())
+        );
+    }
+
+    bool ShaderProgram::hasUniform(const string &name) const {
+        return getUniformLocation(name) != -1;
+    }
+
+    template<>
+    void ShaderProgram::setUniformArray<float>(const std::string &name, const std::vector<float> &values) const {
+        const GLint location = getUniformLocation(name);
+        if (location == -1) return;
+
+        glUniform1fv(
+            location,
+            static_cast<GLsizei>(values.size()),
+            values.empty() ? nullptr : values.data()
+        );
+    }
+
+    template<>
+    void ShaderProgram::setUniformArray<
+        glm::vec2>(const std::string &name, const std::vector<glm::vec2> &values) const {
+        const GLint location = getUniformLocation(name);
+        if (location == -1) return;
+
+        glUniform2fv(
+            location,
+            static_cast<GLsizei>(values.size()),
+            values.empty() ? nullptr : reinterpret_cast<const GLfloat *>(values.data())
+        );
+    }
+
+    template<>
+    void ShaderProgram::setUniformArray<
+        glm::vec3>(const std::string &name, const std::vector<glm::vec3> &values) const {
+        const GLint location = getUniformLocation(name);
+        if (location == -1) return;
+
+        glUniform3fv(
+            location,
+            static_cast<GLsizei>(values.size()),
+            values.empty() ? nullptr : reinterpret_cast<const GLfloat *>(values.data())
+        );
+    }
+
+    template<>
+    void ShaderProgram::setUniformArray<
+        glm::vec4>(const std::string &name, const std::vector<glm::vec4> &values) const {
+        const GLint location = getUniformLocation(name);
+        if (location == -1) return;
+
+        glUniform4fv(
+            location,
+            static_cast<GLsizei>(values.size()),
+            values.empty() ? nullptr : reinterpret_cast<const GLfloat *>(values.data())
+        );
+    }
+
+    template<>
+    void ShaderProgram::setUniformArray<
+        glm::mat4>(const std::string &name, const std::vector<glm::mat4> &values) const {
+        const GLint location = getUniformLocation(name);
+        if (location == -1) return;
+
+        glUniformMatrix4fv(
+            location,
+            static_cast<GLsizei>(values.size()),
+            GL_FALSE,
+            values.empty() ? nullptr : reinterpret_cast<const GLfloat *>(values.data())
+        );
+    }
+
+    void ShaderProgram::setUniformBlock(const std::string &name, const GLuint blockBinding) const {
+        const GLuint blockIndex = glGetUniformBlockIndex(id, name.c_str());
+        if (blockIndex != GL_INVALID_INDEX) {
+            glUniformBlockBinding(id, blockIndex, blockBinding);
+        }
+        // No-op if block not present: setupProgramDefaults calls this for
+        // every known block (FrameData, MaterialData) on every program,
+        // including shaders that don't declare them (skybox, particle, 2D).
+    }
+
+    void ShaderProgram::setUniform(const std::string &name, const UniformValue &value) const {
+        GLint location = getUniformLocation(name);
+        if (location == -1) {
+            // D1.2c: per-material UBO migration moves some uniforms out of
+            // basic.fs/lights.glsl, but ShaderMaterial callers (SnakeMeshNode3D
+            // crash/respawn) still ask for "useMaterial" / "hasAlbedoTexture"
+            // on those shaders. Match setInt/setFloat/setBool/etc. and stay
+            // silent on missing locations; D1.2e will rewrite the call sites.
+            return;
+        }
+
+        std::visit([&]<typename T0>(T0 &&val) {
+            using T = std::decay_t<T0>;
+            if constexpr (std::is_same_v<T, bool>) {
+                glUniform1i(location, static_cast<int>(val));
+            } else if constexpr (std::is_same_v<T, int>) {
+                glUniform1i(location, val);
+            } else if constexpr (std::is_same_v<T, float>) {
+                glUniform1f(location, val);
+            } else if constexpr (std::is_same_v<T, std::vector<float> >) {
+                glUniform1fv(location, static_cast<GLsizei>(val.size()), val.data());
+            } else if constexpr (std::is_same_v<T, glm::vec2>) {
+                glUniform2fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::vec3>) {
+                glUniform3fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::vec4>) {
+                glUniform4fv(location, 1, &val[0]);
+            } else if constexpr (std::is_same_v<T, glm::mat2>) {
+                glUniformMatrix2fv(location, 1, GL_FALSE, &val[0][0]);
+            } else if constexpr (std::is_same_v<T, glm::mat3>) {
+                glUniformMatrix3fv(location, 1, GL_FALSE, &val[0][0]);
+            } else if constexpr (std::is_same_v<T, glm::mat4>) {
+                glUniformMatrix4fv(location, 1, GL_FALSE, &val[0][0]);
+            } else if constexpr (std::is_same_v<T, std::vector<glm::mat4> >) {
+                glUniformMatrix4fv(
+                    getUniformLocation(name),
+                    static_cast<GLsizei>(val.size()),
+                    GL_FALSE,
+                    val.empty() ? nullptr : reinterpret_cast<const GLfloat *>(val.data())
+                );
+            }
+        }, value);
+    }
+} // Manager
